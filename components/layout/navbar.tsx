@@ -1,0 +1,110 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { ShoppingBag, Menu, Search, User } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { IconButton } from "@/components/ui/icon-button";
+import { useCartStore } from "@/stores/cart-store";
+import { useUIStore } from "@/stores/ui-store";
+import { NAV_LINKS } from "@/lib/constants";
+
+export function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
+  const items = useCartStore((s) => s.items);
+  const openCart = useCartStore((s) => s.openCart);
+  const toggleMobileNav = useUIStore((s) => s.toggleMobileNav);
+
+  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <header
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
+        scrolled
+          ? "bg-background/80 backdrop-blur-xl border-b border-border shadow-sm"
+          : "bg-transparent"
+      )}
+    >
+      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Left: Mobile menu + Logo */}
+        <div className="flex items-center gap-4">
+          <IconButton
+            className="lg:hidden"
+            onClick={toggleMobileNav}
+            aria-label="Open menu"
+          >
+            <Menu className="h-5 w-5" />
+          </IconButton>
+
+          <Link
+            href="/"
+            className={cn(
+              "font-serif text-2xl font-bold tracking-tight transition-colors",
+              scrolled ? "text-foreground" : "text-cream"
+            )}
+          >
+            Solenne
+          </Link>
+        </div>
+
+        {/* Center: Navigation (desktop only) */}
+        <div className="hidden lg:flex items-center gap-8">
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={cn(
+                "text-sm font-medium transition-colors hover:text-primary relative",
+                "after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full",
+                scrolled
+                  ? "text-foreground/70 hover:text-foreground"
+                  : "text-cream/80 hover:text-cream"
+              )}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </div>
+
+        {/* Right: Actions */}
+        <div className="flex items-center gap-1">
+          <IconButton
+            aria-label="Search"
+            className={cn(!scrolled && "text-cream hover:bg-white/10")}
+          >
+            <Search className="h-5 w-5" />
+          </IconButton>
+
+          <IconButton
+            aria-label="Account"
+            className={cn(
+              "hidden sm:inline-flex",
+              !scrolled && "text-cream hover:bg-white/10"
+            )}
+          >
+            <User className="h-5 w-5" />
+          </IconButton>
+
+          <IconButton
+            aria-label="Cart"
+            badge={itemCount}
+            onClick={openCart}
+            className={cn(!scrolled && "text-cream hover:bg-white/10")}
+          >
+            <ShoppingBag className="h-5 w-5" />
+          </IconButton>
+        </div>
+      </nav>
+    </header>
+  );
+}

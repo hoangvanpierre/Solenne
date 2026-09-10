@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { AnnouncementBar } from "@/components/layout/announcement-bar";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { SmoothScroll } from "@/components/animations/smooth-scroll";
@@ -17,7 +16,6 @@ export default function MarketingLayout({
 }) {
   return (
     <SmoothScroll>
-      <AnnouncementBar />
       <Navbar />
       <MobileNav />
       <CartDrawer />

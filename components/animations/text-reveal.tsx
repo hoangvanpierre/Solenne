@@ -47,7 +47,7 @@ export function TextReveal({
       y: 0,
       transition: {
         duration: 0.5,
-        ease: [0.25, 0.4, 0.25, 1],
+        ease: [0.25, 0.4, 0.25, 1] as const,
       },
     },
   };
@@ -63,7 +63,7 @@ export function TextReveal({
         aria-label={text}
       >
         {units.map((unit, i) => (
-          <span key={i} className="inline-block overflow-hidden">
+          <span key={i} className="inline-block">
             <motion.span className="inline-block" variants={unitVariants}>
               {unit}
               {splitBy !== "character" && i < units.length - 1 ? "\u00A0" : ""}

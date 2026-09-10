@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { Playfair_Display } from "next/font/google";
+import { Geist, Geist_Mono, Italianno } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,9 +14,10 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
+const italianno = Italianno({
+  variable: "--font-italianno",
   subsets: ["latin"],
+  weight: "400",
   display: "swap",
 });
 
@@ -50,7 +50,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${italianno.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         {children}

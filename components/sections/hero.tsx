@@ -23,20 +23,21 @@ export function Hero() {
   return (
     <section
       ref={containerRef}
-      className="relative h-screen flex items-center justify-center overflow-hidden"
+      className="relative h-screen flex items-center justify-center overflow-hidden gradient-evanescent"
     >
-      {/* Background */}
-      <motion.div
-        style={{ scale }}
-        className="absolute inset-0 bg-gradient-to-br from-amber-950/95 via-stone-900/98 to-black"
-      >
-        {/* Grain overlay */}
-        <div className="grain-overlay absolute inset-0" />
+      {/* Noise overlay */}
+      <div className="grain-overlay absolute inset-0" />
 
-        {/* Decorative gradient orbs */}
-        <div className="absolute top-1/4 left-1/4 h-96 w-96 rounded-full bg-amber/10 blur-3xl" />
-        <div className="absolute bottom-1/3 right-1/4 h-80 w-80 rounded-full bg-blush/10 blur-3xl" />
-      </motion.div>
+      {/* Darken overlay for text readability against light gradient areas */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(0,0,0,0.28) 0%, transparent 70%)",
+          pointerEvents: "none",
+          zIndex: 5,
+        }}
+      />
 
       {/* Content */}
       <motion.div

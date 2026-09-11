@@ -1,12 +1,14 @@
 "use client";
 
 import { forwardRef } from "react";
+import { Slot } from "@radix-ui/react-slot";
 import { cn } from "@/lib/utils";
 
 interface IconButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   badge?: number;
   size?: "sm" | "default" | "lg";
+  asChild?: boolean;
 }
 
 const sizeStyles: Record<string, string> = {
@@ -16,7 +18,27 @@ const sizeStyles: Record<string, string> = {
 };
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
-  ({ className, badge, size = "default", children, ...props }, ref) => {
+  ({ className, badge, size = "default", asChild = false, children, ...props }, ref) => {
+    if (asChild) {
+      return (
+        <Slot
+          ref={ref}
+          className={cn(
+            "relative inline-flex items-center justify-center rounded-full",
+            "text-foreground transition-all duration-200",
+            "hover:bg-muted active:scale-95",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            "disabled:pointer-events-none disabled:opacity-50",
+            sizeStyles[size],
+            className
+          )}
+          {...props}
+        >
+          {children}
+        </Slot>
+      );
+    }
+
     return (
       <button
         ref={ref}

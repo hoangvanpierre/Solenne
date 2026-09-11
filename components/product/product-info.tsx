@@ -9,7 +9,7 @@ import { useCart } from "@/hooks/use-cart";
 import { SizeSelector } from "./size-selector";
 import { QuantitySelector } from "./quantity-selector";
 import { ScentNotes } from "./scent-notes";
-import type { Product, ProductVariant } from "@/types";
+import type { Product } from "@/types";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ProductInfoProps {
@@ -219,7 +219,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
                   <li>100% natural soy wax blend</li>
                   <li>Premium fragrance oils (phthalate-free)</li>
                   <li>Lead-free cotton wicks</li>
-                  <li>Trim wick to 1/4" before each use</li>
+                  <li>Trim wick to 1/4&quot; before each use</li>
                   <li>Allow wax to melt to the edges on first burn</li>
                 </ul>
               </motion.div>

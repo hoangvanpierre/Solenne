@@ -5,3 +5,4 @@ export { Skeleton } from './skeleton';
 export { Separator } from './separator';
 export { Container } from './container';
 export { IconButton } from './icon-button';
+export { BackToTop } from './back-to-top';

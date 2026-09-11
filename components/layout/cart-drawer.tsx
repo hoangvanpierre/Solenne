@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";

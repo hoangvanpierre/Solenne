@@ -65,7 +65,7 @@ export function Testimonials() {
                   </div>
 
                   <blockquote className="font-serif text-2xl md:text-3xl lg:text-4xl font-medium leading-tight text-foreground mb-8 italic">
-                    "{TESTIMONIALS[currentIndex].quote}"
+                    &ldquo;{TESTIMONIALS[currentIndex].quote}&rdquo;
                   </blockquote>
 
                   <div>

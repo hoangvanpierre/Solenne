@@ -1,21 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Italianno } from "next/font/google";
+import { Birthstone } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const italianno = Italianno({
-  variable: "--font-italianno",
+const birthstone = Birthstone({
+  variable: "--font-birthstone",
   subsets: ["latin"],
   weight: "400",
   display: "swap",
@@ -50,7 +38,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${italianno.variable} h-full antialiased`}
+      className={`${birthstone.variable} ${birthstone.className} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         {children}

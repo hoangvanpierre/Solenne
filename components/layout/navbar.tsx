@@ -8,9 +8,11 @@ import { IconButton } from "@/components/ui/icon-button";
 import { useCartStore } from "@/stores/cart-store";
 import { useUIStore } from "@/stores/ui-store";
 import { NAV_LINKS } from "@/lib/constants";
+import { createClient } from "@/lib/supabase/client";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const items = useCartStore((s) => s.items);
   const openCart = useCartStore((s) => s.openCart);
   const toggleMobileNav = useUIStore((s) => s.toggleMobileNav);
@@ -24,6 +26,21 @@ export function Navbar() {
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   return (
@@ -86,13 +103,16 @@ export function Navbar() {
           </IconButton>
 
           <IconButton
-            aria-label="Account"
+            asChild
+            aria-label={isAuthenticated ? "Account" : "Sign In"}
             className={cn(
               "hidden sm:inline-flex",
               !scrolled && "text-cream hover:bg-white/10"
             )}
           >
-            <User className="h-5 w-5" />
+            <Link href={isAuthenticated ? "/account" : "/login"}>
+              <User className="h-5 w-5" />
+            </Link>
           </IconButton>
 
           <IconButton

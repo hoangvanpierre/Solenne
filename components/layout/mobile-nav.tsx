@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
+import { X, User } from "lucide-react";
 import { useUIStore } from "@/stores/ui-store";
 import { useLockedBody } from "@/hooks/use-locked-body";
 import { NAV_LINKS, SOCIAL_LINKS } from "@/lib/constants";
@@ -66,6 +66,22 @@ export function MobileNav() {
                     </Link>
                   </motion.div>
                 ))}
+
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 + NAV_LINKS.length * 0.05 }}
+                  className="pt-4 border-t border-border/50"
+                >
+                  <Link
+                    href="/account"
+                    onClick={closeMobileNav}
+                    className="inline-flex items-center gap-2.5 py-2 text-sm uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <User className="w-4 h-4" />
+                    <span>My Account</span>
+                  </Link>
+                </motion.div>
               </nav>
 
               {/* Social links */}

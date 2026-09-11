@@ -31,7 +31,7 @@ There is **no test runner, typecheck script, or formatter configured**. To typec
 
 ```
 app/
-  layout.tsx            # Root layout: <html>/<body>, fonts (Geist, Geist Mono, Italianno), metadata
+  layout.tsx            # Root layout: <html>/<body>, font (Birthstone), metadata
   globals.css           # Tailwind v4 theme (CSS variables + @theme inline), keyframes, utilities
   (marketing)/          # Route group — shares one marketing layout, no URL prefix
     layout.tsx          # "use client" — wraps every marketing page in SmoothScroll + AnnouncementBar + Navbar + MobileNav + CartDrawer + Footer

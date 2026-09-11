@@ -42,7 +42,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
 
         <button 
           className="absolute bottom-4 right-4 p-2 rounded-full bg-white/50 backdrop-blur-md opacity-0 transition-opacity group-hover:opacity-100 hover:bg-white"
-          aria-label="Expand image"
+          aria-label={`Expand ${productName} image`}
         >
           <Expand className="h-5 w-5" />
         </button>
@@ -54,6 +54,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
           <button
             key={idx}
             onClick={() => setActiveIndex(idx)}
+            aria-label={`View ${productName} photo ${idx + 1}`}
             className={cn(
               "relative aspect-square w-20 flex-shrink-0 overflow-hidden rounded-xl bg-muted transition-all duration-200",
               activeIndex === idx 

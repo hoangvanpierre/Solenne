@@ -266,7 +266,8 @@ button, input, select, textarea, optgroup {
 }
 
 /* --- Link Styles --- */
-a {
+a,
+a:visited {
   color: inherit;
   text-decoration: none;
 }

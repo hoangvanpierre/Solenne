@@ -110,8 +110,11 @@ export function Navbar() {
               !scrolled && "text-cream hover:bg-white/10"
             )}
           >
-            <Link href={isAuthenticated ? "/account" : "/login"}>
-              <User className="h-5 w-5" />
+            <Link
+              href={isAuthenticated ? "/account" : "/login"}
+              className={cn(!scrolled && "text-cream")}
+            >
+              <User className={cn("h-5 w-5", !scrolled && "text-cream")} />
             </Link>
           </IconButton>
 

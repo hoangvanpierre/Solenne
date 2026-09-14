@@ -203,8 +203,9 @@
 }
 
 /* --- Base Styles --- */
+/* Note: no `scroll-behavior: smooth` here — it conflicts with Lenis, which
+   manages smooth scrolling (see components/animations/smooth-scroll.tsx). */
 html {
-  scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-family: var(--font-birthstone), cursive, sans-serif;

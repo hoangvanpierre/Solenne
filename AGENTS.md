@@ -10,7 +10,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Solenne — Agent Guide
 
-Solenne is a luxury artisan scented-candle e-commerce storefront built with Next.js 16 (App Router), React 19, Tailwind CSS v4, and Supabase. The codebase is in an early "v0.1" stage: product data is placeholder/mock, checkout is not wired, and several routes referenced in nav/footer (`/collections`, `/about`, `/journal`, `/contact`, `/account`, `/login`, `/register`) do not yet have pages.
+Solenne is a luxury artisan scented-candle e-commerce storefront built with Next.js 16 (App Router), React 19, Tailwind CSS v4, and Supabase. The codebase is in an early "v0.1" stage: journal content and marketing copy are static placeholders, online payment is not yet wired (orders are placed as "pending payment"; Stripe deps installed but unused), and product images are not yet wired to real assets.
 
 ## Commands
 
@@ -37,22 +37,25 @@ app/
     layout.tsx          # "use client" — wraps every marketing page in SmoothScroll + AnnouncementBar + Navbar + MobileNav + CartDrawer + Footer
     page.tsx            # Home — Hero (eager) + 6 section components dynamically imported (ssr: true)
     products/
-      page.tsx          # Product listing — queries getProducts() from Supabase via lib/products.ts
-      [slug]/page.tsx   # Product detail — async Server Component, queries getProductBySlug() from Supabase
+    page.tsx          # Product listing — queries getProducts() from Supabase via lib/products.ts
+    [slug]/page.tsx   # Product detail — async Server Component, queries getProductBySlug() from Supabase
+  checkout/
+    page.tsx          # Checkout — auth-gated; server page prefills contact info, renders CheckoutForm (client)
+    success/page.tsx  # Order confirmation/receipt — reads ?number=<orderNumber>, shows "pending payment" status
 ```
 
 Key points:
 - The `(marketing)` route group's layout is a **Client Component** (`"use client"`), so every marketing page renders inside a client boundary. `MobileNav` and `CartDrawer` are `dynamic(..., { ssr: false })` imports within it.
 - Home page uses `dynamic()` with `ssr: true` for below-the-fold sections to keep the initial JS bundle small while still server-rendering HTML.
 - Dynamic route params in Next 16 are **async** — `params: Promise<{ slug: string }>` must be awaited (see `app/(marketing)/products/[slug]/page.tsx`).
-- Auth routes (`/login`, `/register`, `/forgot-password`, `/reset-password`) and `/account` are implemented. Routes referenced in `lib/constants.ts` (`NAV_LINKS`, `FOOTER_LINKS`) like `/collections`, `/about`, `/journal`, `/contact`, `/faq`, `/shipping`, `/care-guide` are **not yet implemented**.
+- Auth routes (`/login`, `/register`, `/forgot-password`, `/reset-password`) and `/account` are implemented. All routes referenced in `lib/constants.ts` (`NAV_LINKS`, `FOOTER_LINKS`) exist: `/collections` (scent-family listing + `/collections/[slug]`, where a slug matches a `SCENT_CATEGORIES` id or `gift-sets`), `/about` (with `#craft`/`#ingredients`/`#sustainability` anchors), `/journal` (static posts from `lib/journal.ts` + SSG `/journal/[slug]`), `/contact` (client `ContactForm` in `components/sections/contact-form.tsx`, no backend — simulates success locally), `/faq`, `/shipping`, and `/care-guide`.
 
 ### Middleware & Supabase Auth
 
 `middleware.ts` → `lib/supabase/middleware.ts` runs on every matched request (excludes `_next/static`, `_next/image`, `favicon.ico`, and common image extensions). It:
 - Creates a Supabase server client bound to the request/response cookies.
 - Calls `supabase.auth.getUser()` to refresh the session (do **not** insert logic between `createServerClient` and `getUser()` — see the comment in that file; it causes hard-to-debug random logouts).
-- Redirects unauthenticated users from `/account*` → `/login`, and logged-in users from `/login`/`/register` → `/account`.
+- Redirects unauthenticated users from `/account*` and `/checkout*` → `/login`, and logged-in users from `/login`/`/register` → `/account`.
 
 ### Supabase client pattern
 
@@ -72,11 +75,26 @@ Three stores in `stores/`:
 - `filter-store.ts` — ephemeral product filter state (category, priceRange, sortBy, search). Not persisted.
 - `ui-store.ts` — ephemeral UI state (mobile nav, search, currency `'VND'|'USD'`, locale `'en'|'vi'`). Not persisted.
 
-The `useCart` hook (`hooks/use-cart.ts`) wraps `useCartStore` and derives `itemCount`, `subtotal`, `shippingFee` (USD thresholds from `SHIPPING` constant), and `total` with `useMemo`. **It only computes USD shipping** — VND thresholds exist in `SHIPPING` but the hook doesn't branch on currency yet.
+The `useCart` hook (`hooks/use-cart.ts`) wraps `useCartStore` and derives `itemCount`, `subtotal`, `shippingFee`, and `total` with `useMemo`. It reads `currency` from `useUIStore` and computes amounts in the display currency: when VND, subtotal/total are converted via the fixed `USD_TO_VND` rate (`lib/constants.ts`) because product prices are stored USD-only, and shipping uses the VND thresholds. It also exposes a `format(amountUSD)` helper; the cart drawer uses it for all price rendering.
 
 ### Data layer (Supabase)
 
-Products and variants are stored in Supabase PostgreSQL (`products`, `product_variants` tables) and accessed via helper functions in `lib/products.ts` (`getProducts`, `getProductBySlug`, `getFeaturedProducts`), which query with `createClient` from `@/lib/supabase/server` and map database fields to `Product` and `ProductVariant` models. A re-runnable seed script is available at `scripts/seed-products.mjs`.
+Products and variants are stored in Supabase PostgreSQL (`products`, `product_variants` tables) and accessed via helper functions in `lib/products.ts` (`getProducts`, `getProductsByCategory`, `getProductBySlug`, `getFeaturedProducts`), which query with `createClient` from `@/lib/supabase/server` and map database fields to `Product` and `ProductVariant` models. A re-runnable seed script is available at `scripts/seed-products.mjs`.
+
+### Orders
+
+Orders live in the `orders` and `order_items` tables. The flow: CartDrawer "Checkout" → `/checkout` (login required, enforced by middleware + page-level `getUser` check) → `CheckoutForm` (client, `components/checkout/checkout-form.tsx`) → `createOrderAction` (`app/actions/orders.ts`) → `createOrder` in `lib/orders.ts`, which:
+- Re-verifies the session server-side (userId always comes from `auth.getUser()`, never from client input).
+- Recomputes all prices server-side from `product_variants` (client-sent cart items are only `{variantId, quantity}`), applies `SHIPPING` USD thresholds, and stores totals in **USD**.
+- Inserts `orders` + `order_items` via the secret-key admin client (`lib/supabase/admin.ts`), decrements stock with an optimistic-concurrency guard, and generates `SLN-<base36>-<random>` order numbers.
+- Sets status `"pending"` (displayed as "Pending Payment") — payment integration (Stripe) is not yet built; `stripe_session_id`/`stripe_payment_intent` columns are ready for it.
+On success the client clears the cart and redirects to `/checkout/success?number=<orderNumber>`. The account page lists order history via `getOrdersForUser`.
+
+**Order history UI** (`components/account/`): the account dashboard is an editorial layout — header ("Account" + tagline), a 60/40 two-column main section (`lg:grid-cols-5`, `lg:col-span-3`/`lg:col-span-2`) with Order History (compact `divide-y` rows, no mini-cards; 3 most recent, `countOrdersForUser` supplies the total for the "View all orders (N) →" link shown only when there are more than 3) beside Shipping Sanctuary (saved address + "Edit address →"), then a full-width Bespoke Profile settings panel (Scent Preferences / Currency / Account Details + "Manage profile →"). The Order History card is an async `OrderHistoryCard` inside `<Suspense>` (skeleton fallback). The full history lives at `/account/orders` (auth-protected by middleware; still uses bordered `OrderListItem`). States handled everywhere: empty, partial/full lists, loading (Suspense skeletons), and error (try/catch → friendly message).
+
+**Account management pages**: `/account/address` (edit the default address via `AddressForm` → `updateAddressAction` → `saveDefaultAddress`) and `/account/profile` (name/phone via `ProfileForm` → `updateProfileAction` → admin-client `profiles` upsert). Schemas live in `lib/validations/account.ts`. These are the targets of the dashboard's "Edit address →" / "Manage profile →" actions.
+
+**Saved addresses** (`lib/addresses.ts`, backed by the `addresses` table): `createOrder` also saves the checkout shipping address as the user's single **default** address (best-effort — never fails the order). The `/checkout` page prefills the form from it (plus `profiles.full_name`/`phone`), and the account page's "Shipping Sanctuary" card displays it. The table has no full-name/phone columns, so those always come from the profile.
 
 ## Conventions
 
@@ -87,11 +105,11 @@ components/
   ui/           # Primitives: Button, Input, Badge, Skeleton, Separator, Container, IconButton — each barrel-exported via index.ts
   product/      # Product-domain components (card, grid, gallery, info, selectors, scent-notes)
   layout/       # Site chrome: AnnouncementBar, Navbar, MobileNav, CartDrawer, Footer
-  sections/     # Marketing page sections (Hero, BrandStory, FeaturedProducts, CraftSection, ScentExplorer, Testimonials, Newsletter)
+  sections/     # Marketing page sections (Hero, BrandStory, FeaturedProducts, CraftSection, ScentExplorer, Testimonials, Newsletter, ContactForm)
   animations/   # Motion primitives (SmoothScroll, ScrollReveal, TextReveal, ParallaxImage, HorizontalScroll, PinnedSection, MagneticButton)
 hooks/          # Custom hooks (use-cart, use-locked-body, use-intersection, use-media-query)
 stores/         # Zustand stores
-lib/            # utils.ts (cn, formatPrice, slugify, ...), constants.ts, products.ts, supabase/, validations/
+lib/            # utils.ts (cn, formatPrice, slugify, ...), constants.ts, products.ts, journal.ts, supabase/, validations/
 types/          # TypeScript interfaces; index.ts re-exports all
 ```
 
@@ -117,8 +135,10 @@ This project uses **Tailwind CSS v4** (not v3). Differences that bite:
 ### Animation stack
 
 - **framer-motion** (`motion`, `AnimatePresence`, `useScroll`, `useTransform`, `Variants`) is the primary animation library. All animation components are Client Components.
-- **Lenis** provides smooth scrolling via `<SmoothScroll>` wrapping the marketing layout. It respects `prefers-reduced-motion`. Lenis's `raf` loop is driven by `requestAnimationFrame`.
-- **GSAP** + `@gsap/react` are dependencies but not yet used in any inspected component.
+- **Lenis** provides smooth scrolling via `<SmoothScroll>` wrapping the marketing layout. It respects `prefers-reduced-motion`. Lenis's `raf` loop is driven by the **gsap ticker** (official integration: `lenis.on("scroll", ScrollTrigger.update)` + `gsap.ticker.lagSmoothing(0)`). Because the layout persists across client-side navigations, SmoothScroll recomputes on every route change (`lenis.resize()`, `scrollTo(0, { immediate: true })`, `ScrollTrigger.refresh()`) — without this, Lenis clamps wheel scrolling to the previous page's stale height limit and the page appears stuck.
+- **GSAP** + `@gsap/react` drive the `BrandStory` scroll-scrub section (`components/sections/brand-story.tsx`).
+- `html` must **not** have `scroll-behavior: smooth` — it conflicts with Lenis (kept out of `globals.css` deliberately).
+- **`useLockedBody`** uses a module-level lock counter so overlapping locks (CartDrawer + MobileNav) capture/restore body styles only once — restoring per-instance could leave the body stuck with `overflow: hidden`.
 - **three.js** + `@react-three/fiber` + `@react-three/drei` are dependencies (likely for the `ScentExplorer` 3D section — verify before use).
 - Global reduced-motion handling is in `globals.css` (`@media (prefers-reduced-motion: reduce)` zeroes out animation/transition durations).
 
@@ -137,8 +157,9 @@ Dual-currency (USD default, VND) and dual-locale (`en`/`vi`) support is scaffold
 - **`CLAUDE.md` is a one-line `@AGENTS.md` include** — edits go in this file, not `CLAUDE.md`.
 - **The marketing layout is a Client Component**, so Server Components rendered inside it still work, but any shared layout-level context (e.g. a React Context provider) added there runs on the client.
 - **Cart persistence only stores `items`** (via `partialize`) — `isCartOpen` resets to `false` on reload. The `useCart` hook spreads `...store` so `isCartOpen` reflects the in-memory value.
-- **`useCart` shipping math is USD-only.** `SHIPPING` has VND fields but the hook hardcodes `SHIPPING.freeThresholdUSD`/`flatRateUSD`. Fix this before relying on VND checkout totals.
+- **`useCart` converts via a fixed `USD_TO_VND` rate** (`lib/constants.ts`), not live exchange rates. Product prices are USD-only in Supabase, so all VND display amounts (including shipping/total) are derived. The currency toggle lives in `useUIStore` but no UI sets it yet.
 - **Product images are all empty arrays** (`images: []`) in placeholder data — `ProductCard` and `ProductGallery` render gradient/silhouette placeholders, not real `next/image` usage. When adding real images, switch to `next/image` and configure `next.config.ts` `images` domains.
-- **Checkout button is a no-op** — `<Button>Checkout</Button>` in `cart-drawer.tsx` has no `onClick`/`href`. Stripe deps (`@stripe/stripe-js`, `stripe`) are installed but unused.
+- **`order_items` has an RLS insert policy that rejects authenticated users' inserts** (new row violates the policy; the policy appears misconfigured — anon inserts are plain-denied too). Order writes therefore go through the secret-key admin client in server actions. If you fix the policy (e.g. `WITH CHECK (auth.uid() = (select user_id from orders o where o.id = order_id))`), the current admin-client flow still works unchanged.
+- **Orders are stored in USD.** `useCart` may display VND, but `createOrder` recomputes and stores USD totals from `SHIPPING` USD thresholds; when payment is added, keep the DB in USD and convert only for display.
 - **No tests exist.** There is no test script, no test files, no testing library installed. Run `npx tsc --noEmit` for typechecking.
 - **`pnpm lint` runs `eslint` with no path** — it lints per the flat config's default file patterns. To lint a specific file: `npx eslint path/to/file.tsx`.

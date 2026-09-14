@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ShoppingBag, Menu, Search, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { IconButton } from "@/components/ui/icon-button";
@@ -13,11 +14,17 @@ import { createClient } from "@/lib/supabase/client";
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const pathname = usePathname();
+  const isHome = pathname === "/";
   const items = useCartStore((s) => s.items);
   const openCart = useCartStore((s) => s.openCart);
   const toggleMobileNav = useUIStore((s) => s.toggleMobileNav);
 
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+
+  // The transparent/cream styling is only intended for the dark home hero;
+  // every other page uses the solid header from the top.
+  const solid = !isHome || scrolled;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -47,7 +54,7 @@ export function Navbar() {
     <header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
-        scrolled
+        solid
           ? "bg-background/80 backdrop-blur-xl border-b border-border shadow-sm"
           : "bg-transparent"
       )}
@@ -67,7 +74,7 @@ export function Navbar() {
             href="/"
             className={cn(
               "font-serif text-2xl font-bold tracking-tight transition-colors",
-              scrolled ? "text-foreground" : "text-cream"
+              solid ? "text-foreground" : "text-cream"
             )}
           >
             Solenne
@@ -83,7 +90,7 @@ export function Navbar() {
               className={cn(
                 "text-sm font-medium transition-colors hover:text-primary relative",
                 "after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full",
-                scrolled
+                solid
                   ? "text-foreground/70 hover:text-foreground"
                   : "text-cream/80 hover:text-cream"
               )}
@@ -97,7 +104,7 @@ export function Navbar() {
         <div className="flex items-center gap-1">
           <IconButton
             aria-label="Search"
-            className={cn(!scrolled && "text-cream hover:bg-white/10")}
+            className={cn(!solid && "text-cream hover:bg-white/10")}
           >
             <Search className="h-5 w-5" />
           </IconButton>
@@ -107,14 +114,14 @@ export function Navbar() {
             aria-label={isAuthenticated ? "Account" : "Sign In"}
             className={cn(
               "hidden sm:inline-flex",
-              !scrolled && "text-cream hover:bg-white/10"
+              !solid && "text-cream hover:bg-white/10"
             )}
           >
             <Link
               href={isAuthenticated ? "/account" : "/login"}
-              className={cn(!scrolled && "text-cream")}
+              className={cn(!solid && "text-cream")}
             >
-              <User className={cn("h-5 w-5", !scrolled && "text-cream")} />
+              <User className={cn("h-5 w-5", !solid && "text-cream")} />
             </Link>
           </IconButton>
 
@@ -122,7 +129,7 @@ export function Navbar() {
             aria-label="Cart"
             badge={itemCount}
             onClick={openCart}
-            className={cn(!scrolled && "text-cream hover:bg-white/10")}
+            className={cn(!solid && "text-cream hover:bg-white/10")}
           >
             <ShoppingBag className="h-5 w-5" />
           </IconButton>

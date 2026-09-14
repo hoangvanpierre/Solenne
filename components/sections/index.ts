@@ -5,3 +5,4 @@ export { CraftSection } from './craft-section';
 export { ScentExplorer } from './scent-explorer';
 export { Testimonials } from './testimonials';
 export { Newsletter } from './newsletter';
+export { ContactForm } from './contact-form';

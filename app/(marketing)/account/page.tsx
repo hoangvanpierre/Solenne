@@ -1,10 +1,13 @@
-import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import Link from "next/link";
-import { User as UserIcon, Package, MapPin, LogOut, Sparkles, ArrowRight } from "lucide-react";
+import { redirect } from "next/navigation";
+import { ArrowRight, LogOut, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { getDefaultAddress } from "@/lib/addresses";
 import { signOutAction } from "@/app/actions/auth";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
+import { OrderHistoryCard, OrderHistoryCardSkeleton } from "@/components/account";
 
 export default async function AccountPage() {
   const supabase = await createClient();
@@ -16,33 +19,24 @@ export default async function AccountPage() {
     redirect("/login");
   }
 
-  // Fetch user profile from database
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
-
-  const fullName =
-    profile?.full_name ||
-    user.user_metadata?.full_name ||
-    user.email?.split("@")[0] ||
-    "Member";
+  const defaultAddress = await getDefaultAddress(user.id);
 
   return (
     <div className="py-24 lg:py-32">
       <Container>
-        {/* Header greeting */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-10 border-b border-border">
-          <div className="space-y-2">
+        {/* Header */}
+        <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-10 border-b border-border">
+          <div className="space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber/30 bg-amber/10 text-amber text-xs tracking-wider uppercase font-medium">
               <Sparkles className="w-3 h-3" />
               <span>Solenne Sanctuary Member</span>
             </div>
-            <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-semibold text-foreground">
-              Welcome, {fullName}
+            <h1 className="font-serif text-5xl md:text-6xl font-semibold text-foreground">
+              Account
             </h1>
-            <p className="text-sm text-muted-foreground">{user.email}</p>
+            <p className="text-lg text-muted-foreground">
+              Your personal space at Solenne
+            </p>
           </div>
 
           <form action={signOutAction}>
@@ -55,64 +49,132 @@ export default async function AccountPage() {
               <span>Sign Out</span>
             </Button>
           </form>
-        </div>
+        </header>
 
-        {/* Dashboard Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-10">
-          {/* Card 1: Orders */}
-          <div className="p-6 rounded-2xl border border-border/80 bg-card/50 space-y-4">
-            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground">
-              <Package className="w-5 h-5" />
-            </div>
-            <h2 className="font-serif text-xl font-medium text-foreground">
-              Order History
-            </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Track your artisan candle deliveries and view past receipts.
-            </p>
-            <div className="pt-2 text-xs text-muted-foreground border-t border-border/50">
-              No orders yet.
-            </div>
-            <Button asChild variant="outline" size="sm" className="w-full mt-2">
-              <Link href="/products" className="inline-flex items-center justify-center gap-2">
-                <span>Explore Collection</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </Button>
-          </div>
+        {/* Main: Order History (60%) + Shipping Sanctuary (40%) */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16 pt-12">
+          <section className="lg:col-span-3">
+            <Suspense fallback={<OrderHistoryCardSkeleton />}>
+              <OrderHistoryCard userId={user.id} />
+            </Suspense>
+          </section>
 
-          {/* Card 2: Saved Addresses */}
-          <div className="p-6 rounded-2xl border border-border/80 bg-card/50 space-y-4">
-            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground">
-              <MapPin className="w-5 h-5" />
-            </div>
-            <h2 className="font-serif text-xl font-medium text-foreground">
+          <aside className="lg:col-span-2">
+            <h2 className="font-serif text-2xl md:text-3xl font-medium text-foreground">
               Shipping Sanctuary
             </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Manage your saved shipping destinations for seamless expedited checkout.
+            <p className="mt-2 text-base text-muted-foreground">
+              Your default destination, filled in automatically at checkout.
             </p>
-            <div className="pt-2 text-xs text-muted-foreground border-t border-border/50">
-              Default address saved during checkout.
+
+            {defaultAddress ? (
+              <div className="mt-8">
+                <address className="text-base leading-loose text-foreground not-italic">
+                  {defaultAddress.line1}
+                  {defaultAddress.line2 && (
+                    <>
+                      <br />
+                      {defaultAddress.line2}
+                    </>
+                  )}
+                  <br />
+                  {defaultAddress.city}
+                  {defaultAddress.state && `, ${defaultAddress.state}`}{" "}
+                  {defaultAddress.postalCode}
+                  <br />
+                  {defaultAddress.country}
+                </address>
+                <Link
+                  href="/account/address"
+                  className="mt-8 inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline"
+                >
+                  <span>Edit address</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            ) : (
+              <div className="mt-8">
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  No saved address yet — one is saved automatically with your
+                  first order, or you can add it now.
+                </p>
+                <Link
+                  href="/account/address"
+                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline"
+                >
+                  <span>Add address</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            )}
+          </aside>
+        </div>
+
+        {/* Bespoke Profile: full-width settings panel */}
+        <section className="mt-16 border-t border-border pt-12">
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+            <div>
+              <h2 className="font-serif text-2xl md:text-3xl font-medium text-foreground">
+                Bespoke Profile
+              </h2>
+              <p className="mt-2 max-w-lg text-base leading-relaxed text-muted-foreground">
+                Your scent preferences, currency, and account details — kept
+                in one quiet place.
+              </p>
             </div>
+            <Link
+              href="/account/profile"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline"
+            >
+              <span>Manage profile</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
           </div>
 
-          {/* Card 3: Profile Preferences */}
-          <div className="p-6 rounded-2xl border border-border/80 bg-card/50 space-y-4">
-            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground">
-              <UserIcon className="w-5 h-5" />
+          <div className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-12">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                Scent Preferences
+              </p>
+              <p className="mt-3 text-sm leading-relaxed text-foreground">
+                Not personalized yet.
+              </p>
+              <Link
+                href="/collections"
+                className="mt-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <span>Discover scents</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
             </div>
-            <h2 className="font-serif text-xl font-medium text-foreground">
-              Bespoke Profile
-            </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Your scent preferences, currency settings, and account credentials.
-            </p>
-            <div className="pt-2 text-xs text-muted-foreground border-t border-border/50">
-              Member since {new Date(user.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                Currency
+              </p>
+              <p className="mt-3 text-sm leading-relaxed text-foreground">
+                USD ($)
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Prices are shown in US Dollar.
+              </p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                Account Details
+              </p>
+              <p className="mt-3 text-sm leading-relaxed break-all text-foreground">
+                {user.email}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Member since{" "}
+                {new Date(user.created_at).toLocaleDateString("en-US", {
+                  month: "long",
+                  year: "numeric",
+                })}
+              </p>
             </div>
           </div>
-        </div>
+        </section>
       </Container>
     </div>
   );

@@ -90,6 +90,26 @@ export async function getProducts(): Promise<Product[]> {
   return (data as unknown as ProductRow[]).map(mapProduct);
 }
 
+export async function getProductsByCategory(
+  category: ScentCategory
+): Promise<Product[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("products")
+    .select(PRODUCTS_SELECT)
+    .eq("is_active", true)
+    .eq("category", category)
+    .order("created_at", { ascending: false })
+    .order("price", { ascending: true, referencedTable: "product_variants" });
+
+  if (error) {
+    throw new Error(`Failed to fetch products by category: ${error.message}`);
+  }
+
+  return (data as unknown as ProductRow[]).map(mapProduct);
+}
+
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   const supabase = await createClient();
 

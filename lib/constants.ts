@@ -8,6 +8,8 @@ export const SITE_DESCRIPTION =
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://solenne.com";
 
+export const CONTACT_EMAIL = "dangvohoangvan@gmail.com";
+
 // --- Navigation Links ---
 export const NAV_LINKS = [
   { label: "Home", href: "/" },
@@ -139,6 +141,9 @@ export const SHIPPING = {
   flatRateUSD: 5.99,
   flatRateVND: 30_000,
 } as const;
+
+// Product prices are stored in USD; VND display amounts are derived via this rate.
+export const USD_TO_VND = 25_000;
 
 // --- Announcement Messages ---
 export const ANNOUNCEMENTS = [

@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
-import { formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
 import { useLockedBody } from "@/hooks/use-locked-body";
@@ -19,6 +18,8 @@ export function CartDrawer() {
     subtotal,
     shippingFee,
     total,
+    format,
+    formatDisplay,
   } = useCart();
 
   useLockedBody(isCartOpen);
@@ -139,7 +140,7 @@ export function CartDrawer() {
                             {/* Price + Remove */}
                             <div className="flex items-center gap-3">
                               <span className="text-sm font-medium">
-                                {formatPrice(
+                                {format(
                                   item.variant.price * item.quantity
                                 )}
                               </span>
@@ -163,21 +164,23 @@ export function CartDrawer() {
                   <div className="border-t border-border px-6 py-4 space-y-3">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Subtotal</span>
-                      <span>{formatPrice(subtotal)}</span>
+                      <span>{formatDisplay(subtotal)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Shipping</span>
                       <span>
-                        {shippingFee === 0 ? "Free" : formatPrice(shippingFee)}
+                        {shippingFee === 0
+                          ? "Free"
+                          : formatDisplay(shippingFee)}
                       </span>
                     </div>
                     <div className="flex justify-between text-base font-semibold border-t border-border pt-3">
                       <span>Total</span>
-                      <span>{formatPrice(total)}</span>
+                      <span>{formatDisplay(total)}</span>
                     </div>
 
-                    <Button className="w-full" size="lg">
-                      Checkout
+                    <Button className="w-full" size="lg" asChild onClick={closeCart}>
+                      <Link href="/checkout">Checkout</Link>
                     </Button>
 
                     <button

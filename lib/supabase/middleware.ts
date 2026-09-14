@@ -40,10 +40,11 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protect account routes
+  // Protect account and checkout routes
   if (
     !user &&
-    request.nextUrl.pathname.startsWith("/account")
+    (request.nextUrl.pathname.startsWith("/account") ||
+      request.nextUrl.pathname.startsWith("/checkout"))
   ) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";

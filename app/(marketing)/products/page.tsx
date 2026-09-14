@@ -1,8 +1,10 @@
 import { Container } from "@/components/ui/container";
 import { ProductGrid } from "@/components/product";
-import { PLACEHOLDER_PRODUCTS } from "@/lib/constants";
+import { getProducts } from "@/lib/products";
 
-export default function ProductsPage() {
+export default async function ProductsPage() {
+  const products = await getProducts();
+
   return (
     <div className="py-24 lg:py-32">
       <Container>
@@ -15,9 +17,7 @@ export default function ProductsPage() {
           </p>
         </div>
         
-        {/* Placeholder for Filters would go here */}
-        
-        <ProductGrid products={[...PLACEHOLDER_PRODUCTS]} />
+        <ProductGrid products={products} />
       </Container>
     </div>
   );

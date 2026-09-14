@@ -1,13 +1,7 @@
 import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/container";
 import { ProductGallery, ProductInfo } from "@/components/product";
-import { PLACEHOLDER_PRODUCTS } from "@/lib/constants";
-
-// This would typically fetch from your database or CMS
-async function getProductBySlug(slug: string) {
-  const product = PLACEHOLDER_PRODUCTS.find((p) => p.slug === slug);
-  return product || null;
-}
+import { getProductBySlug } from "@/lib/products";
 
 export default async function ProductPage({
   params,

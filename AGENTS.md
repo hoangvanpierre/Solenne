@@ -37,15 +37,15 @@ app/
     layout.tsx          # "use client" — wraps every marketing page in SmoothScroll + AnnouncementBar + Navbar + MobileNav + CartDrawer + Footer
     page.tsx            # Home — Hero (eager) + 6 section components dynamically imported (ssr: true)
     products/
-      page.tsx          # Product listing — reads PLACEHOLDER_PRODUCTS
-      [slug]/page.tsx   # Product detail — async Server Component, awaits params, calls notFound() on miss
+      page.tsx          # Product listing — queries getProducts() from Supabase via lib/products.ts
+      [slug]/page.tsx   # Product detail — async Server Component, queries getProductBySlug() from Supabase
 ```
 
 Key points:
 - The `(marketing)` route group's layout is a **Client Component** (`"use client"`), so every marketing page renders inside a client boundary. `MobileNav` and `CartDrawer` are `dynamic(..., { ssr: false })` imports within it.
 - Home page uses `dynamic()` with `ssr: true` for below-the-fold sections to keep the initial JS bundle small while still server-rendering HTML.
 - Dynamic route params in Next 16 are **async** — `params: Promise<{ slug: string }>` must be awaited (see `app/(marketing)/products/[slug]/page.tsx`).
-- Routes referenced in `lib/constants.ts` (`NAV_LINKS`, `FOOTER_LINKS`) like `/collections`, `/about`, `/journal`, `/contact`, `/faq`, `/shipping`, `/care-guide`, `/account`, `/login`, `/register` are **not yet implemented**. The middleware protects `/account*` and redirects logged-in users away from `/login`/`/register`, but those pages don't exist yet.
+- Auth routes (`/login`, `/register`, `/forgot-password`, `/reset-password`) and `/account` are implemented. Routes referenced in `lib/constants.ts` (`NAV_LINKS`, `FOOTER_LINKS`) like `/collections`, `/about`, `/journal`, `/contact`, `/faq`, `/shipping`, `/care-guide` are **not yet implemented**.
 
 ### Middleware & Supabase Auth
 
@@ -74,9 +74,9 @@ Three stores in `stores/`:
 
 The `useCart` hook (`hooks/use-cart.ts`) wraps `useCartStore` and derives `itemCount`, `subtotal`, `shippingFee` (USD thresholds from `SHIPPING` constant), and `total` with `useMemo`. **It only computes USD shipping** — VND thresholds exist in `SHIPPING` but the hook doesn't branch on currency yet.
 
-### Data layer (currently mock)
+### Data layer (Supabase)
 
-`lib/constants.ts` exports `PLACEHOLDER_PRODUCTS: Product[]` — the single source of product data right now. Both `products/page.tsx` and `products/[slug]/page.tsx` import it directly. When wiring real data, replace the `getProductBySlug` helper in `[slug]/page.tsx` and the `ProductGrid` source in `products/page.tsx` with Supabase queries (server client). The type definitions in `types/` (Product, ProductVariant, CartItem, Order, OrderItem, User, Address, Review) are ready for this.
+Products and variants are stored in Supabase PostgreSQL (`products`, `product_variants` tables) and accessed via helper functions in `lib/products.ts` (`getProducts`, `getProductBySlug`, `getFeaturedProducts`), which query with `createClient` from `@/lib/supabase/server` and map database fields to `Product` and `ProductVariant` models. A re-runnable seed script is available at `scripts/seed-products.mjs`.
 
 ## Conventions
 
@@ -91,7 +91,7 @@ components/
   animations/   # Motion primitives (SmoothScroll, ScrollReveal, TextReveal, ParallaxImage, HorizontalScroll, PinnedSection, MagneticButton)
 hooks/          # Custom hooks (use-cart, use-locked-body, use-intersection, use-media-query)
 stores/         # Zustand stores
-lib/            # utils.ts (cn, formatPrice, slugify, ...), constants.ts, supabase/
+lib/            # utils.ts (cn, formatPrice, slugify, ...), constants.ts, products.ts, supabase/, validations/
 types/          # TypeScript interfaces; index.ts re-exports all
 ```
 

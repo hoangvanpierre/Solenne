@@ -4,6 +4,9 @@ import Link from "next/link";
 import { Heart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/lib/utils";
+import { USD_TO_VND, SCENT_CATEGORIES } from "@/lib/constants";
+import { useUIStore } from "@/stores/ui-store";
+import { useAppLocale } from "@/hooks/use-locale";
 import { ScrollReveal } from "@/components/animations/scroll-reveal";
 import type { Product } from "@/types";
 
@@ -13,7 +16,18 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, index = 0 }: ProductCardProps) {
+  const currency = useUIStore((s) => s.currency);
+  const locale = useAppLocale();
   const isSale = product.compareAtPrice && product.compareAtPrice > product.basePrice;
+
+  const fmt = (usd: number) =>
+    formatPrice(
+      currency === "VND" ? Math.round(usd * USD_TO_VND) : usd,
+      currency,
+    );
+
+  const cat = SCENT_CATEGORIES.find((c) => c.id === product.category);
+  const catName = cat ? (locale === "vi" ? cat.nameVi : cat.name) : product.category;
 
   return (
     <ScrollReveal delay={index * 0.1}>
@@ -29,17 +43,25 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
 
           {/* Badges & Actions */}
           <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
-            {isSale && <Badge variant="sale">Sale</Badge>}
-            {product.isFeatured && <Badge variant="new">Featured</Badge>}
+            {isSale && (
+              <Badge variant="sale">
+                {locale === "vi" ? "Đãi ngộ" : "Sale"}
+              </Badge>
+            )}
+            {product.isFeatured && (
+              <Badge variant="new">
+                {locale === "vi" ? "Tuyển chọn" : "Featured"}
+              </Badge>
+            )}
           </div>
 
           <button 
             className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/50 backdrop-blur-md opacity-0 translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0 hover:bg-white hover:text-destructive"
             onClick={(e) => {
               e.preventDefault();
-              // Wishlist logic would go here
+              // Wishlist logic
             }}
-            aria-label="Add to wishlist"
+            aria-label={locale === "vi" ? "Lưu vào danh sách ước" : "Add to wishlist"}
           >
             <Heart className="h-4 w-4" />
           </button>
@@ -47,18 +69,18 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
 
         <div className="space-y-1">
           <p className="text-xs uppercase tracking-wider text-muted-foreground">
-            {product.category}
+            {catName}
           </p>
           <h3 className="font-serif text-lg font-medium text-foreground group-hover:text-primary transition-colors">
             {product.name}
           </h3>
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium">
-              {formatPrice(product.basePrice)}
+              {fmt(product.basePrice)}
             </span>
             {isSale && (
               <span className="text-sm text-muted-foreground line-through">
-                {formatPrice(product.compareAtPrice!)}
+                {fmt(product.compareAtPrice!)}
               </span>
             )}
           </div>

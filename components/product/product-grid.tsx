@@ -1,4 +1,7 @@
+"use client";
+
 import { ProductCard } from "./product-card";
+import { useAppLocale } from "@/hooks/use-locale";
 import type { Product } from "@/types";
 
 interface ProductGridProps {
@@ -7,10 +10,15 @@ interface ProductGridProps {
 }
 
 export function ProductGrid({ products, columns = 4 }: ProductGridProps) {
+  const locale = useAppLocale();
+  const isVi = locale === "vi";
+
   if (products.length === 0) {
     return (
       <div className="py-12 text-center">
-        <p className="text-muted-foreground">No products found.</p>
+        <p className="text-muted-foreground">
+          {isVi ? "Không tìm thấy tác phẩm nào." : "No products found."}
+        </p>
       </div>
     );
   }

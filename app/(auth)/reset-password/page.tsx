@@ -4,11 +4,15 @@ import { useActionState, useState } from "react";
 import { Eye, EyeOff, Loader2, AlertCircle, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAppLocale } from "@/hooks/use-locale";
 import { resetPasswordAction, type ActionState } from "@/app/actions/auth";
 
 const initialState: ActionState = {};
 
 export default function ResetPasswordPage() {
+  const locale = useAppLocale();
+  const isVi = locale === "vi";
+
   const [state, formAction, isPending] = useActionState(
     resetPasswordAction,
     initialState
@@ -24,10 +28,12 @@ export default function ResetPasswordPage() {
           <ShieldCheck className="w-5 h-5" />
         </div>
         <h1 className="font-serif text-3xl sm:text-4xl font-semibold tracking-tight text-foreground">
-          Set New Password
+          {isVi ? "Thiết Lập Mật Khẩu Mới" : "Set New Password"}
         </h1>
         <p className="text-sm text-muted-foreground">
-          Please choose a strong password to protect your Solenne sanctuary.
+          {isVi
+            ? "Vui lòng chọn mật khẩu đủ mạnh để bảo vệ góc riêng của bạn tại Solenne."
+            : "Please choose a strong password to protect your Solenne sanctuary."}
         </p>
       </div>
 
@@ -47,7 +53,7 @@ export default function ResetPasswordPage() {
             htmlFor="password"
             className="text-xs font-medium uppercase tracking-wider text-foreground/80"
           >
-            New Password
+            {isVi ? "Mật khẩu mới" : "New Password"}
           </label>
           <div className="relative">
             <Input
@@ -55,7 +61,7 @@ export default function ResetPasswordPage() {
               name="password"
               type={showPassword ? "text" : "password"}
               autoComplete="new-password"
-              placeholder="At least 6 characters"
+              placeholder={isVi ? "Tối thiểu 6 ký tự" : "At least 6 characters"}
               required
               disabled={isPending}
               className="h-12 pr-11 bg-background border-border/70 focus:border-amber focus:ring-amber/20"
@@ -64,7 +70,15 @@ export default function ResetPasswordPage() {
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
-              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-label={
+                showPassword
+                  ? isVi
+                    ? "Ẩn mật khẩu"
+                    : "Hide password"
+                  : isVi
+                  ? "Hiện mật khẩu"
+                  : "Show password"
+              }
             >
               {showPassword ? (
                 <EyeOff className="w-4 h-4" />
@@ -86,7 +100,7 @@ export default function ResetPasswordPage() {
             htmlFor="confirmPassword"
             className="text-xs font-medium uppercase tracking-wider text-foreground/80"
           >
-            Confirm New Password
+            {isVi ? "Xác nhận mật khẩu mới" : "Confirm New Password"}
           </label>
           <div className="relative">
             <Input
@@ -94,7 +108,7 @@ export default function ResetPasswordPage() {
               name="confirmPassword"
               type={showConfirmPassword ? "text" : "password"}
               autoComplete="new-password"
-              placeholder="Repeat your new password"
+              placeholder={isVi ? "Nhập lại mật khẩu mới" : "Repeat your new password"}
               required
               disabled={isPending}
               className="h-12 pr-11 bg-background border-border/70 focus:border-amber focus:ring-amber/20"
@@ -103,7 +117,15 @@ export default function ResetPasswordPage() {
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
-              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+              aria-label={
+                showConfirmPassword
+                  ? isVi
+                    ? "Ẩn mật khẩu"
+                    : "Hide password"
+                  : isVi
+                  ? "Hiện mật khẩu"
+                  : "Show password"
+              }
             >
               {showConfirmPassword ? (
                 <EyeOff className="w-4 h-4" />
@@ -123,15 +145,15 @@ export default function ResetPasswordPage() {
         <Button
           type="submit"
           disabled={isPending}
-          className="w-full h-12 text-sm tracking-wider uppercase font-medium bg-foreground text-background hover:bg-foreground/90 transition-all"
+          className="w-full h-12 text-sm tracking-wider uppercase font-medium bg-foreground text-background hover:bg-foreground/90 transition-all cursor-pointer"
         >
           {isPending ? (
             <span className="inline-flex items-center gap-2">
               <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Updating Password...</span>
+              <span>{isVi ? "Đang cập nhật mật khẩu..." : "Updating Password..."}</span>
             </span>
           ) : (
-            "Save & Sign In"
+            isVi ? "Lưu & Đăng Nhập" : "Save & Sign In"
           )}
         </Button>
       </form>

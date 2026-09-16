@@ -1,6 +1,7 @@
 "use client";
 
 import { ScrollReveal } from "@/components/animations/scroll-reveal";
+import { useAppLocale } from "@/hooks/use-locale";
 
 interface ScentNotesProps {
   top: string[];
@@ -9,10 +10,25 @@ interface ScentNotesProps {
 }
 
 export function ScentNotes({ top, heart, base }: ScentNotesProps) {
+  const locale = useAppLocale();
+  const isVi = locale === "vi";
+
   const tiers = [
-    { label: "Top Notes", notes: top, bg: "bg-stone-50" },
-    { label: "Heart Notes", notes: heart, bg: "bg-stone-100" },
-    { label: "Base Notes", notes: base, bg: "bg-stone-200" },
+    {
+      label: isVi ? "Khởi hương (Nốt đầu)" : "Top Notes",
+      notes: top,
+      bg: "bg-stone-50",
+    },
+    {
+      label: isVi ? "Tâm hương (Nốt giữa)" : "Heart Notes",
+      notes: heart,
+      bg: "bg-stone-100",
+    },
+    {
+      label: isVi ? "Hương nền (Nốt cuối)" : "Base Notes",
+      notes: base,
+      bg: "bg-stone-200",
+    },
   ];
 
   return (

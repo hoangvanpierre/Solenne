@@ -10,7 +10,7 @@ const STATUS_STYLES: Record<OrderStatus, string> = {
   cancelled: "border-destructive/30 bg-destructive/10 text-destructive",
 };
 
-const STATUS_LABELS: Record<OrderStatus, string> = {
+const STATUS_LABELS_EN: Record<OrderStatus, string> = {
   pending: "Pending Payment",
   paid: "Paid",
   processing: "Processing",
@@ -19,12 +19,23 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
   cancelled: "Cancelled",
 };
 
+const STATUS_LABELS_VI: Record<OrderStatus, string> = {
+  pending: "Chờ thanh toán",
+  paid: "Đã thanh toán",
+  processing: "Đang chế tác",
+  shipped: "Đang chuyển giao",
+  delivered: "Đã an nhận",
+  cancelled: "Đã hủy",
+};
+
 export interface OrderStatusBadgeProps {
   status: OrderStatus;
+  locale?: string;
   className?: string;
 }
 
-export function OrderStatusBadge({ status, className }: OrderStatusBadgeProps) {
+export function OrderStatusBadge({ status, locale = "en", className }: OrderStatusBadgeProps) {
+  const labels = locale === "vi" ? STATUS_LABELS_VI : STATUS_LABELS_EN;
   return (
     <span
       className={cn(
@@ -33,7 +44,7 @@ export function OrderStatusBadge({ status, className }: OrderStatusBadgeProps) {
         className
       )}
     >
-      {STATUS_LABELS[status] ?? status}
+      {labels[status] ?? status}
     </span>
   );
 }

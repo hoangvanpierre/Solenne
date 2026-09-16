@@ -4,16 +4,13 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import { useTranslations } from "next-intl";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const LINES = [
-  "Crafted with intention.",
-  "Born from nature.",
-  "Made for moments of peace.",
-];
-
 export function BrandStory() {
+  const t = useTranslations("brandStory");
+  const lines = [t("line1"), t("line2"), t("line3")];
   const containerRef = useRef<HTMLDivElement>(null);
   const linesRef = useRef<HTMLDivElement[]>([]);
 
@@ -51,7 +48,7 @@ export function BrandStory() {
     >
       <div className="sticky top-0 flex h-screen w-full items-center justify-center px-4">
         <div className="max-w-4xl text-center space-y-6">
-          {LINES.map((line, i) => (
+          {lines.map((line, i) => (
             <div
               key={i}
               ref={(el) => {

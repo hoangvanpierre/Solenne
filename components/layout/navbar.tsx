@@ -8,7 +8,10 @@ import { cn } from "@/lib/utils";
 import { IconButton } from "@/components/ui/icon-button";
 import { useCartStore } from "@/stores/cart-store";
 import { useUIStore } from "@/stores/ui-store";
+import { useAppLocale } from "@/hooks/use-locale";
 import { NAV_LINKS } from "@/lib/constants";
+import { CurrencyToggle } from "@/components/layout/currency-toggle";
+import { LocaleToggle } from "@/components/layout/locale-toggle";
 import { createClient } from "@/lib/supabase/client";
 
 export function Navbar() {
@@ -19,6 +22,7 @@ export function Navbar() {
   const items = useCartStore((s) => s.items);
   const openCart = useCartStore((s) => s.openCart);
   const toggleMobileNav = useUIStore((s) => s.toggleMobileNav);
+  const locale = useAppLocale();
 
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -95,7 +99,7 @@ export function Navbar() {
                   : "text-cream/80 hover:text-cream"
               )}
             >
-              {link.label}
+              {locale === "vi" ? link.labelVi : link.label}
             </Link>
           ))}
         </div>
@@ -103,15 +107,33 @@ export function Navbar() {
         {/* Right: Actions */}
         <div className="flex items-center gap-1">
           <IconButton
-            aria-label="Search"
+            aria-label={locale === "vi" ? "Tìm kiếm" : "Search"}
             className={cn(!solid && "text-cream hover:bg-white/10")}
           >
             <Search className="h-5 w-5" />
           </IconButton>
 
+          <CurrencyToggle
+            variant={solid ? "default" : "transparent"}
+            className="hidden sm:flex"
+          />
+
+          <LocaleToggle
+            variant={solid ? "default" : "transparent"}
+            className="hidden sm:flex"
+          />
+
           <IconButton
             asChild
-            aria-label={isAuthenticated ? "Account" : "Sign In"}
+            aria-label={
+              locale === "vi"
+                ? isAuthenticated
+                  ? "Không gian cá nhân"
+                  : "Đăng nhập"
+                : isAuthenticated
+                ? "Account"
+                : "Sign In"
+            }
             className={cn(
               "hidden sm:inline-flex",
               !solid && "text-cream hover:bg-white/10"
@@ -126,7 +148,7 @@ export function Navbar() {
           </IconButton>
 
           <IconButton
-            aria-label="Cart"
+            aria-label={locale === "vi" ? "Giỏ hàng" : "Cart"}
             badge={itemCount}
             onClick={openCart}
             className={cn(!solid && "text-cream hover:bg-white/10")}

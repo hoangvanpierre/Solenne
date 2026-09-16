@@ -1,0 +1,169 @@
+{
+  "nav": {
+    "home": "Trang chủ",
+    "shop": "Cửa hàng",
+    "collections": "Bộ sưu tập",
+    "about": "Câu chuyện Solenne",
+    "journal": "Nhật ký hương",
+    "contact": "Liên hệ",
+    "myAccount": "Tài khoản",
+    "signIn": "Đăng nhập",
+    "search": "Tìm kiếm"
+  },
+  "common": {
+    "addToCart": "Thêm vào giỏ",
+    "addedToCart": "Đã thêm vào giỏ",
+    "addToWishlist": "Lưu vào danh sách ước",
+    "viewAll": "Khám phá bộ sưu tập",
+    "shopNow": "Chọn tác phẩm",
+    "readMore": "Lắng nghe câu chuyện",
+    "subscribe": "Đăng ký",
+    "subscribing": "Đang gửi...",
+    "sendMessage": "Gửi thông điệp",
+    "sending": "Đang chuyển đi...",
+    "continueShopping": "Tiếp tục dạo bước",
+    "checkout": "Tiến hành thanh toán",
+    "search": "Tìm kiếm",
+    "myAccount": "Không gian cá nhân",
+    "signIn": "Đăng nhập",
+    "freeShipping": "Trân quý miễn phí",
+    "inStock": "Còn {count} tác phẩm",
+    "outOfStock": "Tạm thời hết hàng",
+    "sale": "Đãi ngộ đặc biệt",
+    "featured": "Tuyển chọn của Nhà hương",
+    "new": "Sáng tạo mới",
+    "loading": "Đang tải...",
+    "error": "Đã xảy ra lỗi nhỏ. Xin vui lòng thử lại."
+  },
+  "hero": {
+    "title": "Thắp sáng từng khoảnh khắc an yên",
+    "subtitle": "Nến thơm thủ công, đổ tay với 30 năm tâm huyết",
+    "explore": "Khám phá bộ sưu tập",
+    "story": "Câu chuyện Nhà hương",
+    "scroll": "Cuộn nhẹ"
+  },
+  "brandStory": {
+    "line1": "Tạo tác bằng trọn vẹn tâm huyết.",
+    "line2": "Khởi sinh từ thiên nhiên thuần khiết.",
+    "line3": "Dành riêng cho những phút giây an lành."
+  },
+  "craft": {
+    "label": "Nghệ thuật chế tác",
+    "title": "Ba mươi năm lưu giữ ánh sáng & hương thơm",
+    "p1": "Mỗi ngọn nến Solenne bắt đầu hành trình từ nguồn sáp đậu nành thiên nhiên hảo hạng, được thu hoạch từ những cánh đồng canh tác bền vững. Chúng tôi tin rằng những gì bạn đưa vào chốn nương náu tâm hồn mình đều mang ý nghĩa thiêng liêng — đó là lý do từng nguyên liệu đều được tuyển chọn với lòng thành kính trước thiên nhiên thuần khiết.",
+    "p2": "Các bậc thầy làm nến của chúng tôi kiên nhẫn đổ tay từng mẻ nến nhỏ, hòa quyện cùng những nốt tinh dầu hương độc bản sáng tạo tại Grasse, nước Pháp. Suốt hơn ba thập kỷ, công thức của Solenne luôn là một bài ca của sự nhẫn nại: dòng chảy êm đềm, nhiệt độ chuẩn mực và hai tuần ủ hương trọn vẹn trước khi nến rời xưởng.",
+    "p3": "Được hoàn thiện với nhãn ép thủ công và đặt trân trọng trong lớp bao bì thân thiện với môi trường, mỗi ngọn nến là một tác phẩm nghệ thuật xúc cảm — sẵn sàng biến không gian sống thành một cõi an yên.",
+    "cta": "Khám phá nghi thức chế tác"
+  },
+  "featuredProducts": {
+    "label": "Tuyển chọn của Nhà hương",
+    "title": "Những tuyệt tác được trân quý",
+    "viewAll": "Xem tất cả tác phẩm"
+  },
+  "scentExplorer": {
+    "tagline": "Trải nghiệm khứu giác 3D tương tác",
+    "title": "Tìm nốt hương bản sắc của bạn",
+    "description": "Xoay ngọn nến thủ công trong không gian ba chiều. Khám phá từng họ hương để chiêm ngưỡng sắc màu sáp đậu nành và vầng sáng lung linh của ngọn lửa thiền.",
+    "dragHint": "Kéo để xoay · Ánh lửa & sắc sáp chuyển mình",
+    "harmony": "Hòa âm hương sắc",
+    "family": "Họ hương",
+    "topNotes": "Khởi hương (Nốt đầu)",
+    "heartNotes": "Tâm hương (Nốt giữa)",
+    "baseNotes": "Hương nền (Nốt cuối)",
+    "cta": "Khám phá dòng nến {category}",
+    "loading": "Đang thắp lửa..."
+  },
+  "testimonials": {
+    "label": "Tâm tình khách quý",
+    "title": "Tiếng vọng của sự an yên"
+  },
+  "newsletter": {
+    "title": "Lưu giữ ánh sáng cùng Solenne",
+    "description": "Đăng ký để nhận những đợt rót nến theo mùa, tác phẩm giới hạn và những bức tản văn về nghệ thuật sống an yên.",
+    "placeholder": "Địa chỉ email của quý khách",
+    "button": "Đăng ký nhận tin",
+    "success": "Chào mừng quý khách đến với vòng sáng Solenne ✨",
+    "successDetail": "Email của quý vị đã được ghi vào sổ lưu niệm của Nhà hương. Hãy đón chờ những lá thư thơm ngát gửi đến hòm thư.",
+    "error": "Chưa thể hoàn tất đăng ký lúc này. Quý khách vui lòng thử lại."
+  },
+  "cart": {
+    "title": "Giỏ hàng của quý khách",
+    "empty": "Giỏ hàng đang trống",
+    "emptyDescription": "Hãy để những ngọn nến thủ công thắp sáng không gian sống của bạn",
+    "subtotal": "Tạm tính",
+    "shipping": "Phí vận chuyển",
+    "total": "Tổng cộng",
+    "checkout": "Tiến hành thanh toán",
+    "continue": "Tiếp tục dạo bước"
+  },
+  "contact": {
+    "title": "Liên hệ Nhà hương",
+    "subtitle": "Dù là một băn khoăn về đơn hàng, nốt hương quý khách đang kiếm tìm, hay món quà gửi trao người thương, chúng tôi luôn ở đây để lắng nghe.",
+    "emailTitle": "Thư điện tử",
+    "emailDesc": "Phản hồi trang trọng trong vòng 2 ngày làm việc.",
+    "studioTitle": "Xưởng chế tác",
+    "studioDesc": "Đón tiếp quý khách theo lịch hẹn riêng.",
+    "hoursTitle": "Thời gian đón tiếp",
+    "hoursDesc": "Thứ Hai đến Thứ Sáu, 9:00 – 17:00 (GMT+7)",
+    "name": "Họ và tên quý khách",
+    "email": "Địa chỉ thư điện tử",
+    "subject": "Chủ đề tâm tình",
+    "message": "Lời nhắn gửi",
+    "namePlaceholder": "Quý danh của bạn",
+    "emailPlaceholder": "email@example.com",
+    "subjectPlaceholder": "Chúng tôi có thể trợ duyên điều gì cho quý khách?",
+    "messagePlaceholder": "Viết chia sẻ hoặc câu hỏi của bạn tại đây...",
+    "thankYou": "Trân trọng cảm ơn quý khách",
+    "thankYouDescription": "Thông điệp của quý khách đã về tới xưởng Solenne. Chúng tôi sẽ đọc từng dòng với tấm lòng trân quý và hồi đáp sớm nhất.",
+    "sendAnother": "Gửi thêm lời nhắn khác",
+    "errorName": "Xin vui lòng nhập họ và tên.",
+    "errorEmail": "Xin vui lòng nhập địa chỉ email hợp lệ.",
+    "errorMessage": "Xin vui lòng gửi gắm đôi dòng thông điệp.",
+    "submit": "Gửi lời nhắn",
+    "submitting": "Đang gửi đi..."
+  },
+  "about": {
+    "badge": "Di sản & Chế tác",
+    "heroTitle": "Ba mươi năm thắp sáng, tĩnh lặng và ướp hương",
+    "heroDescription": "Solenne được khai sinh từ một suy tưởng mộc mạc: một ngọn nến không đơn thuần là mùi hương. Đó là một nghi thức tĩnh tại, được tạo tác chân thực từ tinh hoa đất trời để tôn vinh chốn an trú của tâm hồn.",
+    "craftTitle": "Nghệ thuật đúc nến chậm rãi",
+    "craftP1": "Mỗi tác phẩm Solenne bắt đầu trong xưởng thủ công tĩnh mịch, nơi từng mẻ nến nhỏ được đổ tay với sự điềm đạm vô song. Chúng tôi làm việc chậm rãi, bởi chúng tôi hiểu rằng sự xa xỉ đích thực không bao giờ có thể vội vã.",
+    "craftP2": "Từ việc cân chỉnh bấc nến đến nhát cắt tỉa cuối cùng, mỗi công đoạn đều tuân theo nghi thức lâu đời: kiểm soát nghiêm ngặt nhiệt độ rót, bấc bông dệt không chì và tròn mười bốn ngày ủ hương trước khi tác phẩm đủ tư cách tỏa sáng trong ngôi nhà bạn.",
+    "ingredientsTitle": "Nguyên liệu thanh khiết & Cao quý",
+    "ingredientsP1": "Chúng tôi sử dụng 100% sáp đậu nành tự nhiên, bấc cotton thuần khiết và tinh dầu hương thực vật được hòa quyện tại Grasse, kinh đô nước hoa của Pháp — tuyệt đối không chứa phthalate hay phụ phẩm dầu mỏ độc hại.",
+    "ingredientsP2": "Mỗi bản hòa tấu hương thơm hé lộ qua ba tầng biến chuyển: nốt khởi hương thanh thoát khẽ chào đón, nốt tâm hương nồng nàn vương vấn suốt đêm dài, và nốt hương nền lắng đọng vấn vương mãi trong căn phòng ngay cả khi ngọn lửa đã say ngủ.",
+    "sustainabilityTitle": "Tấm lòng tri ân Mẹ thiên nhiên",
+    "sustainabilityP1": "Những chiếc ly thủy tinh dày dặn được tạo ra để nâng niu, rồi tái sinh cho những công năng mới. Từng vỏ hộp, hộp giấy và dải ruy-băng đều có nguồn gốc bền vững và có thể tái chế trọn vẹn.",
+    "sustainabilityP2": "Chúng tôi bù trừ lượng khí thải trong vận chuyển và giữ cho bao bì tối giản, không nhựa — bởi vẻ đẹp tinh tế thanh tao không cần bất cứ điều gì để giấu giếm."
+  },
+  "footer": {
+    "description": "Nến thơm thủ công đúc kết từ 30 năm đam mê. Đổ tay với sáp đậu nành thuần khiết và tinh dầu nước hoa Grasse thượng hạng.",
+    "shop": "Tác phẩm của Nhà hương",
+    "about": "Di sản Solenne",
+    "support": "Dịch vụ chăm sóc",
+    "connect": "Kết nối tri âm",
+    "allRights": "© {year} Nhà hương Solenne. Bảo lưu mọi quyền.",
+    "privacy": "Chính sách bảo mật",
+    "terms": "Điều khoản dịch vụ"
+  },
+  "checkout": {
+    "title": "Thanh toán trang trọng",
+    "contact": "Thông tin liên hệ quý khách",
+    "shipping": "Địa chỉ đón nhận nến",
+    "notes": "Lời chúc trao gửi hoặc ghi chú giao nhận",
+    "notesPlaceholder": "Lời dặn riêng dành cho nghệ nhân đóng gói, thiệp viết tay...",
+    "orderSummary": "Tổng kết đơn hàng",
+    "placeOrder": "Xác nhận đặt tác phẩm",
+    "placingOrder": "Đang xác nhận đơn hàng..."
+  },
+  "account": {
+    "title": "Góc riêng quý khách",
+    "subtitle": "Chào mừng bạn trở về không gian nến thơm của riêng mình",
+    "orders": "Lịch sử tác phẩm đã thỉnh",
+    "address": "Địa chỉ an nhận",
+    "profile": "Hồ sơ bản sắc",
+    "viewAllOrders": "Xem tất cả đơn hàng ({count}) →",
+    "editAddress": "Chỉnh sửa địa chỉ →",
+    "manageProfile": "Quản lý hồ sơ cá nhân →"
+  }
+}

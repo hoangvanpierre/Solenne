@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAppLocale } from "@/hooks/use-locale";
 
 export interface BackToTopProps {
   threshold?: number;
@@ -14,6 +15,8 @@ export function BackToTop({ threshold = 350, className }: BackToTopProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const locale = useAppLocale();
+  const isVi = locale === "vi";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -70,7 +73,7 @@ export function BackToTop({ threshold = 350, className }: BackToTopProps) {
                 className="absolute right-full mr-3 whitespace-nowrap px-3.5 py-1.5 rounded-full bg-cream/95 backdrop-blur-2xl border border-amber/35 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_8px_25px_rgba(0,0,0,0.12)] text-warm-black pointer-events-none flex items-center gap-2 select-none"
               >
                 <span className="text-[10px] font-medium uppercase tracking-[0.22em] text-warm-black/90">
-                  Return to Top
+                  {isVi ? "Về đầu trang" : "Return to Top"}
                 </span>
                 <span className="w-1 h-1 rounded-full bg-amber/70" />
                 <span className="text-[10px] font-mono font-medium text-amber">
@@ -100,8 +103,16 @@ export function BackToTop({ threshold = 350, className }: BackToTopProps) {
               "transition-all duration-300 group cursor-pointer select-none",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/50"
             )}
-            aria-label={`Return to top (${Math.round(scrollProgress)}% scrolled)`}
-            title={`Return to top (${Math.round(scrollProgress)}%)`}
+            aria-label={
+              isVi
+                ? `Về đầu trang (đã cuộn ${Math.round(scrollProgress)}%)`
+                : `Return to top (${Math.round(scrollProgress)}% scrolled)`
+            }
+            title={
+              isVi
+                ? `Về đầu trang (${Math.round(scrollProgress)}%)`
+                : `Return to top (${Math.round(scrollProgress)}%)`
+            }
           >
             {/* Subtle Upward Arrow */}
             <span className="flex items-center justify-center w-5 h-5 rounded-full text-warm-black/80 group-hover:text-amber transition-colors">

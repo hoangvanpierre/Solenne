@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
+import { getLocale } from "next-intl/server";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getDefaultAddress } from "@/lib/addresses";
@@ -13,6 +14,8 @@ export const metadata: Metadata = {
 };
 
 export default async function AddressPage() {
+  const locale = await getLocale();
+  const isVi = locale === "vi";
   const supabase = await createClient();
   const {
     data: { user },
@@ -36,16 +39,18 @@ export default async function AddressPage() {
             className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            Back to Account
+            {isVi ? "Quay lại không gian cá nhân" : "Back to Account"}
           </Link>
         </nav>
 
         <div className="mb-10">
           <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-4 text-foreground">
-            Shipping Address
+            {isVi ? "Địa Chỉ An Nhận" : "Shipping Address"}
           </h1>
           <p className="text-lg text-muted-foreground">
-            Your default destination, filled in automatically at checkout.
+            {isVi
+              ? "Điểm đến mặc định của quý khách, tự động điền khi thỉnh nến."
+              : "Your default destination, filled in automatically at checkout."}
           </p>
         </div>
 

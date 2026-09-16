@@ -1,0 +1,169 @@
+{
+  "nav": {
+    "home": "Home",
+    "shop": "Shop",
+    "collections": "Collections",
+    "about": "Our Story",
+    "journal": "Journal",
+    "contact": "Contact",
+    "myAccount": "My Account",
+    "signIn": "Sign In",
+    "search": "Search"
+  },
+  "common": {
+    "addToCart": "Add to Cart",
+    "addedToCart": "Added to Cart",
+    "addToWishlist": "Add to Wishlist",
+    "viewAll": "Explore Collection",
+    "shopNow": "Shop Now",
+    "readMore": "Read Our Story",
+    "subscribe": "Subscribe",
+    "subscribing": "Subscribing...",
+    "sendMessage": "Send Message",
+    "sending": "Sending...",
+    "continueShopping": "Continue Exploring",
+    "checkout": "Proceed to Checkout",
+    "search": "Search",
+    "myAccount": "My Account",
+    "signIn": "Sign In",
+    "freeShipping": "Complimentary",
+    "inStock": "{count} in stock",
+    "outOfStock": "Currently Unavailable",
+    "sale": "Special Offer",
+    "featured": "Maison Selection",
+    "new": "New Creation",
+    "loading": "Loading...",
+    "error": "An error occurred. Please try again."
+  },
+  "hero": {
+    "title": "Illuminate your moments",
+    "subtitle": "Artisan scented candles, hand-poured with intention",
+    "explore": "Explore Collection",
+    "story": "Our Story",
+    "scroll": "Scroll"
+  },
+  "brandStory": {
+    "line1": "Crafted with intention.",
+    "line2": "Born from nature.",
+    "line3": "Made for moments of peace."
+  },
+  "craft": {
+    "label": "Our Craft",
+    "title": "Thirty Years of Light & Scent",
+    "p1": "Every Solenne candle begins its journey with the finest natural soy wax, harvested sustainably. We believe that what you invite into your sanctuary matters deeply — which is why every raw material is chosen with uncompromising reverence for both purity and the living earth.",
+    "p2": "Our master chandlers hand-pour each creation in small, patient batches, infusing essences composed in Grasse, France. Over three decades, our formula has remained an art of patience: slow pours, meticulous temperature control, and a two-week curing ritual before any candle leaves our care.",
+    "p3": "Finished with hand-embossed labels and encased in recyclable vessels, each candle is a tactile poem — designed to transform your everyday dwelling into a tranquil retreat.",
+    "cta": "Discover Our Atelier Process"
+  },
+  "featuredProducts": {
+    "label": "Maison Curations",
+    "title": "Treasured Creations",
+    "viewAll": "View All Creations"
+  },
+  "scentExplorer": {
+    "tagline": "Interactive 3D Scent Experience",
+    "title": "Find Your Signature Scent",
+    "description": "Rotate our artisan candle in real time. Traverse scent families to behold bespoke wax tones and illuminated flame profiles.",
+    "dragHint": "Drag to rotate · Soy wax & flame glow",
+    "harmony": "Scent Harmony",
+    "family": "Family",
+    "topNotes": "Top Notes",
+    "heartNotes": "Heart Notes",
+    "baseNotes": "Base Notes",
+    "cta": "Explore {category} Candles",
+    "loading": "Igniting flame..."
+  },
+  "testimonials": {
+    "label": "Kind Words",
+    "title": "Echoes of Peace"
+  },
+  "newsletter": {
+    "title": "Stay in the Glow",
+    "description": "Subscribe for private allocations, early access to seasonal pourings, and quiet reflections on the art of living.",
+    "placeholder": "Your email address",
+    "button": "Subscribe",
+    "success": "Welcome to the circle of light ✨",
+    "successDetail": "Your email has been welcomed into our private ledger. Watch your inbox for quiet chronicles and new creations.",
+    "error": "Unable to complete subscription. Please try again."
+  },
+  "cart": {
+    "title": "Your Cart",
+    "empty": "Your cart is empty",
+    "emptyDescription": "Discover our collection of artisan scented candles",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "total": "Total",
+    "checkout": "Checkout",
+    "continue": "Continue Shopping"
+  },
+  "contact": {
+    "title": "Contact",
+    "subtitle": "Whether it's a question about an order, a fragrance note you're searching for, or a bespoke gift, our concierge is here to assist you.",
+    "emailTitle": "Email",
+    "emailDesc": "We reply within two business days.",
+    "studioTitle": "Atelier",
+    "studioDesc": "Private consultations by appointment.",
+    "hoursTitle": "Hours",
+    "hoursDesc": "Monday to Friday, 9:00 – 17:00 (GMT+7)",
+    "name": "Full Name",
+    "email": "Email Address",
+    "subject": "Subject of Inquiry",
+    "message": "Your Message",
+    "namePlaceholder": "Lady or Gentleman's Name",
+    "emailPlaceholder": "your.email@example.com",
+    "subjectPlaceholder": "How may our atelier assist you?",
+    "messagePlaceholder": "Write your thoughts or inquiry here...",
+    "thankYou": "With Our Gratitude",
+    "thankYouDescription": "Your missive has reached our atelier. We review each inquiry with personal care and will respond within two business days.",
+    "sendAnother": "Send another inquiry",
+    "errorName": "Please enter your name.",
+    "errorEmail": "Please enter a valid email address.",
+    "errorMessage": "Please write a message.",
+    "submit": "Send Message",
+    "submitting": "Transmitting..."
+  },
+  "about": {
+    "badge": "Heritage & Atelier",
+    "heroTitle": "Thirty Years of Light, Quietude, and Scent",
+    "heroDescription": "Solenne was founded upon a singular meditation: that a candle is far more than fragrance. It is a slow ceremony of peace, crafted with integrity from earth-given elements that honor the sanctuary of home.",
+    "craftTitle": "The Art of Slow Pouring",
+    "craftP1": "Every Solenne candle begins in our quiet atelier, where limited batches are hand-poured with unhurried precision. We work deliberately, knowing that true luxury cannot be accelerated.",
+    "craftP2": "From wick placement to the final trim, each phase adheres to our ancestral ritual: controlled pouring temperatures, clean cotton braiding, and fourteen days of curing before a piece is deemed worthy of your mantelpiece.",
+    "ingredientsTitle": "Honest & Noble Ingredients",
+    "ingredientsP1": "We use 100% natural, American-grown soy wax, lead-free cotton wicks, and botanical fragrance essences composed in Grasse, France — formulated strictly without phthalates or petroleum byproducts.",
+    "ingredientsP2": "Each aromatic creation unfurls in three harmonious movements: ephemeral top notes that greet you, rich heart accords that linger through the evening, and grounding base notes that perfume the room long after the flame rests.",
+    "sustainabilityTitle": "Respect for the Earth",
+    "sustainabilityP1": "Our heavy glass vessels are designed to be treasured, then reimagined for a second life. Every jar, carton, and ribbon is sustainably sourced and fully recyclable.",
+    "sustainabilityP2": "We offset transit emissions and maintain minimal, plastic-free presentation — because quiet refinement has nothing to conceal."
+  },
+  "footer": {
+    "description": "Artisan scented candles crafted with intention. Hand-poured with pure natural soy wax and Grasse fragrance oils.",
+    "shop": "Atelier Creations",
+    "about": "Our Heritage",
+    "support": "Client Concierge",
+    "connect": "Social Gatherings",
+    "allRights": "© {year} Solenne Candle House. All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service"
+  },
+  "checkout": {
+    "title": "Bespoke Checkout",
+    "contact": "Contact Information",
+    "shipping": "Delivery Destination",
+    "notes": "Gift Inscription or Delivery Notes",
+    "notesPlaceholder": "Special instructions, courier notes, or bespoke gift messages...",
+    "orderSummary": "Order Summary",
+    "placeOrder": "Confirm & Place Order",
+    "placingOrder": "Securing Order..."
+  },
+  "account": {
+    "title": "Client Sanctuary",
+    "subtitle": "Welcome to your personal atelier dashboard",
+    "orders": "Order History",
+    "address": "Shipping Sanctuary",
+    "profile": "Bespoke Profile",
+    "viewAllOrders": "View all orders ({count}) →",
+    "editAddress": "Edit delivery address →",
+    "manageProfile": "Manage profile details →"
+  }
+}

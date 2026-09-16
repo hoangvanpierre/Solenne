@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
+import { getLocale } from "next-intl/server";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Container } from "@/components/ui/container";
@@ -12,6 +13,8 @@ export const metadata: Metadata = {
 };
 
 export default async function ProfilePage() {
+  const locale = await getLocale();
+  const isVi = locale === "vi";
   const supabase = await createClient();
   const {
     data: { user },
@@ -39,26 +42,30 @@ export default async function ProfilePage() {
             className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            Back to Account
+            {isVi ? "Quay lại không gian cá nhân" : "Back to Account"}
           </Link>
         </nav>
 
         <div className="mb-10">
           <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-4 text-foreground">
-            Manage Profile
+            {isVi ? "Hồ Sơ Bản Sắc" : "Manage Profile"}
           </h1>
           <p className="text-lg text-muted-foreground">
-            The details we use to greet you and reach you.
+            {isVi
+              ? "Thông tin để Nhà hương trân trọng đón tiếp và liên hệ với quý khách."
+              : "The details we use to greet you and reach you."}
           </p>
         </div>
 
         <div className="mb-8 border-t border-border pt-8">
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-            Email
+            {isVi ? "Thư điện tử" : "Email"}
           </p>
           <p className="mt-2 text-base text-foreground">{user.email}</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Your email is your sign-in and cannot be changed here.
+            {isVi
+              ? "Địa chỉ email dùng để đăng nhập và không thể thay đổi tại đây."
+              : "Your email is your sign-in and cannot be changed here."}
           </p>
         </div>
 

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAppLocale } from "@/hooks/use-locale";
 import { updateProfileAction } from "@/app/actions/profile";
 
 interface ProfileFormProps {
@@ -14,6 +15,9 @@ interface ProfileFormProps {
 
 export function ProfileForm({ defaultName, defaultPhone }: ProfileFormProps) {
   const router = useRouter();
+  const locale = useAppLocale();
+  const isVi = locale === "vi";
+
   const [fullName, setFullName] = useState(defaultName);
   const [phone, setPhone] = useState(defaultPhone);
   const [fieldErrors, setFieldErrors] = useState<
@@ -38,10 +42,19 @@ export function ProfileForm({ defaultName, defaultPhone }: ProfileFormProps) {
         return;
       }
 
-      setSubmitError(result.error ?? "Something went wrong. Please try again.");
+      setSubmitError(
+        result.error ??
+          (isVi
+            ? "Đã xảy ra lỗi khi cập nhật thông tin. Xin vui lòng thử lại."
+            : "Something went wrong. Please try again.")
+      );
       if (result.fieldErrors) setFieldErrors(result.fieldErrors);
     } catch {
-      setSubmitError("Something went wrong. Please try again.");
+      setSubmitError(
+        isVi
+          ? "Đã xảy ra lỗi khi cập nhật thông tin. Xin vui lòng thử lại."
+          : "Something went wrong. Please try again."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -50,23 +63,23 @@ export function ProfileForm({ defaultName, defaultPhone }: ProfileFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
       <Input
-        label="Full Name"
+        label={isVi ? "Họ và tên quý khách" : "Full Name"}
         name="fullName"
         value={fullName}
         onChange={(event) => setFullName(event.target.value)}
         error={errorFor("fullName")}
-        placeholder="Your full name"
+        placeholder={isVi ? "Quý danh của bạn" : "Your full name"}
         autoComplete="name"
         required
       />
       <Input
-        label="Phone (optional)"
+        label={isVi ? "Số điện thoại (tùy chọn)" : "Phone (optional)"}
         name="phone"
         type="tel"
         value={phone}
         onChange={(event) => setPhone(event.target.value)}
         error={errorFor("phone")}
-        placeholder="Your phone number"
+        placeholder={isVi ? "Số điện thoại liên hệ" : "Your phone number"}
         autoComplete="tel"
       />
 
@@ -80,10 +93,10 @@ export function ProfileForm({ defaultName, defaultPhone }: ProfileFormProps) {
         {isSubmitting ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Saving...
+            {isVi ? "Đang lưu thay đổi..." : "Saving..."}
           </>
         ) : (
-          "Save Changes"
+          isVi ? "Lưu thay đổi" : "Save Changes"
         )}
       </Button>
     </form>

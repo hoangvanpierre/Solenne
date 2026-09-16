@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";
+import { useAppLocale } from "@/hooks/use-locale";
 
 export interface PasswordStrength {
   score: number; // 0 to 4
@@ -10,22 +11,26 @@ export interface PasswordStrength {
   hint: string;
 }
 
-export function calculatePasswordStrength(password: string): PasswordStrength {
+export function calculatePasswordStrength(password: string, locale = "en"): PasswordStrength {
+  const isVi = locale === "vi";
+
   if (!password) {
     return {
       score: 0,
       label: "",
       colorClass: "bg-muted/40",
-      hint: "At least 8 characters recommended",
+      hint: isVi ? "Khuyến nghị tối thiểu 8 ký tự" : "At least 8 characters recommended",
     };
   }
 
   if (password.length < 8) {
     return {
       score: 1,
-      label: "Too short",
+      label: isVi ? "Quá ngắn" : "Too short",
       colorClass: "bg-destructive",
-      hint: `${8 - password.length} more characters needed`,
+      hint: isVi
+        ? `Cần thêm ${8 - password.length} ký tự nữa`
+        : `${8 - password.length} more characters needed`,
     };
   }
 
@@ -55,7 +60,8 @@ export function calculatePasswordStrength(password: string): PasswordStrength {
   // Normalise to 1..4
   const normalizedScore = Math.min(Math.max(score, 1), 4);
 
-  const labels = ["", "Weak", "Fair", "Good", "Strong"];
+  const labelsEn = ["", "Weak", "Fair", "Good", "Strong"];
+  const labelsVi = ["", "Yếu", "Trung bình", "Tốt", "Rất an toàn"];
   const colors = [
     "bg-muted/40",
     "bg-destructive",
@@ -63,19 +69,26 @@ export function calculatePasswordStrength(password: string): PasswordStrength {
     "bg-amber",
     "bg-sage",
   ];
-  const hints = [
+  const hintsEn = [
     "At least 8 characters recommended",
     "Add more characters or variety",
     "Fair strength — consider a passphrase",
     "Good password",
     "Strong luxury-grade password",
   ];
+  const hintsVi = [
+    "Khuyến nghị tối thiểu 8 ký tự",
+    "Thêm chữ hoa, chữ số hoặc ký tự đặc biệt",
+    "Độ an toàn vừa phải",
+    "Mật khẩu tốt",
+    "Mật khẩu bảo mật tuyệt hảo",
+  ];
 
   return {
     score: normalizedScore,
-    label: labels[normalizedScore],
+    label: isVi ? labelsVi[normalizedScore] : labelsEn[normalizedScore],
     colorClass: colors[normalizedScore],
-    hint: hints[normalizedScore],
+    hint: isVi ? hintsVi[normalizedScore] : hintsEn[normalizedScore],
   };
 }
 
@@ -88,9 +101,10 @@ export function PasswordStrengthMeter({
   password = "",
   className,
 }: PasswordStrengthMeterProps) {
+  const locale = useAppLocale();
   const strength = useMemo(
-    () => calculatePasswordStrength(password),
-    [password]
+    () => calculatePasswordStrength(password, locale),
+    [password, locale]
   );
 
   if (!password) {

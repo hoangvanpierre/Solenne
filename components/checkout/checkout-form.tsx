@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Container } from "@/components/ui/container";
 import { useCart } from "@/hooks/use-cart";
+import { useAppLocale } from "@/hooks/use-locale";
 import { createOrderAction } from "@/app/actions/orders";
 
 interface CheckoutFormValues {
@@ -50,6 +51,8 @@ export function CheckoutForm({
   const router = useRouter();
   const { items, subtotal, shippingFee, total, format, formatDisplay, currency, clearCart } =
     useCart();
+  const locale = useAppLocale();
+  const isVi = locale === "vi";
 
   const [values, setValues] = useState<CheckoutFormValues>({
     email: defaultEmail,
@@ -141,13 +144,17 @@ export function CheckoutForm({
             <ShoppingBag className="h-8 w-8 text-muted-foreground" />
           </div>
           <h1 className="font-serif text-3xl font-semibold text-foreground">
-            Your cart is empty
+            {isVi ? "Giỏ hàng đang trống" : "Your cart is empty"}
           </h1>
           <p className="text-muted-foreground">
-            Add a candle or two before checking out.
+            {isVi
+              ? "Hãy chọn vài tác phẩm nến thơm nghệ nhân trước khi tiến hành thanh toán."
+              : "Add a candle or two before checking out."}
           </p>
           <Button asChild size="lg" className="mt-2">
-            <Link href="/products">Shop the Collection</Link>
+            <Link href="/products">
+              {isVi ? "Khám phá bộ sưu tập" : "Shop the Collection"}
+            </Link>
           </Button>
         </div>
       </Container>
@@ -158,11 +165,12 @@ export function CheckoutForm({
     <Container>
       <div className="mb-10">
         <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-4 text-foreground">
-          Checkout
+          {isVi ? "Thanh toán trang trọng" : "Checkout"}
         </h1>
         <p className="text-muted-foreground text-lg">
-          Your order is reserved once placed. Payment options are coming soon
-          — we&apos;ll be in touch by email to complete payment.
+          {isVi
+            ? "Đơn hàng của quý khách sẽ được giữ chỗ trang trọng ngay khi xác nhận. Hình thức thanh toán trực tuyến đang được hoàn thiện — Nhà hương sẽ liên hệ qua email để hướng dẫn thanh toán chu toàn."
+            : "Your order is reserved once placed. Payment options are coming soon — we'll be in touch by email to complete payment."}
         </p>
       </div>
 
@@ -171,11 +179,11 @@ export function CheckoutForm({
         <form onSubmit={handleSubmit} className="space-y-6 lg:col-span-3" noValidate>
           <section className="rounded-2xl border border-border p-6 sm:p-8">
             <h2 className="font-serif text-xl font-semibold mb-6 text-foreground">
-              Contact
+              {isVi ? "Thông tin liên hệ" : "Contact"}
             </h2>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <Input
-                label="Email"
+                label={isVi ? "Địa chỉ thư điện tử" : "Email"}
                 name="email"
                 type="email"
                 value={values.email}
@@ -186,13 +194,13 @@ export function CheckoutForm({
                 required
               />
               <Input
-                label="Phone"
+                label={isVi ? "Số điện thoại" : "Phone"}
                 name="phone"
                 type="tel"
                 value={values.phone}
                 onChange={handleChange}
                 error={errorFor("phone")}
-                placeholder="Your phone number"
+                placeholder={isVi ? "Số điện thoại liên hệ" : "Your phone number"}
                 autoComplete="tel"
                 required
               />
@@ -201,70 +209,70 @@ export function CheckoutForm({
 
           <section className="rounded-2xl border border-border p-6 sm:p-8">
             <h2 className="font-serif text-xl font-semibold mb-6 text-foreground">
-              Shipping Address
+              {isVi ? "Địa chỉ đón nhận nến" : "Shipping Address"}
             </h2>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <Input
-                  label="Full Name"
+                  label={isVi ? "Họ và tên người nhận" : "Full Name"}
                   name="fullName"
                   value={values.fullName}
                   onChange={handleChange}
                   error={errorFor("fullName")}
-                  placeholder="Recipient full name"
+                  placeholder={isVi ? "Quý danh người đón nhận" : "Recipient full name"}
                   autoComplete="name"
                   required
                 />
               </div>
               <div className="sm:col-span-2">
                 <Input
-                  label="Street Address"
+                  label={isVi ? "Địa chỉ nhà / Tên đường" : "Street Address"}
                   name="line1"
                   value={values.line1}
                   onChange={handleChange}
                   error={errorFor("line1")}
-                  placeholder="House number and street"
+                  placeholder={isVi ? "Số nhà, tên đường phố" : "House number and street"}
                   autoComplete="address-line1"
                   required
                 />
               </div>
               <div className="sm:col-span-2">
                 <Input
-                  label="Apartment, suite, etc. (optional)"
+                  label={isVi ? "Căn hộ, số phòng, tòa nhà (tùy chọn)" : "Apartment, suite, etc. (optional)"}
                   name="line2"
                   value={values.line2}
                   onChange={handleChange}
                   error={errorFor("line2")}
-                  placeholder="Apartment, suite, unit"
+                  placeholder={isVi ? "Tòa nhà, tầng, số phòng" : "Apartment, suite, unit"}
                   autoComplete="address-line2"
                 />
               </div>
               <Input
-                label="City"
+                label={isVi ? "Thành phố / Tỉnh" : "City"}
                 name="city"
                 value={values.city}
                 onChange={handleChange}
                 error={errorFor("city")}
-                placeholder="City"
+                placeholder={isVi ? "Tỉnh / Thành phố" : "City"}
                 autoComplete="address-level2"
                 required
               />
               <Input
-                label="State / Province"
+                label={isVi ? "Quận / Huyện / Bang" : "State / Province"}
                 name="state"
                 value={values.state}
                 onChange={handleChange}
                 error={errorFor("state")}
-                placeholder="State / Province"
+                placeholder={isVi ? "Quận / Huyện" : "State / Province"}
                 autoComplete="address-level1"
               />
               <Input
-                label="Postal Code"
+                label={isVi ? "Mã bưu chính" : "Postal Code"}
                 name="postalCode"
                 value={values.postalCode}
                 onChange={handleChange}
                 error={errorFor("postalCode")}
-                placeholder="Postal code"
+                placeholder={isVi ? "Mã bưu chính (ZIP)" : "Postal code"}
                 autoComplete="postal-code"
                 required
               />
@@ -273,7 +281,7 @@ export function CheckoutForm({
                   htmlFor="country"
                   className="text-sm font-medium text-foreground"
                 >
-                  Country
+                  {isVi ? "Quốc gia" : "Country"}
                 </label>
                 <select
                   id="country"
@@ -286,7 +294,11 @@ export function CheckoutForm({
                 >
                   {COUNTRIES.map((country) => (
                     <option key={country} value={country}>
-                      {country}
+                      {isVi && country === "Vietnam"
+                        ? "Việt Nam"
+                        : isVi && country === "United States"
+                        ? "Hoa Kỳ"
+                        : country}
                     </option>
                   ))}
                 </select>
@@ -301,14 +313,18 @@ export function CheckoutForm({
 
           <section className="rounded-2xl border border-border p-6 sm:p-8">
             <h2 className="font-serif text-xl font-semibold mb-6 text-foreground">
-              Order Notes (optional)
+              {isVi ? "Lời chúc gửi trao hoặc ghi chú (tùy chọn)" : "Order Notes (optional)"}
             </h2>
             <textarea
               name="notes"
               rows={3}
               value={values.notes}
               onChange={handleChange}
-              placeholder="Delivery notes, gift messages..."
+              placeholder={
+                isVi
+                  ? "Lời chúc viết tay trên thiệp, ghi chú riêng cho nghệ nhân đóng gói..."
+                  : "Delivery notes, gift messages..."
+              }
               className="flex w-full rounded-lg border border-border bg-transparent px-4 py-2 text-sm transition-colors duration-200 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
           </section>
@@ -328,12 +344,12 @@ export function CheckoutForm({
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Placing order...
+                {isVi ? "Đang xác nhận đơn hàng..." : "Placing order..."}
               </>
             ) : (
               <>
                 <Lock className="mr-2 h-4 w-4" />
-                Place Order
+                {isVi ? "Xác nhận đặt tác phẩm" : "Place Order"}
               </>
             )}
           </Button>
@@ -343,7 +359,7 @@ export function CheckoutForm({
         <aside className="lg:col-span-2">
           <div className="rounded-2xl border border-border p-6 sm:p-8">
             <h2 className="font-serif text-xl font-semibold mb-6 text-foreground">
-              Order Summary
+              {isVi ? "Tổng kết đơn tác phẩm" : "Order Summary"}
             </h2>
             <div className="space-y-4">
               {items.map((item) => (
@@ -357,7 +373,7 @@ export function CheckoutForm({
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {item.variant.name}
-                      {item.variant.size && ` · ${item.variant.size}`} · Qty{" "}
+                      {item.variant.size && ` · ${item.variant.size}`} · {isVi ? "Số lượng:" : "Qty"}{" "}
                       {item.quantity}
                     </p>
                   </div>
@@ -370,25 +386,43 @@ export function CheckoutForm({
 
             <div className="mt-6 space-y-3 border-t border-border pt-6 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Subtotal</span>
+                <span className="text-muted-foreground">
+                  {isVi ? "Tạm tính" : "Subtotal"}
+                </span>
                 <span>{formatDisplay(subtotal)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Shipping</span>
+                <span className="text-muted-foreground">
+                  {isVi ? "Phí vận chuyển" : "Shipping"}
+                </span>
                 <span>
-                  {shippingFee === 0 ? "Free" : formatDisplay(shippingFee)}
+                  {shippingFee === 0
+                    ? isVi
+                      ? "Trân quý miễn phí"
+                      : "Free"
+                    : formatDisplay(shippingFee)}
                 </span>
               </div>
               <div className="flex justify-between border-t border-border pt-3 text-base font-semibold">
-                <span>Total</span>
+                <span>{isVi ? "Tổng cộng" : "Total"}</span>
                 <span>{formatDisplay(total)}</span>
               </div>
             </div>
 
             <p className="mt-6 text-xs leading-relaxed text-muted-foreground">
-              Totals are shown in {currency}. Your order is placed as{" "}
-              <span className="font-medium text-foreground">pending payment</span>{" "}
-              and payment can be completed once payment options are enabled.
+              {isVi ? (
+                <>
+                  Tổng tiền hiển thị theo {currency}. Đơn hàng của quý khách được ghi nhận ở trạng thái{" "}
+                  <span className="font-medium text-foreground">chờ thanh toán</span>{" "}
+                  và sẽ được hướng dẫn hoàn tất khi phương thức thanh toán sẵn sàng.
+                </>
+              ) : (
+                <>
+                  Totals are shown in {currency}. Your order is placed as{" "}
+                  <span className="font-medium text-foreground">pending payment</span>{" "}
+                  and payment can be completed once payment options are enabled.
+                </>
+              )}
             </p>
           </div>
         </aside>

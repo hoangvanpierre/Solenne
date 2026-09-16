@@ -12,42 +12,45 @@ export const CONTACT_EMAIL = "dangvohoangvan@gmail.com";
 
 // --- Navigation Links ---
 export const NAV_LINKS = [
-  { label: "Home", href: "/" },
-  { label: "Shop", href: "/products" },
-  { label: "Collections", href: "/collections" },
-  { label: "About", href: "/about" },
-  { label: "Journal", href: "/journal" },
-  { label: "Contact", href: "/contact" },
+  { label: "Home", labelVi: "Trang chủ", href: "/" },
+  { label: "Shop", labelVi: "Cửa hàng", href: "/products" },
+  { label: "Collections", labelVi: "Bộ sưu tập", href: "/collections" },
+  { label: "About", labelVi: "Câu chuyện Solenne", href: "/about" },
+  { label: "Journal", labelVi: "Nhật ký hương", href: "/journal" },
+  { label: "Contact", labelVi: "Liên hệ", href: "/contact" },
 ] as const;
 
 // --- Footer Links ---
 export const FOOTER_LINKS = {
   shop: {
     title: "Shop",
+    titleVi: "Tác phẩm của Nhà hương",
     links: [
-      { label: "All Products", href: "/products" },
-      { label: "Collections", href: "/collections" },
-      { label: "New Arrivals", href: "/products?sort=newest" },
-      { label: "Best Sellers", href: "/products?sort=popular" },
-      { label: "Gift Sets", href: "/collections/gift-sets" },
+      { label: "All Products", labelVi: "Tất cả sáng tạo", href: "/products" },
+      { label: "Collections", labelVi: "Bộ sưu tập", href: "/collections" },
+      { label: "New Arrivals", labelVi: "Tác phẩm mới", href: "/products?sort=newest" },
+      { label: "Best Sellers", labelVi: "Được trân quý nhất", href: "/products?sort=popular" },
+      { label: "Gift Sets", labelVi: "Hộp quà thượng hạng", href: "/collections/gift-sets" },
     ],
   },
   about: {
     title: "About",
+    titleVi: "Di sản Solenne",
     links: [
-      { label: "Our Story", href: "/about" },
-      { label: "Craftsmanship", href: "/about#craft" },
-      { label: "Ingredients", href: "/about#ingredients" },
-      { label: "Sustainability", href: "/about#sustainability" },
+      { label: "Our Story", labelVi: "Câu chuyện Nhà hương", href: "/about" },
+      { label: "Craftsmanship", labelVi: "Nghệ thuật chế tác", href: "/about#craft" },
+      { label: "Ingredients", labelVi: "Nguyên liệu tự nhiên", href: "/about#ingredients" },
+      { label: "Sustainability", labelVi: "Cam kết bền vững", href: "/about#sustainability" },
     ],
   },
   support: {
     title: "Support",
+    titleVi: "Chăm sóc tri âm",
     links: [
-      { label: "Contact Us", href: "/contact" },
-      { label: "FAQ", href: "/faq" },
-      { label: "Shipping & Returns", href: "/shipping" },
-      { label: "Candle Care Guide", href: "/care-guide" },
+      { label: "Contact Us", labelVi: "Liên hệ chúng tôi", href: "/contact" },
+      { label: "FAQ", labelVi: "Câu hỏi thường gặp", href: "/faq" },
+      { label: "Shipping & Returns", labelVi: "Giao hàng & Đổi trả", href: "/shipping" },
+      { label: "Candle Care Guide", labelVi: "Nghi thức chăm sóc nến", href: "/care-guide" },
     ],
   },
 } as const;

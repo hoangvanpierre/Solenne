@@ -16,12 +16,15 @@ import { Input } from "@/components/ui/input";
 import { registerAction, type ActionState } from "@/app/actions/auth";
 import { registerSchema } from "@/lib/validations/auth";
 import { PasswordStrengthMeter } from "@/components/auth/password-strength-meter";
+import { useAppLocale } from "@/hooks/use-locale";
 
 const initialState: ActionState = {};
 
 function RegisterForm() {
   const searchParams = useSearchParams();
   const next = searchParams.get("next") || "/account";
+  const locale = useAppLocale();
+  const isVi = locale === "vi";
 
   const [state, formAction, isPending] = useActionState(
     registerAction,
@@ -140,21 +143,24 @@ function RegisterForm() {
         </div>
         <div className="space-y-2.5">
           <h1 className="font-serif text-3xl font-semibold tracking-tight text-foreground">
-            Verify Your Sanctuary Access
+            {isVi ? "Xác Thực Quyền Truy Cập" : "Verify Your Sanctuary Access"}
           </h1>
           <p className="text-sm text-muted-foreground leading-relaxed">
             {state.message}
           </p>
           <div className="p-3.5 rounded-xl bg-background border border-border/80 text-xs text-foreground/90 font-mono">
-            Recipient: <span className="font-semibold text-amber">{state.email || email}</span>
+            {isVi ? "Người nhận:" : "Recipient:"}{" "}
+            <span className="font-semibold text-amber">{state.email || email}</span>
           </div>
           <p className="text-xs text-muted-foreground/80 pt-1">
-            Did not receive the email? Please check your spam folder or allow a few minutes for delivery.
+            {isVi
+              ? "Chưa nhận được thư? Quý khách vui lòng kiểm tra hộp thư rác (spam) hoặc đợi trong giây lát."
+              : "Did not receive the email? Please check your spam folder or allow a few minutes for delivery."}
           </p>
         </div>
         <Button asChild className="w-full h-12 bg-foreground text-background hover:bg-foreground/90 transition-all group">
           <Link href="/login" className="inline-flex items-center justify-center gap-2">
-            <span>Proceed to Sign In</span>
+            <span>{isVi ? "Tiến hành đăng nhập" : "Proceed to Sign In"}</span>
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </Button>
@@ -167,10 +173,12 @@ function RegisterForm() {
       {/* Header */}
       <div className="space-y-2 text-left">
         <h1 className="font-serif text-3xl sm:text-4xl font-semibold tracking-tight text-foreground">
-          Create an Account
+          {isVi ? "Khởi Tạo Tài Khoản" : "Create an Account"}
         </h1>
         <p className="text-sm text-muted-foreground">
-          Join Solenne to curate bespoke fragrance collections and track your orders.
+          {isVi
+            ? "Gia nhập gia đình Solenne để lưu giữ nốt hương bản sắc và theo dõi các tác phẩm yêu thích."
+            : "Join Solenne to curate bespoke fragrance collections and track your orders."}
         </p>
       </div>
 
@@ -192,14 +200,14 @@ function RegisterForm() {
             htmlFor="fullName"
             className="text-xs font-medium uppercase tracking-wider text-foreground/80"
           >
-            Full Name
+            {isVi ? "Họ và tên" : "Full Name"}
           </label>
           <Input
             id="fullName"
             name="fullName"
             type="text"
             autoComplete="name"
-            placeholder="Elena Vance"
+            placeholder={isVi ? "Quý danh của bạn" : "Elena Vance"}
             value={fullName}
             onChange={(e) => handleChange("fullName", e.target.value)}
             onBlur={() => handleBlur("fullName")}
@@ -220,7 +228,7 @@ function RegisterForm() {
             htmlFor="email"
             className="text-xs font-medium uppercase tracking-wider text-foreground/80"
           >
-            Email Address
+            {isVi ? "Địa chỉ email" : "Email Address"}
           </label>
           <Input
             id="email"
@@ -248,7 +256,7 @@ function RegisterForm() {
             htmlFor="password"
             className="text-xs font-medium uppercase tracking-wider text-foreground/80"
           >
-            Password
+            {isVi ? "Mật khẩu" : "Password"}
           </label>
           <div className="relative">
             <Input
@@ -256,7 +264,7 @@ function RegisterForm() {
               name="password"
               type={showPassword ? "text" : "password"}
               autoComplete="new-password"
-              placeholder="8–128 characters"
+              placeholder={isVi ? "Từ 8–128 ký tự" : "8–128 characters"}
               value={password}
               onChange={(e) => handleChange("password", e.target.value)}
               onBlur={() => handleBlur("password")}
@@ -268,7 +276,15 @@ function RegisterForm() {
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
-              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-label={
+                showPassword
+                  ? isVi
+                    ? "Ẩn mật khẩu"
+                    : "Hide password"
+                  : isVi
+                  ? "Hiện mật khẩu"
+                  : "Show password"
+              }
             >
               {showPassword ? (
                 <EyeOff className="w-4 h-4" />
@@ -294,7 +310,7 @@ function RegisterForm() {
             htmlFor="confirmPassword"
             className="text-xs font-medium uppercase tracking-wider text-foreground/80"
           >
-            Confirm Password
+            {isVi ? "Xác nhận mật khẩu" : "Confirm Password"}
           </label>
           <div className="relative">
             <Input
@@ -302,7 +318,7 @@ function RegisterForm() {
               name="confirmPassword"
               type={showConfirmPassword ? "text" : "password"}
               autoComplete="new-password"
-              placeholder="Repeat your password"
+              placeholder={isVi ? "Nhập lại mật khẩu của bạn" : "Repeat your password"}
               value={confirmPassword}
               onChange={(e) => handleChange("confirmPassword", e.target.value)}
               onBlur={() => handleBlur("confirmPassword")}
@@ -314,7 +330,15 @@ function RegisterForm() {
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
-              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+              aria-label={
+                showConfirmPassword
+                  ? isVi
+                    ? "Ẩn mật khẩu"
+                    : "Hide password"
+                  : isVi
+                  ? "Hiện mật khẩu"
+                  : "Show password"
+              }
             >
               {showConfirmPassword ? (
                 <EyeOff className="w-4 h-4" />
@@ -332,7 +356,9 @@ function RegisterForm() {
 
         {/* Terms notice */}
         <p className="text-xs text-muted-foreground pt-1 leading-relaxed">
-          By creating an account, you agree to our Terms of Service and Privacy Policy. We respect your sanctuary and will never spam.
+          {isVi
+            ? "Khi tạo tài khoản, quý khách đồng ý với Điều khoản dịch vụ và Chính sách bảo mật của Nhà hương. Chúng tôi luôn trân trọng sự tĩnh tại của bạn."
+            : "By creating an account, you agree to our Terms of Service and Privacy Policy. We respect your sanctuary and will never spam."}
         </p>
 
         {/* Submit Button */}
@@ -344,22 +370,22 @@ function RegisterForm() {
           {isPending ? (
             <span className="inline-flex items-center gap-2">
               <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Creating Account...</span>
+              <span>{isVi ? "Đang khởi tạo tài khoản..." : "Creating Account..."}</span>
             </span>
           ) : (
-            "Create Account"
+            isVi ? "Tạo Tài Khoản" : "Create Account"
           )}
         </Button>
       </form>
 
       {/* Switch to Login */}
       <div className="pt-4 text-center text-sm text-muted-foreground border-t border-border/50">
-        Already have an account?{" "}
+        {isVi ? "Đã có tài khoản? " : "Already have an account? "}
         <Link
           href={`/login${next !== "/account" ? `?next=${encodeURIComponent(next)}` : ""}`}
           className="font-medium text-foreground hover:text-amber underline-offset-4 hover:underline transition-colors"
         >
-          Sign In
+          {isVi ? "Đăng nhập" : "Sign In"}
         </Link>
       </div>
     </div>

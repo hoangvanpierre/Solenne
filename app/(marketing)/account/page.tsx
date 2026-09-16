@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
 import { ArrowRight, LogOut, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getDefaultAddress } from "@/lib/addresses";
@@ -10,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { OrderHistoryCard, OrderHistoryCardSkeleton } from "@/components/account";
 
 export default async function AccountPage() {
+  const locale = await getLocale();
+  const isVi = locale === "vi";
   const supabase = await createClient();
   const {
     data: { user },
@@ -29,13 +32,15 @@ export default async function AccountPage() {
           <div className="space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber/30 bg-amber/10 text-amber text-xs tracking-wider uppercase font-medium">
               <Sparkles className="w-3 h-3" />
-              <span>Solenne Sanctuary Member</span>
+              <span>{isVi ? "Thành viên Góc riêng Solenne" : "Solenne Sanctuary Member"}</span>
             </div>
             <h1 className="font-serif text-5xl md:text-6xl font-semibold text-foreground">
-              Account
+              {isVi ? "Không Gian Cá Nhân" : "Account"}
             </h1>
             <p className="text-lg text-muted-foreground">
-              Your personal space at Solenne
+              {isVi
+                ? "Nơi lưu giữ những nốt hương và hành trình cùng Solenne"
+                : "Your personal space at Solenne"}
             </p>
           </div>
 
@@ -46,7 +51,7 @@ export default async function AccountPage() {
               className="inline-flex items-center gap-2 text-xs uppercase tracking-wider"
             >
               <LogOut className="w-4 h-4" />
-              <span>Sign Out</span>
+              <span>{isVi ? "Đăng xuất" : "Sign Out"}</span>
             </Button>
           </form>
         </header>
@@ -61,10 +66,12 @@ export default async function AccountPage() {
 
           <aside className="lg:col-span-2">
             <h2 className="font-serif text-2xl md:text-3xl font-medium text-foreground">
-              Shipping Sanctuary
+              {isVi ? "Địa chỉ an nhận" : "Shipping Sanctuary"}
             </h2>
             <p className="mt-2 text-base text-muted-foreground">
-              Your default destination, filled in automatically at checkout.
+              {isVi
+                ? "Điểm đến mặc định của quý khách, tự động điền khi thỉnh nến."
+                : "Your default destination, filled in automatically at checkout."}
             </p>
 
             {defaultAddress ? (
@@ -82,27 +89,32 @@ export default async function AccountPage() {
                   {defaultAddress.state && `, ${defaultAddress.state}`}{" "}
                   {defaultAddress.postalCode}
                   <br />
-                  {defaultAddress.country}
+                  {isVi && defaultAddress.country === "Vietnam"
+                    ? "Việt Nam"
+                    : isVi && defaultAddress.country === "United States"
+                    ? "Hoa Kỳ"
+                    : defaultAddress.country}
                 </address>
                 <Link
                   href="/account/address"
                   className="mt-8 inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline"
                 >
-                  <span>Edit address</span>
+                  <span>{isVi ? "Chỉnh sửa địa chỉ" : "Edit address"}</span>
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
             ) : (
               <div className="mt-8">
                 <p className="text-sm leading-relaxed text-muted-foreground">
-                  No saved address yet — one is saved automatically with your
-                  first order, or you can add it now.
+                  {isVi
+                    ? "Chưa có địa chỉ lưu sẵn — địa chỉ sẽ được ghi nhớ sau đơn hàng đầu tiên, hoặc bạn có thể thêm ngay bây giờ."
+                    : "No saved address yet — one is saved automatically with your first order, or you can add it now."}
                 </p>
                 <Link
                   href="/account/address"
                   className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline"
                 >
-                  <span>Add address</span>
+                  <span>{isVi ? "Thêm địa chỉ" : "Add address"}</span>
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
@@ -115,18 +127,19 @@ export default async function AccountPage() {
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div>
               <h2 className="font-serif text-2xl md:text-3xl font-medium text-foreground">
-                Bespoke Profile
+                {isVi ? "Hồ sơ bản sắc" : "Bespoke Profile"}
               </h2>
               <p className="mt-2 max-w-lg text-base leading-relaxed text-muted-foreground">
-                Your scent preferences, currency, and account details — kept
-                in one quiet place.
+                {isVi
+                  ? "Nốt hương yêu thích, tiền tệ hiển thị và chi tiết tài khoản — lưu giữ tĩnh tại nơi đây."
+                  : "Your scent preferences, currency, and account details — kept in one quiet place."}
               </p>
             </div>
             <Link
               href="/account/profile"
               className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline"
             >
-              <span>Manage profile</span>
+              <span>{isVi ? "Quản lý hồ sơ" : "Manage profile"}</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
@@ -134,40 +147,40 @@ export default async function AccountPage() {
           <div className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-12">
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                Scent Preferences
+                {isVi ? "Sở thích hương sắc" : "Scent Preferences"}
               </p>
               <p className="mt-3 text-sm leading-relaxed text-foreground">
-                Not personalized yet.
+                {isVi ? "Chưa được thiết lập riêng." : "Not personalized yet."}
               </p>
               <Link
                 href="/collections"
                 className="mt-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
-                <span>Discover scents</span>
+                <span>{isVi ? "Khám phá các nốt hương" : "Discover scents"}</span>
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                Currency
+                {isVi ? "Đơn vị tiền tệ" : "Currency"}
               </p>
               <p className="mt-3 text-sm leading-relaxed text-foreground">
-                USD ($)
+                USD ($) / VND (₫)
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Prices are shown in US Dollar.
+                {isVi ? "Tùy chọn hiển thị tiền tệ linh hoạt." : "Multi-currency display supported."}
               </p>
             </div>
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                Account Details
+                {isVi ? "Thông tin tài khoản" : "Account Details"}
               </p>
               <p className="mt-3 text-sm leading-relaxed break-all text-foreground">
                 {user.email}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Member since{" "}
-                {new Date(user.created_at).toLocaleDateString("en-US", {
+                {isVi ? "Đồng hành từ " : "Member since "}
+                {new Date(user.created_at).toLocaleDateString(isVi ? "vi-VN" : "en-US", {
                   month: "long",
                   year: "numeric",
                 })}

@@ -10,6 +10,8 @@ import { SizeSelector } from "./size-selector";
 import { QuantitySelector } from "./quantity-selector";
 import { ScentNotes } from "./scent-notes";
 import type { Product } from "@/types";
+import { SCENT_CATEGORIES } from "@/lib/constants";
+import { useAppLocale } from "@/hooks/use-locale";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ProductInfoProps {
@@ -24,10 +26,16 @@ export function ProductInfo({ product }: ProductInfoProps) {
   const [isAdded, setIsAdded] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>("description");
 
-  const { addItem, openCart } = useCart();
+  const { addItem, openCart, format } = useCart();
+  const locale = useAppLocale();
 
   const selectedVariant = product.variants.find((v) => v.id === selectedVariantId);
   const isSale = product.compareAtPrice && product.compareAtPrice > product.basePrice;
+
+  const cat = SCENT_CATEGORIES.find(
+    (c) => c.id === product.category || c.name.toLowerCase() === product.category.toLowerCase()
+  );
+  const catName = cat ? (locale === "vi" ? cat.nameVi : cat.name) : product.category;
 
   const handleAddToCart = () => {
     if (!selectedVariant) return;
@@ -49,7 +57,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
     <div className="flex flex-col gap-6">
       {/* Header */}
       <div>
-        <Badge className="mb-4">{product.category}</Badge>
+        <Badge className="mb-4">{catName}</Badge>
         <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-2">
           {product.name}
         </h1>
@@ -62,11 +70,11 @@ export function ProductInfo({ product }: ProductInfoProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <span className="text-2xl font-medium">
-            {formatPrice(selectedVariant.price)}
+            {format(selectedVariant.price)}
           </span>
           {isSale && (
             <span className="text-lg text-muted-foreground line-through">
-              {formatPrice(product.compareAtPrice!)}
+              {format(product.compareAtPrice!)}
             </span>
           )}
         </div>
@@ -101,8 +109,12 @@ export function ProductInfo({ product }: ProductInfoProps) {
           />
           <span className="text-sm text-muted-foreground">
             {selectedVariant.stockQuantity > 0 
-              ? `${selectedVariant.stockQuantity} in stock` 
-              : "Out of stock"}
+              ? locale === "vi"
+                ? `Còn ${selectedVariant.stockQuantity} tác phẩm`
+                : `${selectedVariant.stockQuantity} in stock` 
+              : locale === "vi"
+                ? "Tạm thời hết hàng"
+                : "Out of stock"}
           </span>
         </div>
       </div>
@@ -124,7 +136,8 @@ export function ProductInfo({ product }: ProductInfoProps) {
                 exit={{ y: -20, opacity: 0 }}
                 className="flex items-center gap-2"
               >
-                <Check className="h-5 w-5" /> Added to Cart
+                <Check className="h-5 w-5" />{" "}
+                {locale === "vi" ? "Đã thêm vào giỏ" : "Added to Cart"}
               </motion.div>
             ) : (
               <motion.div
@@ -133,14 +146,15 @@ export function ProductInfo({ product }: ProductInfoProps) {
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: -20, opacity: 0 }}
               >
-                Add to Cart — {formatPrice(selectedVariant.price * quantity)}
+                {locale === "vi" ? "Thêm vào giỏ" : "Add to Cart"} — {format(selectedVariant.price * quantity)}
               </motion.div>
             )}
           </AnimatePresence>
         </Button>
         
         <Button variant="ghost" className="w-full text-muted-foreground gap-2">
-          <Heart className="h-4 w-4" /> Add to Wishlist
+          <Heart className="h-4 w-4" />{" "}
+          {locale === "vi" ? "Lưu vào danh sách ước" : "Add to Wishlist"}
         </Button>
       </div>
 
@@ -152,7 +166,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
             onClick={() => toggleSection('description')}
             className="flex w-full items-center justify-between py-4 text-left font-medium"
           >
-            Description
+            {locale === "vi" ? "Miêu tả hương sắc" : "Description"}
             {expandedSection === 'description' ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
           </button>
           <AnimatePresence>
@@ -177,7 +191,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
             onClick={() => toggleSection('scent')}
             className="flex w-full items-center justify-between py-4 text-left font-medium"
           >
-            Scent Notes
+            {locale === "vi" ? "Cấu trúc nốt hương" : "Scent Notes"}
             {expandedSection === 'scent' ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
           </button>
           <AnimatePresence>
@@ -204,7 +218,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
             onClick={() => toggleSection('details')}
             className="flex w-full items-center justify-between py-4 text-left font-medium"
           >
-            Ingredients & Care
+            {locale === "vi" ? "Thành phần & Nghi thức chăm sóc" : "Ingredients & Care"}
             {expandedSection === 'details' ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
           </button>
           <AnimatePresence>
@@ -216,11 +230,23 @@ export function ProductInfo({ product }: ProductInfoProps) {
                 className="overflow-hidden"
               >
                 <ul className="pb-4 space-y-2 text-sm text-muted-foreground list-disc pl-4">
-                  <li>100% natural soy wax blend</li>
-                  <li>Premium fragrance oils (phthalate-free)</li>
-                  <li>Lead-free cotton wicks</li>
-                  <li>Trim wick to 1/4&quot; before each use</li>
-                  <li>Allow wax to melt to the edges on first burn</li>
+                  {locale === "vi" ? (
+                    <>
+                      <li>100% sáp đậu nành tự nhiên thuần khiết</li>
+                      <li>Hương liệu nước hoa tinh tuyển (không chứa phthalate)</li>
+                      <li>Bấc cotton dệt thủ công không chì</li>
+                      <li>Cắt tỉa bấc nến còn 0.6cm trước mỗi lần thắp</li>
+                      <li>Để bề mặt sáp tan chảy đều đến mép ly trong lần thắp đầu</li>
+                    </>
+                  ) : (
+                    <>
+                      <li>100% natural soy wax blend</li>
+                      <li>Premium fragrance oils (phthalate-free)</li>
+                      <li>Lead-free cotton wicks</li>
+                      <li>Trim wick to 1/4&quot; before each use</li>
+                      <li>Allow wax to melt to the edges on first burn</li>
+                    </>
+                  )}
                 </ul>
               </motion.div>
             )}

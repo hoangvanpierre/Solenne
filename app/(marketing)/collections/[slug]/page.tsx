@@ -10,6 +10,8 @@ import {
 } from "@/lib/products";
 import type { ScentCategory } from "@/types";
 
+import { getLocale } from "next-intl/server";
+
 interface CollectionPageProps {
   params: Promise<{ slug: string }>;
 }
@@ -18,23 +20,26 @@ function isScentCategory(slug: string): slug is ScentCategory {
   return SCENT_CATEGORIES.some((category) => category.id === slug);
 }
 
-async function getCollection(slug: string) {
+async function getCollection(slug: string, isVi: boolean = false) {
   if (isScentCategory(slug)) {
     const category = SCENT_CATEGORIES.find((item) => item.id === slug);
     if (!category) return null;
 
     return {
-      title: `${category.name} Collection`,
-      description: category.description,
+      title: isVi
+        ? `Bộ sưu tập nến ${category.nameVi}`
+        : `${category.name} Collection`,
+      description: isVi ? category.descriptionVi : category.description,
       products: await getProductsByCategory(slug),
     };
   }
 
   if (slug === "gift-sets") {
     return {
-      title: "Gift Sets",
-      description:
-        "Thoughtfully composed sets of our most-loved candles, ready to give.",
+      title: isVi ? "Hộp Quà Thượng Hạng" : "Gift Sets",
+      description: isVi
+        ? "Những bộ nến tuyển chọn được đóng gói trang trọng trong hộp quà lụa, sẵn sàng trao gửi tâm tình."
+        : "Thoughtfully composed sets of our most-loved candles, ready to give.",
       products: await getFeaturedProducts(),
     };
   }
@@ -46,7 +51,8 @@ export async function generateMetadata({
   params,
 }: CollectionPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const collection = await getCollection(slug);
+  const locale = await getLocale();
+  const collection = await getCollection(slug, locale === "vi");
 
   if (!collection) return { title: "Collection not found — Solenne" };
 
@@ -58,7 +64,9 @@ export async function generateMetadata({
 
 export default async function CollectionPage({ params }: CollectionPageProps) {
   const { slug } = await params;
-  const collection = await getCollection(slug);
+  const locale = await getLocale();
+  const isVi = locale === "vi";
+  const collection = await getCollection(slug, isVi);
 
   if (!collection) notFound();
 
@@ -73,7 +81,7 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
             href="/collections"
             className="transition-colors hover:text-foreground"
           >
-            Collections
+            {isVi ? "Bộ sưu tập" : "Collections"}
           </Link>
           <span className="mx-2">/</span>
           <span className="text-foreground">{collection.title}</span>

@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
+import { getLocale } from "next-intl/server";
 import { ArrowLeft, ArrowRight, Package } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getOrdersForUser } from "@/lib/orders";
@@ -19,7 +20,8 @@ export const metadata: Metadata = {
 
 const ORDERS_PAGE_LIMIT = 50;
 
-async function OrdersList({ userId }: { userId: string }) {
+async function OrdersList({ userId, locale }: { userId: string; locale: string }) {
+  const isVi = locale === "vi";
   let orders: Order[] = [];
   let loadFailed = false;
 
@@ -33,15 +35,30 @@ async function OrdersList({ userId }: { userId: string }) {
   if (loadFailed) {
     return (
       <p className="rounded-2xl border border-border p-6 text-base text-muted-foreground">
-        We couldn&apos;t load your orders right now. Please refresh the page,
-        or{" "}
-        <Link
-          href="/contact"
-          className="underline underline-offset-4 transition-colors hover:text-foreground"
-        >
-          contact us
-        </Link>{" "}
-        if the problem persists.
+        {isVi ? (
+          <>
+            Chưa thể tải lịch sử đơn hàng lúc này. Quý khách vui lòng tải lại trang hoặc{" "}
+            <Link
+              href="/contact"
+              className="underline underline-offset-4 transition-colors hover:text-foreground"
+            >
+              liên hệ chúng tôi
+            </Link>{" "}
+            nếu sự cố tiếp tục tái diễn.
+          </>
+        ) : (
+          <>
+            We couldn&apos;t load your orders right now. Please refresh the page,
+            or{" "}
+            <Link
+              href="/contact"
+              className="underline underline-offset-4 transition-colors hover:text-foreground"
+            >
+              contact us
+            </Link>{" "}
+            if the problem persists.
+          </>
+        )}
       </p>
     );
   }
@@ -51,17 +68,19 @@ async function OrdersList({ userId }: { userId: string }) {
       <div className="flex flex-col items-center gap-4 rounded-2xl border border-border py-16 text-center">
         <Package className="h-10 w-10 text-muted-foreground" />
         <p className="font-serif text-2xl font-medium text-foreground">
-          No orders yet
+          {isVi ? "Chưa có đơn hàng nào" : "No orders yet"}
         </p>
         <p className="text-sm text-muted-foreground">
-          Your candle orders will appear here.
+          {isVi
+            ? "Các tác phẩm nến thơm của quý khách sẽ xuất hiện tại đây."
+            : "Your candle orders will appear here."}
         </p>
         <Button asChild size="sm" className="mt-2">
           <Link
             href="/products"
             className="inline-flex items-center gap-2"
           >
-            <span>Explore Collection</span>
+            <span>{isVi ? "Khám phá bộ sưu tập" : "Explore Collection"}</span>
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </Button>
@@ -72,7 +91,7 @@ async function OrdersList({ userId }: { userId: string }) {
   return (
     <div className="space-y-4">
       {orders.map((order) => (
-        <OrderListItem key={order.id} order={order} />
+        <OrderListItem key={order.id} order={order} locale={locale} />
       ))}
     </div>
   );
@@ -89,6 +108,8 @@ function OrdersListSkeleton() {
 }
 
 export default async function OrdersPage() {
+  const locale = await getLocale();
+  const isVi = locale === "vi";
   const supabase = await createClient();
   const {
     data: { user },
@@ -110,21 +131,23 @@ export default async function OrdersPage() {
             className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            Back to Account
+            {isVi ? "Quay lại không gian cá nhân" : "Back to Account"}
           </Link>
         </nav>
 
         <div className="mb-10">
           <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-4 text-foreground">
-            Order History
+            {isVi ? "Lịch Sử Đơn Hàng" : "Order History"}
           </h1>
           <p className="text-lg text-muted-foreground">
-            Every order you&apos;ve placed, most recent first.
+            {isVi
+              ? "Tất cả các tác phẩm quý khách đã từng thỉnh, mới nhất trước."
+              : "Every order you've placed, most recent first."}
           </p>
         </div>
 
         <Suspense fallback={<OrdersListSkeleton />}>
-          <OrdersList userId={user.id} />
+          <OrdersList userId={user.id} locale={locale} />
         </Suspense>
       </Container>
     </div>

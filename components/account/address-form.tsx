@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAppLocale } from "@/hooks/use-locale";
 import { updateAddressAction } from "@/app/actions/addresses";
 
 interface AddressFormValues {
@@ -24,6 +25,9 @@ const COUNTRIES = ["United States", "Vietnam"] as const;
 
 export function AddressForm({ defaultValues }: AddressFormProps) {
   const router = useRouter();
+  const locale = useAppLocale();
+  const isVi = locale === "vi";
+
   const [values, setValues] = useState<AddressFormValues>({
     line1: defaultValues?.line1 ?? "",
     line2: defaultValues?.line2 ?? "",
@@ -72,10 +76,19 @@ export function AddressForm({ defaultValues }: AddressFormProps) {
         return;
       }
 
-      setSubmitError(result.error ?? "Something went wrong. Please try again.");
+      setSubmitError(
+        result.error ??
+          (isVi
+            ? "Đã xảy ra lỗi khi lưu địa chỉ. Xin vui lòng thử lại."
+            : "Something went wrong. Please try again.")
+      );
       if (result.fieldErrors) setFieldErrors(result.fieldErrors);
     } catch {
-      setSubmitError("Something went wrong. Please try again.");
+      setSubmitError(
+        isVi
+          ? "Đã xảy ra lỗi khi lưu địa chỉ. Xin vui lòng thử lại."
+          : "Something went wrong. Please try again."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -85,52 +98,52 @@ export function AddressForm({ defaultValues }: AddressFormProps) {
     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
       <div className="space-y-1.5">
         <Input
-          label="Street Address"
+          label={isVi ? "Địa chỉ nhà / Tên đường" : "Street Address"}
           name="line1"
           value={values.line1}
           onChange={handleChange}
           error={errorFor("line1")}
-          placeholder="House number and street"
+          placeholder={isVi ? "Số nhà, tên đường phố" : "House number and street"}
           autoComplete="address-line1"
           required
         />
       </div>
       <Input
-        label="Apartment, suite, etc. (optional)"
+        label={isVi ? "Căn hộ, số phòng, tòa nhà (tùy chọn)" : "Apartment, suite, etc. (optional)"}
         name="line2"
         value={values.line2}
         onChange={handleChange}
         error={errorFor("line2")}
-        placeholder="Apartment, suite, unit"
+        placeholder={isVi ? "Tòa nhà, tầng, số phòng" : "Apartment, suite, unit"}
         autoComplete="address-line2"
       />
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <Input
-          label="City"
+          label={isVi ? "Thành phố / Tỉnh" : "City"}
           name="city"
           value={values.city}
           onChange={handleChange}
           error={errorFor("city")}
-          placeholder="City"
+          placeholder={isVi ? "Tỉnh / Thành phố" : "City"}
           autoComplete="address-level2"
           required
         />
         <Input
-          label="State / Province"
+          label={isVi ? "Quận / Huyện / Bang" : "State / Province"}
           name="state"
           value={values.state}
           onChange={handleChange}
           error={errorFor("state")}
-          placeholder="State / Province"
+          placeholder={isVi ? "Quận / Huyện" : "State / Province"}
           autoComplete="address-level1"
         />
         <Input
-          label="Postal Code"
+          label={isVi ? "Mã bưu chính" : "Postal Code"}
           name="postalCode"
           value={values.postalCode}
           onChange={handleChange}
           error={errorFor("postalCode")}
-          placeholder="Postal code"
+          placeholder={isVi ? "Mã bưu chính (ZIP)" : "Postal code"}
           autoComplete="postal-code"
           required
         />
@@ -139,7 +152,7 @@ export function AddressForm({ defaultValues }: AddressFormProps) {
             htmlFor="country"
             className="text-sm font-medium text-foreground"
           >
-            Country
+            {isVi ? "Quốc gia" : "Country"}
           </label>
           <select
             id="country"
@@ -151,7 +164,11 @@ export function AddressForm({ defaultValues }: AddressFormProps) {
           >
             {COUNTRIES.map((country) => (
               <option key={country} value={country}>
-                {country}
+                {isVi && country === "Vietnam"
+                  ? "Việt Nam"
+                  : isVi && country === "United States"
+                  ? "Hoa Kỳ"
+                  : country}
               </option>
             ))}
           </select>
@@ -171,10 +188,10 @@ export function AddressForm({ defaultValues }: AddressFormProps) {
         {isSubmitting ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Saving...
+            {isVi ? "Đang lưu địa chỉ..." : "Saving..."}
           </>
         ) : (
-          "Save Address"
+          isVi ? "Lưu địa chỉ" : "Save Address"
         )}
       </Button>
     </form>

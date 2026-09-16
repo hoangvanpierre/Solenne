@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getLocale } from "next-intl/server";
 import { Container } from "@/components/ui/container";
 import { CONTACT_EMAIL, SHIPPING } from "@/lib/constants";
 import { formatPrice } from "@/lib/utils";
@@ -9,96 +10,106 @@ export const metadata: Metadata = {
     "Solenne shipping and returns: dispatch times, delivery estimates, rates, and our 30-day return policy.",
 };
 
-const SHIPPING_ROWS = [
-  {
-    label: "Standard shipping (3-5 business days)",
-    usd: formatPrice(SHIPPING.flatRateUSD, "USD"),
-    vnd: formatPrice(SHIPPING.flatRateVND, "VND"),
-  },
-  {
-    label: `Free shipping on orders over ${formatPrice(SHIPPING.freeThresholdUSD, "USD")} (${formatPrice(SHIPPING.freeThresholdVND, "VND")})`,
-    usd: "Free",
-    vnd: "Free",
-  },
-];
+export default async function ShippingPage() {
+  const locale = await getLocale();
+  const isVi = locale === "vi";
 
-const RETURN_STEPS = [
-  {
-    title: "Contact us",
-    body: `Email ${CONTACT_EMAIL} within 30 days of delivery with your order number and reason for the return. For damaged or faulty candles, please include a photo.`,
-  },
-  {
-    title: "Prepare the candle",
-    body: "Pack the candle securely in its original vessel and box. Unopened, unused candles in resalable condition are eligible for a full refund.",
-  },
-  {
-    title: "Ship it back",
-    body: "We'll reply with a return authorization and instructions. Once the candle reaches the studio, refunds are issued within 5 business days to the original payment method.",
-  },
-];
+  const shippingRows = [
+    {
+      label: isVi
+        ? "Giao hàng tiêu chuẩn trang trọng (3-5 ngày làm việc)"
+        : "Standard shipping (3-5 business days)",
+      usd: formatPrice(SHIPPING.flatRateUSD, "USD"),
+      vnd: formatPrice(SHIPPING.flatRateVND, "VND"),
+    },
+    {
+      label: isVi
+        ? `Trân quý miễn phí vận chuyển cho đơn hàng từ ${formatPrice(SHIPPING.freeThresholdUSD, "USD")} (${formatPrice(SHIPPING.freeThresholdVND, "VND")})`
+        : `Free shipping on orders over ${formatPrice(SHIPPING.freeThresholdUSD, "USD")} (${formatPrice(SHIPPING.freeThresholdVND, "VND")})`,
+      usd: isVi ? "Miễn phí" : "Free",
+      vnd: isVi ? "Miễn phí" : "Free",
+    },
+  ];
 
-export default function ShippingPage() {
+  const returnSteps = [
+    {
+      title: isVi ? "Liên hệ Nhà hương" : "Contact us",
+      body: isVi
+        ? `Gửi thư tới ${CONTACT_EMAIL} trong vòng 30 ngày kể từ khi nhận nến, kèm mã đơn hàng và lý do đổi trả. Nếu tác phẩm gặp sự cố khi vận chuyển, xin quý khách đính kèm hình ảnh.`
+        : `Email ${CONTACT_EMAIL} within 30 days of delivery with your order number and reason for the return. For damaged or faulty candles, please include a photo.`,
+    },
+    {
+      title: isVi ? "Đóng gói tác phẩm" : "Prepare the candle",
+      body: isVi
+        ? "Đặt nến cẩn trọng trong ly thủy tinh và vỏ hộp nguyên bản. Những tác phẩm chưa thắp sáng, nguyên vẹn đủ điều kiện hoàn trả 100% giá trị."
+        : "Pack the candle securely in its original vessel and box. Unopened, unused candles in resalable condition are eligible for a full refund.",
+    },
+    {
+      title: isVi ? "Gửi về xưởng thủ công" : "Ship it back",
+      body: isVi
+        ? "Chúng tôi sẽ gửi chỉ dẫn gửi hàng chi tiết. Khi tác phẩm về tới xưởng, khoản tiền hoàn lại sẽ được xử lý trong vòng 5 ngày làm việc qua phương thức thanh toán ban đầu."
+        : "We'll reply with a return authorization and instructions. Once the candle reaches the studio, refunds are issued within 5 business days to the original payment method.",
+    },
+  ];
+
   return (
     <div className="py-24 lg:py-32">
       <Container className="max-w-3xl">
         <div className="mb-16">
           <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-4 text-foreground">
-            Shipping & Returns
+            {isVi ? "Giao Nhận & Đổi Trả" : "Shipping & Returns"}
           </h1>
-          <p className="text-muted-foreground text-lg">
-            Every order is wrapped with care in the studio and dispatched
-            within 1-2 business days.
+          <p className="text-muted-foreground text-lg leading-relaxed">
+            {isVi
+              ? "Mỗi kiện nến thơm đều được gói ghém bằng cả tấm lòng tại xưởng và gửi đi trong vòng 1-2 ngày làm việc."
+              : "Every order is wrapped with care in the studio and dispatched within 1-2 business days."}
           </p>
         </div>
 
         <section className="mb-16">
           <h2 className="font-serif text-2xl font-semibold mb-6 text-foreground">
-            Rates & Delivery
+            {isVi ? "Biểu Phí & Thời Gian Giao Nhận" : "Rates & Delivery"}
           </h2>
           <div className="overflow-hidden rounded-2xl border border-border">
-            {SHIPPING_ROWS.map((row, index) => (
+            {shippingRows.map((row, index) => (
               <div
                 key={row.label}
-                className={`flex items-center justify-between gap-4 px-6 py-5 text-sm ${
-                  index % 2 === 1 ? "bg-muted/50" : ""
+                className={`flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-2 ${
+                  index > 0 ? "border-t border-border" : ""
                 }`}
               >
-                <span className="text-foreground">{row.label}</span>
-                <span className="whitespace-nowrap font-medium text-foreground">
-                  {row.usd} / {row.vnd}
-                </span>
+                <span className="text-foreground font-medium">{row.label}</span>
+                <div className="flex gap-4 text-sm text-muted-foreground">
+                  <span>{row.usd}</span>
+                  <span>/</span>
+                  <span>{row.vnd}</span>
+                </div>
               </div>
             ))}
           </div>
-          <p className="mt-4 text-sm text-muted-foreground">
-            We currently ship within the United States and Vietnam. All
-            packages include tracking.
-          </p>
         </section>
 
         <section>
           <h2 className="font-serif text-2xl font-semibold mb-6 text-foreground">
-            Returns
+            {isVi ? "Chính Sách Đổi Trả trong 30 Ngày" : "Our 30-Day Return Policy"}
           </h2>
-          <ol className="space-y-6">
-            {RETURN_STEPS.map((step, index) => (
-              <li key={step.title} className="flex gap-5">
-                <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-muted font-serif text-sm font-semibold text-foreground">
+          <ol className="space-y-8">
+            {returnSteps.map((step, index) => (
+              <li key={step.title} className="flex gap-6">
+                <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-muted font-serif font-semibold text-foreground">
                   {index + 1}
                 </span>
                 <div>
-                  <h3 className="font-medium text-foreground">{step.title}</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                  <h3 className="font-serif text-lg font-semibold text-foreground">
+                    {step.title}
+                  </h3>
+                  <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
                     {step.body}
                   </p>
                 </div>
               </li>
             ))}
           </ol>
-          <p className="mt-8 text-sm text-muted-foreground">
-            Gift cards and clearance items are final sale and cannot be
-            returned.
-          </p>
         </section>
       </Container>
     </div>

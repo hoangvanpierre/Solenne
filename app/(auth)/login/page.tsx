@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAppLocale } from "@/hooks/use-locale";
 import { loginAction, type ActionState } from "@/app/actions/auth";
 
 const initialState: ActionState = {};
@@ -14,6 +15,8 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const next = searchParams.get("next") || "/account";
   const errorParam = searchParams.get("error");
+  const locale = useAppLocale();
+  const isVi = locale === "vi";
 
   const [state, formAction, isPending] = useActionState(
     loginAction,
@@ -26,10 +29,12 @@ function LoginForm() {
       {/* Header */}
       <div className="space-y-2 text-left">
         <h1 className="font-serif text-3xl sm:text-4xl font-semibold tracking-tight text-foreground">
-          Welcome Back
+          {isVi ? "Chào Mừng Trở Lại" : "Welcome Back"}
         </h1>
         <p className="text-sm text-muted-foreground">
-          Enter your email and password to access your sanctuary.
+          {isVi
+            ? "Nhập thư điện tử và mật khẩu để trở về không gian riêng của bạn."
+            : "Enter your email and password to access your sanctuary."}
         </p>
       </div>
 
@@ -40,7 +45,11 @@ function LoginForm() {
           <span>
             {state.error ||
               (errorParam === "auth_callback_failed"
-                ? "Sign-in link has expired or was invalid. Please log in directly."
+                ? isVi
+                  ? "Liên kết đăng nhập đã hết hạn hoặc không hợp lệ. Vui lòng đăng nhập trực tiếp."
+                  : "Sign-in link has expired or was invalid. Please log in directly."
+                : isVi
+                ? "Đã xảy ra lỗi. Quý khách vui lòng thử lại."
                 : "An error occurred. Please try again.")}
           </span>
         </div>
@@ -56,7 +65,7 @@ function LoginForm() {
             htmlFor="email"
             className="text-xs font-medium uppercase tracking-wider text-foreground/80"
           >
-            Email Address
+            {isVi ? "Địa chỉ email" : "Email Address"}
           </label>
           <Input
             id="email"
@@ -82,13 +91,13 @@ function LoginForm() {
               htmlFor="password"
               className="text-xs font-medium uppercase tracking-wider text-foreground/80"
             >
-              Password
+              {isVi ? "Mật khẩu" : "Password"}
             </label>
             <Link
               href="/forgot-password"
               className="text-xs text-muted-foreground hover:text-amber transition-colors"
             >
-              Forgot password?
+              {isVi ? "Quên mật khẩu?" : "Forgot password?"}
             </Link>
           </div>
 
@@ -107,7 +116,15 @@ function LoginForm() {
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
-              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-label={
+                showPassword
+                  ? isVi
+                    ? "Ẩn mật khẩu"
+                    : "Hide password"
+                  : isVi
+                  ? "Hiện mật khẩu"
+                  : "Show password"
+              }
             >
               {showPassword ? (
                 <EyeOff className="w-4 h-4" />
@@ -127,27 +144,27 @@ function LoginForm() {
         <Button
           type="submit"
           disabled={isPending}
-          className="w-full h-12 text-sm tracking-wider uppercase font-medium bg-foreground text-background hover:bg-foreground/90 transition-all"
+          className="w-full h-12 text-sm tracking-wider uppercase font-medium bg-foreground text-background hover:bg-foreground/90 transition-all cursor-pointer"
         >
           {isPending ? (
             <span className="inline-flex items-center gap-2">
               <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Signing in...</span>
+              <span>{isVi ? "Đang đăng nhập..." : "Signing in..."}</span>
             </span>
           ) : (
-            "Sign In"
+            isVi ? "Đăng Nhập" : "Sign In"
           )}
         </Button>
       </form>
 
       {/* Switch to Register */}
       <div className="pt-4 text-center text-sm text-muted-foreground border-t border-border/50">
-        Don&apos;t have an account yet?{" "}
+        {isVi ? "Chưa có tài khoản? " : "Don't have an account yet? "}
         <Link
           href={`/register${next !== "/account" ? `?next=${encodeURIComponent(next)}` : ""}`}
           className="font-medium text-foreground hover:text-amber underline-offset-4 hover:underline transition-colors"
         >
-          Create an account
+          {isVi ? "Đăng ký thành viên mới" : "Create an account"}
         </Link>
       </div>
     </div>

@@ -4,11 +4,14 @@ import { useRef } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { TextReveal } from "@/components/animations/text-reveal";
 import { Button } from "@/components/ui/button";
 import { MagneticButton } from "@/components/animations/magnetic-button";
 
 export function Hero() {
+  const t = useTranslations("hero");
+  const tCommon = useTranslations("common");
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -50,7 +53,7 @@ export function Hero() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="mb-6 text-xs tracking-[0.3em] uppercase text-cream/60"
         >
-          Artisan Scented Candles
+          {t("subtitle")}
         </motion.p>
 
         {/* Brand name */}
@@ -64,7 +67,7 @@ export function Hero() {
 
         {/* Tagline */}
         <TextReveal
-          text="Illuminate your moments"
+          text={t("title")}
           as="p"
           className="text-xl md:text-2xl text-cream/70 font-light mb-10 max-w-md"
           splitBy="word"
@@ -84,7 +87,7 @@ export function Hero() {
               className="bg-cream text-warm-black hover:bg-cream/90 px-8"
               asChild
             >
-              <Link href="/products">Explore Collection</Link>
+              <Link href="/products">{tCommon("shopNow")}</Link>
             </Button>
           </MagneticButton>
 
@@ -95,7 +98,7 @@ export function Hero() {
               className="border-cream/30 text-cream hover:bg-cream/10 px-8"
               asChild
             >
-              <Link href="/about">Our Story</Link>
+              <Link href="/about">{tCommon("readMore")}</Link>
             </Button>
           </MagneticButton>
         </motion.div>
@@ -109,7 +112,7 @@ export function Hero() {
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
       >
         <span className="text-xs tracking-widest uppercase text-cream/40">
-          Scroll
+          {t("scroll")}
         </span>
         <motion.div
           animate={{ y: [0, 8, 0] }}

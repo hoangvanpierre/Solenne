@@ -7,7 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollReveal } from "@/components/animations/scroll-reveal";
 import { TextReveal } from "@/components/animations/text-reveal";
 import { formatPrice } from "@/lib/utils";
-import { SCENT_CATEGORIES } from "@/lib/constants";
+import { SCENT_CATEGORIES, USD_TO_VND } from "@/lib/constants";
+import { useUIStore } from "@/stores/ui-store";
+import { useAppLocale } from "@/hooks/use-locale";
 import type { Product, ScentCategory } from "@/types";
 
 const CATEGORY_GRADIENTS: Record<ScentCategory, string> = {
@@ -22,7 +24,15 @@ export interface FeaturedProductsProps {
 }
 
 export function FeaturedProducts({ products }: FeaturedProductsProps) {
+  const currency = useUIStore((s) => s.currency);
+  const locale = useAppLocale();
   if (products.length === 0) return null;
+
+  const fmt = (usd: number) =>
+    formatPrice(
+      currency === "VND" ? Math.round(usd * USD_TO_VND) : usd,
+      currency,
+    );
 
   return (
     <section className="py-24 lg:py-32 bg-background">
@@ -31,11 +41,15 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
         <div className="mb-16 text-center">
           <ScrollReveal>
             <p className="text-sm tracking-[0.2em] uppercase text-muted-foreground mb-3">
-              Our Collection
+              {locale === "vi" ? "Tuyển chọn của Nhà hương" : "Maison Curations"}
             </p>
           </ScrollReveal>
           <TextReveal
-            text="Curated for You"
+            text={
+              locale === "vi"
+                ? "Những tuyệt tác được trân quý"
+                : "Treasured Creations"
+            }
             as="h2"
             className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold text-foreground"
             splitBy="word"
@@ -61,7 +75,9 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
 
                   {product.compareAtPrice && (
                     <div className="absolute top-3 left-3">
-                      <Badge variant="sale">Sale</Badge>
+                      <Badge variant="sale">
+                        {locale === "vi" ? "Đãi ngộ" : "Sale"}
+                      </Badge>
                     </div>
                   )}
 
@@ -72,19 +88,24 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
                 {/* Product info */}
                 <div className="space-y-1">
                   <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                    {SCENT_CATEGORIES.find((c) => c.id === product.category)?.name ??
-                      product.category}
+                    {(() => {
+                      const cat = SCENT_CATEGORIES.find(
+                        (c) => c.id === product.category
+                      );
+                      if (!cat) return product.category;
+                      return locale === "vi" ? cat.nameVi : cat.name;
+                    })()}
                   </p>
                   <h3 className="font-serif text-lg font-medium text-foreground group-hover:text-primary transition-colors">
                     {product.name}
                   </h3>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">
-                      {formatPrice(product.basePrice)}
+                      {fmt(product.basePrice)}
                     </span>
                     {product.compareAtPrice && (
                       <span className="text-sm text-muted-foreground line-through">
-                        {formatPrice(product.compareAtPrice)}
+                        {fmt(product.compareAtPrice)}
                       </span>
                     )}
                   </div>
@@ -101,7 +122,7 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
               href="/products"
               className="inline-flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary transition-colors group"
             >
-              View All Products
+              {locale === "vi" ? "Xem tất cả tác phẩm" : "View All Products"}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useAppLocale } from "@/hooks/use-locale";
 import type { ProductVariant } from "@/types";
 
 interface SizeSelectorProps {
@@ -10,13 +11,20 @@ interface SizeSelectorProps {
 }
 
 export function SizeSelector({ variants, selectedId, onSelect }: SizeSelectorProps) {
+  const locale = useAppLocale();
+  const isVi = locale === "vi";
+
   return (
     <div className="space-y-3">
       <div className="flex justify-between items-center">
-        <span className="text-sm font-medium">Size</span>
+        <span className="text-sm font-medium">
+          {isVi ? "Kích cỡ / Dung tích" : "Size"}
+        </span>
         {variants.find(v => v.id === selectedId)?.burnTime && (
           <span className="text-xs text-muted-foreground">
-            Approx. {variants.find(v => v.id === selectedId)?.burnTime} burn time
+            {isVi
+              ? `Thời gian tỏa hương ~${variants.find(v => v.id === selectedId)?.burnTime}`
+              : `Approx. ${variants.find(v => v.id === selectedId)?.burnTime} burn time`}
           </span>
         )}
       </div>

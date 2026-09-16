@@ -3,11 +3,14 @@
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
 import { useLockedBody } from "@/hooks/use-locked-body";
 
 export function CartDrawer() {
+  const t = useTranslations("cart");
+  const tCommon = useTranslations("common");
   const {
     items,
     isCartOpen,
@@ -50,7 +53,7 @@ export function CartDrawer() {
               {/* Header */}
               <div className="flex items-center justify-between border-b border-border px-6 py-4">
                 <h2 className="font-serif text-xl font-semibold">
-                  Your Cart ({itemCount})
+                  {t("title")} ({itemCount})
                 </h2>
                 <button
                   onClick={closeCart}
@@ -68,13 +71,13 @@ export function CartDrawer() {
                     <ShoppingBag className="h-8 w-8 text-muted-foreground" />
                   </div>
                   <p className="text-lg font-serif text-foreground">
-                    Your cart is empty
+                    {t("empty")}
                   </p>
                   <p className="text-sm text-muted-foreground text-center">
-                    Discover our collection of artisan scented candles
+                    {t("emptyDescription")}
                   </p>
                   <Button onClick={closeCart} variant="default" asChild>
-                    <Link href="/products">Shop Now</Link>
+                    <Link href="/products">{tCommon("shopNow")}</Link>
                   </Button>
                 </div>
               ) : (
@@ -163,31 +166,31 @@ export function CartDrawer() {
                   {/* Footer */}
                   <div className="border-t border-border px-6 py-4 space-y-3">
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Subtotal</span>
+                      <span className="text-muted-foreground">{t("subtotal")}</span>
                       <span>{formatDisplay(subtotal)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Shipping</span>
+                      <span className="text-muted-foreground">{t("shipping")}</span>
                       <span>
                         {shippingFee === 0
-                          ? "Free"
+                          ? tCommon("freeShipping")
                           : formatDisplay(shippingFee)}
                       </span>
                     </div>
                     <div className="flex justify-between text-base font-semibold border-t border-border pt-3">
-                      <span>Total</span>
+                      <span>{t("total")}</span>
                       <span>{formatDisplay(total)}</span>
                     </div>
 
                     <Button className="w-full" size="lg" asChild onClick={closeCart}>
-                      <Link href="/checkout">Checkout</Link>
+                      <Link href="/checkout">{tCommon("checkout")}</Link>
                     </Button>
 
                     <button
                       onClick={closeCart}
                       className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      Continue Shopping
+                      {t("continue")}
                     </button>
                   </div>
                 </>

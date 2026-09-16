@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getLocale } from "next-intl/server";
 import { ArrowRight } from "lucide-react";
 import { getOrdersForUser, countOrdersForUser } from "@/lib/orders";
 import { formatPrice } from "@/lib/utils";
@@ -13,6 +14,9 @@ export interface OrderHistoryCardProps {
 }
 
 export async function OrderHistoryCard({ userId }: OrderHistoryCardProps) {
+  const locale = await getLocale();
+  const isVi = locale === "vi";
+
   let orders: Order[] = [];
   let totalOrders = 0;
   let loadFailed = false;
@@ -33,38 +37,57 @@ export async function OrderHistoryCard({ userId }: OrderHistoryCardProps) {
     <div>
       <div className="flex items-baseline justify-between gap-4">
         <h2 className="font-serif text-2xl md:text-3xl font-medium text-foreground">
-          Order History
+          {isVi ? "Lịch sử tác phẩm đã thỉnh" : "Order History"}
         </h2>
         <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-          {totalOrders} {totalOrders === 1 ? "order" : "orders"}
+          {totalOrders} {isVi ? "đơn hàng" : totalOrders === 1 ? "order" : "orders"}
         </span>
       </div>
       <p className="mt-2 text-base text-muted-foreground">
-        Your most recent orders, newest first.
+        {isVi
+          ? "Những tác phẩm được lưu dấu gần nhất, mới nhất trước."
+          : "Your most recent orders, newest first."}
       </p>
 
       {loadFailed ? (
         <p className="mt-8 text-sm text-muted-foreground">
-          We couldn&apos;t load your orders right now. Please refresh the
-          page, or{" "}
-          <Link
-            href="/account/orders"
-            className="underline underline-offset-4 transition-colors hover:text-foreground"
-          >
-            view the full order history
-          </Link>
-          .
+          {isVi ? (
+            <>
+              Chưa thể tải lịch sử đơn hàng lúc này. Quý khách vui lòng tải lại trang hoặc{" "}
+              <Link
+                href="/account/orders"
+                className="underline underline-offset-4 transition-colors hover:text-foreground"
+              >
+                xem toàn bộ lịch sử
+              </Link>
+              .
+            </>
+          ) : (
+            <>
+              We couldn&apos;t load your orders right now. Please refresh the
+              page, or{" "}
+              <Link
+                href="/account/orders"
+                className="underline underline-offset-4 transition-colors hover:text-foreground"
+              >
+                view the full order history
+              </Link>
+              .
+            </>
+          )}
         </p>
       ) : orders.length === 0 ? (
         <div className="mt-8">
           <p className="text-sm text-muted-foreground">
-            No orders yet. Your first candle order will appear here.
+            {isVi
+              ? "Quý khách chưa có đơn nến nào. Tác phẩm nến thơm đầu tiên sẽ xuất hiện tại đây."
+              : "No orders yet. Your first candle order will appear here."}
           </p>
           <Link
             href="/products"
             className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline"
           >
-            <span>Explore the collection</span>
+            <span>{isVi ? "Khám phá bộ sưu tập" : "Explore the collection"}</span>
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
@@ -85,11 +108,11 @@ export async function OrderHistoryCard({ userId }: OrderHistoryCardProps) {
                       </span>
                       <span className="text-sm text-muted-foreground">
                         {order.items.length}{" "}
-                        {order.items.length === 1 ? "item" : "items"}
+                        {isVi ? "tác phẩm" : order.items.length === 1 ? "item" : "items"}
                       </span>
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {new Date(order.createdAt).toLocaleDateString("en-US", {
+                      {new Date(order.createdAt).toLocaleDateString(isVi ? "vi-VN" : "en-US", {
                         month: "long",
                         day: "numeric",
                         year: "numeric",
@@ -97,7 +120,7 @@ export async function OrderHistoryCard({ userId }: OrderHistoryCardProps) {
                     </p>
                   </div>
                   <div className="flex items-center gap-4">
-                    <OrderStatusBadge status={order.status} />
+                    <OrderStatusBadge status={order.status} locale={locale} />
                     <span className="text-sm font-medium text-foreground">
                       {formatPrice(order.total)}
                     </span>
@@ -112,7 +135,9 @@ export async function OrderHistoryCard({ userId }: OrderHistoryCardProps) {
               href="/account/orders"
               className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline"
             >
-              <span>View all orders ({totalOrders})</span>
+              <span>
+                {isVi ? `Xem tất cả đơn hàng (${totalOrders})` : `View all orders (${totalOrders})`}
+              </span>
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           )}

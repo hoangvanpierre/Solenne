@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Birthstone } from "next/font/google";
+import { getLocale, getMessages } from "next-intl/server";
+import { I18nProvider } from "@/components/layout";
 import "./globals.css";
 
 const birthstone = Birthstone({
@@ -38,14 +40,22 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
     <html
-      lang="en"
+      lang={locale}
       className={`${birthstone.variable} ${birthstone.className} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        {children}
+        <I18nProvider
+          initialLocale={locale as "en" | "vi"}
+          initialMessages={messages}
+        >
+          {children}
+        </I18nProvider>
       </body>
     </html>
   );

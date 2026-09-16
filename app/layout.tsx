@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Birthstone } from "next/font/google";
-import { getLocale, getMessages } from "next-intl/server";
+import { getLocale, getMessages, getTimeZone } from "next-intl/server";
 import { I18nProvider } from "@/components/layout";
 import "./globals.css";
 
@@ -43,6 +43,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const locale = await getLocale();
   const messages = await getMessages();
+  const timeZone = await getTimeZone();
 
   return (
     <html
@@ -53,6 +54,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <I18nProvider
           initialLocale={locale as "en" | "vi"}
           initialMessages={messages}
+          timeZone={timeZone}
         >
           {children}
         </I18nProvider>

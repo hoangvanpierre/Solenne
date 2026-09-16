@@ -93,6 +93,8 @@ export const CURRENCIES = {
 
 export type CurrencyCode = keyof typeof CURRENCIES;
 
+export const DEFAULT_TIMEZONE = "Asia/Ho_Chi_Minh";
+
 // --- Scent Categories ---
 export const SCENT_CATEGORIES = [
   {

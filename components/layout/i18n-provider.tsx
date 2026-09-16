@@ -12,12 +12,17 @@ import { NextIntlClientProvider } from "next-intl";
 import { useRouter } from "next/navigation";
 import { setLocaleAction } from "@/app/actions/locale";
 import { useUIStore } from "@/stores/ui-store";
+import { DEFAULT_TIMEZONE } from "@/lib/constants";
 import enMessages from "@/messages/en.json";
 import viMessages from "@/messages/vi.json";
 
 export type SupportedLocale = "en" | "vi";
 
-const ALL_MESSAGES: Record<SupportedLocale, Record<string, any>> = {
+type IntlMessages = NonNullable<
+  React.ComponentProps<typeof NextIntlClientProvider>["messages"]
+>;
+
+const ALL_MESSAGES: Record<SupportedLocale, IntlMessages> = {
   en: enMessages,
   vi: viMessages,
 };
@@ -36,18 +41,20 @@ export function useI18n() {
 
 export interface I18nProviderProps {
   initialLocale: SupportedLocale;
-  initialMessages: Record<string, any>;
+  initialMessages: IntlMessages;
+  timeZone?: string;
   children: React.ReactNode;
 }
 
 export function I18nProvider({
   initialLocale,
   initialMessages,
+  timeZone = DEFAULT_TIMEZONE,
   children,
 }: I18nProviderProps) {
   const router = useRouter();
   const [locale, setLocaleState] = useState<SupportedLocale>(initialLocale);
-  const [messages, setMessages] = useState<Record<string, any>>(initialMessages);
+  const [messages, setMessages] = useState<IntlMessages>(initialMessages);
   const [isPending, startTransition] = useTransition();
 
   // Keep ui-store and html lang in sync with the current locale
@@ -91,7 +98,11 @@ export function I18nProvider({
 
   return (
     <I18nContext.Provider value={{ locale, setLocale, isPending }}>
-      <NextIntlClientProvider locale={locale} messages={messages}>
+      <NextIntlClientProvider
+        locale={locale}
+        messages={messages}
+        timeZone={timeZone}
+      >
         {children}
       </NextIntlClientProvider>
     </I18nContext.Provider>

@@ -14,7 +14,7 @@ export function Footer() {
   return (
     <footer className="bg-warm-black text-cream">
       {/* Main footer */}
-      <Container className="py-16 lg:py-20">
+      <Container className="pt-16 pb-24 lg:pt-20 lg:pb-32">
         {/* Brand section */}
         <div className="mb-12 lg:mb-16">
           <h2 className="font-serif text-4xl lg:text-5xl font-bold mb-3">

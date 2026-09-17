@@ -10,6 +10,12 @@ export interface ShippingAddress {
   state?: string;
   postalCode: string;
   country: string;
+  countryCode?: "VN" | "US" | string;
+  provinceCode?: string;
+  wardCode?: string;
+  administrativeType?: string;
+  provinceName?: string;
+  wardName?: string;
 }
 
 export interface OrderItem {

@@ -33,6 +33,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             "placeholder:text-muted-foreground",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent",
             "disabled:cursor-not-allowed disabled:opacity-50",
+            "[&::-ms-reveal]:hidden [&::-ms-clear]:hidden",
             error && "border-destructive focus-visible:ring-destructive",
             className
           )}

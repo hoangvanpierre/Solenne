@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ShoppingBag, Loader2, Lock } from "lucide-react";
@@ -10,17 +10,15 @@ import { Container } from "@/components/ui/container";
 import { useCart } from "@/hooks/use-cart";
 import { useAppLocale } from "@/hooks/use-locale";
 import { createOrderAction } from "@/app/actions/orders";
+import {
+  ShippingAddressFields,
+  type AddressFieldValues,
+} from "@/components/address";
 
-interface CheckoutFormValues {
+interface CheckoutFormValues extends AddressFieldValues {
   email: string;
   fullName: string;
   phone: string;
-  line1: string;
-  line2: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  country: string;
   notes: string;
 }
 
@@ -40,8 +38,6 @@ interface CheckoutFormProps {
   defaultAddress?: CheckoutFormDefaultAddress;
 }
 
-const COUNTRIES = ["United States", "Vietnam"] as const;
-
 export function CheckoutForm({
   defaultEmail,
   defaultName,
@@ -54,20 +50,29 @@ export function CheckoutForm({
   const locale = useAppLocale();
   const isVi = locale === "vi";
 
+  const initialCountryCode =
+    defaultAddress?.country === "United States" ||
+    defaultAddress?.country === "Hoa Kỳ" ||
+    defaultAddress?.country === "US"
+      ? "US"
+      : "VN";
+
+  const initialCountry =
+    initialCountryCode === "VN" ? "Vietnam" : "United States";
+
   const [values, setValues] = useState<CheckoutFormValues>({
     email: defaultEmail,
     fullName: defaultName,
     phone: defaultPhone ?? "",
+    country: defaultAddress?.country || initialCountry,
+    countryCode: initialCountryCode,
     line1: defaultAddress?.line1 ?? "",
     line2: defaultAddress?.line2 ?? "",
     city: defaultAddress?.city ?? "",
     state: defaultAddress?.state ?? "",
     postalCode: defaultAddress?.postalCode ?? "",
-    country:
-      defaultAddress?.country &&
-      (COUNTRIES as readonly string[]).includes(defaultAddress.country)
-        ? defaultAddress.country
-        : COUNTRIES[0],
+    provinceCode: "",
+    wardCode: "",
     notes: "",
   });
   const [fieldErrors, setFieldErrors] = useState<
@@ -85,15 +90,20 @@ export function CheckoutForm({
     setValues((prev) => ({ ...prev, [name]: value }));
   };
 
-  const errorFor = (key: string) => {
-    const errors = fieldErrors[
-      key.startsWith("email") || key === "notes" ? key : `shippingAddress.${key}`
-    ];
-    return errors && errors.length > 0 ? errors[0] : undefined;
-  };
+  const handleAddressChange = useCallback((updated: AddressFieldValues) => {
+    setValues((prev) => ({
+      ...prev,
+      ...updated,
+    }));
+  }, []);
 
-  const inputError = (key: string) =>
-    errorFor(key) ? { borderColor: "var(--destructive)" } : undefined;
+  const errorFor = (key: string) => {
+    const direct = fieldErrors[key];
+    if (direct && direct.length > 0) return direct[0];
+    const nested = fieldErrors[`shippingAddress.${key}`];
+    if (nested && nested.length > 0) return nested[0];
+    return undefined;
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -113,6 +123,12 @@ export function CheckoutForm({
           state: values.state || undefined,
           postalCode: values.postalCode,
           country: values.country,
+          countryCode: (values.countryCode as "VN" | "US") || undefined,
+          provinceCode: values.provinceCode || undefined,
+          wardCode: values.wardCode || undefined,
+          administrativeType: values.administrativeType || undefined,
+          provinceName: values.provinceName || undefined,
+          wardName: values.wardName || undefined,
         },
         items: items.map((item) => ({
           variantId: item.variant.id,
@@ -165,7 +181,7 @@ export function CheckoutForm({
     <Container>
       <div className="mb-10">
         <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-4 text-foreground">
-          {isVi ? "Thanh toán trang trọng" : "Checkout"}
+          {isVi ? "Thanh toán đơn hàng" : "Checkout"}
         </h1>
         <p className="text-muted-foreground text-lg">
           {isVi
@@ -211,103 +227,26 @@ export function CheckoutForm({
             <h2 className="font-serif text-xl font-semibold mb-6 text-foreground">
               {isVi ? "Địa chỉ đón nhận nến" : "Shipping Address"}
             </h2>
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-              <div className="sm:col-span-2">
-                <Input
-                  label={isVi ? "Họ và tên người nhận" : "Full Name"}
-                  name="fullName"
-                  value={values.fullName}
-                  onChange={handleChange}
-                  error={errorFor("fullName")}
-                  placeholder={isVi ? "Quý danh người đón nhận" : "Recipient full name"}
-                  autoComplete="name"
-                  required
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <Input
-                  label={isVi ? "Địa chỉ nhà / Tên đường" : "Street Address"}
-                  name="line1"
-                  value={values.line1}
-                  onChange={handleChange}
-                  error={errorFor("line1")}
-                  placeholder={isVi ? "Số nhà, tên đường phố" : "House number and street"}
-                  autoComplete="address-line1"
-                  required
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <Input
-                  label={isVi ? "Căn hộ, số phòng, tòa nhà (tùy chọn)" : "Apartment, suite, etc. (optional)"}
-                  name="line2"
-                  value={values.line2}
-                  onChange={handleChange}
-                  error={errorFor("line2")}
-                  placeholder={isVi ? "Tòa nhà, tầng, số phòng" : "Apartment, suite, unit"}
-                  autoComplete="address-line2"
-                />
-              </div>
+            <div className="space-y-5">
               <Input
-                label={isVi ? "Thành phố / Tỉnh" : "City"}
-                name="city"
-                value={values.city}
+                label={isVi ? "Họ và tên người nhận" : "Full Name"}
+                name="fullName"
+                value={values.fullName}
                 onChange={handleChange}
-                error={errorFor("city")}
-                placeholder={isVi ? "Tỉnh / Thành phố" : "City"}
-                autoComplete="address-level2"
+                error={errorFor("fullName")}
+                placeholder={isVi ? "Quý danh người đón nhận" : "Recipient full name"}
+                autoComplete="name"
                 required
+                disabled={isSubmitting}
               />
-              <Input
-                label={isVi ? "Quận / Huyện / Bang" : "State / Province"}
-                name="state"
-                value={values.state}
-                onChange={handleChange}
-                error={errorFor("state")}
-                placeholder={isVi ? "Quận / Huyện" : "State / Province"}
-                autoComplete="address-level1"
+
+              <ShippingAddressFields
+                values={values}
+                onChange={handleAddressChange}
+                errorFor={errorFor}
+                disabled={isSubmitting}
+                locale={locale}
               />
-              <Input
-                label={isVi ? "Mã bưu chính" : "Postal Code"}
-                name="postalCode"
-                value={values.postalCode}
-                onChange={handleChange}
-                error={errorFor("postalCode")}
-                placeholder={isVi ? "Mã bưu chính (ZIP)" : "Postal code"}
-                autoComplete="postal-code"
-                required
-              />
-              <div className="space-y-1.5">
-                <label
-                  htmlFor="country"
-                  className="text-sm font-medium text-foreground"
-                >
-                  {isVi ? "Quốc gia" : "Country"}
-                </label>
-                <select
-                  id="country"
-                  name="country"
-                  value={values.country}
-                  onChange={handleChange}
-                  className="flex h-11 w-full rounded-lg border border-border bg-transparent px-4 py-2 text-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  style={inputError("country")}
-                  required
-                >
-                  {COUNTRIES.map((country) => (
-                    <option key={country} value={country}>
-                      {isVi && country === "Vietnam"
-                        ? "Việt Nam"
-                        : isVi && country === "United States"
-                        ? "Hoa Kỳ"
-                        : country}
-                    </option>
-                  ))}
-                </select>
-                {errorFor("country") && (
-                  <p className="text-xs text-destructive">
-                    {errorFor("country")}
-                  </p>
-                )}
-              </div>
             </div>
           </section>
 

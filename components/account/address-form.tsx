@@ -1,44 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useAppLocale } from "@/hooks/use-locale";
 import { updateAddressAction } from "@/app/actions/addresses";
+import {
+  ShippingAddressFields,
+  type AddressFieldValues,
+} from "@/components/address";
 
-interface AddressFormValues {
-  line1: string;
-  line2: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  country: string;
-}
+export type AddressFormValues = AddressFieldValues;
 
 interface AddressFormProps {
   defaultValues?: Partial<AddressFormValues>;
 }
-
-const COUNTRIES = ["United States", "Vietnam"] as const;
 
 export function AddressForm({ defaultValues }: AddressFormProps) {
   const router = useRouter();
   const locale = useAppLocale();
   const isVi = locale === "vi";
 
+  const initialCountryCode =
+    defaultValues?.country === "United States" ||
+    defaultValues?.country === "Hoa Kỳ" ||
+    defaultValues?.country === "US"
+      ? "US"
+      : "VN";
+
+  const initialCountry =
+    initialCountryCode === "VN" ? "Vietnam" : "United States";
+
   const [values, setValues] = useState<AddressFormValues>({
+    country: defaultValues?.country || initialCountry,
+    countryCode: initialCountryCode,
     line1: defaultValues?.line1 ?? "",
     line2: defaultValues?.line2 ?? "",
     city: defaultValues?.city ?? "",
     state: defaultValues?.state ?? "",
     postalCode: defaultValues?.postalCode ?? "",
-    country:
-      defaultValues?.country &&
-      (COUNTRIES as readonly string[]).includes(defaultValues.country)
-        ? defaultValues.country
-        : COUNTRIES[0],
+    provinceCode: defaultValues?.provinceCode ?? "",
+    wardCode: defaultValues?.wardCode ?? "",
   });
   const [fieldErrors, setFieldErrors] = useState<
     Record<string, string[] | undefined>
@@ -46,12 +49,12 @@ export function AddressForm({ defaultValues }: AddressFormProps) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = event.target;
-    setValues((prev) => ({ ...prev, [name]: value }));
-  };
+  const handleAddressChange = useCallback((updated: AddressFieldValues) => {
+    setValues((prev) => ({
+      ...prev,
+      ...updated,
+    }));
+  }, []);
 
   const errorFor = (key: string) => fieldErrors[key]?.[0];
 
@@ -69,6 +72,12 @@ export function AddressForm({ defaultValues }: AddressFormProps) {
         state: values.state || undefined,
         postalCode: values.postalCode,
         country: values.country,
+        countryCode: (values.countryCode as "VN" | "US") || undefined,
+        provinceCode: values.provinceCode || undefined,
+        wardCode: values.wardCode || undefined,
+        administrativeType: values.administrativeType || undefined,
+        provinceName: values.provinceName || undefined,
+        wardName: values.wardName || undefined,
       });
 
       if (result.success) {
@@ -95,88 +104,14 @@ export function AddressForm({ defaultValues }: AddressFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-      <div className="space-y-1.5">
-        <Input
-          label={isVi ? "Địa chỉ nhà / Tên đường" : "Street Address"}
-          name="line1"
-          value={values.line1}
-          onChange={handleChange}
-          error={errorFor("line1")}
-          placeholder={isVi ? "Số nhà, tên đường phố" : "House number and street"}
-          autoComplete="address-line1"
-          required
-        />
-      </div>
-      <Input
-        label={isVi ? "Căn hộ, số phòng, tòa nhà (tùy chọn)" : "Apartment, suite, etc. (optional)"}
-        name="line2"
-        value={values.line2}
-        onChange={handleChange}
-        error={errorFor("line2")}
-        placeholder={isVi ? "Tòa nhà, tầng, số phòng" : "Apartment, suite, unit"}
-        autoComplete="address-line2"
+    <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+      <ShippingAddressFields
+        values={values}
+        onChange={handleAddressChange}
+        errorFor={errorFor}
+        disabled={isSubmitting}
+        locale={locale}
       />
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <Input
-          label={isVi ? "Thành phố / Tỉnh" : "City"}
-          name="city"
-          value={values.city}
-          onChange={handleChange}
-          error={errorFor("city")}
-          placeholder={isVi ? "Tỉnh / Thành phố" : "City"}
-          autoComplete="address-level2"
-          required
-        />
-        <Input
-          label={isVi ? "Quận / Huyện / Bang" : "State / Province"}
-          name="state"
-          value={values.state}
-          onChange={handleChange}
-          error={errorFor("state")}
-          placeholder={isVi ? "Quận / Huyện" : "State / Province"}
-          autoComplete="address-level1"
-        />
-        <Input
-          label={isVi ? "Mã bưu chính" : "Postal Code"}
-          name="postalCode"
-          value={values.postalCode}
-          onChange={handleChange}
-          error={errorFor("postalCode")}
-          placeholder={isVi ? "Mã bưu chính (ZIP)" : "Postal code"}
-          autoComplete="postal-code"
-          required
-        />
-        <div className="space-y-1.5">
-          <label
-            htmlFor="country"
-            className="text-sm font-medium text-foreground"
-          >
-            {isVi ? "Quốc gia" : "Country"}
-          </label>
-          <select
-            id="country"
-            name="country"
-            value={values.country}
-            onChange={handleChange}
-            className="flex h-11 w-full rounded-lg border border-border bg-transparent px-4 py-2 text-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            required
-          >
-            {COUNTRIES.map((country) => (
-              <option key={country} value={country}>
-                {isVi && country === "Vietnam"
-                  ? "Việt Nam"
-                  : isVi && country === "United States"
-                  ? "Hoa Kỳ"
-                  : country}
-              </option>
-            ))}
-          </select>
-          {errorFor("country") && (
-            <p className="text-xs text-destructive">{errorFor("country")}</p>
-          )}
-        </div>
-      </div>
 
       {submitError && (
         <p className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">

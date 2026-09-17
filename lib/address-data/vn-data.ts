@@ -1,0 +1,583 @@
+import type { RegionOption, LocalityOption } from "./types";
+
+// Post-2025 Vietnam Administrative Reorganization:
+// Two-tier local government structure with 34 provincial-level units (6 centrally-run cities, 28 provinces)
+// and commune-level units (wards, communes, special administrative zones).
+export const VN_REGIONS: RegionOption[] = [
+  // 6 Centrally-Run Cities (Thành phố trực thuộc Trung ương)
+  {
+    countryCode: "VN",
+    code: "VN-HN",
+    displayName: "Hà Nội",
+    displayNameVi: "Thành phố Hà Nội",
+    administrativeType: "centrally_run_city",
+    defaultPostalCode: "100000",
+    alias: ["Hanoi", "Ha Noi", "HN"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-SG",
+    displayName: "TP. Hồ Chí Minh",
+    displayNameVi: "Thành phố Hồ Chí Minh",
+    administrativeType: "centrally_run_city",
+    defaultPostalCode: "700000",
+    alias: ["Ho Chi Minh", "Sai Gon", "Sài Gòn", "TPHCM", "HCMC"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-HP",
+    displayName: "Hải Phòng",
+    displayNameVi: "Thành phố Hải Phòng",
+    administrativeType: "centrally_run_city",
+    defaultPostalCode: "180000",
+    alias: ["Hai Phong", "HP"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-DN",
+    displayName: "Đà Nẵng",
+    displayNameVi: "Thành phố Đà Nẵng",
+    administrativeType: "centrally_run_city",
+    defaultPostalCode: "550000",
+    alias: ["Da Nang", "Danang", "ĐN"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-CT",
+    displayName: "Cần Thơ",
+    displayNameVi: "Thành phố Cần Thơ",
+    administrativeType: "centrally_run_city",
+    defaultPostalCode: "900000",
+    alias: ["Can Tho", "CT"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-HUE",
+    displayName: "Huế",
+    displayNameVi: "Thành phố Huế",
+    administrativeType: "centrally_run_city",
+    defaultPostalCode: "530000",
+    alias: ["Hue", "Thừa Thiên Huế", "Thua Thien Hue"],
+  },
+
+  // 28 Provinces (Tỉnh)
+  {
+    countryCode: "VN",
+    code: "VN-AG",
+    displayName: "An Giang",
+    displayNameVi: "Tỉnh An Giang",
+    administrativeType: "province",
+    defaultPostalCode: "880000",
+    alias: ["An Giang", "Kiên Giang", "Phú Quốc"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-BN",
+    displayName: "Bắc Ninh",
+    displayNameVi: "Tỉnh Bắc Ninh",
+    administrativeType: "province",
+    defaultPostalCode: "790000",
+    alias: ["Bac Ninh", "Bắc Giang"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-CM",
+    displayName: "Cà Mau",
+    displayNameVi: "Tỉnh Cà Mau",
+    administrativeType: "province",
+    defaultPostalCode: "970000",
+    alias: ["Ca Mau", "Bạc Liêu"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-CB",
+    displayName: "Cao Bằng",
+    displayNameVi: "Tỉnh Cao Bằng",
+    administrativeType: "province",
+    defaultPostalCode: "270000",
+    alias: ["Cao Bang", "Bắc Kạn"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-DL",
+    displayName: "Đắk Lắk",
+    displayNameVi: "Tỉnh Đắk Lắk",
+    administrativeType: "province",
+    defaultPostalCode: "630000",
+    alias: ["Dak Lak", "Đắc Lắc", "Đắk Nông"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-DB",
+    displayName: "Điện Biên",
+    displayNameVi: "Tỉnh Điện Biên",
+    administrativeType: "province",
+    defaultPostalCode: "380000",
+    alias: ["Dien Bien"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-DNA",
+    displayName: "Đồng Nai",
+    displayNameVi: "Tỉnh Đồng Nai",
+    administrativeType: "province",
+    defaultPostalCode: "810000",
+    alias: ["Dong Nai", "Biên Hòa", "Bình Dương"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-DT",
+    displayName: "Đồng Tháp",
+    displayNameVi: "Tỉnh Đồng Tháp",
+    administrativeType: "province",
+    defaultPostalCode: "870000",
+    alias: ["Dong Thap", "Tiền Giang"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-GL",
+    displayName: "Gia Lai",
+    displayNameVi: "Tỉnh Gia Lai",
+    administrativeType: "province",
+    defaultPostalCode: "600000",
+    alias: ["Gia Lai", "Kon Tum"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-HT",
+    displayName: "Hà Tĩnh",
+    displayNameVi: "Tỉnh Hà Tĩnh",
+    administrativeType: "province",
+    defaultPostalCode: "480000",
+    alias: ["Ha Tinh"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-HY",
+    displayName: "Hưng Yên",
+    displayNameVi: "Tỉnh Hưng Yên",
+    administrativeType: "province",
+    defaultPostalCode: "160000",
+    alias: ["Hung Yen", "Hải Dương"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-KH",
+    displayName: "Khánh Hòa",
+    displayNameVi: "Tỉnh Khánh Hòa",
+    administrativeType: "province",
+    defaultPostalCode: "650000",
+    alias: ["Khanh Hoa", "Nha Trang", "Ninh Thuận"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-LC",
+    displayName: "Lai Châu",
+    displayNameVi: "Tỉnh Lai Châu",
+    administrativeType: "province",
+    defaultPostalCode: "390000",
+    alias: ["Lai Chau"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-LD",
+    displayName: "Lâm Đồng",
+    displayNameVi: "Tỉnh Lâm Đồng",
+    administrativeType: "province",
+    defaultPostalCode: "670000",
+    alias: ["Lam Dong", "Đà Lạt", "Bình Thuận"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-LS",
+    displayName: "Lạng Sơn",
+    displayNameVi: "Tỉnh Lạng Sơn",
+    administrativeType: "province",
+    defaultPostalCode: "240000",
+    alias: ["Lang Son"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-LCA",
+    displayName: "Lào Cai",
+    displayNameVi: "Tỉnh Lào Cai",
+    administrativeType: "province",
+    defaultPostalCode: "330000",
+    alias: ["Lao Cai", "Sa Pa", "Yên Bái"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-NA",
+    displayName: "Nghệ An",
+    displayNameVi: "Tỉnh Nghệ An",
+    administrativeType: "province",
+    defaultPostalCode: "460000",
+    alias: ["Nghe An", "Vinh"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-NB",
+    displayName: "Ninh Bình",
+    displayNameVi: "Tỉnh Ninh Bình",
+    administrativeType: "province",
+    defaultPostalCode: "430000",
+    alias: ["Ninh Binh", "Nam Định", "Hà Nam"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-PT",
+    displayName: "Phú Thọ",
+    displayNameVi: "Tỉnh Phú Thọ",
+    administrativeType: "province",
+    defaultPostalCode: "290000",
+    alias: ["Phu Tho", "Vĩnh Phúc"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-QNG",
+    displayName: "Quảng Ngãi",
+    displayNameVi: "Tỉnh Quảng Ngãi",
+    administrativeType: "province",
+    defaultPostalCode: "570000",
+    alias: ["Quang Ngai", "Bình Định"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-QN",
+    displayName: "Quảng Ninh",
+    displayNameVi: "Tỉnh Quảng Ninh",
+    administrativeType: "province",
+    defaultPostalCode: "200000",
+    alias: ["Quang Ninh", "Hạ Long", "Vân Đồn"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-QT",
+    displayName: "Quảng Trị",
+    displayNameVi: "Tỉnh Quảng Trị",
+    administrativeType: "province",
+    defaultPostalCode: "520000",
+    alias: ["Quang Tri", "Quảng Bình"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-SL",
+    displayName: "Sơn La",
+    displayNameVi: "Tỉnh Sơn La",
+    administrativeType: "province",
+    defaultPostalCode: "360000",
+    alias: ["Son La", "Mộc Châu"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-TN",
+    displayName: "Tây Ninh",
+    displayNameVi: "Tỉnh Tây Ninh",
+    administrativeType: "province",
+    defaultPostalCode: "840000",
+    alias: ["Tay Ninh", "Bình Phước"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-TNG",
+    displayName: "Thái Nguyên",
+    displayNameVi: "Tỉnh Thái Nguyên",
+    administrativeType: "province",
+    defaultPostalCode: "250000",
+    alias: ["Thai Nguyen"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-TH",
+    displayName: "Thanh Hóa",
+    displayNameVi: "Tỉnh Thanh Hóa",
+    administrativeType: "province",
+    defaultPostalCode: "440000",
+    alias: ["Thanh Hoa"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-TQ",
+    displayName: "Tuyên Quang",
+    displayNameVi: "Tỉnh Tuyên Quang",
+    administrativeType: "province",
+    defaultPostalCode: "300000",
+    alias: ["Tuyen Quang", "Hà Giang"],
+  },
+  {
+    countryCode: "VN",
+    code: "VN-VL",
+    displayName: "Vĩnh Long",
+    displayNameVi: "Tỉnh Vĩnh Long",
+    administrativeType: "province",
+    defaultPostalCode: "890000",
+    alias: ["Vinh Long", "Bến Tre", "Trà Vinh"],
+  },
+];
+
+// Structured Locality Data: Wards, Communes, and Special Zones categorized by Province
+export const VN_LOCALITIES: LocalityOption[] = [
+  // --- TP. HỒ CHÍ MINH (VN-SG) ---
+  { countryCode: "VN", regionCode: "VN-SG", code: "VN-SG-BNG", displayName: "Phường Bến Nghé", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-SG", code: "VN-SG-BTH", displayName: "Phường Bến Thành", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-SG", code: "VN-SG-TDI", displayName: "Phường Tân Định", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-SG", code: "VN-SG-DKA", displayName: "Phường Đa Kao", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-SG", code: "VN-SG-THD", displayName: "Phường Thảo Điền", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-SG", code: "VN-SG-APH", displayName: "Phường An Phú", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-SG", code: "VN-SG-TTH", displayName: "Phường Thủ Thiêm", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-SG", code: "VN-SG-VTS", displayName: "Phường Võ Thị Sáu", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-SG", code: "VN-SG-TPH", displayName: "Phường Tân Phong", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-SG", code: "VN-SG-TPU", displayName: "Phường Tân Phú", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-SG", code: "VN-SG-PMY", displayName: "Phường Phú Mỹ", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-SG", code: "VN-SG-LCH", displayName: "Phường Linh Chiểu", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-SG", code: "VN-SG-LTR", displayName: "Phường Linh Trung", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-SG", code: "VN-SG-BCH", displayName: "Xã Bình Chánh", administrativeType: "commune" },
+  { countryCode: "VN", regionCode: "VN-SG", code: "VN-SG-PPH", displayName: "Xã Phong Phú", administrativeType: "commune" },
+  { countryCode: "VN", regionCode: "VN-SG", code: "VN-SG-VLA", displayName: "Xã Vĩnh Lộc A", administrativeType: "commune" },
+  { countryCode: "VN", regionCode: "VN-SG", code: "VN-SG-VLB", displayName: "Xã Vĩnh Lộc B", administrativeType: "commune" },
+  { countryCode: "VN", regionCode: "VN-SG", code: "VN-SG-NBE", displayName: "Xã Nhà Bè", administrativeType: "commune" },
+  { countryCode: "VN", regionCode: "VN-SG", code: "VN-SG-PBO", displayName: "Phường Phước Bình", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-SG", code: "VN-SG-TLO", displayName: "Phường Thạnh Lộc", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-SG", code: "VN-SG-ANH", displayName: "Phường An Nhơn", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-SG", code: "VN-SG-DK-CG", displayName: "Đặc khu Cần Giờ", administrativeType: "special_zone" },
+  { countryCode: "VN", regionCode: "VN-SG", code: "VN-SG-DK-CD", displayName: "Đặc khu Côn Đảo", administrativeType: "special_zone" },
+
+  // --- HÀ NỘI (VN-HN) ---
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-TTI", displayName: "Phường Tràng Tiền", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-HBA", displayName: "Phường Hàng Bạc", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-HDA", displayName: "Phường Hàng Đào", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-HGA", displayName: "Phường Hàng Gai", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-CDO", displayName: "Phường Cửa Đông", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-KMA", displayName: "Phường Kim Mã", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-GVO", displayName: "Phường Giảng Võ", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-DBI", displayName: "Phường Điện Biên", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-LGV", displayName: "Phường Liễu Giai", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-NHA", displayName: "Phường Ngọc Hà", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-DCA", displayName: "Phường Đội Cấn", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-OCD", displayName: "Phường Ô Chợ Dừa", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-QTC", displayName: "Phường Quốc Tử Giám", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-LHA", displayName: "Phường Láng Hạ", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-LTH", displayName: "Phường Láng Thượng", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-DVH", displayName: "Phường Dịch Vọng Hậu", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-NTA", displayName: "Phường Nghĩa Tân", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-YHO", displayName: "Phường Yên Hòa", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-THO", displayName: "Phường Trung Hòa", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-MD1", displayName: "Phường Mỹ Đình 1", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-MD2", displayName: "Phường Mỹ Đình 2", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-PTH", displayName: "Phường Phú Thượng", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-NHT", displayName: "Phường Nhật Tân", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-QAN", displayName: "Phường Quảng An", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-BTR", displayName: "Xã Bát Tràng", administrativeType: "commune" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-DAN", displayName: "Xã Đông Anh", administrativeType: "commune" },
+  { countryCode: "VN", regionCode: "VN-HN", code: "VN-HN-TTR", displayName: "Xã Thanh Trì", administrativeType: "commune" },
+
+  // --- ĐÀ NẴNG (VN-DN) ---
+  { countryCode: "VN", regionCode: "VN-DN", code: "VN-DN-HC1", displayName: "Phường Hải Châu 1", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-DN", code: "VN-DN-HC2", displayName: "Phường Hải Châu 2", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-DN", code: "VN-DN-TTH", displayName: "Phường Thạch Thang", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-DN", code: "VN-DN-TBH", displayName: "Phường Thanh Bình", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-DN", code: "VN-DN-PMY", displayName: "Phường Phước Mỹ", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-DN", code: "VN-DN-AHB", displayName: "Phường An Hải Bắc", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-DN", code: "VN-DN-AHT", displayName: "Phường An Hải Tây", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-DN", code: "VN-DN-KMY", displayName: "Phường Khuê Mỹ", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-DN", code: "VN-DN-MAN", displayName: "Phường Mỹ An", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-DN", code: "VN-DN-HKB", displayName: "Phường Hòa Khánh Bắc", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-DN", code: "VN-DN-HKN", displayName: "Phường Hòa Khánh Nam", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-DN", code: "VN-DN-HVA", displayName: "Xã Hòa Vang", administrativeType: "commune" },
+  { countryCode: "VN", regionCode: "VN-DN", code: "VN-DN-HTI", displayName: "Xã Hòa Tiến", administrativeType: "commune" },
+  { countryCode: "VN", regionCode: "VN-DN", code: "VN-DN-DK-HS", displayName: "Đặc khu Hoàng Sa", administrativeType: "special_zone" },
+
+  // --- HẢI PHÒNG (VN-HP) ---
+  { countryCode: "VN", regionCode: "VN-HP", code: "VN-HP-HTH", displayName: "Phường Hoàng Văn Thụ", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HP", code: "VN-HP-MKH", displayName: "Phường Minh Khai", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HP", code: "VN-HP-DKH", displayName: "Phường Đông Khê", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HP", code: "VN-HP-CTR", displayName: "Phường Cầu Tre", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HP", code: "VN-HP-QTR", displayName: "Phường Quán Trữ", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HP", code: "VN-HP-LCH", displayName: "Phường Lạc Viên", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HP", code: "VN-HP-DK-CH", displayName: "Đặc khu Cát Hải", administrativeType: "special_zone" },
+  { countryCode: "VN", regionCode: "VN-HP", code: "VN-HP-DK-BL", displayName: "Đặc khu Bạch Long Vĩ", administrativeType: "special_zone" },
+
+  // --- CẦN THƠ (VN-CT) ---
+  { countryCode: "VN", regionCode: "VN-CT", code: "VN-CT-TAN", displayName: "Phường Tân An", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-CT", code: "VN-CT-ACU", displayName: "Phường An Cư", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-CT", code: "VN-CT-XKH", displayName: "Phường Xuân Khánh", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-CT", code: "VN-CT-HLI", displayName: "Phường Hưng Lợi", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-CT", code: "VN-CT-CKH", displayName: "Phường Cái Khế", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-CT", code: "VN-CT-TNO", displayName: "Phường Trà Nóc", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-CT", code: "VN-CT-PDI", displayName: "Xã Phong Điền", administrativeType: "commune" },
+
+  // --- HUẾ (VN-HUE) ---
+  { countryCode: "VN", regionCode: "VN-HUE", code: "VN-HUE-PHO", displayName: "Phường Phú Hội", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HUE", code: "VN-HUE-VNI", displayName: "Phường Vĩnh Ninh", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HUE", code: "VN-HUE-PNU", displayName: "Phường Phú Nhuận", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HUE", code: "VN-HUE-TLOC", displayName: "Phường Thuận Lộc", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HUE", code: "VN-HUE-DBA", displayName: "Phường Đông Ba", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HUE", code: "VN-HUE-KLON", displayName: "Phường Kim Long", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HUE", code: "VN-HUE-TXU", displayName: "Phường Thủy Xuân", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HUE", code: "VN-HUE-HLO", displayName: "Phường Hương Long", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HUE", code: "VN-HUE-ACU", displayName: "Phường An Cựu", administrativeType: "ward" },
+
+  // --- QUẢNG NINH (VN-QN) ---
+  { countryCode: "VN", regionCode: "VN-QN", code: "VN-QN-BDA", displayName: "Phường Bạch Đằng", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-QN", code: "VN-QN-HGA", displayName: "Phường Hồng Gai", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-QN", code: "VN-QN-BCH", displayName: "Phường Bãi Cháy", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-QN", code: "VN-QN-CXA", displayName: "Phường Cao Xanh", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-QN", code: "VN-QN-HTU", displayName: "Phường Hà Tu", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-QN", code: "VN-QN-DK-VD", displayName: "Đặc khu Vân Đồn", administrativeType: "special_zone" },
+  { countryCode: "VN", regionCode: "VN-QN", code: "VN-QN-DK-CT", displayName: "Đặc khu Cô Tô", administrativeType: "special_zone" },
+
+  // --- KHÁNH HÒA (VN-KH) ---
+  { countryCode: "VN", regionCode: "VN-KH", code: "VN-KH-LTH", displayName: "Phường Lộc Thọ", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-KH", code: "VN-KH-TLA", displayName: "Phường Tân Lập", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-KH", code: "VN-KH-PHA", displayName: "Phường Phước Hải", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-KH", code: "VN-KH-VNG", displayName: "Phường Vĩnh Nguyên", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-KH", code: "VN-KH-VHA", displayName: "Phường Vĩnh Hải", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-KH", code: "VN-KH-DK-TS", displayName: "Đặc khu Trường Sa", administrativeType: "special_zone" },
+
+  // --- AN GIANG (VN-AG) ---
+  { countryCode: "VN", regionCode: "VN-AG", code: "VN-AG-MXU", displayName: "Phường Mỹ Xuyên", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-AG", code: "VN-AG-MBI", displayName: "Phường Mỹ Bình", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-AG", code: "VN-AG-VTH", displayName: "Phường Vĩnh Thanh", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-AG", code: "VN-AG-DK-PQ", displayName: "Đặc khu Phú Quốc", administrativeType: "special_zone" },
+  { countryCode: "VN", regionCode: "VN-AG", code: "VN-AG-DK-TC", displayName: "Đặc khu Thổ Chu", administrativeType: "special_zone" },
+
+  // --- LÂM ĐỒNG (VN-LD) ---
+  { countryCode: "VN", regionCode: "VN-LD", code: "VN-LD-P01", displayName: "Phường 1 (Đà Lạt)", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-LD", code: "VN-LD-P02", displayName: "Phường 2", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-LD", code: "VN-LD-P03", displayName: "Phường 3", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-LD", code: "VN-LD-P08", displayName: "Phường 8", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-LD", code: "VN-LD-XTT", displayName: "Xã Tà Nung", administrativeType: "commune" },
+
+  // --- ĐỒNG NAI (VN-DNA) ---
+  { countryCode: "VN", regionCode: "VN-DNA", code: "VN-DNA-TBH", displayName: "Phường Trung Dũng", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-DNA", code: "VN-DNA-QVI", displayName: "Phường Quyết Thắng", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-DNA", code: "VN-DNA-THI", displayName: "Phường Thống Nhất", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-DNA", code: "VN-DNA-TTR", displayName: "Phường Tân Triều", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-DNA", code: "VN-DNA-LTB", displayName: "Xã Long Thành", administrativeType: "commune" },
+
+  // --- BẮC NINH (VN-BN) ---
+  { countryCode: "VN", regionCode: "VN-BN", code: "VN-BN-SCA", displayName: "Phường Suối Hoa", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-BN", code: "VN-BN-VAM", displayName: "Phường Vệ An", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-BN", code: "VN-BN-TCA", displayName: "Phường Tiền An", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-BN", code: "VN-BN-DNG", displayName: "Phường Đình Bảng", administrativeType: "ward" },
+
+  // --- CÀ MAU (VN-CM) ---
+  { countryCode: "VN", regionCode: "VN-CM", code: "VN-CM-P01", displayName: "Phường 1", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-CM", code: "VN-CM-P02", displayName: "Phường 2", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-CM", code: "VN-CM-P05", displayName: "Phường 5", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-CM", code: "VN-CM-XDM", displayName: "Xã Đất Mũi", administrativeType: "commune" },
+
+  // --- CAO BẰNG (VN-CB) ---
+  { countryCode: "VN", regionCode: "VN-CB", code: "VN-CB-HGI", displayName: "Phường Hợp Giang", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-CB", code: "VN-CB-STU", displayName: "Phường Sông Bằng", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-CB", code: "VN-CB-TTU", displayName: "Xã Trường Hà (Pác Bó)", administrativeType: "commune" },
+
+  // --- ĐẮK LẮK (VN-DL) ---
+  { countryCode: "VN", regionCode: "VN-DL", code: "VN-DL-TLO", displayName: "Phường Thắng Lợi", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-DL", code: "VN-DL-TAN", displayName: "Phường Tân An", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-DL", code: "VN-DL-TLP", displayName: "Phường Tân Lập", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-DL", code: "VN-DL-EAK", displayName: "Xã Ea Kao", administrativeType: "commune" },
+
+  // --- ĐIỆN BIÊN (VN-DB) ---
+  { countryCode: "VN", regionCode: "VN-DB", code: "VN-DB-MTH", displayName: "Phường Mường Thanh", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-DB", code: "VN-DB-NHA", displayName: "Phường Nam Thanh", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-DB", code: "VN-DB-TDA", displayName: "Phường Thanh Trường", administrativeType: "ward" },
+
+  // --- ĐỒNG THÁP (VN-DT) ---
+  { countryCode: "VN", regionCode: "VN-DT", code: "VN-DT-P01", displayName: "Phường 1", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-DT", code: "VN-DT-P02", displayName: "Phường 2", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-DT", code: "VN-DT-MYT", displayName: "Phường Mỹ Phú", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-DT", code: "VN-DT-SAN", displayName: "Xã Tân Thuận Đông", administrativeType: "commune" },
+
+  // --- GIA LAI (VN-GL) ---
+  { countryCode: "VN", regionCode: "VN-GL", code: "VN-GL-HTH", displayName: "Phường Hoa Lư", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-GL", code: "VN-GL-TTH", displayName: "Phường Tây Sơn", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-GL", code: "VN-GL-DDO", displayName: "Phường Diên Hồng", administrativeType: "ward" },
+
+  // --- HÀ TĨNH (VN-HT) ---
+  { countryCode: "VN", regionCode: "VN-HT", code: "VN-HT-BHI", displayName: "Phường Bắc Hà", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HT", code: "VN-HT-NHI", displayName: "Phường Nam Hà", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HT", code: "VN-HT-TLI", displayName: "Phường Trần Phú", administrativeType: "ward" },
+
+  // --- HƯNG YÊN (VN-HY) ---
+  { countryCode: "VN", regionCode: "VN-HY", code: "VN-HY-LHI", displayName: "Phường Lê Lợi", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HY", code: "VN-HY-MCH", displayName: "Phường Minh Khai", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-HY", code: "VN-HY-HNA", displayName: "Phường Hiến Nam", administrativeType: "ward" },
+
+  // --- LAI CHÂU (VN-LC) ---
+  { countryCode: "VN", regionCode: "VN-LC", code: "VN-LC-DPH", displayName: "Phường Đoàn Kết", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-LC", code: "VN-LC-TPO", displayName: "Phường Tân Phong", administrativeType: "ward" },
+
+  // --- LẠNG SƠN (VN-LS) ---
+  { countryCode: "VN", regionCode: "VN-LS", code: "VN-LS-VLA", displayName: "Phường Vĩnh Trại", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-LS", code: "VN-LS-HTH", displayName: "Phường Hoàng Văn Thụ", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-LS", code: "VN-LS-TTH", displayName: "Phường Tam Thanh", administrativeType: "ward" },
+
+  // --- LÀO CAI (VN-LCA) ---
+  { countryCode: "VN", regionCode: "VN-LCA", code: "VN-LCA-KTA", displayName: "Phường Kim Tân", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-LCA", code: "VN-LCA-BCO", displayName: "Phường Bắc Cường", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-LCA", code: "VN-LCA-SPA", displayName: "Phường Sa Pa", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-LCA", code: "VN-LCA-HSO", displayName: "Phường Hàm Rồng", administrativeType: "ward" },
+
+  // --- NGHỆ AN (VN-NA) ---
+  { countryCode: "VN", regionCode: "VN-NA", code: "VN-NA-QTR", displayName: "Phường Quang Trung", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-NA", code: "VN-NA-LTI", displayName: "Phường Lê Lợi", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-NA", code: "VN-NA-HTH", displayName: "Phường Hà Huy Tập", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-NA", code: "VN-NA-CLA", displayName: "Phường Cửa Lò", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-NA", code: "VN-NA-KLI", displayName: "Xã Kim Liên", administrativeType: "commune" },
+
+  // --- NINH BÌNH (VN-NB) ---
+  { countryCode: "VN", regionCode: "VN-NB", code: "VN-NB-TTH", displayName: "Phường Thanh Bình", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-NB", code: "VN-NB-VHA", displayName: "Phường Vân Giang", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-NB", code: "VN-NB-BDI", displayName: "Phường Bích Đào", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-NB", code: "VN-NB-HTH", displayName: "Xã Trường Yên (Hoa Lư)", administrativeType: "commune" },
+
+  // --- PHÚ THỌ (VN-PT) ---
+  { countryCode: "VN", regionCode: "VN-PT", code: "VN-PT-VPH", displayName: "Phường Gia Cẩm", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-PT", code: "VN-PT-NHA", displayName: "Phường Nông Trang", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-PT", code: "VN-PT-TLO", displayName: "Phường Tiên Cát", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-PT", code: "VN-PT-HHO", displayName: "Xã Hy Cương (Đền Hùng)", administrativeType: "commune" },
+
+  // --- QUẢNG NGÃI (VN-QNG) ---
+  { countryCode: "VN", regionCode: "VN-QNG", code: "VN-QNG-LTC", displayName: "Phường Lê Hồng Phong", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-QNG", code: "VN-QNG-TKY", displayName: "Phường Trần Phú", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-QNG", code: "VN-QNG-DK-LS", displayName: "Đặc khu Lý Sơn", administrativeType: "special_zone" },
+
+  // --- QUẢNG TRỊ (VN-QT) ---
+  { countryCode: "VN", regionCode: "VN-QT", code: "VN-QT-P01", displayName: "Phường 1", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-QT", code: "VN-QT-P02", displayName: "Phường 2", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-QT", code: "VN-QT-DHA", displayName: "Phường Đông Lương", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-QT", code: "VN-QT-DK-CC", displayName: "Đặc khu Cồn Cỏ", administrativeType: "special_zone" },
+
+  // --- SƠN LA (VN-SL) ---
+  { countryCode: "VN", regionCode: "VN-SL", code: "VN-SL-CCO", displayName: "Phường Chiềng Cơi", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-SL", code: "VN-SL-CLE", displayName: "Phường Chiềng Lề", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-SL", code: "VN-SL-MCH", displayName: "Phường Mộc Châu", administrativeType: "ward" },
+
+  // --- TÂY NINH (VN-TN) ---
+  { countryCode: "VN", regionCode: "VN-TN", code: "VN-TN-P01", displayName: "Phường 1", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-TN", code: "VN-TN-P02", displayName: "Phường 2", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-TN", code: "VN-TN-HDA", displayName: "Phường Hiệp Ninh", administrativeType: "ward" },
+
+  // --- THÁI NGUYÊN (VN-TNG) ---
+  { countryCode: "VN", regionCode: "VN-TNG", code: "VN-TNG-HVI", displayName: "Phường Hoàng Văn Thụ", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-TNG", code: "VN-TNG-QTR", displayName: "Phường Quang Trung", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-TNG", code: "VN-TNG-PDI", displayName: "Phường Phan Đình Phùng", administrativeType: "ward" },
+
+  // --- THANH HÓA (VN-TH) ---
+  { countryCode: "VN", regionCode: "VN-TH", code: "VN-TH-BMT", displayName: "Phường Ba Đình", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-TH", code: "VN-TH-LMO", displayName: "Phường Lam Sơn", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-TH", code: "VN-TH-SSO", displayName: "Phường Sầm Sơn", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-TH", code: "VN-TH-TDU", displayName: "Phường Đông Vệ", administrativeType: "ward" },
+
+  // --- TUYÊN QUANG (VN-TQ) ---
+  { countryCode: "VN", regionCode: "VN-TQ", code: "VN-TQ-MTH", displayName: "Phường Minh Xuân", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-TQ", code: "VN-TQ-PHA", displayName: "Phường Phan Thiết", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-TQ", code: "VN-TQ-TQU", displayName: "Phường Tân Quang", administrativeType: "ward" },
+
+  // --- VĨNH LONG (VN-VL) ---
+  { countryCode: "VN", regionCode: "VN-VL", code: "VN-VL-P01", displayName: "Phường 1", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-VL", code: "VN-VL-P02", displayName: "Phường 2", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-VL", code: "VN-VL-P04", displayName: "Phường 4", administrativeType: "ward" },
+  { countryCode: "VN", regionCode: "VN-VL", code: "VN-VL-P09", displayName: "Phường 9", administrativeType: "ward" },
+];

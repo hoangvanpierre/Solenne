@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createOrder, OrderError } from "@/lib/orders";
+import { findRegion, findLocality } from "@/lib/address-data";
 import {
   checkoutSchema,
   type CheckoutActionState,
@@ -26,18 +27,12 @@ export async function createOrderAction(
   const validated = checkoutSchema.safeParse(input);
   if (!validated.success) {
     const flat: Record<string, string[]> = {};
-    for (const [key, value] of Object.entries(
-      validated.error.flatten().fieldErrors as Record<string, unknown>
-    )) {
-      if (Array.isArray(value)) {
-        flat[key] = value as string[];
-      } else if (value && typeof value === "object") {
-        for (const [nestedKey, nestedValue] of Object.entries(value)) {
-          if (Array.isArray(nestedValue)) {
-            flat[`${key}.${nestedKey}`] = nestedValue as string[];
-          }
-        }
+    for (const issue of validated.error.issues) {
+      const path = issue.path.join(".");
+      if (!flat[path]) {
+        flat[path] = [];
       }
+      flat[path].push(issue.message);
     }
     return {
       error: "Please check your shipping details.",
@@ -45,11 +40,62 @@ export async function createOrderAction(
     };
   }
 
+  // Ensure city / state have resolved display names and administrative metadata
+  const shippingAddress = { ...validated.data.shippingAddress };
+  if (
+    shippingAddress.countryCode === "VN" ||
+    shippingAddress.country === "Vietnam" ||
+    shippingAddress.country === "Việt Nam"
+  ) {
+    shippingAddress.country = "Vietnam";
+    if (
+      shippingAddress.provinceCode &&
+      (!shippingAddress.state || shippingAddress.state === shippingAddress.provinceCode)
+    ) {
+      const reg = findRegion("VN", shippingAddress.provinceCode);
+      if (reg) {
+        shippingAddress.state = reg.displayName;
+        shippingAddress.provinceName = reg.displayName;
+      }
+    }
+    if (
+      shippingAddress.wardCode &&
+      shippingAddress.provinceCode &&
+      (!shippingAddress.city || shippingAddress.city === shippingAddress.wardCode)
+    ) {
+      const loc = findLocality("VN", shippingAddress.provinceCode, shippingAddress.wardCode);
+      if (loc) {
+        shippingAddress.city = loc.displayName;
+        shippingAddress.wardName = loc.displayName;
+        shippingAddress.administrativeType = loc.administrativeType;
+      }
+    }
+  } else if (
+    shippingAddress.countryCode === "US" ||
+    shippingAddress.country === "United States" ||
+    shippingAddress.country === "Hoa Kỳ"
+  ) {
+    shippingAddress.country = "United States";
+    if (
+      shippingAddress.provinceCode &&
+      (!shippingAddress.state || shippingAddress.state === shippingAddress.provinceCode)
+    ) {
+      const reg = findRegion("US", shippingAddress.provinceCode);
+      if (reg) {
+        shippingAddress.state = reg.displayName;
+        shippingAddress.provinceName = reg.displayName;
+      }
+    }
+  }
+
   try {
     const order = await createOrder({
       userId: user.id,
       email: validated.data.email,
-      shippingAddress: validated.data.shippingAddress,
+      shippingAddress: {
+        ...shippingAddress,
+        city: shippingAddress.city ?? "",
+      },
       items: validated.data.items,
       notes: validated.data.notes,
     });

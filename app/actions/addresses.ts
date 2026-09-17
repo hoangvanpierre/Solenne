@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { saveDefaultAddress } from "@/lib/addresses";
+import { findRegion, findLocality } from "@/lib/address-data";
 import {
   addressSchema,
   type AccountActionState,
@@ -26,12 +27,12 @@ export async function updateAddressAction(
   const validated = addressSchema.safeParse(input);
   if (!validated.success) {
     const flat: Record<string, string[]> = {};
-    for (const [key, value] of Object.entries(
-      validated.error.flatten().fieldErrors as Record<string, unknown>
-    )) {
-      if (Array.isArray(value)) {
-        flat[key] = value as string[];
+    for (const issue of validated.error.issues) {
+      const path = issue.path.join(".");
+      if (!flat[path]) {
+        flat[path] = [];
       }
+      flat[path].push(issue.message);
     }
     return {
       error: "Please check the highlighted fields.",
@@ -39,8 +40,43 @@ export async function updateAddressAction(
     };
   }
 
+  // Ensure city / state have display names if administrative codes were selected
+  const data = { ...validated.data };
+  if (
+    data.countryCode === "VN" ||
+    data.country === "Vietnam" ||
+    data.country === "Việt Nam"
+  ) {
+    data.country = "Vietnam";
+    if (data.provinceCode && (!data.state || data.state === data.provinceCode)) {
+      const reg = findRegion("VN", data.provinceCode);
+      if (reg) data.state = reg.displayName;
+    }
+    if (
+      data.wardCode &&
+      data.provinceCode &&
+      (!data.city || data.city === data.wardCode)
+    ) {
+      const loc = findLocality("VN", data.provinceCode, data.wardCode);
+      if (loc) data.city = loc.displayName;
+    }
+  } else if (
+    data.countryCode === "US" ||
+    data.country === "United States" ||
+    data.country === "Hoa Kỳ"
+  ) {
+    data.country = "United States";
+    if (data.provinceCode && (!data.state || data.state === data.provinceCode)) {
+      const reg = findRegion("US", data.provinceCode);
+      if (reg) data.state = reg.displayName;
+    }
+  }
+
   try {
-    await saveDefaultAddress(user.id, validated.data);
+    await saveDefaultAddress(user.id, {
+      ...data,
+      city: data.city ?? "",
+    });
   } catch (error) {
     console.error("Failed to save address:", error);
     return {

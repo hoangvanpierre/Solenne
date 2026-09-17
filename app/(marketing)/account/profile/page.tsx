@@ -31,7 +31,7 @@ export default async function ProfilePage() {
     .single();
 
   return (
-    <div className="py-24 lg:py-32">
+    <div className="py-24 lg:py-32 account-page">
       <Container className="max-w-2xl">
         <nav
           aria-label="Breadcrumb"

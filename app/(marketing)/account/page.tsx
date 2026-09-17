@@ -25,13 +25,13 @@ export default async function AccountPage() {
   const defaultAddress = await getDefaultAddress(user.id);
 
   return (
-    <div className="py-24 lg:py-32">
+    <div className="py-24 lg:py-32 account-page">
       <Container>
         {/* Header */}
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-10 border-b border-border">
           <div className="space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber/30 bg-amber/10 text-amber text-xs tracking-wider uppercase font-medium">
-              <Sparkles className="w-3 h-3" />
+              <Sparkles className="w-3.5 h-3.5" />
               <span>{isVi ? "Thành viên Góc riêng Solenne" : "Solenne Sanctuary Member"}</span>
             </div>
             <h1 className="font-serif text-5xl md:text-6xl font-semibold text-foreground">
@@ -48,7 +48,7 @@ export default async function AccountPage() {
             <Button
               variant="outline"
               type="submit"
-              className="inline-flex items-center gap-2 text-xs uppercase tracking-wider"
+              className="inline-flex items-center gap-2 text-xs uppercase tracking-wider h-auto min-h-11 py-2.5 px-5"
             >
               <LogOut className="w-4 h-4" />
               <span>{isVi ? "Đăng xuất" : "Sign Out"}</span>

@@ -224,6 +224,21 @@ button, input, select, textarea, optgroup {
   font-family: inherit;
 }
 
+/* --- Form Controls Browser Overrides --- */
+/* Hide Microsoft Edge and IE native password reveal and clear buttons
+   to prevent duplicate icons when custom visibility toggles are present */
+input::-ms-reveal {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+input::-ms-clear {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 /* --- Selection Styling --- */
 ::selection {
   background-color: var(--primary);
@@ -353,4 +368,28 @@ img {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* --- Account Page Typography Scale (1.5x Multiplier) --- */
+.account-page {
+  --text-xs: 1.6875rem;
+  --text-sm: 1.96875rem;
+  --text-base: 2.25rem;
+  --text-lg: 2.53125rem;
+  --text-xl: 2.8125rem;
+  --text-2xl: 3.375rem;
+  --text-3xl: 4.21875rem;
+  --text-4xl: 5.0625rem;
+  --text-5xl: 6.75rem;
+  --text-6xl: 8.4375rem;
+  --text-7xl: 10.125rem;
+  --text-8xl: 13.5rem;
+  --text-9xl: 18rem;
+  font-size: var(--text-base);
+}
+
+.account-page input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+.account-page select {
+  min-height: 3.25rem;
+}
+
 

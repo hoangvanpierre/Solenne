@@ -9,6 +9,10 @@
 	],
 	"workers_dev": true,
 	"preview_urls": true,
+	"vars": {
+		"NEXT_PUBLIC_SUPABASE_URL": "https://zxwawiuxcesuoaqczybk.supabase.co",
+		"NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_7c4tlY1DVbf2BqDv5Dk5xQ_3O4KKBqp"
+	},
 	"assets": {
 		"directory": ".open-next/assets",
 		"binding": "ASSETS"

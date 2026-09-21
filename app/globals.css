@@ -33,6 +33,11 @@
 
   --popover: #FFFFFF;
   --popover-foreground: #1A1A1A;
+
+  /* Brand Story luxury typography tokens */
+  --brand-story-active: #14100E;
+  --brand-story-muted: #B0A8A0;
+  --brand-story-accent: #C4956A;
 }
 
 /* --- Dark Mode CSS Variables --- */
@@ -64,6 +69,11 @@
 
     --popover: #141210;
     --popover-foreground: #FAF7F2;
+
+    /* Brand Story luxury typography tokens */
+    --brand-story-active: #FAF7F2;
+    --brand-story-muted: #5A544E;
+    --brand-story-accent: #D4A87A;
   }
 }
 

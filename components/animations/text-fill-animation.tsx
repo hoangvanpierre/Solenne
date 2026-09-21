@@ -34,6 +34,11 @@ export interface TextFillAnimationProps {
    */
   textSize?: string;
   /**
+   * Font weight class (Tailwind).
+   * @default "font-semibold"
+   */
+  fontWeight?: string;
+  /**
    * Max-width constraint class for the text block.
    * @default "max-w-4xl"
    */
@@ -82,10 +87,11 @@ export interface TextFillAnimationProps {
 export function TextFillAnimation({
   text,
   className,
-  mutedColor = "var(--muted-foreground)",
-  activeColor = "var(--foreground)",
-  accentColor = "var(--primary)",
+  mutedColor = "var(--brand-story-muted, #B0A8A0)",
+  activeColor = "var(--brand-story-active, #14100E)",
+  accentColor = "var(--brand-story-accent, #C4956A)",
   textSize = "text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl",
+  fontWeight = "font-semibold",
   maxWidth = "max-w-4xl",
   scrollDistance = "220vh",
   scrub = 0.8,
@@ -115,41 +121,44 @@ export function TextFillAnimation({
     return { words: parsedWords, totalChars: globalIdx };
   }, [text]);
 
-  // Gradient stops:
-  // [0% - 35%]: Pure activeColor (revealed)
-  // [35% - 50%]: Warm amber accent glow at the wavefront (4.5:1 contrast on cream)
-  // [50% - 65%]: Transition to mutedColor
-  // [65% - 100%]: Pure mutedColor (unrevealed)
+  // Gradient stops — tight transition for a sharp, premium fill edge:
+  // [0% - 40%]: Pure activeColor (fully revealed, solid)
+  // [40% - 47%]: Warm accent glow at the wavefront
+  // [47% - 55%]: Transition to mutedColor
+  // [55% - 100%]: Pure mutedColor (unrevealed)
   const gradientString = useMemo(() => {
-    return `linear-gradient(90deg, ${activeColor} 0%, ${activeColor} 35%, ${accentColor} 50%, ${mutedColor} 65%, ${mutedColor} 100%)`;
+    return `linear-gradient(90deg, ${activeColor} 0%, ${activeColor} 40%, ${accentColor} 47%, ${mutedColor} 55%, ${mutedColor} 100%)`;
   }, [activeColor, accentColor, mutedColor]);
 
   // Initial style for each animatable character:
-  // - paddingTop: 0.6em / paddingBottom: 1.0em expands the background-clip border-box
+  // - paddingTop: 0.65em / paddingBottom: 1.05em expands the background-clip border-box
   //   vertically so calligraphic descenders (g, p, y, q, j) and ascenders (d, h, b, E, accents)
-  //   are never sliced off at the line box boundary. Birthstone's descent metric is ~0.95em,
-  //   so 1.0em bottom padding provides a safe margin.
-  // - paddingLeft / paddingRight: 0.15em prevents clipping of cursive horizontal swashes.
+  //   are never sliced off at the line box boundary, even with bolder font-weights.
+  // - paddingLeft / paddingRight: 0.2em prevents clipping of cursive horizontal swashes.
   // - Negative margins exactly negate the padding in layout, preserving natural line spacing
   //   and letter kerning.
   // - 300% width background positioned at 100% shows pure mutedColor initially.
   const charStyle: React.CSSProperties = useMemo(() => {
     return {
       display: "inline-block",
-      paddingTop: "0.6em",
-      paddingBottom: "1.0em",
-      paddingLeft: "0.15em",
-      paddingRight: "0.15em",
-      marginTop: "-0.6em",
-      marginBottom: "-1.0em",
-      marginLeft: "-0.15em",
-      marginRight: "-0.15em",
+      fontWeight: "inherit",
+      paddingTop: "0.65em",
+      paddingBottom: "1.05em",
+      paddingLeft: "0.2em",
+      paddingRight: "0.2em",
+      marginTop: "-0.65em",
+      marginBottom: "-1.05em",
+      marginLeft: "-0.2em",
+      marginRight: "-0.2em",
       backgroundImage: gradientString,
       backgroundSize: "300% 100%",
       backgroundPosition: "100% 0%",
       WebkitBackgroundClip: "text",
       WebkitTextFillColor: "transparent",
       backgroundClip: "text",
+      WebkitFontSmoothing: "antialiased",
+      MozOsxFontSmoothing: "grayscale",
+      textRendering: "optimizeLegibility",
     };
   }, [gradientString]);
 
@@ -219,10 +228,16 @@ export function TextFillAnimation({
       <div className="sticky top-0 flex h-screen w-full items-center justify-center px-6 sm:px-8">
         <p
           className={cn(
-            "text-center font-serif font-normal leading-snug",
+            "text-center font-serif leading-snug antialiased",
+            fontWeight,
             textSize,
             maxWidth
           )}
+          style={{
+            textRendering: "optimizeLegibility",
+            WebkitFontSmoothing: "antialiased",
+            MozOsxFontSmoothing: "grayscale",
+          }}
           aria-label={text}
         >
           <span aria-hidden="true">

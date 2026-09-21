@@ -12,6 +12,11 @@ import { NextIntlClientProvider } from "next-intl";
 import { useRouter } from "next/navigation";
 import { setLocaleAction } from "@/app/actions/locale";
 import { useUIStore } from "@/stores/ui-store";
+import { useLocaleScrollRestoration } from "@/hooks/use-locale-scroll-restoration";
+import {
+  restoreLocaleScrollPosition,
+  saveLocaleScrollPosition,
+} from "@/lib/locale-scroll-restoration";
 import { DEFAULT_TIMEZONE } from "@/lib/constants";
 import enMessages from "@/messages/en.json";
 import viMessages from "@/messages/vi.json";
@@ -57,6 +62,10 @@ export function I18nProvider({
   const [messages, setMessages] = useState<IntlMessages>(initialMessages);
   const [isPending, startTransition] = useTransition();
 
+  // A language switch parks the visitor's scroll position; this puts them back
+  // on it once the new locale has rendered — including after a full page load.
+  useLocaleScrollRestoration();
+
   // Keep ui-store and html lang in sync with the current locale
   useEffect(() => {
     useUIStore.getState().setLocale(locale);
@@ -68,6 +77,11 @@ export function I18nProvider({
   const setLocale = useCallback(
     async (nextLocale: SupportedLocale) => {
       if (nextLocale === locale) return;
+
+      // 0. Park the current scroll position before anything re-renders: the
+      // visitor must stay exactly where they were across the locale change
+      // (see lib/locale-scroll-restoration.ts).
+      saveLocaleScrollPosition({ from: locale, to: nextLocale });
 
       // 1. Immediately switch client translations and locale without full-page reload
       const nextMessages = ALL_MESSAGES[nextLocale] ?? ALL_MESSAGES.en;
@@ -91,6 +105,11 @@ export function I18nProvider({
         }
         // router.refresh() re-renders active Server Components with the new NEXT_LOCALE cookie
         router.refresh();
+
+        // Re-rendering for the new locale can shift or reset the viewport, so
+        // return the visitor to the position parked in step 0 once the
+        // translated content has settled.
+        restoreLocaleScrollPosition();
       });
     },
     [locale, router]

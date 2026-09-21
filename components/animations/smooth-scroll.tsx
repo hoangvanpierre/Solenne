@@ -6,6 +6,7 @@ import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useAppLocale } from "@/hooks/use-locale";
+import { isLocaleScrollRestorationPending } from "@/lib/locale-scroll-restoration";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -57,7 +58,13 @@ export function SmoothScroll({ children }: SmoothScrollProps) {
     if (!lenis) return;
 
     const frame = requestAnimationFrame(() => {
-      lenis.scrollTo(0, { immediate: true });
+      // A language switch keeps the visitor on the same route and restores the
+      // scroll position they had (lib/locale-scroll-restoration.ts). Resetting
+      // the viewport to the top here would undo exactly that, so stand down
+      // while a restoration is pending or in progress.
+      if (!isLocaleScrollRestorationPending()) {
+        lenis.scrollTo(0, { immediate: true });
+      }
       lenis.resize();
       ScrollTrigger.refresh();
     });

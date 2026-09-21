@@ -5,3 +5,4 @@ export { ParallaxImage } from './parallax-image';
 export { HorizontalScroll } from './horizontal-scroll';
 export { PinnedSection } from './pinned-section';
 export { MagneticButton } from './magnetic-button';
+export { TextFillAnimation } from './text-fill-animation';

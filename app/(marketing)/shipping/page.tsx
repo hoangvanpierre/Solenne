@@ -73,7 +73,7 @@ export default async function ShippingPage() {
           <div className="overflow-hidden rounded-2xl border border-border">
             {shippingRows.map((row, index) => (
               <div
-                key={row.label}
+                key={index}
                 className={`flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-2 ${
                   index > 0 ? "border-t border-border" : ""
                 }`}
@@ -95,7 +95,7 @@ export default async function ShippingPage() {
           </h2>
           <ol className="space-y-8">
             {returnSteps.map((step, index) => (
-              <li key={step.title} className="flex gap-6">
+              <li key={index} className="flex gap-6">
                 <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-muted font-serif font-semibold text-foreground">
                   {index + 1}
                 </span>

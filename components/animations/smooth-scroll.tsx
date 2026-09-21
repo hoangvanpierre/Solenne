@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useAppLocale } from "@/hooks/use-locale";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,6 +16,7 @@ interface SmoothScrollProps {
 export function SmoothScroll({ children }: SmoothScrollProps) {
   const lenisRef = useRef<Lenis | null>(null);
   const pathname = usePathname();
+  const locale = useAppLocale();
 
   useEffect(() => {
     // Respect reduced motion preference
@@ -63,5 +65,22 @@ export function SmoothScroll({ children }: SmoothScrollProps) {
     return () => cancelAnimationFrame(frame);
   }, [pathname]);
 
+  // When locale changes on the same page, the translated text alters content
+  // height and element positions. Refresh Lenis + ScrollTrigger to recalculate
+  // without scrolling to top — preserving the user's approximate scroll position.
+  useEffect(() => {
+    const lenis = lenisRef.current;
+    if (!lenis) return;
+
+    // Allow one frame for React to commit new translated text to the DOM
+    const frame = requestAnimationFrame(() => {
+      lenis.resize();
+      ScrollTrigger.refresh();
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [locale]);
+
   return <>{children}</>;
 }
+

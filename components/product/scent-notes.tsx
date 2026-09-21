@@ -34,7 +34,7 @@ export function ScentNotes({ top, heart, base }: ScentNotesProps) {
   return (
     <div className="flex flex-col gap-2 my-8">
       {tiers.map((tier, i) => (
-        <ScrollReveal key={tier.label} delay={i * 0.1}>
+        <ScrollReveal key={i} delay={i * 0.1}>
           <div className={`p-5 rounded-xl ${tier.bg} border border-stone-200/50`}>
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">
               {tier.label}

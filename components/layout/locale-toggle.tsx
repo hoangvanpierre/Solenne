@@ -48,6 +48,7 @@ export function LocaleToggle({
         className
       )}
       aria-label={`Switch language to ${nextLocale === "en" ? "English" : "Tiếng Việt"}`}
+      aria-current="true"
     >
       <AnimatePresence mode="wait" initial={false}>
         <motion.span

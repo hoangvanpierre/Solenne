@@ -6,7 +6,7 @@ import "./globals.css";
 
 const birthstone = Birthstone({
   variable: "--font-birthstone",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext", "vietnamese"],
   weight: "400",
   display: "swap",
 });

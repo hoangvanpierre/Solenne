@@ -83,6 +83,7 @@
     "description": "Subscribe for private allocations, early access to seasonal pourings, and quiet reflections on the art of living.",
     "placeholder": "Your email address",
     "button": "Subscribe",
+    "subscribing": "Subscribing...",
     "success": "Welcome to the circle of light ✨",
     "successDetail": "Your email has been welcomed into our private ledger. Watch your inbox for quiet chronicles and new creations.",
     "error": "Unable to complete subscription. Please try again."

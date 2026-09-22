@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { authErrorState, requirePermission } from "@/lib/authz";
 import { createOrder, OrderError } from "@/lib/orders";
 import { findRegion, findLocality } from "@/lib/address-data";
 import {
@@ -15,13 +15,14 @@ export type { CheckoutActionState };
 export async function createOrderAction(
   input: CheckoutInput
 ): Promise<CheckoutActionState> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { error: "Please sign in to place an order." };
+  // Authorization first: session + active account status + order.create.
+  // The owner of the order is always the authenticated session — never a
+  // value supplied by the client.
+  let userId: string;
+  try {
+    ({ userId } = await requirePermission("order.create"));
+  } catch (error) {
+    return authErrorState(error, "Please sign in to place an order.");
   }
 
   const validated = checkoutSchema.safeParse(input);
@@ -90,7 +91,7 @@ export async function createOrderAction(
 
   try {
     const order = await createOrder({
-      userId: user.id,
+      userId,
       email: validated.data.email,
       shippingAddress: {
         ...shippingAddress,

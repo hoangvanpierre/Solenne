@@ -1,0 +1,108 @@
+# Solenne — RBAC database layer
+
+Migrations for the role-based access control system. **Source of truth for
+authorization is the database**: `profiles.role_id → roles → role_permissions →
+permissions`. Application code and UI only mirror it.
+
+## Apply order
+
+| # | File | What it does |
+|---|---|---|
+| 0001 | `0001_rbac_schema.sql` | `roles`, `permissions`, `role_permissions`, `audit_logs`; adds nullable `profiles.role_id` + `profiles.status`; helper functions; `handle_new_user` + privilege-escalation/last-admin triggers |
+| 0002 | `0002_rbac_seed.sql` | Seeds the 4 roles and 21 permissions, rebuilds the role→permission matrix, backfills existing profiles to `customer`, then makes `role_id` `NOT NULL DEFAULT` |
+| 0003 | `0003_rbac_rls.sql` | Enables RLS, creates every policy, hands out grants, repairs the broken `order_items` INSERT policy |
+| 0004 | `0004_bootstrap_admin.sql` | **Inert until edited.** Promotes exactly one account you name to `admin` |
+
+Each file is idempotent (safe to re-run) and ends with a self-verification block
+that raises an exception rather than half-applying.
+
+### Applying
+
+**Option A — SQL Editor (works today).** Dashboard → SQL Editor → paste one file
+→ Run. Do them in order, one at a time; each prints a `NOTICE` on success.
+
+**Option B — Supabase CLI (recommended once available).** This directory already
+uses the CLI's `supabase/migrations/*.sql` layout, so no restructuring is needed:
+
+```bash
+supabase link --project-ref <ref>   # needs the database password
+supabase db push
+```
+
+Run migrations as the **project owner** (`postgres`). The helpers in 0001 are
+`SECURITY DEFINER` and rely on table-owner RLS bypass; if they were owned by a
+lesser role, `has_permission()` inside a `profiles` policy would recurse.
+
+## Bootstrapping the first administrator
+
+Nothing is promoted automatically — not the first user, and not any hard-coded
+email. To create the initial admin:
+
+1. `select id, email, created_at from auth.users order by created_at;`
+2. Open `0004_bootstrap_admin.sql` and set `v_email` to that account.
+3. Run only that file. It writes a `user.role_changed` row to `audit_logs`
+   (`actor_id` is null: an operator action has no authenticated actor).
+4. Do **not** commit the file with `v_email` filled in.
+
+Existing accounts were backfilled to `customer` by 0002, so any pre-existing
+administrative account must be named here explicitly.
+
+## Verifying
+
+```bash
+node scripts/verify-rbac.mjs
+```
+
+Read-only: it uses the secret key from `.env.local` to inspect the catalogue and
+the publishable key to prove what anonymous callers can and cannot reach. It
+never writes. It reports FAIL while 0001–0003 have not been applied yet.
+
+Manual spot checks:
+
+```sql
+select name, rank from public.roles order by rank;
+select r.name, count(*) from public.role_permissions rp
+  join public.roles r on r.id = rp.role_id group by r.name order by r.name;
+select relname, relrowsecurity from pg_class
+  where relname in ('profiles','orders','order_items','addresses',
+                    'roles','permissions','role_permissions','audit_logs');
+```
+
+## Deliberate decisions (please confirm)
+
+1. **`settings.read` / `settings.manage` are not seeded.** Solenne has no
+   settings feature, so those permissions would guard nothing. Adding them later
+   is purely additive.
+2. **`staff` cannot place orders** (`order.create` is customer/admin only). This
+   follows the requested matrix literally; if staff should be able to buy
+   candles, add `('staff','order.create')` to the matrix in 0002 and re-run it.
+3. **Partially relaxed RLS:** `order_items` had no valid INSERT policy, so every
+   order write bypassed RLS via the service key. 0003 repairs that policy; until
+   the data layer is migrated to the user-scoped client, those writes still run
+   as `service_role` and RLS is not yet the effective gate.
+4. **`products` / `product_variants` keep their current RLS state.** Their read
+   policy could not be inspected, so 0003 refuses to enable RLS or hand out write
+   grants there unless RLS is *already* on. It raises a `WARNING` when it skips.
+5. **Stock decrement stays on the trusted server path.** It is a system
+   operation, not a user-delegated one, and customers must not hold
+   `inventory.update`.
+6. `audit_logs.actor_id` has **no** foreign key on purpose: audit rows must
+   survive account deletion and must never block it.
+
+## Rolling back
+
+Nothing here drops or rewrites an existing column or row. To reverse 0001–0003:
+
+```sql
+drop trigger if exists on_auth_user_created on auth.users;
+drop trigger if exists profiles_guard_privileges on public.profiles;
+alter table public.profiles drop column if exists role_id;   -- loses role assignments
+alter table public.profiles drop column if exists status;
+drop table if exists public.audit_logs;
+drop table if exists public.role_permissions;
+drop table if exists public.permissions;
+drop table if exists public.roles;
+```
+
+Recreate the previous `order_items` INSERT policy if you intend to keep using the
+service-key order path — 0003 removed it and replaced it with a working one.

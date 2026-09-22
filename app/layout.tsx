@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Birthstone } from "next/font/google";
 import { getLocale, getMessages, getTimeZone } from "next-intl/server";
 import { I18nProvider } from "@/components/layout";
+import { AuthzShell } from "@/components/authz-shell";
 import "./globals.css";
 
 const birthstone = Birthstone({
@@ -56,7 +57,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           initialMessages={messages}
           timeZone={timeZone}
         >
-          {children}
+          <AuthzShell>{children}</AuthzShell>
         </I18nProvider>
       </body>
     </html>

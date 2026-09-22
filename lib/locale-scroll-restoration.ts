@@ -2,16 +2,23 @@
 // SOLENNE — Locale Switch Scroll Restoration
 // ============================================
 //
-// Switching language re-renders every Server Component for the new locale (see
-// components/layout/i18n-provider.tsx). The route is preserved, but a
-// translated page is laid out differently and the viewport is not guaranteed to
-// stay put. This module parks the visitor's scroll position in `sessionStorage`
-// right before the switch and returns them to it once the new locale has
-// finished rendering.
+// Switching language reloads the document so every Server Component renders for
+// the new locale (see components/layout/i18n-provider.tsx). The route is
+// preserved, but a translated page is laid out differently and the viewport is
+// not guaranteed to stay put. This module parks the visitor's scroll position in
+// `sessionStorage` right before the reload and returns them to it once the new
+// locale has finished rendering.
 //
 // `sessionStorage` (not `localStorage`) is used on purpose: a parked position
 // is only meaningful for the current tab and the single locale switch that
 // created it.
+//
+// The parked payload is always consumed by a *different* document: a language
+// switch performs a full page load, so the module state below is brand new by
+// the time the new locale boots. `isLocaleScrollRestorationPending()` therefore
+// treats an unconsumed, still-relevant payload in `sessionStorage` as a switch
+// in flight; otherwise the smooth-scroll layer would reset the viewport to the
+// top and undo the restoration.
 
 import { clamp, isServer } from "@/lib/utils";
 
@@ -120,6 +127,71 @@ export function saveLocaleScrollPosition({
   return payload;
 }
 
+/** Outcome of reading the parked payload out of session storage. */
+type StoredPositionRead =
+  | { status: "empty" }
+  | { status: "malformed" }
+  | { status: "ok"; position: LocaleScrollPosition };
+
+/**
+ * Reads the parked payload without mutating anything, so that both the
+ * validation below and the in-flight guard can ask "is a locale switch still
+ * running?" without side effects.
+ */
+function readStoredPosition(): StoredPositionRead {
+  if (isServer()) return { status: "empty" };
+
+  let raw: string | null = null;
+  try {
+    raw = sessionStorage.getItem(LOCALE_SCROLL_STORAGE_KEY);
+  } catch {
+    // Storage blocked (private mode, quota): nothing can be parked.
+    return { status: "empty" };
+  }
+
+  if (!raw) return { status: "empty" };
+
+  try {
+    const parsed = JSON.parse(raw) as Partial<LocaleScrollPosition>;
+    const isUsable =
+      typeof parsed?.scrollY === "number" &&
+      typeof parsed?.savedAt === "number" &&
+      typeof parsed?.path === "string";
+
+    return isUsable
+      ? { status: "ok", position: parsed as LocaleScrollPosition }
+      : { status: "malformed" };
+  } catch {
+    return { status: "malformed" };
+  }
+}
+
+/** Why a parked position cannot be used by the document in front of us. */
+type PositionRelevance = "usable" | "expired" | "other-route" | "other-locale";
+
+/**
+ * Decides whether a parked position belongs to the locale switch this document
+ * is completing.
+ */
+function checkPositionRelevance(
+  position: LocaleScrollPosition
+): PositionRelevance {
+  // Stale: another switch (or an unrelated visit) has happened since.
+  if (Date.now() - position.savedAt > MAX_AGE_MS) return "expired";
+
+  // Never restore a position that was captured on a different route.
+  if (position.path !== currentRoutePath()) return "other-route";
+
+  // The position belongs to a switch *into* a specific locale; make sure this
+  // document is rendering that locale.
+  const currentLocale = currentDocumentLocale();
+  if (position.to && currentLocale && position.to !== currentLocale) {
+    return "other-locale";
+  }
+
+  return "usable";
+}
+
 /**
  * Read the parked position and validate that it belongs to the locale switch
  * this document is completing. Anything questionable is discarded rather than
@@ -128,57 +200,20 @@ export function saveLocaleScrollPosition({
 export function readSavedLocaleScrollPosition(): LocaleScrollPosition | null {
   if (isServer()) return null;
 
-  let raw: string | null = null;
-  try {
-    raw = sessionStorage.getItem(LOCALE_SCROLL_STORAGE_KEY);
-  } catch {
-    return null;
-  }
+  const read = readStoredPosition();
 
-  if (!raw) return null;
+  // Nothing parked: leave the in-flight state alone, the switch never happened.
+  if (read.status === "empty") return null;
 
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(raw);
-  } catch {
+  if (
+    read.status === "malformed" ||
+    checkPositionRelevance(read.position) !== "usable"
+  ) {
     clearSavedLocaleScrollPosition();
     return null;
   }
 
-  const saved = parsed as Partial<LocaleScrollPosition>;
-  const isUsable =
-    typeof saved?.scrollY === "number" &&
-    typeof saved?.savedAt === "number" &&
-    typeof saved?.path === "string";
-
-  if (!isUsable) {
-    clearSavedLocaleScrollPosition();
-    return null;
-  }
-
-  const position = saved as LocaleScrollPosition;
-
-  // Stale: another switch (or an unrelated visit) has happened since.
-  if (Date.now() - position.savedAt > MAX_AGE_MS) {
-    clearSavedLocaleScrollPosition();
-    return null;
-  }
-
-  // Never restore a position that was captured on a different route.
-  if (position.path !== currentRoutePath()) {
-    clearSavedLocaleScrollPosition();
-    return null;
-  }
-
-  // The position belongs to a switch *into* a specific locale; make sure this
-  // document is rendering that locale.
-  const currentLocale = currentDocumentLocale();
-  if (position.to && currentLocale && position.to !== currentLocale) {
-    clearSavedLocaleScrollPosition();
-    return null;
-  }
-
-  return position;
+  return read.position;
 }
 
 /** Removes the stored payload without touching the in-flight switch state. */
@@ -201,10 +236,22 @@ export function clearSavedLocaleScrollPosition(): void {
 /**
  * `true` while a locale switch is being restored. Smooth-scroll layers use this
  * to avoid resetting the viewport to the top midway through a restoration.
+ *
+ * An unconsumed parked payload counts as a switch in flight, because a language
+ * change that ends in a real page load starts a new document where the in-memory
+ * flag below is empty. Without that fallback the smooth-scroll layer would reset
+ * the visitor to the top before the position could be restored.
  */
 export function isLocaleScrollRestorationPending(): boolean {
-  if (isServer() || !pendingRestore) return false;
-  return Date.now() - pendingRestore.savedAt <= MAX_AGE_MS;
+  if (isServer()) return false;
+
+  const inFlight = pendingRestore;
+  if (inFlight && Date.now() - inFlight.savedAt <= MAX_AGE_MS) return true;
+
+  const read = readStoredPosition();
+  if (read.status !== "ok") return false;
+
+  return checkPositionRelevance(read.position) === "usable";
 }
 
 export function restoreLocaleScrollPosition(): () => void {
@@ -224,6 +271,12 @@ export function restoreLocaleScrollPosition(): () => void {
     clearSavedLocaleScrollPosition();
     return () => {};
   }
+
+  // Claim the viewport for the whole routine. Once the offset is honoured the
+  // stored payload is dropped, but the smooth-scroll layer has to keep standing
+  // down while late content settles, so the in-memory flag stays set until
+  // `finish()` clears it.
+  pendingRestore = { savedAt: saved.savedAt };
 
   const targetX = Math.max(0, saved.scrollX);
   const targetY = Math.max(0, saved.scrollY);

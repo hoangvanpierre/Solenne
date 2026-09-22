@@ -1,4 +1,7 @@
+import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireOwnership, requireOwnershipOrPermission } from "@/lib/authz";
+import { writeAuditLog } from "@/lib/audit";
 import { saveDefaultAddress } from "@/lib/addresses";
 import { SHIPPING } from "@/lib/constants";
 import type {
@@ -6,6 +9,22 @@ import type {
   OrderItem,
   ShippingAddress,
 } from "@/types";
+
+// ---------------------------------------------------------------------------
+// Orders data layer.
+//
+// Reads and customer writes use the USER-SCOPED Supabase client, so the RLS
+// policies in 0003 (orders_select_own, orders_insert_own, order_items_*,
+// orders_select_with_order_read) are enforced by the database on every query
+// instead of being bypassed by the secret key.
+//
+// The secret-key client appears exactly twice, both after an explicit
+// authorization check:
+//   1. stock decrement (inventory is cross-account data; `authenticated` has
+//      no write grant on product_variants);
+//   2. rollback deletion of an order the SAME request just created (orders has
+//      no DELETE policy or grant for `authenticated` by design).
+// ---------------------------------------------------------------------------
 
 interface OrderRow {
   id: string;
@@ -76,12 +95,15 @@ function mapOrder(row: OrderRow, items: OrderItem[]): Order {
   };
 }
 
+// Items are read on the user-scoped client: order_items_select_own restricts
+// the rows to the caller's own orders, and staff/admin reach the rest through
+// order_items_select_with_order_read.
 async function fetchItems(orderIds: string[]): Promise<Map<string, OrderItem[]>> {
   const itemsByOrder = new Map<string, OrderItem[]>();
   if (orderIds.length === 0) return itemsByOrder;
 
-  const admin = createAdminClient();
-  const { data, error } = await admin
+  const supabase = await createClient();
+  const { data, error } = await supabase
     .from("order_items")
     .select("*")
     .in("order_id", orderIds);
@@ -97,14 +119,21 @@ async function fetchItems(orderIds: string[]): Promise<Map<string, OrderItem[]>>
   return itemsByOrder;
 }
 
-// Callers must have verified the session (auth.getUser) before calling these;
-// userId must come from the authenticated session, never from user input.
+/**
+ * A user's orders, newest first.
+ *
+ * `userId` must come from the authenticated session, never from user input.
+ * The caller must own the orders — or hold `order.read`, which is how staff
+ * and managers view customer orders. RLS applies the identical rule.
+ */
 export async function getOrdersForUser(
   userId: string,
   limit = 20
 ): Promise<Order[]> {
-  const admin = createAdminClient();
-  const { data, error } = await admin
+  await requireOwnershipOrPermission(userId, "order.read");
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
     .from("orders")
     .select("*")
     .eq("user_id", userId)
@@ -119,9 +148,12 @@ export async function getOrdersForUser(
   return rows.map((row) => mapOrder(row, itemsByOrder.get(row.id) ?? []));
 }
 
+/** How many orders the given user has (drives the "View all orders (N)" link). */
 export async function countOrdersForUser(userId: string): Promise<number> {
-  const admin = createAdminClient();
-  const { count, error } = await admin
+  await requireOwnershipOrPermission(userId, "order.read");
+
+  const supabase = await createClient();
+  const { count, error } = await supabase
     .from("orders")
     .select("id", { count: "exact", head: true })
     .eq("user_id", userId);
@@ -131,12 +163,19 @@ export async function countOrdersForUser(userId: string): Promise<number> {
   return count ?? 0;
 }
 
+/**
+ * A single order by its public order number, scoped to its owner. Returns
+ * null when the order does not exist OR belongs to somebody else — callers
+ * cannot distinguish the two, so order numbers cannot be enumerated.
+ */
 export async function getOrderByNumber(
   orderNumber: string,
   userId: string
 ): Promise<Order | null> {
-  const admin = createAdminClient();
-  const { data, error } = await admin
+  await requireOwnershipOrPermission(userId, "order.read");
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
     .from("orders")
     .select("*")
     .eq("order_number", orderNumber)
@@ -151,6 +190,7 @@ export async function getOrderByNumber(
 
   return mapOrder(row, itemsByOrder.get(row.id) ?? []);
 }
+
 
 export interface CreateOrderInput {
   userId: string;
@@ -175,11 +215,27 @@ interface VariantRow {
   products: { id: string; name: string; is_active: boolean } | null;
 }
 
+/**
+ * Place an order for the authenticated caller.
+ *
+ * Authorization happens FIRST: `requireOwnership(userId, "order.create")`
+ * authenticates the caller, rejects non-active accounts, requires the
+ * `order.create` permission, and refuses any userId other than the session's
+ * own — so a forged payload cannot order on another account's behalf. Only
+ * after that check is the secret-key client used (stock movement + rollback),
+ * which is why this function must never be called before it.
+ */
 export async function createOrder(input: CreateOrderInput): Promise<Order> {
-  const admin = createAdminClient();
+  const actor = await requireOwnership(input.userId, "order.create");
+  const userId = actor.userId;
+
+  const supabase = await createClient();
+
+  // Price authority: variant prices and stock come from the database, never
+  // from the client payload (which only carries variantId + quantity).
   const variantIds = input.items.map((item) => item.variantId);
 
-  const { data: variantData, error: variantError } = await admin
+  const { data: variantData, error: variantError } = await supabase
     .from("product_variants")
     .select(
       "id, product_id, name, price, stock_quantity, products(id, name, is_active)"
@@ -230,10 +286,15 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
 
   const orderNumber = generateOrderNumber();
 
-  const { data: orderData, error: orderError } = await admin
+
+  // Writes run on the user-scoped client. RLS enforces the same rules the
+  // application layer just checked: orders_insert_own requires
+  // user_id = auth.uid() and status = 'pending'; order_items_insert_own
+  // requires the parent order to belong to the caller.
+  const { data: orderData, error: orderError } = await supabase
     .from("orders")
     .insert({
-      user_id: input.userId,
+      user_id: userId,
       order_number: orderNumber,
       status: "pending",
       subtotal,
@@ -252,7 +313,7 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
 
   const orderId = (orderData as { id: string }).id;
 
-  const { error: itemsError } = await admin.from("order_items").insert(
+  const { error: itemsError } = await supabase.from("order_items").insert(
     lineItems.map((item) => ({
       order_id: orderId,
       product_id: item.productId,
@@ -266,9 +327,26 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
   );
 
   if (itemsError) {
+    // Cleanup is privileged because customers deliberately have no DELETE
+    // grant or policy on orders (financial records). It only ever removes the
+    // row this same request just created.
+    const admin = createAdminClient();
     await admin.from("orders").delete().eq("id", orderId);
+    await writeAuditLog({
+      actorId: userId,
+      action: "order.create_rolled_back",
+      resourceType: "order",
+      resourceId: orderId,
+      metadata: { orderNumber, reason: itemsError.message },
+    });
     throw new Error(`Failed to create order items: ${itemsError.message}`);
   }
+
+  // Stock movement is a cross-account inventory write, so it runs on the
+  // secret-key client — always after the requireOwnership("order.create")
+  // check at the top of this function. The optimistic guard
+  // (stock_quantity = value read earlier) keeps concurrent orders honest.
+  const admin = createAdminClient();
 
   for (const item of lineItems) {
     const { data: updated, error: stockError } = await admin
@@ -282,20 +360,43 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
       throw new Error(`Failed to update stock: ${stockError.message}`);
     }
     if (!updated || updated.length === 0) {
+      await writeAuditLog({
+        actorId: userId,
+        action: "order.stock_conflict",
+        resourceType: "order",
+        resourceId: orderId,
+        metadata: { orderNumber, variantId: item.variantId },
+      });
       throw new OrderError(
         `Stock for ${item.productName} (${item.variantName}) changed while placing your order. Please try again.`
       );
     }
   }
 
-  const order = await getOrderByNumber(orderNumber, input.userId);
+  await writeAuditLog({
+    actorId: userId,
+    action: "order.created",
+    resourceType: "order",
+    resourceId: orderId,
+    metadata: {
+      orderNumber,
+      itemCount: lineItems.length,
+      subtotal,
+      shippingFee,
+      total,
+      currency: "USD",
+      status: "pending",
+    },
+  });
+
+  const order = await getOrderByNumber(orderNumber, userId);
 
   if (!order) throw new Error("Order created but could not be read back.");
 
   // Remember the shipping address as the user's default so future checkouts
   // can be prefilled. Best-effort: never fail the order over this.
   try {
-    await saveDefaultAddress(input.userId, input.shippingAddress);
+    await saveDefaultAddress(userId, input.shippingAddress);
   } catch (error) {
     console.warn("Failed to save default address:", error);
   }
@@ -309,3 +410,4 @@ export class OrderError extends Error {
     this.name = "OrderError";
   }
 }
+

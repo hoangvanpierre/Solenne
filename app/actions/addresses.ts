@@ -1,8 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
 import { saveDefaultAddress } from "@/lib/addresses";
+import { authErrorState, requirePermission } from "@/lib/authz";
 import { findRegion, findLocality } from "@/lib/address-data";
 import {
   addressSchema,
@@ -15,13 +15,15 @@ export type { AccountActionState };
 export async function updateAddressAction(
   input: AddressInput
 ): Promise<AccountActionState> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { error: "Please sign in to edit your address." };
+  // Authorization first: session + active status + the self-service
+  // permission. The owner of the saved address is always the authenticated
+  // session — never a value supplied by the client — and saveDefaultAddress()
+  // re-checks ownership against the row it is about to write.
+  let userId: string;
+  try {
+    ({ userId } = await requirePermission("profile.update_own"));
+  } catch (error) {
+    return authErrorState(error, "Please sign in to edit your address.");
   }
 
   const validated = addressSchema.safeParse(input);
@@ -73,7 +75,7 @@ export async function updateAddressAction(
   }
 
   try {
-    await saveDefaultAddress(user.id, {
+    await saveDefaultAddress(userId, {
       ...data,
       city: data.city ?? "",
     });

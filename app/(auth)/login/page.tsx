@@ -33,8 +33,8 @@ function LoginForm() {
         </h1>
         <p className="text-sm text-muted-foreground">
           {isVi
-            ? "Nhập thư điện tử và mật khẩu để trở về không gian riêng của bạn."
-            : "Enter your email and password to access your sanctuary."}
+            ? "Nhập email và mật khẩu để đăng nhập vào tài khoản của bạn."
+            : "Enter your email and password to access your account."}
         </p>
       </div>
 

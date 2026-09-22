@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { authErrorState, requirePermission } from "@/lib/authz";
 import {
   profileSchema,
   type AccountActionState,
@@ -14,13 +14,16 @@ export type { AccountActionState };
 export async function updateProfileAction(
   input: ProfileInput
 ): Promise<AccountActionState> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { error: "Please sign in to manage your profile." };
+  // Self-service profile edit: any active account may update its own name and
+  // phone. Role, status and id are never accepted from the client.
+  let userId: string;
+  try {
+    ({ userId } = await requirePermission("profile.update_own"));
+  } catch (error) {
+    return authErrorState(
+      error,
+      "Please sign in to manage your profile."
+    );
   }
 
   const validated = profileSchema.safeParse(input);
@@ -40,16 +43,23 @@ export async function updateProfileAction(
   }
 
   try {
-    const admin = createAdminClient();
-    const { error: upsertError } = await admin.from("profiles").upsert({
-      id: user.id,
-      full_name: validated.data.fullName,
-      phone: validated.data.phone || null,
-      updated_at: new Date().toISOString(),
-    });
+    // User-scoped write: RLS (profiles_update_own) limits the statement to the
+    // caller's own row, and the profiles_guard_privileges trigger from 0001
+    // rejects any attempt to touch role_id / status from this path. The
+    // payload is limited to the two columns a client may change, so a forged
+    // field cannot promote or reactivate an account.
+    const supabase = await createClient();
+    const { error: updateError } = await supabase
+      .from("profiles")
+      .update({
+        full_name: validated.data.fullName,
+        phone: validated.data.phone || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", userId);
 
-    if (upsertError) {
-      throw new Error(upsertError.message);
+    if (updateError) {
+      throw new Error(updateError.message);
     }
   } catch (error) {
     console.error("Failed to update profile:", error);
@@ -65,3 +75,4 @@ export async function updateProfileAction(
 
   return { success: true };
 }
+

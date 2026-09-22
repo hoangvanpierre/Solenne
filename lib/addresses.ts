@@ -1,5 +1,17 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
+import { requireOwnership } from "@/lib/authz";
 import type { ShippingAddress } from "@/types";
+
+// ---------------------------------------------------------------------------
+// Saved addresses — strictly user-owned data.
+//
+// Every function here runs on the USER-SCOPED Supabase client, so RLS
+// (0003: addresses_select_own / _insert_own / _update_own / _delete_own) is a
+// real second gate rather than something the secret key bypasses. The
+// application layer additionally requires an active session that owns the row
+// and holds the matching self-service permission, so a caller who guesses
+// another user's id is rejected before the query is even sent.
+// ---------------------------------------------------------------------------
 
 interface AddressRow {
   id: string;
@@ -37,15 +49,19 @@ function mapRow(row: AddressRow): SavedAddress {
   };
 }
 
-// Callers must have verified the session; userId must come from the
-// authenticated session, never from user input.
+/**
+ * The caller's default saved address, or null.
+ * `userId` must come from the authenticated session, never from user input.
+ */
 export async function getDefaultAddress(
   userId: string
 ): Promise<SavedAddress | null> {
-  const admin = createAdminClient();
+  await requireOwnership(userId, "profile.read_own");
+
+  const supabase = await createClient();
   // Tolerates duplicate default rows (e.g. from a concurrent backfill):
   // takes the first instead of erroring on multiple matches.
-  const { data, error } = await admin
+  const { data, error } = await supabase
     .from("addresses")
     .select("*")
     .eq("user_id", userId)
@@ -74,11 +90,13 @@ interface OrderAddress extends Partial<ShippingAddress> {
   country?: string;
 }
 
+// Reads the caller's own most recent order (RLS: orders_select_own) and
+// persists its shipping address as the saved default.
 async function backfillFromLatestOrder(
   userId: string
 ): Promise<SavedAddress | null> {
-  const admin = createAdminClient();
-  const { data, error } = await admin
+  const supabase = await createClient();
+  const { data, error } = await supabase
     .from("orders")
     .select("shipping_address")
     .eq("user_id", userId)
@@ -128,8 +146,11 @@ async function backfillFromLatestOrder(
   };
 }
 
-// Keeps a single "default" address per user: updates the existing default
-// row when one exists, otherwise inserts a new one.
+/**
+ * Upsert the caller's single default address. Keeps one "default" row per
+ * user: updates existing default rows when present, otherwise inserts one.
+ * `userId` must come from the authenticated session, never from user input.
+ */
 export async function saveDefaultAddress(
   userId: string,
   address: Omit<ShippingAddress, "fullName" | "phone"> & {
@@ -137,7 +158,9 @@ export async function saveDefaultAddress(
     phone?: string;
   }
 ): Promise<void> {
-  const admin = createAdminClient();
+  await requireOwnership(userId, "profile.update_own");
+
+  const supabase = await createClient();
 
   const values = {
     line1: address.line1,
@@ -148,7 +171,7 @@ export async function saveDefaultAddress(
     country: address.country,
   };
 
-  const { data: existing, error: fetchError } = await admin
+  const { data: existing, error: fetchError } = await supabase
     .from("addresses")
     .select("id")
     .eq("user_id", userId)
@@ -161,7 +184,7 @@ export async function saveDefaultAddress(
   if (existing && existing.length > 0) {
     // Update every default row to the same values — self-heals any
     // duplicates created by concurrent requests.
-    const { error: updateError } = await admin
+    const { error: updateError } = await supabase
       .from("addresses")
       .update(values)
       .in(
@@ -175,7 +198,7 @@ export async function saveDefaultAddress(
     return;
   }
 
-  const { error: insertError } = await admin.from("addresses").insert({
+  const { error: insertError } = await supabase.from("addresses").insert({
     user_id: userId,
     label: "Default",
     is_default: true,
@@ -186,3 +209,4 @@ export async function saveDefaultAddress(
     throw new Error(`Failed to save address: ${insertError.message}`);
   }
 }
+

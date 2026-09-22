@@ -7,16 +7,13 @@ import React, {
   useTransition,
   useCallback,
   useEffect,
+  useRef,
 } from "react";
 import { NextIntlClientProvider } from "next-intl";
-import { useRouter } from "next/navigation";
 import { setLocaleAction } from "@/app/actions/locale";
 import { useUIStore } from "@/stores/ui-store";
 import { useLocaleScrollRestoration } from "@/hooks/use-locale-scroll-restoration";
-import {
-  restoreLocaleScrollPosition,
-  saveLocaleScrollPosition,
-} from "@/lib/locale-scroll-restoration";
+import { saveLocaleScrollPosition } from "@/lib/locale-scroll-restoration";
 import { DEFAULT_TIMEZONE } from "@/lib/constants";
 import enMessages from "@/messages/en.json";
 import viMessages from "@/messages/vi.json";
@@ -57,7 +54,7 @@ export function I18nProvider({
   timeZone = DEFAULT_TIMEZONE,
   children,
 }: I18nProviderProps) {
-  const router = useRouter();
+  const isReloadingRef = useRef(false);
   const [locale, setLocaleState] = useState<SupportedLocale>(initialLocale);
   const [messages, setMessages] = useState<IntlMessages>(initialMessages);
   const [isPending, startTransition] = useTransition();
@@ -76,43 +73,47 @@ export function I18nProvider({
 
   const setLocale = useCallback(
     async (nextLocale: SupportedLocale) => {
-      if (nextLocale === locale) return;
+      if (nextLocale === locale || isReloadingRef.current) return;
 
-      // 0. Park the current scroll position before anything re-renders: the
-      // visitor must stay exactly where they were across the locale change
-      // (see lib/locale-scroll-restoration.ts).
+      // 0. Park the current scroll position before the document is replaced: the
+      // visitor has to land on exactly the same spot once the new locale has
+      // finished loading (see lib/locale-scroll-restoration.ts). Nothing in this
+      // outgoing document may consume that payload — a restoration started here
+      // would drop it before the reload could read it.
       saveLocaleScrollPosition({ from: locale, to: nextLocale });
 
-      // 1. Immediately switch client translations and locale without full-page reload
+      // 1. Reflect the new language straight away so the UI responds the moment
+      // the toggle is pressed, while this is still the outgoing document.
       const nextMessages = ALL_MESSAGES[nextLocale] ?? ALL_MESSAGES.en;
       setLocaleState(nextLocale);
       setMessages(nextMessages);
       useUIStore.getState().setLocale(nextLocale);
 
-      // 2. Set document cookie immediately so subsequent client fetches and navigations send NEXT_LOCALE
+      // 2. Write NEXT_LOCALE synchronously: the document request below must carry
+      // it, otherwise the server would render the old locale all over again.
       if (typeof document !== "undefined") {
         document.cookie = `NEXT_LOCALE=${nextLocale}; path=/; max-age=31536000; SameSite=Lax`;
         document.documentElement.lang = nextLocale;
       }
 
-      // 3. Persist server-side cookie and refresh Server Components in-place
-      // preserving the current route, query parameters, filters, and scroll position
       startTransition(async () => {
+        // 3. Persist the cookie server-side so later requests keep the choice. A
+        // failure here is not fatal: the client-side cookie written above is what
+        // the reload request actually carries.
         try {
           await setLocaleAction(nextLocale);
         } catch {
           // Continue gracefully
         }
-        // router.refresh() re-renders active Server Components with the new NEXT_LOCALE cookie
-        router.refresh();
 
-        // Re-rendering for the new locale can shift or reset the viewport, so
-        // return the visitor to the position parked in step 0 once the
-        // translated content has settled.
-        restoreLocaleScrollPosition();
+        // 4. Full page load. The server re-renders the same route, query string
+        // and hash for the new locale, and the parked position is put back by
+        // useLocaleScrollRestoration() once the new document has rendered.
+        isReloadingRef.current = true;
+        window.location.reload();
       });
     },
-    [locale, router]
+    [locale]
   );
 
   return (

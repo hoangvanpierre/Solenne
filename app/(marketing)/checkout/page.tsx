@@ -1,8 +1,15 @@
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
+import { getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { getDefaultAddress } from "@/lib/addresses";
+import {
+  isRestrictedAuthError,
+  isUnauthenticatedAuthError,
+} from "@/lib/authz-ux";
 import { CheckoutForm } from "@/components/checkout";
+import { RestrictedAccountNotice } from "@/components/account";
+import { Container } from "@/components/ui/container";
 import type { SavedAddress } from "@/lib/addresses";
 
 export const metadata: Metadata = {
@@ -12,6 +19,7 @@ export const metadata: Metadata = {
 };
 
 export default async function CheckoutPage() {
+  const locale = await getLocale();
   const supabase = await createClient();
   const {
     data: { user },
@@ -28,10 +36,26 @@ export default async function CheckoutPage() {
     .single();
 
   let savedAddress: SavedAddress | null = null;
+  let accountRestricted = false;
   try {
     savedAddress = await getDefaultAddress(user.id);
-  } catch {
-    // A missing saved address should never block checkout.
+  } catch (error) {
+    if (isUnauthenticatedAuthError(error)) redirect("/login");
+    if (isRestrictedAuthError(error)) {
+      accountRestricted = true;
+    }
+    // Any other failure keeps the pre-existing behavior: checkout proceeds
+    // without a saved address rather than blocking the page.
+  }
+
+  if (accountRestricted) {
+    return (
+      <div className="py-24 lg:py-32">
+        <Container className="max-w-2xl">
+          <RestrictedAccountNotice locale={locale} />
+        </Container>
+      </div>
+    );
   }
 
   return (

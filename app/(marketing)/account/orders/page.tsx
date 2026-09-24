@@ -6,10 +6,14 @@ import { getLocale } from "next-intl/server";
 import { ArrowLeft, ArrowRight, Package } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getOrdersForUser } from "@/lib/orders";
+import {
+  isRestrictedAuthError,
+  isUnauthenticatedAuthError,
+} from "@/lib/authz-ux";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { OrderListItem } from "@/components/account";
+import { OrderListItem, RestrictedAccountNotice } from "@/components/account";
 import type { Order } from "@/types";
 
 export const metadata: Metadata = {
@@ -24,12 +28,22 @@ async function OrdersList({ userId, locale }: { userId: string; locale: string }
   const isVi = locale === "vi";
   let orders: Order[] = [];
   let loadFailed = false;
+  let accountRestricted = false;
 
   try {
     orders = await getOrdersForUser(userId, ORDERS_PAGE_LIMIT);
   } catch (error) {
-    console.error("Failed to load order history:", error);
-    loadFailed = true;
+    if (isUnauthenticatedAuthError(error)) redirect("/login");
+    if (isRestrictedAuthError(error)) {
+      accountRestricted = true;
+    } else {
+      console.error("Failed to load order history:", error);
+      loadFailed = true;
+    }
+  }
+
+  if (accountRestricted) {
+    return <RestrictedAccountNotice locale={locale} />;
   }
 
   if (loadFailed) {

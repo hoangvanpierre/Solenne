@@ -8,12 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAppLocale } from "@/hooks/use-locale";
 import { loginAction, type ActionState } from "@/app/actions/auth";
+import { sanitizeNextPath } from "@/lib/redirect";
 
 const initialState: ActionState = {};
 
 function LoginForm() {
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") || "/account";
+  const next = sanitizeNextPath(searchParams.get("next"));
   const errorParam = searchParams.get("error");
   const locale = useAppLocale();
   const isVi = locale === "vi";

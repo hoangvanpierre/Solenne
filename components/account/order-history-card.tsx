@@ -1,10 +1,16 @@
 import Link from "next/link";
 import { getLocale } from "next-intl/server";
+import { redirect } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { getOrdersForUser, countOrdersForUser } from "@/lib/orders";
+import {
+  isRestrictedAuthError,
+  isUnauthenticatedAuthError,
+} from "@/lib/authz-ux";
 import { formatPrice } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OrderStatusBadge } from "./status-badge";
+import { RestrictedAccountNotice } from "./restricted-account-notice";
 import type { Order } from "@/types";
 
 const MAX_DASHBOARD_ORDERS = 3;
@@ -20,6 +26,7 @@ export async function OrderHistoryCard({ userId }: OrderHistoryCardProps) {
   let orders: Order[] = [];
   let totalOrders = 0;
   let loadFailed = false;
+  let accountRestricted = false;
 
   try {
     [orders, totalOrders] = await Promise.all([
@@ -27,8 +34,17 @@ export async function OrderHistoryCard({ userId }: OrderHistoryCardProps) {
       countOrdersForUser(userId),
     ]);
   } catch (error) {
-    console.error("Failed to load order history:", error);
-    loadFailed = true;
+    if (isUnauthenticatedAuthError(error)) redirect("/login");
+    if (isRestrictedAuthError(error)) {
+      accountRestricted = true;
+    } else {
+      console.error("Failed to load order history:", error);
+      loadFailed = true;
+    }
+  }
+
+  if (accountRestricted) {
+    return <RestrictedAccountNotice locale={locale} />;
   }
 
   const hasMore = totalOrders > MAX_DASHBOARD_ORDERS;

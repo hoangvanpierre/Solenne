@@ -6,3 +6,4 @@ export {
 } from "./order-history-card";
 export { AddressForm } from "./address-form";
 export { ProfileForm } from "./profile-form";
+export { RestrictedAccountNotice } from "./restricted-account-notice";

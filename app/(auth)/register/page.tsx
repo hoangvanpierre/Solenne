@@ -17,12 +17,13 @@ import { registerAction, type ActionState } from "@/app/actions/auth";
 import { registerSchema } from "@/lib/validations/auth";
 import { PasswordStrengthMeter } from "@/components/auth/password-strength-meter";
 import { useAppLocale } from "@/hooks/use-locale";
+import { sanitizeNextPath } from "@/lib/redirect";
 
 const initialState: ActionState = {};
 
 function RegisterForm() {
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") || "/account";
+  const next = sanitizeNextPath(searchParams.get("next"));
   const locale = useAppLocale();
   const isVi = locale === "vi";
 

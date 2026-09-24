@@ -7,6 +7,11 @@ import { createClient } from "@/lib/supabase/server";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { getOrderByNumber } from "@/lib/orders";
+import {
+  isRestrictedAuthError,
+  isUnauthenticatedAuthError,
+} from "@/lib/authz-ux";
+import { RestrictedAccountNotice } from "@/components/account";
 import { CONTACT_EMAIL } from "@/lib/constants";
 import { formatPrice } from "@/lib/utils";
 
@@ -34,7 +39,26 @@ export default async function CheckoutSuccessPage({
     redirect("/login");
   }
 
-  const order = number ? await getOrderByNumber(number, user.id) : null;
+  let order: Awaited<ReturnType<typeof getOrderByNumber>> = null;
+  let accountRestricted = false;
+
+  try {
+    order = number ? await getOrderByNumber(number, user.id) : null;
+  } catch (error) {
+    if (isUnauthenticatedAuthError(error)) redirect("/login");
+    if (!isRestrictedAuthError(error)) throw error;
+    accountRestricted = true;
+  }
+
+  if (accountRestricted) {
+    return (
+      <div className="py-24 lg:py-32">
+        <Container className="max-w-3xl">
+          <RestrictedAccountNotice locale={locale} />
+        </Container>
+      </div>
+    );
+  }
 
   return (
     <div className="py-24 lg:py-32">

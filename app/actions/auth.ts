@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
+import { sanitizeNextPath } from "@/lib/redirect";
 import {
   loginSchema,
   registerSchema,
@@ -31,7 +32,7 @@ export async function loginAction(
     };
   }
 
-  const next = (formData.get("next") as string) || "/account";
+  const next = sanitizeNextPath(formData.get("next") as string | null);
   const supabase = await createClient();
 
   const { error } = await supabase.auth.signInWithPassword({
@@ -71,7 +72,7 @@ export async function registerAction(
     };
   }
 
-  const next = (formData.get("next") as string) || "/account";
+  const next = sanitizeNextPath(formData.get("next") as string | null);
   const supabase = await createClient();
 
   const headerList = await headers();

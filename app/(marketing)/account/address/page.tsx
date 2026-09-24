@@ -5,8 +5,12 @@ import { getLocale } from "next-intl/server";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getDefaultAddress } from "@/lib/addresses";
+import {
+  isRestrictedAuthError,
+  isUnauthenticatedAuthError,
+} from "@/lib/authz-ux";
 import { Container } from "@/components/ui/container";
-import { AddressForm } from "@/components/account";
+import { AddressForm, RestrictedAccountNotice } from "@/components/account";
 
 export const metadata: Metadata = {
   title: "Edit Shipping Address — Solenne",
@@ -25,7 +29,26 @@ export default async function AddressPage() {
     redirect("/login");
   }
 
-  const address = await getDefaultAddress(user.id);
+  let address: Awaited<ReturnType<typeof getDefaultAddress>> = null;
+  let accountRestricted = false;
+
+  try {
+    address = await getDefaultAddress(user.id);
+  } catch (error) {
+    if (isUnauthenticatedAuthError(error)) redirect("/login");
+    if (!isRestrictedAuthError(error)) throw error;
+    accountRestricted = true;
+  }
+
+  if (accountRestricted) {
+    return (
+      <div className="py-24 lg:py-32 account-page">
+        <Container className="max-w-2xl">
+          <RestrictedAccountNotice locale={locale} />
+        </Container>
+      </div>
+    );
+  }
 
   return (
     <div className="py-24 lg:py-32 account-page">

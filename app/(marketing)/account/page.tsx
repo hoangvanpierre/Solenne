@@ -5,10 +5,18 @@ import { getLocale } from "next-intl/server";
 import { ArrowRight, LogOut, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getDefaultAddress } from "@/lib/addresses";
+import {
+  isRestrictedAuthError,
+  isUnauthenticatedAuthError,
+} from "@/lib/authz-ux";
 import { signOutAction } from "@/app/actions/auth";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
-import { OrderHistoryCard, OrderHistoryCardSkeleton } from "@/components/account";
+import {
+  OrderHistoryCard,
+  OrderHistoryCardSkeleton,
+  RestrictedAccountNotice,
+} from "@/components/account";
 
 export default async function AccountPage() {
   const locale = await getLocale();
@@ -22,7 +30,26 @@ export default async function AccountPage() {
     redirect("/login");
   }
 
-  const defaultAddress = await getDefaultAddress(user.id);
+  let defaultAddress: Awaited<ReturnType<typeof getDefaultAddress>> = null;
+  let accountRestricted = false;
+
+  try {
+    defaultAddress = await getDefaultAddress(user.id);
+  } catch (error) {
+    if (isUnauthenticatedAuthError(error)) redirect("/login");
+    if (!isRestrictedAuthError(error)) throw error;
+    accountRestricted = true;
+  }
+
+  if (accountRestricted) {
+    return (
+      <div className="py-24 lg:py-32 account-page">
+        <Container>
+          <RestrictedAccountNotice locale={locale} />
+        </Container>
+      </div>
+    );
+  }
 
   return (
     <div className="py-24 lg:py-32 account-page">

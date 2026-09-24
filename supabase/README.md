@@ -12,6 +12,7 @@ permissions`. Application code and UI only mirror it.
 | 0002 | `0002_rbac_seed.sql` | Seeds the 4 roles and 21 permissions, rebuilds the role→permission matrix, backfills existing profiles to `customer`, then makes `role_id` `NOT NULL DEFAULT` |
 | 0003 | `0003_rbac_rls.sql` | Enables RLS, creates every policy, hands out grants, repairs the broken `order_items` INSERT policy |
 | 0004 | `0004_bootstrap_admin.sql` | **Inert until edited.** Promotes exactly one account you name to `admin` |
+| 0005 | `0005_rbac_security_foundation.sql` | Drops the `profiles` INSERT escalation policy, moves audit/catalog writes onto the `service_role` grants the app needs, and retires the four legacy `FOR ALL` policies on user data (see decision 7) |
 
 Each file is idempotent (safe to re-run) and ends with a self-verification block
 that raises an exception rather than half-applying.
@@ -55,7 +56,9 @@ node scripts/verify-rbac.mjs
 
 Read-only: it uses the secret key from `.env.local` to inspect the catalogue and
 the publishable key to prove what anonymous callers can and cannot reach. It
-never writes. It reports FAIL while 0001–0003 have not been applied yet.
+never writes. It reports FAIL while 0001–0005 have not been applied yet. A
+`--full` run is the only mode that creates anything: it makes disposable
+customer/staff/manager/admin accounts plus one test order, then deletes them all.
 
 Manual spot checks:
 
@@ -89,6 +92,20 @@ select relname, relrowsecurity from pg_class
 6. `audit_logs.actor_id` has **no** foreign key on purpose: audit rows must
    survive account deletion and must never block it.
 
+7. **Four legacy `FOR ALL` policies on user data were retired by 0005.** The
+   pre-RBAC dashboard schema still carried `profiles` → `own profile`, `orders` →
+   `own orders`, and `addresses` → `Users can manage their own addresses` +
+   `own address`, each `FOR ALL TO authenticated` scoped to the caller's own row
+   (that is why 0005 first failed its own check 3d). 0003's per-verb policies
+   supersede them, and on `orders` the catch-all additionally met the UPDATE
+   grant 0003 issues to `authenticated` — a customer could have rewritten their
+   own order's `total` or `status`. 0005 drops them by discovery, printing each
+   definition, and check 3d fails if one ever returns.
+8. **Partially relaxed RLS remains.** Stock decrement, the order-rollback delete
+   and every audit write still run as `service_role` (granted by 0005), because
+   they are system operations rather than user-delegated ones. RLS is not the
+   effective gate for those three paths.
+
 ## Rolling back
 
 Nothing here drops or rewrites an existing column or row. To reverse 0001–0003:
@@ -103,6 +120,11 @@ drop table if exists public.role_permissions;
 drop table if exists public.permissions;
 drop table if exists public.roles;
 ```
+
+To reverse 0005: revoke the grants it added to `service_role`, restore
+`profiles_insert_own` and `audit_logs_insert_own` from 0003, and re-create the
+four `FOR ALL` policies by hand only if you genuinely want customers able to
+update (or delete) their own order and address rows.
 
 Recreate the previous `order_items` INSERT policy if you intend to keep using the
 service-key order path — 0003 removed it and replaced it with a working one.

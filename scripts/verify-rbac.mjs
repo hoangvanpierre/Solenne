@@ -82,7 +82,7 @@ async function rest(path, { method = "GET", key, token, body, prefer } = {}) {
   return { status: res.status, json, text };
 }
 
-async function auth(path, { method = "GET", body }) {
+async function auth(path, { method = "GET", body } = {}) {
   const res = await fetch(`${ENV.url}/auth/v1${path}`, {
     method,
     headers: {
@@ -111,6 +111,12 @@ const rpc = (fn, { token, key, body = {} } = {}) =>
   rest(`/rpc/${fn}`, { method: "POST", token, key, body });
 
 const actor = async (token) => (await rpc("current_actor", { token })).json;
+
+// Trusted (secret-key) reads used for post-conditions. A status code alone does
+// not prove database STATE — these answer "what is actually stored?" so a check
+// can fail when reality differs from what the HTTP response implied.
+const trustedRoleOf = async (id) =>
+  (await rest(`/profiles?select=role_id&id=eq.${id}`, {})).json?.[0]?.role_id;
 
 // ===========================================================================
 // Mode 1 — read-only probes (no writes, no new accounts)
@@ -227,7 +233,43 @@ async function createRoleUser(roleName, roleIds) {
   return { id, email, token };
 }
 
+// ===========================================================================
+// Preflight — report (never remove) leftovers from earlier verification runs
+// ===========================================================================
+// Cleanup only ever touches what the current run created, so an environment can
+// accumulate rbac-verify-* accounts whenever a delete fails. This is purely
+// informational: it tells the operator whether the numbers below are being
+// measured on a clean database or a dirty one. Nothing is deleted here.
+const STALE_PREFIX = "rbac-verify";
+
+async function reportStaleVerificationAccounts() {
+  const res = await auth("/admin/users?per_page=1000&page=1");
+  console.log("\n== Preflight: existing verification accounts (left untouched) ==");
+
+  if (res.status >= 300) {
+    console.log(`  could not list accounts -> HTTP ${res.status} ${JSON.stringify(res.json)?.slice(0, 200)}`);
+    return;
+  }
+
+  const stale = (res.json?.users ?? []).filter((u) =>
+    (u.email ?? "").toLowerCase().startsWith(STALE_PREFIX)
+  );
+
+  if (stale.length === 0) {
+    console.log("  none — clean environment");
+    return;
+  }
+
+  console.log(`  ${stale.length} account(s) matching ${STALE_PREFIX}* already exist (NOT deleted):`);
+  for (const u of stale) {
+    console.log(`    - ${u.id} | ${u.email} | created ${u.created_at ?? "?"}`);
+  }
+  console.log("  This run cleans up only after itself; remove stale data separately if desired.");
+}
+
 async function fullMatrix() {
+  await reportStaleVerificationAccounts();
+
   const roleIds = (await resolveRoleIdsDirect()) ?? (await bootstrapRoleIds());
   if (!roleIds || ROLE_ORDER.some((r) => !roleIds[r])) {
     throw new Error(
@@ -252,10 +294,42 @@ async function fullMatrix() {
   for (const r of ROLE_ORDER) console.log(`  ${r.padEnd(8)} ${users[r].email}`);
 
   // A "victim" identity that is NOT one of the test accounts, used for every
-  // cross-user attempt.
-  const victimProfile = (await rest(`/profiles?select=id&id=not.eq.${users.customer.id}&limit=1`, {})).json?.[0];
-  if (!victimProfile) throw new Error("No other profile found to use as the cross-user target");
+  // cross-user attempt. The exclusion must cover ALL FOUR disposable accounts:
+  // excluding only the customer once selected the staff account itself, so the
+  // staff's "cross-account" INSERT was really an own-order insert — which
+  // orders_insert_own (user_id = auth.uid() and status = 'pending') permits by
+  // design, turning a passing policy into a failing check.
+  const testIds = ROLE_ORDER.map((roleName) => users[roleName].id);
+  const victimProfile = (
+    await rest(
+      `/profiles?select=id&id=not.in.(${testIds.join(",")})&order=created_at.asc&limit=1`,
+      {}
+    )
+  ).json?.[0];
+  if (!victimProfile) {
+    throw new Error(
+      "No profile outside the four disposable test accounts exists, so there is nothing to " +
+        "attempt a cross-account write against. Keep at least one other account, then re-run."
+    );
+  }
   const victimId = victimProfile.id;
+
+  // Assert explicitly that the target really is foreign — the whole cross-user
+  // section is meaningless otherwise.
+  for (const roleName of ROLE_ORDER) {
+    record(
+      "setup",
+      `cross-user target is not the ${roleName} test account`,
+      victimId !== users[roleName].id,
+      `victim=${victimId}`
+    );
+  }
+  if (testIds.includes(victimId)) {
+    throw new Error(
+      `Refusing to continue: the cross-user target resolved to a disposable test account (${victimId}).`
+    );
+  }
+  console.log(`  (cross-user target: ${victimId})`);
 
   const variant = (await rest("/product_variants?select=id,product_id,name,price&limit=1&products(name)", {})).json?.[0];
   const orderNumber = `RBAC-${STAMP.toUpperCase()}`;
@@ -356,6 +430,11 @@ async function fullMatrix() {
     body: { ...orderPayload, user_id: victimId, order_number: `${orderNumber}-X` },
   });
   record(S, "CANNOT create an order for another account", orderForOther.status >= 400, desc(orderForOther));
+  // If a regression ever lets this through, track the row so cleanup removes it
+  // instead of leaving untracked data behind.
+  if (orderForOther.status < 300 && orderForOther.json?.[0]?.id) {
+    created.orders.push(orderForOther.json[0].id);
+  }
 
   if (orderId) {
     const paid = await rest(`/orders?id=eq.${orderId}`, { method: "PATCH", token: cTok, prefer: "return=representation", body: { status: "paid" } });
@@ -454,8 +533,18 @@ async function fullMatrix() {
   // its OWN order row, while `order.create` (the permission that decides whether
   // checkout is allowed) is enforced by the application layer. Both are checked
   // here so the split is explicit rather than assumed.
+  // `victimId` is guaranteed by the setup checks above to be neither this staff
+  // account nor any other disposable one, so this is a genuinely foreign user_id.
   const sOrderForOther = await rest("/orders", { method: "POST", token: sTok, prefer: "return=representation", body: { ...orderPayload, user_id: victimId, order_number: `${orderNumber}-S2` } });
   record(S2, "CANNOT create an order for another account (RLS ownership)", sOrderForOther.status >= 400, desc(sOrderForOther));
+  if (sOrderForOther.status < 300 && sOrderForOther.json?.[0]?.id) {
+    created.orders.push(sOrderForOther.json[0].id);
+  }
+
+  // Trusted post-condition: the staff member cannot read the other account's
+  // orders, so verify through the service key that no row was written at all.
+  const sLeak = await rest(`/orders?select=id&user_id=eq.${victimId}&order_number=eq.${orderNumber}-S2`, {});
+  record(S2, "no order row was written for the target account", (sLeak.json?.length ?? 0) === 0, desc(sLeak));
 
   // RLS still lets staff read their OWN orders (orders_select_own applies to
   // every authenticated caller), so /account order history works for them.
@@ -477,8 +566,17 @@ async function fullMatrix() {
   const mRolePerms = await rest("/role_permissions?select=role_id&limit=1", { token: mTok });
   record(S3, "CANNOT read the permission matrix (no role.read)", (mRolePerms.json?.length ?? 0) === 0, desc(mRolePerms));
 
+  // RLS answers a blocked UPDATE with 200 + [] (the row is filtered, no error is
+  // raised), so `denied()` — not `status >= 400` — is the correct assertion
+  // shape here. A trusted read of the stored role_id follows.
+  const cRoleBefore = await trustedRoleOf(cId);
   const mGrant = await rest(`/profiles?id=eq.${cId}`, { method: "PATCH", token: mTok, prefer: "return=representation", body: { role_id: roleIds.staff } });
-  record(S3, "CANNOT change roles (role.manage required)", mGrant.status >= 400, desc(mGrant));
+  record(S3, "CANNOT change roles (role.manage required)", denied(mGrant), desc(mGrant));
+
+  // Post-condition: a status code proves nothing about state. The target's role
+  // must be exactly what it was before the attempt.
+  const cRoleAfter = await trustedRoleOf(cId);
+  record(S3, "the target's role_id is unchanged after the attempt", cRoleAfter === cRoleBefore, `${cRoleBefore} -> ${cRoleAfter}`);
 
   const mSelfEsc = await rest(`/profiles?id=eq.${mId}`, { method: "PATCH", token: mTok, prefer: "return=representation", body: { role_id: roleIds.admin } });
   record(S3, "CANNOT self-escalate to admin", mSelfEsc.status >= 400, desc(mSelfEsc));
@@ -569,26 +667,79 @@ async function fullMatrix() {
 // Cleanup — remove everything this run created
 // ===========================================================================
 async function cleanup() {
-  console.log("\n== Cleanup ==");
+  console.log("\n== Cleanup (only rows and accounts created by THIS run) ==");
+
+  // Deletion order follows the foreign keys:
+  //   order_items -> orders -> addresses -> profiles -> auth users
+  // profiles.id references auth.users(id) WITHOUT a cascade, and
+  // orders.user_id / addresses.user_id reference profiles.id, so removing the
+  // identity first raises a foreign-key violation that GoTrue reports as a bare
+  // HTTP 500 — leaving every dependent row behind (the previous behaviour).
+  const stuck = [];
+  const attempt = async (label, res) => {
+    const gone = res.status < 300 || res.status === 404;
+    if (!gone) {
+      stuck.push(`${label} -> HTTP ${res.status} ${JSON.stringify(res.json)?.slice(0, 300)}`);
+    }
+  };
+
+  // 1. order_items — the trusted path may hold no DELETE privilege here, in
+  //    which case step 2 removes them through the orders foreign key.
   for (const id of created.items) {
-    await rest(`/order_items?id=eq.${id}`, { method: "DELETE" });
-  }
-  for (const id of created.orders) {
-    // Service role may remove leftovers of the verification run; customers can
-    // never delete an order (no grant, no policy).
-    await rest(`/orders?id=eq.${id}`, { method: "DELETE" });
-  }
-  for (const id of created.addresses) {
-    await rest(`/addresses?id=eq.${id}`, { method: "DELETE" });
+    await attempt(`order_item ${id}`, await rest(`/order_items?id=eq.${id}`, { method: "DELETE" }));
   }
 
+  // 2. orders
+  for (const id of created.orders) {
+    // The trusted path may remove rows this run created; customers can never
+    // delete an order (no grant, no policy).
+    await attempt(`order ${id}`, await rest(`/orders?id=eq.${id}`, { method: "DELETE" }));
+  }
+
+  // 3. addresses
+  for (const id of created.addresses) {
+    await attempt(`address ${id}`, await rest(`/addresses?id=eq.${id}`, { method: "DELETE" }));
+  }
+
+  // 4. profiles, then 5. auth users — the profile row must go first.
   for (const user of created.users) {
+    const short = user.email.split("@")[0];
+
+    const profileRes = await rest(`/profiles?id=eq.${user.id}`, { method: "DELETE" });
+    const profileCheck = await rest(`/profiles?select=id&id=eq.${user.id}`, {});
+    const profileGone = (profileCheck.json?.length ?? 0) === 0;
+    record(
+      "cleanup",
+      `profile row removed (${short})`,
+      profileGone,
+      profileGone ? `DELETE ${profileRes.status}` : `DELETE ${profileRes.status} — row still present`
+    );
+
     const res = await auth(`/admin/users/${user.id}`, { method: "DELETE" });
-    const profile = await rest(`/profiles?select=id&id=eq.${user.id}`, {});
-    const profileGone = (profile.json?.length ?? 0) === 0;
-    if (!profileGone) await rest(`/profiles?id=eq.${user.id}`, { method: "DELETE" });
-    record("cleanup", `test account removed (${user.email.split("@")[0]})`, res.status < 300, `${res.status}`);
-    record("cleanup", `profile row cascade-removed (${user.email.split("@")[0]})`, profileGone, profileGone ? "" : "profile lingered and was deleted explicitly");
+    // GoTrue reports database failures as a plain 500; the response body is what
+    // names the failing constraint, so it is logged instead of swallowed.
+    record(
+      "cleanup",
+      `test account removed (${short})`,
+      res.status < 300,
+      res.status < 300 ? `HTTP ${res.status}` : `HTTP ${res.status} ${JSON.stringify(res.json)?.slice(0, 300)}`
+    );
+  }
+
+  // Precise leftover check for the dependent rows: only the ids THIS run created
+  // are queried — never a wildcard such as order_number=like.RBAC-*.
+  const noLeftovers = async (label, path, ids) => {
+    if (ids.length === 0) return;
+    const left = await rest(`${path}?select=id&id=in.(${ids.join(",")})`, {});
+    record("cleanup", `${label} removed (${ids.length})`, (left.json?.length ?? 0) === 0, desc(left));
+  };
+  await noLeftovers("order_items", "/order_items", created.items);
+  await noLeftovers("orders", "/orders", created.orders);
+  await noLeftovers("addresses", "/addresses", created.addresses);
+
+  if (stuck.length > 0) {
+    console.log("\n  Rows this run created that could NOT be removed:");
+    for (const entry of stuck) console.log(`    - ${entry}`);
   }
 }
 

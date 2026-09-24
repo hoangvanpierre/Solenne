@@ -74,16 +74,8 @@ export function I18nProvider({
   const setLocale = useCallback(
     async (nextLocale: SupportedLocale) => {
       if (nextLocale === locale || isReloadingRef.current) return;
-
-      // 0. Park the current scroll position before the document is replaced: the
-      // visitor has to land on exactly the same spot once the new locale has
-      // finished loading (see lib/locale-scroll-restoration.ts). Nothing in this
-      // outgoing document may consume that payload — a restoration started here
-      // would drop it before the reload could read it.
       saveLocaleScrollPosition({ from: locale, to: nextLocale });
 
-      // 1. Reflect the new language straight away so the UI responds the moment
-      // the toggle is pressed, while this is still the outgoing document.
       const nextMessages = ALL_MESSAGES[nextLocale] ?? ALL_MESSAGES.en;
       setLocaleState(nextLocale);
       setMessages(nextMessages);

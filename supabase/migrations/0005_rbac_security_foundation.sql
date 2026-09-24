@@ -1,8 +1,8 @@
 -- ===================================================
 -- Solenne RBAC — 0005: security-foundation hardening
 -- ===================================================
--- Apply after 0001–0004. Non-destructive: it adds privileges, removes ONE
--- policy that was an escalation path, and then verifies the end state loudly.
+-- Apply after 0001–0004. Non-destructive: it adds privileges, removes the
+-- policies that were escalation paths, and then verifies the end state loudly.
 --
 -- Why this file exists (found while migrating the app off the secret key):
 --   1. 0003 granted `insert` on public.profiles and created profiles_insert_own.
@@ -14,12 +14,59 @@
 --   2. service_role bypasses RLS but NOT table privileges. Without explicit
 --      grants, the server-side audit writer (lib/audit.ts) and any future
 --      staff-management action fail with 42501 on the RBAC tables.
+--   3. The pre-RBAC dashboard schema still carried four `FOR ALL` policies on
+--      user data (`own profile`, `own orders`, `Users can manage their own
+--      addresses`, `own address`). 0003's per-verb policies supersede them, and
+--      on `orders` the catch-all met the UPDATE grant 0003 issues to
+--      `authenticated` — a customer could rewrite their own order. Section 1b
+--      retires them; check 3d keeps them from returning.
 
 -- ===================================================
 -- 1. Close the profiles INSERT escalation path
 -- ===================================================
 drop policy if exists profiles_insert_own on public.profiles;
 revoke insert on public.profiles from authenticated;
+
+-- ===================================================
+-- 1b. Retire the legacy `FOR ALL` policies on user data
+-- ===================================================
+-- 0003 replaced these dashboard-authored catch-alls with one policy per verb, so
+-- leaving them in place is duplication — except on `orders`, where `own orders`
+-- (FOR ALL, auth.uid() = user_id) meets the UPDATE grant 0003 hands to
+-- `authenticated`, and a customer could then rewrite their own order (total,
+-- status, discount) straight through PostgREST. No user-scoped UPDATE or DELETE
+-- on orders exists anywhere in this app: every order write is a server action.
+--
+-- Removed by discovery, exactly like 0003 did for the broken order_items INSERT
+-- policy, so this does not depend on the names a dashboard happened to pick (on
+-- this database: profiles `own profile`; orders `own orders`; addresses
+-- `Users can manage their own addresses` and `own address`). Each removal prints
+-- its full definition — the migration output is the review record — and check 3d
+-- below fails if one ever comes back.
+do $$
+declare
+  pol record;
+  dropped int := 0;
+begin
+  for pol in
+    select tablename, policyname, roles as applies_to, qual, with_check
+    from pg_policies
+    where schemaname = 'public'
+      and tablename in ('profiles', 'orders', 'order_items', 'addresses')
+      and cmd = 'ALL'
+    order by tablename, policyname
+  loop
+    execute format('drop policy %I on public.%I', pol.policyname, pol.tablename);
+    dropped := dropped + 1;
+    raise notice 'Dropped legacy FOR ALL policy: %.% [roles: %] using (%) with check (%)',
+      pol.tablename, pol.policyname, array_to_string(pol.applies_to, ','),
+      coalesce(pol.qual, '-'), coalesce(pol.with_check, '-');
+  end loop;
+
+  if dropped = 0 then
+    raise notice 'No legacy FOR ALL policy left on user data.';
+  end if;
+end $$;
 
 -- ===================================================
 -- 2. Privileges for the trusted server path
@@ -113,7 +160,8 @@ begin
   -- 3d. A `FOR ALL` policy on user data is the dangerous legacy shape: it
   -- widens UPDATE/DELETE (e.g. letting a customer edit or delete their own
   -- financial record). Fail so an operator removes it deliberately instead of
-  -- inheriting it silently.
+  -- inheriting it silently. Section 1b has already retired the four known ones
+  -- (profiles/orders/addresses); this check stays as a regression guard.
   foreach t in array array['profiles', 'orders', 'order_items', 'addresses']
   loop
     select string_agg(policyname, ', ') into bad_name from pg_policies

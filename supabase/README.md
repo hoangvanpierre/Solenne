@@ -11,11 +11,17 @@ permissions`. Application code and UI only mirror it.
 | 0001 | `0001_rbac_schema.sql` | `roles`, `permissions`, `role_permissions`, `audit_logs`; adds nullable `profiles.role_id` + `profiles.status`; helper functions; `handle_new_user` + privilege-escalation/last-admin triggers |
 | 0002 | `0002_rbac_seed.sql` | Seeds the 4 roles and 21 permissions, rebuilds the role→permission matrix, backfills existing profiles to `customer`, then makes `role_id` `NOT NULL DEFAULT` |
 | 0003 | `0003_rbac_rls.sql` | Enables RLS, creates every policy, hands out grants, repairs the broken `order_items` INSERT policy |
-| 0004 | `0004_bootstrap_admin.sql` | **Inert until edited.** Promotes exactly one account you name to `admin` |
+| 0004 | `0004_bootstrap_admin.sql` | **Operator-only, not part of the chain.** One-time bootstrap that promotes exactly one account you name to `admin`; ships inert (`v_email = null`) |
 | 0005 | `0005_rbac_security_foundation.sql` | Drops the `profiles` INSERT escalation policy, moves audit/catalog writes onto the `service_role` grants the app needs, and retires the four legacy `FOR ALL` policies on user data (see decision 7) |
 
-Each file is idempotent (safe to re-run) and ends with a self-verification block
-that raises an exception rather than half-applying.
+**0001, 0002, 0003 and 0005 are the schema/security chain** — apply them in
+order. Each is idempotent (safe to re-run) and ends with a self-verification
+block that raises an exception rather than half-applying.
+
+**0004 is a one-time operator bootstrap step, not a schema migration.** It ships
+inert (`v_email = null`), it is never part of an unattended apply, and it must
+never carry a committed environment-specific admin email — see *Bootstrapping the
+first administrator* below.
 
 ### Applying
 
@@ -30,6 +36,9 @@ supabase link --project-ref <ref>   # needs the database password
 supabase db push
 ```
 
+Both options apply the **chain** (0001/0002/0003/0005). `0004` sits outside it:
+it is run by hand, once, when you actually need it.
+
 Run migrations as the **project owner** (`postgres`). The helpers in 0001 are
 `SECURITY DEFINER` and rely on table-owner RLS bypass; if they were owned by a
 lesser role, `has_permission()` inside a `profiles` policy would recurse.
@@ -37,16 +46,21 @@ lesser role, `has_permission()` inside a `profiles` policy would recurse.
 ## Bootstrapping the first administrator
 
 Nothing is promoted automatically — not the first user, and not any hard-coded
-email. To create the initial admin:
+email. 0004 is an operator step, outside the migration chain, so it is never
+applied unattended. To create the initial admin:
 
 1. `select id, email, created_at from auth.users order by created_at;`
-2. Open `0004_bootstrap_admin.sql` and set `v_email` to that account.
-3. Run only that file. It writes a `user.role_changed` row to `audit_logs`
+2. Open `0004_bootstrap_admin.sql` and set `v_email` to that account **locally**,
+   in your working copy only.
+3. Run only that file, once. It writes a `user.role_changed` row to `audit_logs`
    (`actor_id` is null: an operator action has no authenticated actor).
-4. Do **not** commit the file with `v_email` filled in.
+4. Restore `v_email` to `null` and commit *that*. The committed file stays inert
+   and never carries an environment-specific admin email.
 
 Existing accounts were backfilled to `customer` by 0002, so any pre-existing
-administrative account must be named here explicitly.
+administrative account must be named here explicitly. With `v_email = null` the
+file raises a `NOTICE` and returns, so the chain can be applied anywhere without
+promoting anyone — or aborting on an account that does not exist yet.
 
 ## Verifying
 
@@ -56,7 +70,8 @@ node scripts/verify-rbac.mjs
 
 Read-only: it uses the secret key from `.env.local` to inspect the catalogue and
 the publishable key to prove what anonymous callers can and cannot reach. It
-never writes. It reports FAIL while 0001–0005 have not been applied yet. A
+never writes. It reports FAIL while the chain (0001–0003 and 0005) has not been
+applied yet. A
 `--full` run is the only mode that creates anything: it makes disposable
 customer/staff/manager/admin accounts plus one test order, then deletes them all.
 
@@ -105,6 +120,10 @@ select relname, relrowsecurity from pg_class
    and every audit write still run as `service_role` (granted by 0005), because
    they are system operations rather than user-delegated ones. RLS is not the
    effective gate for those three paths.
+9. **Bootstrap configuration never lives in a committed file.** 0004 ships with
+   `v_email = null`, so the chain applies anywhere without promoting an account
+   or aborting on one that does not exist yet. The operator sets `v_email`
+   locally, runs the file once, then restores `null` before committing.
 
 ## Rolling back
 

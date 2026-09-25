@@ -22,7 +22,7 @@
 do $$
 declare
   -- >>>>>>>>>>>>>>>>>> EDIT THIS LINE <<<<<<<<<<<<<<<<<<
-  v_email  text := 'dangvohoangvan@gmail.com';   -- e.g. 'owner@example.com'
+  v_email  text := null;   -- e.g. 'owner@example.com'
   v_reason text := 'Initial administrator bootstrap';
 
   v_target   uuid;

@@ -7,47 +7,96 @@ import type { ActorContext, PermissionKey } from "@/types";
 // component after resolving getActorContext(). UX ONLY — every protected
 // server action, route handler and page re-checks on the server, and RLS
 // guards the database even if the UI is bypassed.
-const AuthzContext = createContext<ActorContext | null>(null);
+//
+// The context value distinguishes four states so an unexpected server-side
+// failure can never masquerade as "this user has no permissions":
+//   - "anonymous"    no session.
+//   - "active"       session with status "active".
+//   - "restricted"   session, but suspended/banned/pending, or no resolvable
+//                    profile — legitimately holds zero permissions.
+//   - "unavailable"  the server lookup itself FAILED — the actor is unknown,
+//                    not permission-less. Gating helpers fail closed (never
+//                    assume a granted permission on an unknown state), but
+//                    consumers can observe the difference via `unavailable`
+//                    and `state`.
+export type AuthzClientState =
+  | "unavailable"
+  | "anonymous"
+  | "restricted"
+  | "active";
+
+export interface AuthzContextValue {
+  actor: ActorContext | null;
+  unavailable: boolean;
+}
+
+const AuthzContext = createContext<AuthzContextValue>({
+  actor: null,
+  unavailable: false,
+});
 
 export interface AuthzProviderProps {
   value: ActorContext | null;
+  /** True only when the server-side authz lookup failed (unknown actor). */
+  unavailable?: boolean;
   children: React.ReactNode;
 }
 
-export function AuthzProvider({ value, children }: AuthzProviderProps) {
-  return <AuthzContext.Provider value={value}>{children}</AuthzContext.Provider>;
+export function AuthzProvider({
+  value,
+  unavailable = false,
+  children,
+}: AuthzProviderProps) {
+  const context = useMemo<AuthzContextValue>(
+    () => ({ actor: value, unavailable }),
+    [value, unavailable]
+  );
+
+  return <AuthzContext.Provider value={context}>{children}</AuthzContext.Provider>;
 }
 
-/** The raw actor context, or null for anonymous visitors. */
+/**
+ * The raw actor context, or null for anonymous visitors and unknown
+ * (unavailable) lookups. Use `useAuthz().state` when the distinction matters.
+ */
 export function useActor(): ActorContext | null {
-  return useContext(AuthzContext);
+  return useContext(AuthzContext).actor;
 }
 
 /** UX helper: does the caller hold this permission? Never a security gate. */
 export function useCan(permission: PermissionKey): boolean {
-  const actor = useContext(AuthzContext);
-  return actor?.permissions.includes(permission) ?? false;
+  const { actor, unavailable } = useContext(AuthzContext);
+  return !unavailable && (actor?.permissions.includes(permission) ?? false);
 }
 
 /**
  * UX helper returning stable callbacks + derived flags. Example:
- *   const { can } = useAuthz();
- *   {can("product.delete") && <DeleteProductButton />}
+ *   const { can, state } = useAuthz();
+ *   {state === "active" && can("product.delete") && <DeleteProductButton />}
  */
 export function useAuthz() {
-  const actor = useContext(AuthzContext);
+  const { actor, unavailable } = useContext(AuthzContext);
 
-  return useMemo(
-    () => ({
+  return useMemo(() => {
+    const state: AuthzClientState = unavailable
+      ? "unavailable"
+      : actor === null
+        ? "anonymous"
+        : actor.status === "active"
+          ? "active"
+          : "restricted";
+
+    return {
       actor,
+      unavailable,
+      state,
       isAuthenticated: actor !== null,
       isActive: actor?.status === "active",
       role: actor?.role ?? null,
       can: (permission: PermissionKey): boolean =>
-        actor?.permissions.includes(permission) ?? false,
+        !unavailable && (actor?.permissions.includes(permission) ?? false),
       canAny: (permissions: PermissionKey[]): boolean =>
-        permissions.some((p) => actor?.permissions.includes(p)) ?? false,
-    }),
-    [actor]
-  );
+        !unavailable && permissions.some((p) => actor?.permissions.includes(p)),
+    };
+  }, [actor, unavailable]);
 }

@@ -4,5 +4,5 @@ export { useCart } from './use-cart';
 export { useLockedBody } from './use-locked-body';
 export { useLocaleScrollRestoration } from './use-locale-scroll-restoration';
 export { AuthzProvider, useActor, useAuthz, useCan } from './use-authz';
-export type { AuthzProviderProps } from './use-authz';
+export type { AuthzClientState, AuthzContextValue, AuthzProviderProps } from './use-authz';
 

@@ -1,6 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { requireOwnership, requireOwnershipOrPermission } from "@/lib/authz";
+import {
+  requireOwnership,
+  requireOwnershipOrPermission,
+  requirePermission,
+} from "@/lib/authz";
 import { writeAuditLog } from "@/lib/audit";
 import { saveDefaultAddress } from "@/lib/addresses";
 import { SHIPPING } from "@/lib/constants";
@@ -159,6 +163,50 @@ export async function countOrdersForUser(userId: string): Promise<number> {
     .eq("user_id", userId);
 
   if (error) throw new Error(`Failed to count orders: ${error.message}`);
+
+  return count ?? 0;
+}
+
+/**
+ * All orders across customers for management, newest first.
+ *
+ * Enforces requirePermission("order.read") on the server.
+ * Uses the user-scoped client so RLS (orders_select_with_order_read)
+ * enforces access at the database layer as well.
+ */
+export async function getAdminOrders(limit = 50): Promise<Order[]> {
+  await requirePermission("order.read");
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("orders")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) throw new Error(`Failed to fetch admin orders: ${error.message}`);
+
+  const rows = (data ?? []) as unknown as OrderRow[];
+  const itemsByOrder = await fetchItems(rows.map((row) => row.id));
+
+  return rows.map((row) => mapOrder(row, itemsByOrder.get(row.id) ?? []));
+}
+
+/**
+ * Total count of all orders in the system for management.
+ *
+ * Enforces requirePermission("order.read") on the server.
+ * Uses the user-scoped client under RLS.
+ */
+export async function countAdminOrders(): Promise<number> {
+  await requirePermission("order.read");
+
+  const supabase = await createClient();
+  const { count, error } = await supabase
+    .from("orders")
+    .select("id", { count: "exact", head: true });
+
+  if (error) throw new Error(`Failed to count admin orders: ${error.message}`);
 
   return count ?? 0;
 }

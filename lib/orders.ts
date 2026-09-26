@@ -182,6 +182,7 @@ export async function getAdminOrders(limit = 50): Promise<Order[]> {
     .from("orders")
     .select("*")
     .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
     .limit(limit);
 
   if (error) throw new Error(`Failed to fetch admin orders: ${error.message}`);

@@ -41,6 +41,7 @@ export interface Order {
   discount: number;
   total: number;
   shippingAddress: ShippingAddress;
+  trackingCode?: string;
   stripeSessionId?: string;
   stripePaymentIntent?: string;
   notes?: string;

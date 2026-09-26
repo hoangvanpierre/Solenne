@@ -35,6 +35,7 @@ interface OrderRow {
   user_id: string | null;
   order_number: string;
   status: string;
+  tracking_code: string | null;
   subtotal: number | string;
   shipping_fee: number | string | null;
   discount: number | string | null;
@@ -91,6 +92,7 @@ function mapOrder(row: OrderRow, items: OrderItem[]): Order {
     discount: toNumber(row.discount),
     total: toNumber(row.total),
     shippingAddress: row.shipping_address as ShippingAddress,
+    trackingCode: row.tracking_code ?? undefined,
     stripeSessionId: row.stripe_session_id ?? undefined,
     stripePaymentIntent: row.stripe_payment_intent ?? undefined,
     notes: row.notes ?? undefined,

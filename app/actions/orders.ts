@@ -2,16 +2,21 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { authErrorState, requirePermission } from "@/lib/authz";
+import { authErrorState, requirePermission, requireAnyPermission } from "@/lib/authz";
 import { createOrder, OrderError } from "@/lib/orders";
 import { findRegion, findLocality } from "@/lib/address-data";
+import type { OrderStatus } from "@/types/order";
 import {
   checkoutSchema,
   type CheckoutActionState,
   type CheckoutInput,
 } from "@/lib/validations/order";
+import {
+  transitionOrderStatusSchema,
+  type TransitionOrderActionState,
+} from "@/lib/validations/orders";
 
-export type { CheckoutActionState };
+export type { CheckoutActionState, TransitionOrderActionState };
 
 export async function createOrderAction(
   input: CheckoutInput
@@ -199,5 +204,131 @@ export async function cancelOrderAction(
   return {
     success: true,
     orderNumber: result?.order_number,
+  };
+}
+
+export async function transitionOrderStatusAction(
+  orderId: string,
+  targetStatus: OrderStatus,
+  trackingCode?: string,
+  reason?: string
+): Promise<TransitionOrderActionState> {
+  // 1. Authorization: Requires an active account with order.update or order.cancel
+  try {
+    await requireAnyPermission(["order.update", "order.cancel"]);
+  } catch (error) {
+    return authErrorState(
+      error,
+      "You do not have permission to update order fulfillment status."
+    );
+  }
+
+  // 2. Validate inputs
+  const validated = transitionOrderStatusSchema.safeParse({
+    orderId,
+    targetStatus,
+    trackingCode: trackingCode?.trim() || undefined,
+    reason: reason?.trim() || undefined,
+  });
+
+  if (!validated.success) {
+    const flat: Record<string, string[]> = {};
+    for (const issue of validated.error.issues) {
+      const path = issue.path.join(".");
+      if (!flat[path]) {
+        flat[path] = [];
+      }
+      flat[path].push(issue.message);
+    }
+    return {
+      error:
+        validated.error.issues[0]?.message || "Invalid status transition input.",
+      fieldErrors: flat,
+    };
+  }
+
+  // 3. Call the atomic SECURITY DEFINER RPC
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("update_order_status", {
+    p_order_id: validated.data.orderId,
+    p_target_status: validated.data.targetStatus,
+    p_tracking_code: validated.data.trackingCode?.trim() || null,
+    p_reason: validated.data.reason?.trim() || null,
+  });
+
+  if (error) {
+    if (error.message.includes("ORDER_NOT_FOUND")) {
+      return { error: "Order not found." };
+    }
+    if (error.message.includes("ORDER_ALREADY_IN_STATUS")) {
+      return { error: `Order is already in ${targetStatus} status.` };
+    }
+    if (error.message.includes("PAYMENT_STATUS_TRANSITION_DISALLOWED")) {
+      return {
+        error:
+          "Payment status cannot be updated through the fulfillment workflow.",
+      };
+    }
+    if (error.message.includes("TRACKING_CODE_REQUIRED")) {
+      return {
+        error: "A valid tracking code is required to mark the order as shipped.",
+      };
+    }
+    if (error.message.includes("TRACKING_CODE_INVALID")) {
+      return {
+        error: "Tracking code must be between 3 and 100 characters.",
+      };
+    }
+    if (error.message.includes("ROLLBACK_REASON_REQUIRED")) {
+      return {
+        error:
+          "A reason is required to rollback a shipped order to processing.",
+      };
+    }
+    if (error.message.includes("ROLLBACK_REASON_INVALID")) {
+      return {
+        error: "Rollback reason cannot exceed 500 characters.",
+      };
+    }
+    if (error.message.includes("INVALID_STATUS_TRANSITION")) {
+      return {
+        error: "This order status transition is not permitted.",
+      };
+    }
+    if (error.message.includes("FORBIDDEN")) {
+      return {
+        error: "You do not have permission to perform this status transition.",
+      };
+    }
+    if (error.message.includes("UNAUTHENTICATED")) {
+      return { error: "Please sign in to update orders." };
+    }
+
+    console.error("transitionOrderStatusAction failed:", error);
+    return {
+      error: "Failed to update order status. Please try again.",
+    };
+  }
+
+  const result = data as {
+    success: boolean;
+    order_id?: string;
+    order_number?: string;
+    previous_status?: OrderStatus;
+    new_status?: OrderStatus;
+    tracking_code?: string | null;
+    outbox_event_id?: string;
+  } | null;
+
+  revalidatePath("/admin/orders");
+  revalidatePath(`/admin/orders/${orderId}`);
+  revalidatePath("/account/orders");
+
+  return {
+    success: true,
+    orderNumber: result?.order_number,
+    previousStatus: result?.previous_status,
+    newStatus: result?.new_status,
+    trackingCode: result?.tracking_code,
   };
 }

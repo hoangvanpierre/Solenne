@@ -213,6 +213,35 @@ export async function countAdminOrders(): Promise<number> {
 }
 
 /**
+ * A single order by its primary key ID for management.
+ *
+ * Enforces requirePermission("order.read") on the server.
+ * Uses the user-scoped client so RLS (orders_select_with_order_read)
+ * enforces access at the database layer.
+ * Returns null if the order does not exist or the actor is not authorized.
+ */
+export async function getAdminOrderById(
+  orderId: string
+): Promise<Order | null> {
+  await requirePermission("order.read");
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("orders")
+    .select("*")
+    .eq("id", orderId)
+    .maybeSingle();
+
+  if (error) throw new Error(`Failed to fetch admin order: ${error.message}`);
+  if (!data) return null;
+
+  const row = data as unknown as OrderRow;
+  const itemsByOrder = await fetchItems([row.id]);
+
+  return mapOrder(row, itemsByOrder.get(row.id) ?? []);
+}
+
+/**
  * A single order by its public order number, scoped to its owner. Returns
  * null when the order does not exist OR belongs to somebody else — callers
  * cannot distinguish the two, so order numbers cannot be enumerated.

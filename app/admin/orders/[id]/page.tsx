@@ -20,6 +20,7 @@ import {
 import { getAdminOrderById } from "@/lib/orders";
 import { formatPrice } from "@/lib/utils";
 import { OrderStatusBadge, RestrictedAccountNotice } from "@/components/account";
+import { OrderCancelControl } from "@/components/admin";
 import { Button } from "@/components/ui";
 import type { Order } from "@/types";
 
@@ -359,6 +360,18 @@ export default async function AdminOrderDetailPage({
 
         {/* Right 1 Column: Customer & Shipping Details */}
         <div className="space-y-6">
+          {/* Order Actions (Cancel) */}
+          <OrderCancelControl
+            orderId={order.id}
+            orderNumber={order.orderNumber}
+            status={order.status}
+            locale={locale}
+            unitsCount={order.items.reduce(
+              (sum, item) => sum + item.quantity,
+              0
+            )}
+          />
+
           {/* Customer Card */}
           <div className="rounded-2xl border border-border bg-card/40 p-6 space-y-4">
             <div className="flex items-center gap-2 border-b border-border pb-4">

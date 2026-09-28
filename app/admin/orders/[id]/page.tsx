@@ -10,6 +10,7 @@ import {
   PackageX,
   Receipt,
   ShieldAlert,
+  Truck,
   User,
 } from "lucide-react";
 import { AuthError, requirePermission } from "@/lib/authz";
@@ -20,7 +21,10 @@ import {
 import { getAdminOrderById } from "@/lib/orders";
 import { formatPrice } from "@/lib/utils";
 import { OrderStatusBadge, RestrictedAccountNotice } from "@/components/account";
-import { OrderCancelControl } from "@/components/admin";
+import {
+  OrderCancelControl,
+  OrderFulfillmentControl,
+} from "@/components/admin";
 import { Button } from "@/components/ui";
 import type { Order } from "@/types";
 
@@ -231,6 +235,18 @@ export default async function AdminOrderDetailPage({
               </span>
               <span>•</span>
               <span className="font-mono">ID: {order.id}</span>
+              {order.trackingCode && (
+                <>
+                  <span>•</span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <Truck className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span>{isVi ? "Mã vận đơn: " : "Tracking: "}</span>
+                    <span className="font-mono font-medium text-foreground select-all">
+                      {order.trackingCode}
+                    </span>
+                  </span>
+                </>
+              )}
             </div>
           </div>
 
@@ -360,6 +376,15 @@ export default async function AdminOrderDetailPage({
 
         {/* Right 1 Column: Customer & Shipping Details */}
         <div className="space-y-6">
+          {/* Order Fulfillment Control */}
+          <OrderFulfillmentControl
+            orderId={order.id}
+            orderNumber={order.orderNumber}
+            status={order.status}
+            trackingCode={order.trackingCode}
+            locale={locale}
+          />
+
           {/* Order Actions (Cancel) */}
           <OrderCancelControl
             orderId={order.id}
@@ -468,6 +493,17 @@ export default async function AdminOrderDetailPage({
                     {shipping.country || shipping.countryCode || "Vietnam"}
                   </div>
                 </div>
+
+                {order.trackingCode && (
+                  <div className="pt-3 border-t border-border space-y-1">
+                    <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                      {isVi ? "Mã vận đơn" : "Tracking Code"}
+                    </div>
+                    <div className="font-mono text-xs font-semibold text-foreground select-all">
+                      {order.trackingCode}
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <p className="text-sm text-muted-foreground italic">

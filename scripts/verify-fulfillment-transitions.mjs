@@ -112,6 +112,52 @@ assert("forward transitions write outbox event order.status_transition", sql.inc
 // Self-verification block
 assert("migration includes self-verification block", sql.includes("Migration 0007 failed"));
 
+console.log("\n== 1B. Migration Checks (0008_cancel_order_outbox_event.sql) ==");
+const migration0008Path = new URL("../supabase/migrations/0008_cancel_order_outbox_event.sql", import.meta.url);
+assert("migration 0008 file exists", fs.existsSync(migration0008Path));
+
+const sql0008 = fs.readFileSync(migration0008Path, "utf8");
+
+assert("redefines function public.cancel_order", sql0008.includes("create or replace function public.cancel_order("));
+assert("accepts order UUID and optional reason only", sql0008.includes("p_order_id uuid") && sql0008.includes("p_reason text default null"));
+assert("is SECURITY DEFINER", sql0008.includes("security definer"));
+assert("sets hardened search_path", /set\s+search_path\s*=\s*public\s*,\s*pg_temp/i.test(sql0008));
+assert("derives actor identity from auth.uid()", sql0008.includes("v_actor_id := auth.uid();"));
+assert("rejects unauthenticated callers", sql0008.includes("UNAUTHENTICATED"));
+assert("verifies order.cancel permission in-function", sql0008.includes("public.has_permission('order.cancel')"));
+assert("locks order row FOR UPDATE", /from\s+public\.orders[\s\S]*?for\s+update/i.test(sql0008));
+assert("checks for existing order existence", sql0008.includes("ORDER_NOT_FOUND"));
+assert("enforces idempotency on already cancelled orders", sql0008.includes("ORDER_ALREADY_CANCELLED"));
+assert("restricts cancellation to pending, paid, processing", sql0008.includes("'pending', 'paid', 'processing'"));
+assert("rejects non-cancellable statuses", sql0008.includes("ORDER_STATUS_NOT_CANCELLABLE"));
+assert("checks variant existence and aborts on missing variant", sql0008.includes("VARIANT_NOT_FOUND"));
+assert("performs relative atomic stock increment", /stock_quantity\s*=\s*stock_quantity\s*\+\s*v_item\.quantity/i.test(sql0008));
+assert("transitions status to cancelled with updated_at", /update\s+public\.orders\s+set\s+status\s*=\s*'cancelled',\s*updated_at\s*=\s*now\(\)/i.test(sql0008));
+assert("writes audit log with order.cancelled inside transaction", sql0008.includes("'order.cancelled'"));
+assert("inserts order_outbox_events with event_type = order.cancelled",
+  sql0008.includes("insert into public.order_outbox_events") &&
+  sql0008.includes("'order.cancelled'")
+);
+assert("outbox status defaults to pending", sql0008.includes("'pending'"));
+assert("outbox payload contains order_id, order_number, previous_status, new_status, reason, items_restored, actor_id",
+  sql0008.includes("'order_id', p_order_id") &&
+  sql0008.includes("'order_number', v_order.order_number") &&
+  sql0008.includes("'previous_status', v_order.status") &&
+  sql0008.includes("'new_status', 'cancelled'") &&
+  sql0008.includes("'reason', v_reason") &&
+  sql0008.includes("'items_restored', v_restored_count") &&
+  sql0008.includes("'actor_id', v_actor_id")
+);
+assert("revokes execute from public and anon",
+  sql0008.includes("revoke all on function public.cancel_order(uuid, text) from public;") &&
+  sql0008.includes("revoke all on function public.cancel_order(uuid, text) from anon;")
+);
+assert("grants execute to authenticated and service_role",
+  sql0008.includes("grant execute on function public.cancel_order(uuid, text) to authenticated;") &&
+  sql0008.includes("grant execute on function public.cancel_order(uuid, text) to service_role;")
+);
+assert("includes self-verification block", sql0008.includes("Migration 0008 failed"));
+
 console.log("\n== 2. Domain Types & Mapping Checks ==");
 const typesPath = new URL("../types/order.ts", import.meta.url);
 const typesCode = fs.readFileSync(typesPath, "utf8");
@@ -191,6 +237,8 @@ if (!env || !env.url || !env.svc) {
     if (hasRpc && hasOutbox) {
       assert("live database exposes public.update_order_status RPC", true);
       assert("live database exposes public.order_outbox_events table", true);
+      console.log("  [INFO] Live database has migration 0007 active.");
+      console.log("  [INFO] Migration 0008 (cancellation outbox consistency) is authored and ready for review.");
     } else {
       console.log(`  [INFO] Live database has not yet applied migration 0007 (RPC exposed: ${hasRpc}, outbox: ${hasOutbox}).`);
       console.log("  [INFO] Static contract verification passed 100%. Apply migration 0007 in Supabase SQL Editor when ready.");

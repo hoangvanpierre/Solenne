@@ -14,7 +14,8 @@ const initialState: ActionState = {};
 
 function LoginForm() {
   const searchParams = useSearchParams();
-  const next = sanitizeNextPath(searchParams.get("next"));
+  const rawNext = searchParams.get("next");
+  const next = sanitizeNextPath(rawNext, null);
   const errorParam = searchParams.get("error");
   const locale = useAppLocale();
   const isVi = locale === "vi";
@@ -58,7 +59,7 @@ function LoginForm() {
 
       {/* Form */}
       <form action={formAction} className="space-y-5">
-        <input type="hidden" name="next" value={next} />
+        <input type="hidden" name="next" value={next ?? ""} />
 
         {/* Email Field */}
         <div className="space-y-1.5">
@@ -162,7 +163,7 @@ function LoginForm() {
       <div className="pt-4 text-center text-sm text-muted-foreground border-t border-border/50">
         {isVi ? "Chưa có tài khoản? " : "Don't have an account yet? "}
         <Link
-          href={`/register${next !== "/account" ? `?next=${encodeURIComponent(next)}` : ""}`}
+          href={`/register${next ? `?next=${encodeURIComponent(next)}` : ""}`}
           className="font-medium text-foreground hover:text-amber underline-offset-4 hover:underline transition-colors"
         >
           {isVi ? "Đăng ký thành viên mới" : "Create an account"}

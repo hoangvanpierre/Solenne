@@ -13,36 +13,9 @@ import {
 } from "@/lib/authz-ux";
 import { signOutAction } from "@/app/actions/auth";
 import { CONTACT_EMAIL } from "@/lib/constants";
-import type { PermissionKey } from "@/types";
+import { MANAGEMENT_PERMISSIONS } from "@/lib/redirect";
 import { Button } from "@/components/ui";
 import { RestrictedAccountNotice } from "@/components/account";
-
-// Coarse entry gate for the whole /admin area. No "admin.access" permission
-// exists in the model, so the boundary is the union of the management
-// permissions seeded by 0002_rbac_seed.sql (every permission except the
-// customer-facing set: product.read, order.create, order.read_own,
-// profile.read_own, profile.update_own). Permission-first: no role names.
-// Every future /admin/* page and server action re-checks with
-// requirePermission(...) — this layout gate is an entry boundary, never the
-// only enforcement.
-const MANAGEMENT_PERMISSIONS: PermissionKey[] = [
-  "product.create",
-  "product.update",
-  "product.delete",
-  "order.read",
-  "order.update",
-  "order.cancel",
-  "inventory.read",
-  "inventory.update",
-  "customer.read",
-  "customer.update",
-  "analytics.read",
-  "staff.read",
-  "staff.manage",
-  "role.read",
-  "role.manage",
-  "audit.read",
-];
 
 // Server Component boundary for the management area. Lives outside the
 // (marketing) layout (no storefront Navbar/Footer/SmoothScroll) but inside

@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { sanitizeNextPath } from "@/lib/redirect";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -47,18 +48,31 @@ export async function updateSession(request: NextRequest) {
       request.nextUrl.pathname.startsWith("/checkout"))
   ) {
     const url = request.nextUrl.clone();
+    const originalTarget = `${request.nextUrl.pathname}${request.nextUrl.search}`;
     url.pathname = "/login";
+    url.searchParams.set("next", originalTarget);
     return NextResponse.redirect(url);
   }
 
-  // Redirect to account if logged in and visiting login/register
+  // Redirect to account or safe explicit next if logged in and visiting login/register
   if (
     user &&
     (request.nextUrl.pathname === "/login" ||
       request.nextUrl.pathname === "/register")
   ) {
+    const rawNext = request.nextUrl.searchParams.get("next");
+    const next = rawNext ? sanitizeNextPath(rawNext, null) : null;
     const url = request.nextUrl.clone();
+    if (
+      next &&
+      !next.startsWith("/admin") &&
+      !next.startsWith("/login") &&
+      !next.startsWith("/register")
+    ) {
+      return NextResponse.redirect(new URL(next, request.url));
+    }
     url.pathname = "/account";
+    url.search = "";
     return NextResponse.redirect(url);
   }
 

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { sanitizeNextPath } from "@/lib/redirect";
+import { getActorContext } from "@/lib/authz";
+import { resolvePostLoginPath, sanitizeNextPath } from "@/lib/redirect";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
@@ -15,12 +16,24 @@ export async function GET(request: Request) {
   // as the login/register flows, so unsafe values fall back to /account instead
   // of composing a foreign origin (`@evil.example`, `.evil.example`, `:8080`)
   // and malformed ones (`javascript:alert(1)`) can no longer throw a 500.
+  const hasExplicitNext = searchParams.has("next");
   const next = sanitizeNextPath(searchParams.get("next"));
 
   if (code) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
+      let destination = next;
+      try {
+        const actor = await getActorContext();
+        destination = resolvePostLoginPath(
+          actor,
+          hasExplicitNext ? next : null
+        );
+      } catch (actorError) {
+        console.error("auth/callback: Failed to resolve actor context:", actorError);
+      }
+
       const forwardedHost = request.headers.get("x-forwarded-host");
       const isLocalEnv = process.env.NODE_ENV === "development";
       // The header is client-suppliable, so it is honoured only when it names
@@ -33,11 +46,11 @@ export async function GET(request: Request) {
           : null;
 
       if (isLocalEnv) {
-        return NextResponse.redirect(`${origin}${next}`);
+        return NextResponse.redirect(`${origin}${destination}`);
       } else if (trustedForwardedHost) {
-        return NextResponse.redirect(`https://${trustedForwardedHost}${next}`);
+        return NextResponse.redirect(`https://${trustedForwardedHost}${destination}`);
       } else {
-        return NextResponse.redirect(`${origin}${next}`);
+        return NextResponse.redirect(`${origin}${destination}`);
       }
     }
   }

@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
-import { sanitizeNextPath } from "@/lib/redirect";
+import { getActorContext } from "@/lib/authz";
+import { resolvePostLoginPath, sanitizeNextPath } from "@/lib/redirect";
 import {
   loginSchema,
   registerSchema,
@@ -32,7 +33,7 @@ export async function loginAction(
     };
   }
 
-  const next = sanitizeNextPath(formData.get("next") as string | null);
+  const rawNext = (formData.get("next") as string | null)?.trim() || null;
   const supabase = await createClient();
 
   const { error } = await supabase.auth.signInWithPassword({
@@ -49,8 +50,17 @@ export async function loginAction(
     };
   }
 
+  let actor = null;
+  try {
+    actor = await getActorContext();
+  } catch (actorError) {
+    console.error("loginAction: Failed to resolve actor context:", actorError);
+  }
+
+  const destination = resolvePostLoginPath(actor, rawNext);
+
   revalidatePath("/", "layout");
-  redirect(next);
+  redirect(destination);
 }
 
 export async function registerAction(

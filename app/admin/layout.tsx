@@ -40,7 +40,7 @@ export default async function AdminLayout({
     // Suspended/banned/inactive account — the S-3 restricted notice.
     if (isRestrictedAuthError(error)) {
       return (
-        <div className="flex-1 py-24 lg:py-32">
+        <div className="flex-1 py-24 lg:py-32 admin-scope">
           <div className="mx-auto max-w-2xl px-4 sm:px-6">
             <RestrictedAccountNotice locale={locale} />
           </div>
@@ -62,7 +62,7 @@ export default async function AdminLayout({
 
   if (noManagementAccess) {
     return (
-      <div className="flex-1 py-24 lg:py-32">
+      <div className="flex-1 py-24 lg:py-32 admin-scope">
         <div className="mx-auto max-w-2xl px-4 sm:px-6">
           <div className="rounded-2xl border border-border p-10 text-center">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber/10">
@@ -125,22 +125,24 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex-1 min-w-0">
+    <div className="flex-1 min-w-0 admin-scope">
       <header className="border-b border-border bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex min-h-16 sm:min-h-20 max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
           <Link
             href="/admin"
-            className="font-serif text-xl font-bold tracking-tight text-foreground"
+            className="group flex items-center gap-2.5 sm:gap-3 transition-opacity hover:opacity-90"
           >
-            Solenne{" "}
-            <span className="font-sans text-xs font-medium uppercase tracking-[0.25em] text-muted-foreground">
+            <span className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              Solenne
+            </span>
+            <span className="inline-flex items-center rounded-md border border-border/80 bg-muted/60 px-2 py-0.5 sm:px-2.5 sm:py-1 text-[11px] sm:text-[12px] font-medium uppercase tracking-[0.2em] text-muted-foreground shadow-xs [font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif]">
               {isVi ? "Quản trị" : "Administration"}
             </span>
           </Link>
 
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
+            className="inline-flex items-center gap-2 text-[12px] sm:text-[13px] font-medium uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground [font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif]"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             <span>{isVi ? "Về tiệm" : "Return to boutique"}</span>

@@ -402,4 +402,54 @@ img {
   min-height: 3.25rem;
 }
 
+/* --- Admin Back-Office Typography Scale (~1.5x Multiplier) --- */
+.admin-scope {
+  /* Mobile-first baseline (~1.25x - 1.3x to maintain balance on compact mobile screens) */
+  --text-xs: 1.4rem;
+  --text-sm: 1.625rem;
+  --text-base: 1.95rem;
+  --text-lg: 2.25rem;
+  --text-xl: 2.5rem;
+  --text-2xl: 2.95rem;
+  --text-3xl: 3.5rem;
+  --text-4xl: 4.25rem;
+  --text-5xl: 5.5rem;
+  --text-6xl: 7rem;
+  --text-7xl: 8.5rem;
+  --text-8xl: 11rem;
+  --text-9xl: 14rem;
+  font-size: var(--text-base);
+}
 
+/* Tablet & Desktop full 1.5x scaling */
+@media (min-width: 640px) {
+  .admin-scope {
+    --text-xs: 1.6875rem;
+    --text-sm: 1.96875rem;
+    --text-base: 2.25rem;
+    --text-lg: 2.53125rem;
+    --text-xl: 2.8125rem;
+    --text-2xl: 3.375rem;
+    --text-3xl: 4.21875rem;
+    --text-4xl: 5.0625rem;
+    --text-5xl: 6.75rem;
+    --text-6xl: 8.4375rem;
+    --text-7xl: 10.125rem;
+    --text-8xl: 13.5rem;
+    --text-9xl: 18rem;
+  }
+}
+
+.admin-scope input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+.admin-scope select,
+.admin-scope textarea {
+  min-height: 2.875rem;
+}
+
+.admin-scope button.rounded-full,
+.admin-scope a.rounded-full[class*="inline-flex"] {
+  min-height: 2.625rem;
+  height: auto;
+  padding-top: 0.45rem;
+  padding-bottom: 0.45rem;
+}

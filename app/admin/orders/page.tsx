@@ -175,7 +175,7 @@ export default async function AdminOrdersPage() {
       ) : (
         <div className="space-y-4">
           {/* Desktop & tablet table view */}
-          <div className="hidden md:block overflow-hidden rounded-2xl border border-border bg-card/40">
+          <div className="hidden md:block overflow-x-auto rounded-2xl border border-border bg-card/40">
             <table className="w-full text-left text-sm border-collapse">
               <thead>
                 <tr className="border-b border-border bg-muted/20 text-xs uppercase tracking-wider text-muted-foreground">

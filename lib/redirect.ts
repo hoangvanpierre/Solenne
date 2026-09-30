@@ -144,7 +144,11 @@ export function getRoleDefaultPath(actor: ActorContext | null): string {
  *    - If it's a management route (/admin*):
  *      - Allowed if actor is active AND holds management permissions.
  *      - Otherwise falls back to role default (/account).
- *    - If it's a storefront route (/checkout, /account*, /products, /, etc.):
+ *    - If it's the generic customer destination (/account, /account/, /account?..., /account#...):
+ *      - For active management actors (admin, manager, staff), treat as the
+ *        customer fallback and route to role default (/admin).
+ *      - For customers, return /account.
+ *    - If it's a specific storefront route (/checkout, /account/orders, /products, /, etc.):
  *      - Allowed for all active actors (customers, staff, managers, admins).
  *    - If it points to an auth entry route (/login, /register, etc.):
  *      - Falls back to role default (prevent looping back to auth forms).
@@ -189,6 +193,16 @@ export function resolvePostLoginPath(
       return target;
     }
     // Actor lacks management access: fall back to role default
+    return roleDefault;
+  }
+
+  // Generic customer account destination (/account, /account/, /account?...)
+  // is treated as the customer fallback. For active management actors,
+  // route to their management default (/admin) instead.
+  // Specific storefront destinations like /account/orders, /checkout, etc.
+  // are preserved.
+  const targetPathname = target.split(/[?#]/)[0].replace(/\/+$/, "") || "/";
+  if (targetPathname === "/account" && hasManagementAccess(actor)) {
     return roleDefault;
   }
 

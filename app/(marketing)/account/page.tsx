@@ -2,9 +2,11 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
-import { ArrowRight, LogOut, Sparkles } from "lucide-react";
+import { ArrowRight, LogOut, ShieldCheck, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getDefaultAddress } from "@/lib/addresses";
+import { getActorContext } from "@/lib/authz";
+import { hasManagementAccess } from "@/lib/redirect";
 import {
   isRestrictedAuthError,
   isUnauthenticatedAuthError,
@@ -51,15 +53,31 @@ export default async function AccountPage() {
     );
   }
 
+  let actor = null;
+  try {
+    actor = await getActorContext();
+  } catch (actorError) {
+    console.error("AccountPage: Failed to resolve actor context:", actorError);
+  }
+  const isManagement = hasManagementAccess(actor);
+
   return (
     <div className="py-24 lg:py-32 account-page">
       <Container>
         {/* Header */}
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-10 border-b border-border">
           <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber/30 bg-amber/10 text-amber text-xs tracking-wider uppercase font-medium">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>{isVi ? "Thành viên Góc riêng Solenne" : "Solenne Sanctuary Member"}</span>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber/30 bg-amber/10 text-amber text-xs tracking-wider uppercase font-medium">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>{isVi ? "Thành viên Góc riêng Solenne" : "Solenne Sanctuary Member"}</span>
+              </div>
+              {isManagement && (
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-border bg-muted/60 text-muted-foreground text-xs tracking-wider uppercase font-medium">
+                  <ShieldCheck className="w-3.5 h-3.5 text-amber" />
+                  <span>{isVi ? "Đội ngũ Solenne" : "Solenne Staff"}</span>
+                </div>
+              )}
             </div>
             <h1 className="font-serif text-5xl md:text-6xl font-semibold text-foreground">
               {isVi ? "Không Gian Cá Nhân" : "Account"}
@@ -71,16 +89,31 @@ export default async function AccountPage() {
             </p>
           </div>
 
-          <form action={signOutAction}>
-            <Button
-              variant="outline"
-              type="submit"
-              className="inline-flex items-center gap-2 text-xs uppercase tracking-wider h-auto min-h-11 py-2.5 px-5"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>{isVi ? "Đăng xuất" : "Sign Out"}</span>
-            </Button>
-          </form>
+          <div className="flex flex-wrap items-center gap-3">
+            {isManagement && (
+              <Button
+                asChild
+                className="inline-flex items-center gap-2 text-xs uppercase tracking-wider h-auto min-h-11 py-2.5 px-5 bg-foreground text-background hover:bg-foreground/90 transition-all cursor-pointer"
+              >
+                <Link href="/admin">
+                  <ShieldCheck className="w-4 h-4 text-amber" />
+                  <span>{isVi ? "Trung tâm Quản trị" : "Admin Hub"}</span>
+                  <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
+                </Link>
+              </Button>
+            )}
+
+            <form action={signOutAction}>
+              <Button
+                variant="outline"
+                type="submit"
+                className="inline-flex items-center gap-2 text-xs uppercase tracking-wider h-auto min-h-11 py-2.5 px-5"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>{isVi ? "Đăng xuất" : "Sign Out"}</span>
+              </Button>
+            </form>
+          </div>
         </header>
 
         {/* Main: Order History (60%) + Shipping Sanctuary (40%) */}

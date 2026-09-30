@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { sanitizeNextPath } from "@/lib/redirect";
+import { resolvePostLoginPath, sanitizeNextPath } from "@/lib/redirect";
+import type { ActorContext } from "@/types";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -41,11 +42,12 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protect account and checkout routes
+  // Protect account, checkout, and admin management routes
   if (
     !user &&
     (request.nextUrl.pathname.startsWith("/account") ||
-      request.nextUrl.pathname.startsWith("/checkout"))
+      request.nextUrl.pathname.startsWith("/checkout") ||
+      request.nextUrl.pathname.startsWith("/admin"))
   ) {
     const url = request.nextUrl.clone();
     const originalTarget = `${request.nextUrl.pathname}${request.nextUrl.search}`;
@@ -54,7 +56,7 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Redirect to account or safe explicit next if logged in and visiting login/register
+  // Redirect to role default or safe explicit next if logged in and visiting login/register
   if (
     user &&
     (request.nextUrl.pathname === "/login" ||
@@ -62,18 +64,24 @@ export async function updateSession(request: NextRequest) {
   ) {
     const rawNext = request.nextUrl.searchParams.get("next");
     const next = rawNext ? sanitizeNextPath(rawNext, null) : null;
-    const url = request.nextUrl.clone();
-    if (
-      next &&
-      !next.startsWith("/admin") &&
-      !next.startsWith("/login") &&
-      !next.startsWith("/register")
-    ) {
-      return NextResponse.redirect(new URL(next, request.url));
+
+    let actor: ActorContext | null = null;
+    try {
+      const { data } = await supabase.rpc("current_actor");
+      if (data && data.user_id === user.id) {
+        actor = {
+          userId: user.id,
+          role: data.role ?? null,
+          status: data.status ?? null,
+          permissions: data.permissions ?? [],
+        };
+      }
+    } catch {
+      // Fall through with null actor if RPC fails
     }
-    url.pathname = "/account";
-    url.search = "";
-    return NextResponse.redirect(url);
+
+    const destination = resolvePostLoginPath(actor, next);
+    return NextResponse.redirect(new URL(destination, request.url));
   }
 
   return supabaseResponse;

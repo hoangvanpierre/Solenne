@@ -35,7 +35,7 @@ export default async function AdminLayout({
     await requireAnyPermission(MANAGEMENT_PERMISSIONS);
   } catch (error) {
     // 401: missing/ended session — same UX as the account surfaces.
-    if (isUnauthenticatedAuthError(error)) redirect("/login");
+    if (isUnauthenticatedAuthError(error)) redirect("/login?next=/admin");
 
     // Suspended/banned/inactive account — the S-3 restricted notice.
     if (isRestrictedAuthError(error)) {

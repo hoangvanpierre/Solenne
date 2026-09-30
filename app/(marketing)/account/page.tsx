@@ -93,12 +93,14 @@ export default async function AccountPage() {
             {isManagement && (
               <Button
                 asChild
-                className="inline-flex items-center gap-2 text-xs uppercase tracking-wider h-auto min-h-11 py-2.5 px-5 bg-foreground text-background hover:bg-foreground/90 transition-all cursor-pointer"
+                className="group inline-flex items-center gap-2 text-xs uppercase tracking-wider h-auto min-h-11 py-2.5 px-5 rounded-full bg-warm-black text-cream hover:bg-warm-black/85 border border-warm-black/80 shadow-sm transition-all cursor-pointer font-medium"
               >
-                <Link href="/admin">
-                  <ShieldCheck className="w-4 h-4 text-amber" />
-                  <span>{isVi ? "Trung tâm Quản trị" : "Admin Hub"}</span>
-                  <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
+                <Link href="/admin" className="inline-flex items-center gap-2 text-cream">
+                  <ShieldCheck className="w-4 h-4 text-amber shrink-0" />
+                  <span className="text-cream font-medium tracking-wider">
+                    {isVi ? "Trung tâm Quản trị" : "Admin Hub"}
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 ml-0.5 text-cream/80 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" />
                 </Link>
               </Button>
             )}

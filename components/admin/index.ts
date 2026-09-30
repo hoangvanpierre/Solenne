@@ -2,3 +2,13 @@ export { OrderCancelControl } from "./order-cancel-control";
 export type { OrderCancelControlProps } from "./order-cancel-control";
 export { OrderFulfillmentControl } from "./order-fulfillment-control";
 export type { OrderFulfillmentControlProps } from "./order-fulfillment-control";
+export {
+  StockStatusBadge,
+  getStockStatus,
+  LOW_STOCK_THRESHOLD,
+} from "./stock-status-badge";
+export type { StockStatusBadgeProps, StockStatus } from "./stock-status-badge";
+export { InventoryAdjustControl } from "./inventory-adjust-control";
+export type { InventoryAdjustControlProps } from "./inventory-adjust-control";
+export { InventoryTable } from "./inventory-table";
+export type { InventoryTableProps } from "./inventory-table";

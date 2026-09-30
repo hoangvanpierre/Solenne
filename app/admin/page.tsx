@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getLocale } from "next-intl/server";
-import { ArrowRight, Package, ShieldCheck, UserCheck } from "lucide-react";
+import { ArrowRight, Boxes, Package, ShieldCheck, UserCheck } from "lucide-react";
 import { getActorContext } from "@/lib/authz";
 import { Button } from "@/components/ui";
 
@@ -21,6 +21,8 @@ export default async function AdminPage() {
   const role = actor?.role;
   const canReadOrders = actor?.permissions.includes("order.read") ?? false;
   const canCancelOrders = actor?.permissions.includes("order.cancel") ?? false;
+  const canReadInventory = actor?.permissions.includes("inventory.read") ?? false;
+  const canUpdateInventory = actor?.permissions.includes("inventory.update") ?? false;
 
   let badgeLabel = isVi ? "Solenne Quản trị" : "Solenne Administration";
   let title = isVi ? "Trung tâm quản trị" : "Admin Hub";
@@ -93,6 +95,47 @@ export default async function AdminPage() {
               <Button asChild variant="outline" className="w-full sm:w-auto inline-flex items-center gap-2">
                 <Link href="/admin/orders">
                   <span>{isVi ? "Truy cập đơn hàng" : "Open Orders"}</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {canReadInventory && (
+          <div className="rounded-2xl border border-border bg-card/40 p-6 flex flex-col justify-between space-y-4 hover:border-amber/40 transition-colors">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber/10 text-amber">
+                  <Boxes className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 className="font-serif text-xl font-medium text-foreground">
+                    {isVi ? "Quản lý tồn kho" : "Inventory Management"}
+                  </h2>
+                  <p className="text-xs text-muted-foreground">
+                    {canUpdateInventory
+                      ? isVi
+                        ? "Theo dõi và điều chỉnh mức tồn kho"
+                        : "Monitor and adjust variant stock levels"
+                      : isVi
+                        ? "Xem dữ liệu tồn kho toàn hệ thống"
+                        : "View system-wide inventory data"}
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {isVi
+                  ? "Kiểm soát số lượng tồn kho từng phiên bản sản phẩm, nhận diện các tác phẩm sắp hết hàng và thực hiện cập nhật kho an toàn."
+                  : "Track stock quantities across all product variants, monitor low-stock thresholds, and perform atomic inventory adjustments."}
+              </p>
+            </div>
+
+            <div className="pt-2">
+              <Button asChild variant="outline" className="w-full sm:w-auto inline-flex items-center gap-2">
+                <Link href="/admin/inventory">
+                  <span>{isVi ? "Truy cập tồn kho" : "Open Inventory"}</span>
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>

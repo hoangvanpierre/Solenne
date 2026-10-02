@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getLocale } from "next-intl/server";
-import { ArrowRight, Boxes, Package, ShieldCheck, UserCheck } from "lucide-react";
+import { ArrowRight, Boxes, Layers, Package, ShieldCheck, UserCheck } from "lucide-react";
 import { getActorContext } from "@/lib/authz";
 import { Button } from "@/components/ui";
 
@@ -23,6 +23,10 @@ export default async function AdminPage() {
   const canCancelOrders = actor?.permissions.includes("order.cancel") ?? false;
   const canReadInventory = actor?.permissions.includes("inventory.read") ?? false;
   const canUpdateInventory = actor?.permissions.includes("inventory.update") ?? false;
+  const canManageProducts =
+    actor?.permissions.some((p) =>
+      ["product.create", "product.update", "product.delete"].includes(p)
+    ) ?? false;
 
   let badgeLabel = isVi ? "Solenne Quản trị" : "Solenne Administration";
   let title = isVi ? "Trung tâm quản trị" : "Admin Hub";
@@ -95,6 +99,43 @@ export default async function AdminPage() {
               <Button asChild variant="outline" className="w-full sm:w-auto inline-flex items-center gap-2">
                 <Link href="/admin/orders">
                   <span>{isVi ? "Truy cập đơn hàng" : "Open Orders"}</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {canManageProducts && (
+          <div className="rounded-2xl border border-border bg-card/40 p-6 flex flex-col justify-between space-y-4 hover:border-amber/40 transition-colors">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber/10 text-amber">
+                  <Layers className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 className="font-serif text-xl font-medium text-foreground">
+                    {isVi ? "Quản lý sản phẩm" : "Products Management"}
+                  </h2>
+                  <p className="text-xs text-muted-foreground">
+                    {isVi
+                      ? "Xem danh mục, tác phẩm và các phiên bản"
+                      : "View catalog, products, and candle variants"}
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {isVi
+                  ? "Quản lý toàn bộ danh mục nến thơm Solenne, theo dõi trạng thái hiển thị, nhóm hương và giá niêm yết của từng sáng tạo."
+                  : "Oversee the complete Solenne candle catalog, monitor publication status, scent families, and base pricing across all creations."}
+              </p>
+            </div>
+
+            <div className="pt-2">
+              <Button asChild variant="outline" className="w-full sm:w-auto inline-flex items-center gap-2">
+                <Link href="/admin/products">
+                  <span>{isVi ? "Truy cập sản phẩm" : "Open Products"}</span>
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>

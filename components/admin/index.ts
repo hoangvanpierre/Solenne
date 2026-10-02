@@ -12,3 +12,5 @@ export { InventoryAdjustControl } from "./inventory-adjust-control";
 export type { InventoryAdjustControlProps } from "./inventory-adjust-control";
 export { InventoryTable } from "./inventory-table";
 export type { InventoryTableProps } from "./inventory-table";
+export { ProductTable } from "./product-table";
+export type { ProductTableProps } from "./product-table";

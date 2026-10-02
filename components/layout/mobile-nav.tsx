@@ -6,6 +6,7 @@ import { X, User } from "lucide-react";
 import { useUIStore } from "@/stores/ui-store";
 import { useAppLocale } from "@/hooks/use-locale";
 import { useLockedBody } from "@/hooks/use-locked-body";
+import { useSamePageReload } from "@/hooks/use-same-page-reload";
 import { NAV_LINKS, SOCIAL_LINKS } from "@/lib/constants";
 import { CurrencyToggle } from "@/components/layout/currency-toggle";
 import { LocaleToggle } from "@/components/layout/locale-toggle";
@@ -14,6 +15,10 @@ export function MobileNav() {
   const isOpen = useUIStore((s) => s.isMobileNavOpen);
   const closeMobileNav = useUIStore((s) => s.closeMobileNav);
   const locale = useAppLocale();
+  // Same navigation model as the desktop Navbar: a click on the link for the
+  // page we are already on reloads it at the top, every other link navigates
+  // normally.
+  const handleNavClick = useSamePageReload();
 
   useLockedBody(isOpen);
 
@@ -63,7 +68,13 @@ export function MobileNav() {
                   >
                     <Link
                       href={link.href}
-                      onClick={closeMobileNav}
+                      onClick={(event) => {
+                        // Preserve the existing close-on-navigate behavior for
+                        // every link; the same-destination check decides whether
+                        // this click becomes a reload instead.
+                        closeMobileNav();
+                        handleNavClick(event, link.href);
+                      }}
                       className="block py-3 font-serif text-3xl font-medium text-foreground hover:text-primary transition-colors"
                     >
                       {locale === "vi" ? link.labelVi : link.label}

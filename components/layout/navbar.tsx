@@ -9,6 +9,7 @@ import { IconButton } from "@/components/ui/icon-button";
 import { useCartStore } from "@/stores/cart-store";
 import { useUIStore } from "@/stores/ui-store";
 import { useAppLocale } from "@/hooks/use-locale";
+import { useSamePageReload } from "@/hooks/use-same-page-reload";
 import { NAV_LINKS } from "@/lib/constants";
 import { CurrencyToggle } from "@/components/layout/currency-toggle";
 import { LocaleToggle } from "@/components/layout/locale-toggle";
@@ -23,6 +24,9 @@ export function Navbar() {
   const openCart = useCartStore((s) => s.openCart);
   const toggleMobileNav = useUIStore((s) => s.toggleMobileNav);
   const locale = useAppLocale();
+  // A click on the link for the page we are already on reloads it at the top;
+  // every other link keeps Next's normal client-side navigation.
+  const handleNavClick = useSamePageReload();
 
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -91,6 +95,7 @@ export function Navbar() {
             <Link
               key={link.href}
               href={link.href}
+              onClick={(event) => handleNavClick(event, link.href)}
               className={cn(
                 "text-sm font-medium transition-colors hover:text-primary relative",
                 "after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full",

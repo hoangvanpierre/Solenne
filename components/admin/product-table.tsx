@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -533,11 +534,27 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                     >
                       {/* Product Name, Slug, Status */}
                       <td className="py-4 px-6">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-foreground text-sm">
-                              {product.name}
-                            </span>
+                        <div className="flex items-center gap-3">
+                          <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg border border-border/60 bg-muted">
+                            {product.images && product.images.length > 0 ? (
+                              <Image
+                                src={product.images[0]}
+                                alt={product.name}
+                                fill
+                                sizes="40px"
+                                className="object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center text-[10px] text-muted-foreground/40 font-mono">
+                                —
+                              </div>
+                            )}
+                          </div>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-foreground text-sm">
+                                {product.name}
+                              </span>
 
                             {/* Storefront Link */}
                             <Link
@@ -578,7 +595,8 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                             /{product.slug}
                           </div>
                         </div>
-                      </td>
+                      </div>
+                    </td>
 
                       {/* Category */}
                       <td className="py-4 px-4 whitespace-nowrap">
@@ -689,12 +707,28 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                   className="rounded-2xl border border-border bg-card/40 p-4 space-y-3"
                 >
                   {/* Card Header: Product name & Badges */}
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="space-y-0.5">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <h4 className="font-medium text-sm text-foreground">
-                          {product.name}
-                        </h4>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3 flex-1 min-w-0">
+                      <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg border border-border/60 bg-muted">
+                        {product.images && product.images.length > 0 ? (
+                          <Image
+                            src={product.images[0]}
+                            alt={product.name}
+                            fill
+                            sizes="48px"
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-[10px] text-muted-foreground/40 font-mono">
+                            —
+                          </div>
+                        )}
+                      </div>
+                      <div className="space-y-0.5 min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <h4 className="font-medium text-sm text-foreground truncate">
+                            {product.name}
+                          </h4>
                         {product.isActive ? (
                           <span className="rounded-md border border-sage/40 bg-sage/10 px-1.5 py-0.2 text-[10px] text-sage font-medium">
                             {isVi ? "Mở bán" : "Active"}
@@ -715,10 +749,11 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                         /{product.slug}
                       </div>
                     </div>
+                  </div>
 
-                    <span
-                      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium shrink-0 ${categoryMeta.className}`}
-                    >
+                  <span
+                    className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium shrink-0 ${categoryMeta.className}`}
+                  >
                       {isVi ? categoryMeta.labelVi : categoryMeta.labelEn}
                     </span>
                   </div>

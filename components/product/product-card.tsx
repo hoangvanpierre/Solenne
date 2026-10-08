@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { Heart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -13,12 +14,18 @@ import type { Product } from "@/types";
 interface ProductCardProps {
   product: Product;
   index?: number;
+  priority?: boolean;
 }
 
-export function ProductCard({ product, index = 0 }: ProductCardProps) {
+export function ProductCard({
+  product,
+  index = 0,
+  priority,
+}: ProductCardProps) {
   const currency = useUIStore((s) => s.currency);
   const locale = useAppLocale();
   const isSale = product.compareAtPrice && product.compareAtPrice > product.basePrice;
+  const isAboveFold = priority ?? index < 4;
 
   const fmt = (usd: number) =>
     formatPrice(
@@ -33,13 +40,27 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
     <ScrollReveal delay={index * 0.1}>
       <Link href={`/products/${product.slug}`} className="group block">
         <div className="relative aspect-[3/4] mb-4 overflow-hidden rounded-2xl bg-muted transition-all duration-500 group-hover:shadow-xl group-hover:shadow-primary/10">
-          {/* Main placeholder background, replace with real Image later */}
-          <div className="absolute inset-0 bg-gradient-to-br from-stone-200 to-stone-300 transition-transform duration-700 group-hover:scale-105" />
-          
-          {/* Centered candle silhouette placeholder */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-16 h-24 rounded-lg bg-black/5 backdrop-blur-sm transition-transform duration-700 group-hover:scale-105" />
-          </div>
+          {product.images && product.images.length > 0 ? (
+            <Image
+              src={product.images[0]}
+              alt={product.name}
+              fill
+              priority={isAboveFold}
+              loading={isAboveFold ? "eager" : "lazy"}
+              sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+          ) : (
+            <>
+              {/* Main placeholder background, replace with real Image later */}
+              <div className="absolute inset-0 bg-gradient-to-br from-stone-200 to-stone-300 transition-transform duration-700 group-hover:scale-105" />
+
+              {/* Centered candle silhouette placeholder */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-16 h-24 rounded-lg bg-black/5 backdrop-blur-sm transition-transform duration-700 group-hover:scale-105" />
+              </div>
+            </>
+          )}
 
           {/* Badges & Actions */}
           <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">

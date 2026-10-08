@@ -31,6 +31,7 @@ const CATALOG = [
     scent_top: ["Bergamot", "Green Leaves"],
     scent_heart: ["Jasmine", "Rose", "Lily of the Valley"],
     scent_base: ["Musk", "Cedarwood", "Amber"],
+    images: ["/images/product/Solenne Midnight Garden Candle Glow.png"],
     variants: [
       { name: "Small", size: "90g", burn_time: "25 hours", price: 28, stock_quantity: 50, sku: "MG-SM" },
       { name: "Medium", size: "200g", burn_time: "50 hours", price: 42, stock_quantity: 30, sku: "MG-MD" },
@@ -50,6 +51,7 @@ const CATALOG = [
     scent_top: ["Eucalyptus", "Lemon"],
     scent_heart: ["Sage", "Lavender", "Pine"],
     scent_base: ["Cedarwood", "Vetiver", "Patchouli"],
+    images: ["/images/product/Solenne Cedar & Sage.jpg"],
     variants: [
       { name: "Small", size: "90g", burn_time: "25 hours", price: 26, stock_quantity: 40, sku: "CS-SM" },
       { name: "Medium", size: "200g", burn_time: "50 hours", price: 38, stock_quantity: 25, sku: "CS-MD" },
@@ -69,6 +71,7 @@ const CATALOG = [
     scent_top: ["Sea Salt", "Lemon", "Bergamot"],
     scent_heart: ["Jasmine", "Lily", "Ozone"],
     scent_base: ["Driftwood", "Musk", "Amber"],
+    images: ["/images/product/Solenne Ocean Breeze.jpg"],
     variants: [
       { name: "Small", size: "90g", burn_time: "25 hours", price: 24, stock_quantity: 60, sku: "OB-SM" },
       { name: "Medium", size: "200g", burn_time: "50 hours", price: 36, stock_quantity: 35, sku: "OB-MD" },
@@ -88,6 +91,7 @@ const CATALOG = [
     scent_top: ["Cinnamon", "Cardamom", "Pink Pepper"],
     scent_heart: ["Vanilla", "Tonka Bean", "Caramel"],
     scent_base: ["Sandalwood", "Benzoin", "Musk"],
+    images: ["/images/product/Solenne Vanilla Ember.png"],
     variants: [
       { name: "Small", size: "90g", burn_time: "25 hours", price: 30, stock_quantity: 45, sku: "VE-SM" },
       { name: "Medium", size: "200g", burn_time: "50 hours", price: 44, stock_quantity: 28, sku: "VE-MD" },
@@ -107,6 +111,7 @@ const CATALOG = [
     scent_top: ["Mandarin", "Saffron", "Ginger"],
     scent_heart: ["Honey", "Amber", "Rose Absolute"],
     scent_base: ["Sandalwood", "Vanilla", "Caramel"],
+    images: ["/images/product/Solenne Golden Hours.jpg"],
     variants: [
       { name: "Small", size: "90g", burn_time: "25 hours", price: 28, stock_quantity: 35, sku: "GH-SM" },
       { name: "Medium", size: "200g", burn_time: "50 hours", price: 40, stock_quantity: 22, sku: "GH-MD" },
@@ -126,6 +131,7 @@ const CATALOG = [
     scent_top: ["Lavender", "Eucalyptus", "Lemon"],
     scent_heart: ["French Lavender", "Clary Sage", "Geranium"],
     scent_base: ["Cedarwood", "Tonka Bean", "White Musk"],
+    images: ["/images/product/Solenne Lavender Serenity.png"],
     variants: [
       { name: "Small", size: "90g", burn_time: "25 hours", price: 24, stock_quantity: 55, sku: "WL-SM" },
       { name: "Medium", size: "200g", burn_time: "50 hours", price: 36, stock_quantity: 30, sku: "WL-MD" },
@@ -178,7 +184,7 @@ async function main() {
     scent_top: product.scent_top,
     scent_heart: product.scent_heart,
     scent_base: product.scent_base,
-    images: [],
+    images: product.images ?? [],
     created_at: new Date(now - i * 86_400_000).toISOString(),
     updated_at: new Date(now).toISOString(),
   }));

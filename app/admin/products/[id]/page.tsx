@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
@@ -230,11 +231,23 @@ export default async function AdminProductDetailPage({
 
         {/* Product Identity Banner */}
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between border-b border-border pb-6">
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-2.5">
-              <h1 className="font-serif text-3xl md:text-4xl font-semibold text-foreground">
-                {product.name}
-              </h1>
+          <div className="flex items-center gap-4">
+            {product.images && product.images.length > 0 && (
+              <div className="relative h-16 w-12 flex-shrink-0 overflow-hidden rounded-xl border border-border/80 bg-muted shadow-sm">
+                <Image
+                  src={product.images[0]}
+                  alt={product.name}
+                  fill
+                  sizes="48px"
+                  className="object-cover"
+                />
+              </div>
+            )}
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <h1 className="font-serif text-3xl md:text-4xl font-semibold text-foreground">
+                  {product.name}
+                </h1>
 
               {/* Category Badge */}
               <span
@@ -268,6 +281,7 @@ export default async function AdminProductDetailPage({
             <p className="text-xs font-mono text-muted-foreground">
               /products/{product.slug}
             </p>
+          </div>
           </div>
 
           <div className="flex items-center gap-3">

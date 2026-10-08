@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/ui/container";
@@ -64,14 +65,26 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
                 href={`/products/${product.slug}`}
                 className="group block"
               >
-                {/* Image placeholder */}
+                {/* Image placeholder / real image */}
                 <div
                   className={`relative aspect-[3/4] rounded-2xl bg-gradient-to-br ${CATEGORY_GRADIENTS[product.category]} overflow-hidden mb-4 transition-all duration-500 group-hover:shadow-xl group-hover:shadow-primary/10`}
                 >
-                  {/* Candle silhouette placeholder */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-16 h-24 rounded-lg bg-white/20 backdrop-blur-sm" />
-                  </div>
+                  {product.images && product.images.length > 0 ? (
+                    <Image
+                      src={product.images[0]}
+                      alt={product.name}
+                      fill
+                      priority={i < 2}
+                      loading={i < 2 ? "eager" : "lazy"}
+                      sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  ) : (
+                    /* Candle silhouette placeholder */
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-16 h-24 rounded-lg bg-white/20 backdrop-blur-sm" />
+                    </div>
+                  )}
 
                   {product.compareAtPrice && (
                     <div className="absolute top-3 left-3">

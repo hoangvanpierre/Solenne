@@ -21,7 +21,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
     <div className="flex flex-col gap-4 sticky top-24">
       {/* Main Image */}
       <div className="group relative aspect-[3/4] overflow-hidden rounded-2xl bg-muted">
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={activeIndex}
             initial={{ opacity: 0, scale: 0.98 }}

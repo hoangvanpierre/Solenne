@@ -10,6 +10,8 @@ interface ScrollRevealProps {
   duration?: number;
   className?: string;
   once?: boolean;
+  /** When false, bypasses the reveal animation and renders children visible immediately. */
+  enabled?: boolean;
 }
 
 const directionOffsets = {
@@ -26,7 +28,12 @@ export function ScrollReveal({
   duration = 0.6,
   className,
   once = true,
+  enabled = true,
 }: ScrollRevealProps) {
+  if (!enabled) {
+    return <div className={cn(className)}>{children}</div>;
+  }
+
   const offset = directionOffsets[direction];
 
   const variants: Variants = {

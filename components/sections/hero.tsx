@@ -47,38 +47,33 @@ export function Hero() {
         className="relative z-10 flex flex-col items-center text-center px-4"
       >
         {/* Top label */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="mb-6 text-xs tracking-[0.3em] uppercase text-cream/60"
-        >
+        <p className="mb-6 text-xs tracking-[0.3em] uppercase text-cream/60 animate-fade-in">
           {t("subtitle")}
-        </motion.p>
+        </p>
 
         {/* Brand name */}
         <TextReveal
           text="Solenne"
           as="h1"
-          className="font-serif text-7xl md:text-8xl lg:text-9xl font-bold text-cream mb-4"
+          className="font-serif text-7xl md:text-8xl lg:text-9xl font-bold text-cream mb-4 animate-fade-up"
           splitBy="character"
-          delay={0.5}
+          priority
         />
 
         {/* Tagline */}
         <TextReveal
           text={t("title")}
           as="p"
-          className="text-xl md:text-2xl text-cream/70 font-light mb-10 max-w-md"
+          className="text-xl md:text-2xl text-cream/70 font-light mb-10 max-w-md animate-fade-up"
           splitBy="word"
-          delay={1}
+          priority
         />
 
         {/* CTA Buttons */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.4 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
           className="flex flex-col sm:flex-row gap-4"
         >
           <MagneticButton>

@@ -10,6 +10,8 @@ interface TextRevealProps {
   delay?: number;
   splitBy?: "word" | "character" | "line";
   once?: boolean;
+  /** When true, renders text visibly in SSR without inline opacity:0 or Framer Motion delay. */
+  priority?: boolean;
 }
 
 export function TextReveal({
@@ -19,6 +21,7 @@ export function TextReveal({
   delay = 0,
   splitBy = "word",
   once = true,
+  priority = false,
 }: TextRevealProps) {
   const units =
     splitBy === "character"
@@ -26,6 +29,23 @@ export function TextReveal({
       : splitBy === "line"
         ? text.split("\n")
         : text.split(" ");
+
+  if (priority) {
+    return (
+      <Tag className={cn(className)}>
+        <span className="inline" aria-label={text}>
+          {units.map((unit, i) => (
+            <span key={i} className="inline-block">
+              <span className="inline-block">
+                {unit}
+                {splitBy !== "character" && i < units.length - 1 ? "\u00A0" : ""}
+              </span>
+            </span>
+          ))}
+        </span>
+      </Tag>
+    );
+  }
 
   const containerVariants = {
     hidden: {},

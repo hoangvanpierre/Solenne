@@ -39,7 +39,7 @@ export function ProductCard({
   const catName = cat ? (locale === "vi" ? cat.nameVi : cat.name) : product.category;
 
   return (
-    <ScrollReveal delay={index * 0.1}>
+    <ScrollReveal delay={index * 0.1} enabled={!isAboveFold}>
       <Link href={`/products/${product.slug}`} className="group block">
         <div className="relative aspect-[3/4] mb-4 overflow-hidden rounded-2xl bg-muted transition-all duration-500 group-hover:shadow-xl group-hover:shadow-primary/10">
           {product.images && product.images.length > 0 ? (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float, OrbitControls, Sparkles } from "@react-three/drei";
 import * as THREE from "three";
@@ -170,15 +170,18 @@ function CandleJar({ category }: { category: ScentCategory }) {
 
 export interface ScentCanvasProps {
   category: ScentCategory;
+  /** When false, the render loop is paused (canvas scrolled out of view). */
+  active?: boolean;
 }
 
-export function ScentCanvas({ category }: ScentCanvasProps) {
+export function ScentCanvas({ category, active = true }: ScentCanvasProps) {
   return (
     <div className="relative h-[380px] w-full sm:h-[450px] lg:h-[500px]">
       <Canvas
         camera={{ position: [0, 1.2, 3.8], fov: 42 }}
         dpr={[1, 2]}
         gl={{ antialias: true, alpha: true }}
+        frameloop={active ? "always" : "never"}
       >
         <ambientLight intensity={0.8} />
         <directionalLight position={[3, 4, 2]} intensity={1.2} color="#FFF8F0" />

@@ -13,14 +13,7 @@ interface ProductGalleryProps {
 
 export function ProductGallery({ images, productName }: ProductGalleryProps) {
   const hasImages = images && images.length > 0;
-  // Use placeholder images if none provided
-  const galleryImages = hasImages
-    ? images 
-    : [
-        "/placeholder-1.jpg", 
-        "/placeholder-2.jpg", 
-        "/placeholder-3.jpg"
-      ];
+  const galleryImages = hasImages ? images : [];
       
   const [activeIndex, setActiveIndex] = useState(0);
 

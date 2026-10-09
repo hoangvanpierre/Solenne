@@ -10,6 +10,13 @@ import { isLocaleScrollRestorationPending } from "@/lib/locale-scroll-restoratio
 
 gsap.registerPlugin(ScrollTrigger);
 
+let activeLenis: Lenis | null = null;
+
+/** The live Lenis instance while a SmoothScroll is mounted, otherwise null. */
+export function getLenis(): Lenis | null {
+  return activeLenis;
+}
+
 interface SmoothScrollProps {
   children: React.ReactNode;
 }
@@ -35,17 +42,21 @@ export function SmoothScroll({ children }: SmoothScrollProps) {
     });
 
     lenisRef.current = lenis;
+    activeLenis = lenis;
 
     // Official Lenis <-> GSAP ScrollTrigger integration: drive the raf loop
     // from the gsap ticker and keep ScrollTrigger in sync with Lenis scrolls.
     lenis.on("scroll", ScrollTrigger.update);
-    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    const raf = (time: number) => lenis.raf(time * 1000);
+    gsap.ticker.add(raf);
     gsap.ticker.lagSmoothing(0);
 
     return () => {
+      gsap.ticker.remove(raf);
       gsap.ticker.lagSmoothing(1, 500);
       lenis.destroy();
       lenisRef.current = null;
+      activeLenis = null;
     };
   }, []);
 

@@ -9,15 +9,17 @@ import { IconButton } from "@/components/ui/icon-button";
 import { useCartStore } from "@/stores/cart-store";
 import { useUIStore } from "@/stores/ui-store";
 import { useAppLocale } from "@/hooks/use-locale";
+import { useAuthz } from "@/hooks/use-authz";
 import { useSamePageReload } from "@/hooks/use-same-page-reload";
 import { NAV_LINKS } from "@/lib/constants";
 import { CurrencyToggle } from "@/components/layout/currency-toggle";
 import { LocaleToggle } from "@/components/layout/locale-toggle";
-import { createClient } from "@/lib/supabase/client";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Auth state is resolved server-side once per document by AuthzShell; no
+  // client-side Supabase round trip needed here.
+  const { isAuthenticated } = useAuthz();
   const pathname = usePathname();
   const isHome = pathname === "/";
   const items = useCartStore((s) => s.items);
@@ -41,21 +43,6 @@ export function Navbar() {
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setIsAuthenticated(!!session);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAuthenticated(!!session);
-    });
-
-    return () => subscription.unsubscribe();
   }, []);
 
   return (

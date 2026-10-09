@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppLocale } from "@/hooks/use-locale";
+import { getLenis } from "@/components/animations/smooth-scroll";
 
 export interface BackToTopProps {
   threshold?: number;
@@ -17,6 +18,9 @@ export function BackToTop({ threshold = 350, className }: BackToTopProps) {
   const [isHovered, setIsHovered] = useState(false);
   const locale = useAppLocale();
   const isVi = locale === "vi";
+  // Track last committed values so scroll events that change nothing visible
+  // do not trigger a React re-render.
+  const lastCommitted = useRef({ visible: false, progress: 0 });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -24,15 +28,21 @@ export function BackToTop({ threshold = 350, className }: BackToTopProps) {
       const totalHeight =
         document.documentElement.scrollHeight - window.innerHeight;
 
-      setIsVisible(scrollY > threshold);
+      const visible = scrollY > threshold;
+      const progress =
+        totalHeight > 0
+          ? Math.round(Math.min(Math.max((scrollY / totalHeight) * 100, 0), 100))
+          : 0;
 
-      if (totalHeight > 0) {
-        const progress = Math.min(
-          Math.max((scrollY / totalHeight) * 100, 0),
-          100
-        );
-        setScrollProgress(progress);
+      if (
+        visible === lastCommitted.current.visible &&
+        progress === lastCommitted.current.progress
+      ) {
+        return;
       }
+      lastCommitted.current = { visible, progress };
+      setIsVisible(visible);
+      setScrollProgress(progress);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -42,10 +52,12 @@ export function BackToTop({ threshold = 350, className }: BackToTopProps) {
   }, [threshold]);
 
   const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    const lenis = getLenis();
+    if (lenis) {
+      lenis.scrollTo(0);
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   // Clamps ember pip strictly within the track line

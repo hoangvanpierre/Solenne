@@ -25,7 +25,9 @@ export function ProductCard({
   const currency = useUIStore((s) => s.currency);
   const locale = useAppLocale();
   const isSale = product.compareAtPrice && product.compareAtPrice > product.basePrice;
-  const isAboveFold = priority ?? index < 4;
+  // Only the first row can be above the fold (page header takes the top of
+  // the viewport); preloading more would compete with the real LCP image.
+  const isAboveFold = priority ?? index < 2;
 
   const fmt = (usd: number) =>
     formatPrice(

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Star, Heart, Check, Plus, Minus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatPrice } from "@/lib/utils";
 import { useCart } from "@/hooks/use-cart";
 import { SizeSelector } from "./size-selector";
 import { QuantitySelector } from "./quantity-selector";

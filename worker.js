@@ -2,7 +2,7 @@ import worker from "./.open-next/worker.js";
 
 export * from "./.open-next/worker.js";
 
-export default {
+const workerHandler = {
   async fetch(request, env, ctx) {
     const response = await worker.fetch(request, env, ctx);
 
@@ -32,3 +32,5 @@ export default {
     return response;
   },
 };
+
+export default workerHandler;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,6 +12,7 @@ import { ScrollReveal } from "@/components/animations/scroll-reveal";
 import { TextReveal } from "@/components/animations/text-reveal";
 import { SCENT_CATEGORIES } from "@/lib/constants";
 import { useAppLocale } from "@/hooks/use-locale";
+import { useIntersection } from "@/hooks/use-intersection";
 import { cn } from "@/lib/utils";
 import type { ScentCategory } from "@/types";
 
@@ -21,7 +22,7 @@ const ScentCanvas = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-[400px] w-full items-center justify-center rounded-3xl bg-muted/30">
+      <div className="flex h-[380px] w-full items-center justify-center rounded-3xl bg-muted/30 sm:h-[450px] lg:h-[500px]">
         <div className="flex flex-col items-center gap-3">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           <span className="text-xs uppercase tracking-widest text-muted-foreground">
@@ -88,12 +89,22 @@ const CATEGORY_NOTES: Record<
 export function ScentExplorer() {
   const t = useTranslations("scentExplorer");
   const [activeId, setActiveId] = useState<ScentCategory>("floral");
-  const [mounted, setMounted] = useState(false);
   const locale = useAppLocale();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // The WebGL canvas is expensive to create and render: mount it only when the
+  // section approaches the viewport, and pause its render loop while it is
+  // scrolled out of view.
+  const [mountRef, shouldMountCanvas] = useIntersection<HTMLDivElement>({
+    rootMargin: "400px",
+    triggerOnce: true,
+  });
+  const [visibilityRef, isCanvasVisible] = useIntersection<HTMLDivElement>({
+    rootMargin: "100px",
+  });
+  const setCanvasArea = (el: HTMLDivElement | null) => {
+    mountRef.current = el;
+    visibilityRef.current = el;
+  };
 
   const currentCategory =
     SCENT_CATEGORIES.find((c) => c.id === activeId) ?? SCENT_CATEGORIES[0];
@@ -129,11 +140,13 @@ export function ScentExplorer() {
             <ScrollReveal>
               <div className="relative rounded-3xl border border-border/70 bg-gradient-to-b from-muted/30 to-muted/10 p-4 shadow-sm backdrop-blur-sm">
                 {/* 3D Canvas */}
-                {mounted ? (
-                  <ScentCanvas category={activeId} />
-                ) : (
-                  <div className="h-[400px] w-full rounded-2xl bg-muted/20" />
-                )}
+                <div ref={setCanvasArea}>
+                  {shouldMountCanvas ? (
+                    <ScentCanvas category={activeId} active={isCanvasVisible} />
+                  ) : (
+                    <div className="h-[380px] w-full rounded-2xl bg-muted/20 sm:h-[450px] lg:h-[500px]" />
+                  )}
+                </div>
 
                 {/* Interactive hint badge */}
                 <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between rounded-xl bg-background/80 px-4 py-2.5 backdrop-blur-md border border-border/50 text-xs text-muted-foreground">

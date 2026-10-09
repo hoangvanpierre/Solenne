@@ -10,7 +10,9 @@ export function Container({
   children,
   ...props
 }: ContainerProps) {
-  const Comp = Component as any;
+  const Comp = Component as React.ElementType<
+    React.HTMLAttributes<HTMLDivElement>
+  >;
   return (
     <Comp
       className={cn(

@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build",
+    "build": "node scripts/generate-optimized-images.mjs && next build",
+    "generate:images": "node scripts/generate-optimized-images.mjs",
     "dev": "next dev",
     "start": "next start",
     "lint": "eslint",
-    "build:worker": "opennextjs-cloudflare build",
+    "build:worker": "node scripts/generate-optimized-images.mjs && opennextjs-cloudflare build",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
@@ -49,6 +50,7 @@
     "@types/three": "^0.185.4",
     "eslint": "^9",
     "eslint-config-next": "16.3.3",
+    "sharp": "0.35.4",
     "tailwindcss": "^4",
     "typescript": "^5",
     "wrangler": "^4.132.0"

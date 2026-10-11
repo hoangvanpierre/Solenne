@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+import { ProductPicture } from "@/components/product/product-picture";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
@@ -96,7 +96,7 @@ export function CartDrawer() {
                         {/* Product image */}
                         <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-muted">
                           {item.product.images && item.product.images.length > 0 ? (
-                            <Image
+                            <ProductPicture
                               src={item.product.images[0]}
                               alt={item.product.name}
                               fill

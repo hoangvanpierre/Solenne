@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import { ProductPicture } from "@/components/product/product-picture";
 import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Badge } from "@/components/ui/badge";
@@ -70,7 +70,7 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
                   className={`relative aspect-[3/4] rounded-2xl bg-gradient-to-br ${CATEGORY_GRADIENTS[product.category]} overflow-hidden mb-4 transition-all duration-500 group-hover:shadow-xl group-hover:shadow-primary/10`}
                 >
                   {product.images && product.images.length > 0 ? (
-                    <Image
+                    <ProductPicture
                       src={product.images[0]}
                       alt={product.name}
                       fill

@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { Heart } from "lucide-react";
+import { ProductPicture } from "@/components/product/product-picture";
 import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/lib/utils";
 import { USD_TO_VND, SCENT_CATEGORIES } from "@/lib/constants";
@@ -43,7 +43,7 @@ export function ProductCard({
       <Link href={`/products/${product.slug}`} className="group block">
         <div className="relative aspect-[3/4] mb-4 overflow-hidden rounded-2xl bg-muted transition-all duration-500 group-hover:shadow-xl group-hover:shadow-primary/10">
           {product.images && product.images.length > 0 ? (
-            <Image
+            <ProductPicture
               src={product.images[0]}
               alt={product.name}
               fill

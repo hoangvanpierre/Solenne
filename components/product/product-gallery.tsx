@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Expand } from "lucide-react";
+import { ProductPicture } from "@/components/product/product-picture";
 import { cn } from "@/lib/utils";
 
 interface ProductGalleryProps {
@@ -31,7 +31,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
             className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-stone-200 to-stone-300"
           >
             {hasImages ? (
-              <Image
+              <ProductPicture
                 src={galleryImages[activeIndex]}
                 alt={`${productName} - photo ${activeIndex + 1}`}
                 fill
@@ -71,7 +71,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
               )}
             >
               {hasImages ? (
-                <Image
+                <ProductPicture
                   src={img}
                   alt={`${productName} thumbnail ${idx + 1}`}
                   fill

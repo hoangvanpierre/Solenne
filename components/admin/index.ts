@@ -20,3 +20,5 @@ export { VariantManager } from "./variant-manager";
 export type { VariantManagerProps } from "./variant-manager";
 export { ProductForm } from "./product-form";
 export type { ProductFormProps } from "./product-form";
+export { AuditTable } from "./audit-table";
+export type { AuditTableProps } from "./audit-table";

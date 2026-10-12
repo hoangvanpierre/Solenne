@@ -27,6 +27,8 @@ export default async function AdminPage() {
     actor?.permissions.some((p) =>
       ["product.create", "product.update", "product.delete"].includes(p)
     ) ?? false;
+  const canReadAudit = actor?.permissions.includes("audit.read") ?? false;
+
 
   let badgeLabel = isVi ? "Solenne Quản trị" : "Solenne Administration";
   let title = isVi ? "Trung tâm quản trị" : "Admin Hub";
@@ -184,11 +186,11 @@ export default async function AdminPage() {
           </div>
         )}
 
-        {role === "admin" && (
-          <div className="rounded-2xl border border-border bg-card/40 p-6 flex flex-col justify-between space-y-4">
+        {(role === "admin" || canReadAudit) && (
+          <div className="rounded-2xl border border-border bg-card/40 p-6 flex flex-col justify-between space-y-4 hover:border-amber/40 transition-colors">
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted/40 text-muted-foreground">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber/10 text-amber">
                   <UserCheck className="h-5 w-5" />
                 </div>
                 <div>
@@ -207,6 +209,17 @@ export default async function AdminPage() {
                   : "Your account holds full administrative authority, including RBAC permission management and security audit inspection."}
               </p>
             </div>
+
+            {canReadAudit && (
+              <div className="pt-2">
+                <Button asChild variant="outline" className="w-full sm:w-auto inline-flex items-center gap-2">
+                  <Link href="/admin/audit">
+                    <span>{isVi ? "Truy cập nhật ký" : "Open Audit Trail"}</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </div>

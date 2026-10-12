@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
-import { ArrowLeft, Package, ShieldAlert } from "lucide-react";
+import { ArrowLeft, ArrowRight, Package, ShieldAlert } from "lucide-react";
 import { AuthError, requirePermission } from "@/lib/authz";
 import {
   isRestrictedAuthError,
@@ -197,6 +197,9 @@ export default async function AdminOrdersPage() {
                   <th scope="col" className="py-3.5 px-6 text-right font-medium">
                     {isVi ? "Tổng tiền" : "Total"}
                   </th>
+                  <th scope="col" className="py-3.5 px-6 text-right font-medium">
+                    {isVi ? "Thao tác" : "Actions"}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -227,7 +230,22 @@ export default async function AdminOrdersPage() {
                       className="transition-colors hover:bg-muted/30"
                     >
                       <td className="py-4 px-6 font-mono text-xs font-semibold text-foreground">
-                        {order.orderNumber}
+                        <Link
+                          href={`/admin/orders/${order.id}`}
+                          className="inline-flex items-center hover:text-amber hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/40 focus-visible:ring-offset-2 rounded"
+                          title={
+                            isVi
+                              ? `Quản lý đơn hàng ${order.orderNumber}`
+                              : `Manage order ${order.orderNumber}`
+                          }
+                          aria-label={
+                            isVi
+                              ? `Quản lý đơn hàng ${order.orderNumber}`
+                              : `Manage order ${order.orderNumber}`
+                          }
+                        >
+                          {order.orderNumber}
+                        </Link>
                       </td>
                       <td className="py-4 px-6 text-xs text-muted-foreground whitespace-nowrap">
                         {new Date(order.createdAt).toLocaleDateString(
@@ -276,6 +294,19 @@ export default async function AdminOrdersPage() {
                       <td className="py-4 px-6 text-right font-medium text-foreground whitespace-nowrap">
                         {formatPrice(order.total)}
                       </td>
+                      <td className="py-4 px-6 text-right whitespace-nowrap">
+                        <Button
+                          asChild
+                          variant="outline"
+                          size="sm"
+                          className="inline-flex items-center gap-1.5 text-xs"
+                        >
+                          <Link href={`/admin/orders/${order.id}`}>
+                            <span>{isVi ? "Quản lý" : "Manage"}</span>
+                            <ArrowRight className="h-3 w-3" />
+                          </Link>
+                        </Button>
+                      </td>
                     </tr>
                   );
                 })}
@@ -304,9 +335,22 @@ export default async function AdminOrdersPage() {
                   className="rounded-xl border border-border bg-card/40 p-4 space-y-3"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-xs font-semibold text-foreground">
+                    <Link
+                      href={`/admin/orders/${order.id}`}
+                      className="font-mono text-xs font-semibold text-foreground hover:text-amber hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/40 focus-visible:ring-offset-2 rounded"
+                      title={
+                        isVi
+                          ? `Quản lý đơn hàng ${order.orderNumber}`
+                          : `Manage order ${order.orderNumber}`
+                      }
+                      aria-label={
+                        isVi
+                          ? `Quản lý đơn hàng ${order.orderNumber}`
+                          : `Manage order ${order.orderNumber}`
+                      }
+                    >
                       {order.orderNumber}
-                    </span>
+                    </Link>
                     <OrderStatusBadge
                       status={order.status}
                       locale={locale}
@@ -324,27 +368,40 @@ export default async function AdminOrdersPage() {
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between border-t border-border/60 pt-2 text-xs text-muted-foreground">
-                    <span>
-                      {itemCount}{" "}
-                      {isVi
-                        ? "tác phẩm"
-                        : itemCount === 1
-                          ? "item"
-                          : "items"}{" "}
-                      ·{" "}
-                      {new Date(order.createdAt).toLocaleDateString(
-                        isVi ? "vi-VN" : "en-US",
-                        {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        }
-                      )}
-                    </span>
-                    <span className="font-medium text-foreground text-sm">
-                      {formatPrice(order.total)}
-                    </span>
+                  <div className="flex items-center justify-between border-t border-border/60 pt-2.5">
+                    <div>
+                      <div className="text-[11px] text-muted-foreground">
+                        {itemCount}{" "}
+                        {isVi
+                          ? "tác phẩm"
+                          : itemCount === 1
+                            ? "item"
+                            : "items"}{" "}
+                        ·{" "}
+                        {new Date(order.createdAt).toLocaleDateString(
+                          isVi ? "vi-VN" : "en-US",
+                          {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          }
+                        )}
+                      </div>
+                      <div className="font-medium text-foreground text-sm">
+                        {formatPrice(order.total)}
+                      </div>
+                    </div>
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="sm"
+                      className="inline-flex items-center gap-1.5 text-xs h-8"
+                    >
+                      <Link href={`/admin/orders/${order.id}`}>
+                        <span>{isVi ? "Quản lý" : "Manage"}</span>
+                        <ArrowRight className="h-3 w-3" />
+                      </Link>
+                    </Button>
                   </div>
                 </div>
               );

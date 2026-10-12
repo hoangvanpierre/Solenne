@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
-import { ArrowLeft, Layers, ShieldAlert } from "lucide-react";
+import { ArrowLeft, Layers, Plus, ShieldAlert } from "lucide-react";
 import { AuthError, requireAnyPermission } from "@/lib/authz";
 import {
   isRestrictedAuthError,
@@ -23,6 +23,7 @@ export default async function AdminProductsPage() {
   const isVi = locale === "vi";
 
   let products: Product[] = [];
+  let canCreateProduct = false;
   let accountRestricted = false;
   let forbiddenAccess = false;
   let loadFailed = false;
@@ -31,12 +32,13 @@ export default async function AdminProductsPage() {
     // Explicit server-side permission enforcement.
     // Management boundary: Customer also has product.read, so admin product management
     // requires holding at least one product management permission.
-    await requireAnyPermission([
+    const actor = await requireAnyPermission([
       "product.create",
       "product.update",
       "product.delete",
     ]);
 
+    canCreateProduct = actor.permissions.includes("product.create");
     products = await getAdminProducts();
   } catch (error) {
     if (isUnauthenticatedAuthError(error)) {
@@ -135,7 +137,7 @@ export default async function AdminProductsPage() {
           </Link>
         </nav>
 
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber/10 text-amber">
               <Layers className="h-5 w-5" />
@@ -156,6 +158,19 @@ export default async function AdminProductsPage() {
               </div>
             </div>
           </div>
+
+          {canCreateProduct && (
+            <Button
+              asChild
+              size="sm"
+              className="inline-flex items-center gap-1.5 self-start sm:self-auto bg-amber text-primary-foreground hover:bg-amber/90"
+            >
+              <Link href="/admin/products/new">
+                <Plus className="h-4 w-4" />
+                <span>{isVi ? "Thêm sản phẩm" : "Add Product"}</span>
+              </Link>
+            </Button>
+          )}
         </div>
 
         <p className="text-sm text-muted-foreground max-w-2xl">

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getLocale } from "next-intl/server";
-import { ArrowRight, Boxes, Layers, Package, ShieldCheck, UserCheck } from "lucide-react";
+import { ArrowRight, Boxes, Layers, Package, ShieldCheck, UserCheck, Users } from "lucide-react";
 import { getActorContext } from "@/lib/authz";
 import { Button } from "@/components/ui";
 
@@ -28,6 +28,7 @@ export default async function AdminPage() {
       ["product.create", "product.update", "product.delete"].includes(p)
     ) ?? false;
   const canReadAudit = actor?.permissions.includes("audit.read") ?? false;
+  const canReadCustomers = actor?.permissions.includes("customer.read") ?? false;
 
 
   let badgeLabel = isVi ? "Solenne Quản trị" : "Solenne Administration";
@@ -179,6 +180,43 @@ export default async function AdminPage() {
               <Button asChild variant="outline" className="w-full sm:w-auto inline-flex items-center gap-2">
                 <Link href="/admin/inventory">
                   <span>{isVi ? "Truy cập tồn kho" : "Open Inventory"}</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {canReadCustomers && (
+          <div className="rounded-2xl border border-border bg-card/40 p-6 flex flex-col justify-between space-y-4 hover:border-amber/40 transition-colors">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber/10 text-amber">
+                  <Users className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 className="font-serif text-xl font-medium text-foreground">
+                    {isVi ? "Quản lý khách hàng" : "Customers Management"}
+                  </h2>
+                  <p className="text-xs text-muted-foreground">
+                    {isVi
+                      ? "Xem danh bạ và tổng quan lịch sử mua hàng"
+                      : "View customer directory and purchase overview"}
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {isVi
+                  ? "Theo dõi hồ sơ thành viên, trạng thái tài khoản và thông tin mua sắm của khách hàng Solenne."
+                  : "Monitor member profiles, account statuses, and purchase overview across Solenne patrons."}
+              </p>
+            </div>
+
+            <div className="pt-2">
+              <Button asChild variant="outline" className="w-full sm:w-auto inline-flex items-center gap-2">
+                <Link href="/admin/customers">
+                  <span>{isVi ? "Truy cập khách hàng" : "Open Customers"}</span>
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>

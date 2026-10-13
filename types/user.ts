@@ -83,3 +83,31 @@ export interface Review {
   createdAt: string;
   userName: string;
 }
+
+export interface CustomerSummary {
+  id: string;
+  fullName: string | null;
+  phone: string | null;
+  avatarUrl: string | null;
+  status: AccountStatus;
+  roleName: RoleName;
+  createdAt: string;
+  updatedAt: string | null;
+  orderCount: number | null;
+  lifetimeSpend: number | null;
+}
+
+export interface CustomerFilterParams {
+  page?: number | string;
+  limit?: number | string;
+  search?: string;
+  status?: string;
+}
+
+export interface CustomerQueryResult {
+  customers: CustomerSummary[];
+  totalCount: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+}

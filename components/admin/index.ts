@@ -22,3 +22,7 @@ export { ProductForm } from "./product-form";
 export type { ProductFormProps } from "./product-form";
 export { AuditTable } from "./audit-table";
 export type { AuditTableProps } from "./audit-table";
+export { CustomerStatusBadge } from "./customer-status-badge";
+export type { CustomerStatusBadgeProps } from "./customer-status-badge";
+export { CustomerTable } from "./customer-table";
+export type { CustomerTableProps } from "./customer-table";

@@ -70,44 +70,72 @@ async function resolveCustomerRoleId(
 
   // 1. Try public.customer_role_id() RPC (defined in 0010)
   try {
-    const { data: rpcRoleId } = await supabase.rpc("customer_role_id");
-    if (rpcRoleId && typeof rpcRoleId === "string") {
+    const { data: rpcRoleId, error: rpcError } = await supabase.rpc("customer_role_id");
+    if (rpcError) {
+      console.warn(
+        "resolveCustomerRoleId: customer_role_id RPC error:",
+        rpcError.code,
+        rpcError.message
+      );
+    } else if (rpcRoleId && typeof rpcRoleId === "string" && isValidUuid(rpcRoleId)) {
       cachedCustomerRoleId = rpcRoleId;
       return cachedCustomerRoleId;
     }
-  } catch {
-    // Continue to fallback
+  } catch (err) {
+    console.warn(
+      "resolveCustomerRoleId: customer_role_id RPC exception:",
+      err instanceof Error ? err.message : err
+    );
   }
 
   // 2. Direct query against public.roles (accessible to manager & admin under RLS)
   try {
-    const { data: roleRow } = await supabase
+    const { data: roleRow, error: roleError } = await supabase
       .from("roles")
       .select("id")
       .eq("name", "customer")
       .maybeSingle();
 
-    if (roleRow?.id) {
+    if (roleError) {
+      console.warn(
+        "resolveCustomerRoleId: roles table select error:",
+        roleError.code,
+        roleError.message
+      );
+    } else if (roleRow?.id && isValidUuid(roleRow.id)) {
       cachedCustomerRoleId = roleRow.id;
       return cachedCustomerRoleId;
     }
-  } catch {
-    // Continue to fallback
+  } catch (err) {
+    console.warn(
+      "resolveCustomerRoleId: roles table query exception:",
+      err instanceof Error ? err.message : err
+    );
   }
 
   // 3. Fallback to existing public.role_id_by_name if available
   try {
-    const { data: rpcData } = await supabase.rpc("role_id_by_name", {
+    const { data: rpcData, error: nameError } = await supabase.rpc("role_id_by_name", {
       p_name: "customer",
     });
-    if (rpcData && typeof rpcData === "string") {
+    if (nameError) {
+      console.warn(
+        "resolveCustomerRoleId: role_id_by_name RPC error:",
+        nameError.code,
+        nameError.message
+      );
+    } else if (rpcData && typeof rpcData === "string" && isValidUuid(rpcData)) {
       cachedCustomerRoleId = rpcData;
       return cachedCustomerRoleId;
     }
-  } catch {
-    // Continue
+  } catch (err) {
+    console.warn(
+      "resolveCustomerRoleId: role_id_by_name RPC exception:",
+      err instanceof Error ? err.message : err
+    );
   }
 
+  console.error("resolveCustomerRoleId: Failed to resolve customer role ID across all mechanisms");
   return null;
 }
 
@@ -283,7 +311,7 @@ export async function getAdminCustomerById(
   const customerRoleId = await resolveCustomerRoleId(supabase);
   if (!customerRoleId) {
     console.error("getAdminCustomerById: Failed to resolve customer role ID (fail-closed)");
-    return null;
+    throw new Error("Failed to load customer profile: customer role unavailable");
   }
 
   // 2. Fetch customer profile strictly filtered by customer role
@@ -294,10 +322,23 @@ export async function getAdminCustomerById(
     .eq("role_id", customerRoleId)
     .maybeSingle();
 
-  if (profileError || !profileData) {
+  // Case A — Supabase query error: log sanitized diagnostics and throw controlled error
+  if (profileError) {
+    console.error(
+      "getAdminCustomerById: Failed to query customer profile:",
+      profileError.code,
+      profileError.message,
+      profileError.details || ""
+    );
+    throw new Error("Failed to load customer profile");
+  }
+
+  // Case B — Successful query, no matching row: legitimate 404
+  if (!profileData) {
     return null;
   }
 
+  // Case C — Successful query, matching row: proceed with profile mapping
   const profile = profileData as unknown as ProfileRow;
 
   // 3. Compute customer metrics via bounded database aggregation RPC if actor has order.read
@@ -316,10 +357,17 @@ export async function getAdminCustomerById(
         orderCount = Number(row.order_count) || 0;
         lifetimeSpend = Number(row.lifetime_spend) || 0;
       } else if (rpcError) {
-        console.warn("getAdminCustomerById: Metrics RPC warning:", rpcError.message);
+        console.warn(
+          "getAdminCustomerById: Metrics RPC warning:",
+          rpcError.code,
+          rpcError.message
+        );
       }
     } catch (metricError) {
-      console.warn("getAdminCustomerById: Metrics RPC error:", metricError);
+      console.warn(
+        "getAdminCustomerById: Metrics RPC error:",
+        metricError instanceof Error ? metricError.message : metricError
+      );
     }
   }
 

@@ -26,3 +26,5 @@ export { CustomerStatusBadge } from "./customer-status-badge";
 export type { CustomerStatusBadgeProps } from "./customer-status-badge";
 export { CustomerTable } from "./customer-table";
 export type { CustomerTableProps } from "./customer-table";
+export { CustomerStatusControl } from "./customer-status-control";
+export type { CustomerStatusControlProps } from "./customer-status-control";

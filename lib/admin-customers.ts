@@ -383,3 +383,44 @@ export async function getAdminCustomerById(
     lifetimeSpend,
   };
 }
+
+/**
+ * Mutates a customer's account status using the atomic database RPC.
+ * Invoked on the user-scoped client under staff.manage authorization.
+ */
+export async function manageCustomerStatus(
+  customerId: string,
+  targetStatus: AccountStatus,
+  reason: string
+): Promise<{
+  success: boolean;
+  customerId: string;
+  oldStatus: AccountStatus;
+  newStatus: AccountStatus;
+}> {
+  await requirePermission("staff.manage");
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("manage_customer_status", {
+    p_customer_id: customerId,
+    p_target_status: targetStatus,
+    p_reason: reason.trim(),
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  const result = data as {
+    success: boolean;
+    customer_id: string;
+    old_status: AccountStatus;
+    new_status: AccountStatus;
+  };
+
+  return {
+    success: result.success,
+    customerId: result.customer_id,
+    oldStatus: result.old_status,
+    newStatus: result.new_status,
+  };
+}

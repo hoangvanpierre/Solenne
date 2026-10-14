@@ -27,6 +27,7 @@ export const AUDIT_ACTIONS = [
   "product_variant.updated",
   "product_variant.deleted",
   "user.role_changed",
+  "customer.status_changed",
 ] as const;
 
 export const AUDIT_ACTION_CATEGORIES = [
@@ -34,6 +35,7 @@ export const AUDIT_ACTION_CATEGORIES = [
   "inventory",
   "product",
   "user",
+  "customer",
 ] as const;
 
 export const AUDIT_RESOURCE_TYPES = [
@@ -234,6 +236,24 @@ export function formatAuditSummary(
         return `Cập nhật vai trò người dùng thành ${role ?? ""}`;
       }
       return `User role updated to ${role ?? ""}`;
+    }
+
+    case "customer.status_changed": {
+      const oldStatus = (metadata.old_status ?? metadata.previous_status) as
+        | string
+        | undefined;
+      const newStatus = (metadata.new_status ?? metadata.status) as
+        | string
+        | undefined;
+      const reason = metadata.reason ? String(metadata.reason) : undefined;
+      if (isVi) {
+        return `Thay đổi trạng thái khách hàng từ ${oldStatus ?? "–"} sang ${newStatus ?? "–"}${
+          reason ? ` (Lý do: ${reason})` : ""
+        }`;
+      }
+      return `Customer status changed from ${oldStatus ?? "–"} to ${newStatus ?? "–"}${
+        reason ? ` (Reason: ${reason})` : ""
+      }`;
     }
 
     default: {

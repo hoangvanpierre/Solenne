@@ -21,7 +21,7 @@ import {
 import { getAdminCustomerById } from "@/lib/admin-customers";
 import { getOrdersForUser } from "@/lib/orders";
 import { formatPrice } from "@/lib/utils";
-import { CustomerStatusBadge } from "@/components/admin";
+import { CustomerStatusBadge, CustomerStatusControl } from "@/components/admin";
 import { OrderStatusBadge, RestrictedAccountNotice } from "@/components/account";
 import { Button } from "@/components/ui";
 import type { Order } from "@/types";
@@ -48,11 +48,13 @@ export default async function CustomerDetailPage({
   let customer = null;
   let orders: Order[] = [];
   let canReadOrders = false;
+  let canManageStaff = false;
 
   try {
     // 1. Explicit server-side permission check before querying
     const actor = await requirePermission("customer.read");
     canReadOrders = actor.permissions.includes("order.read");
+    canManageStaff = actor.permissions.includes("staff.manage");
 
     // 2. Fetch customer details
     customer = await getAdminCustomerById(id);
@@ -333,6 +335,16 @@ export default async function CustomerDetailPage({
               </div>
             </div>
           </div>
+
+          {/* Customer Account Status Management (gated by staff.manage) */}
+          {canManageStaff && (
+            <CustomerStatusControl
+              customerId={customer.id}
+              currentStatus={customer.status}
+              customerName={customer.fullName}
+              locale={locale}
+            />
+          )}
         </div>
 
         {/* Right 2 Columns: Order History */}

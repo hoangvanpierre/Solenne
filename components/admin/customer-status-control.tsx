@@ -11,7 +11,10 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { useAuthz } from "@/hooks/use-authz";
-import { manageCustomerStatusAction } from "@/app/actions/customers";
+import {
+  manageCustomerStatusAction,
+  reinstateCustomerAction,
+} from "@/app/actions/customers";
 import { Button } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import type { AccountStatus } from "@/types";
@@ -32,8 +35,14 @@ function getDisplayError(err: string, isVi: boolean): string {
     if (err.includes("INVALID_TARGET_ROLE")) {
       return "Only customer accounts can be managed through this interface.";
     }
+    if (err.includes("SELF_REINSTATEMENT_FORBIDDEN")) {
+      return "You cannot reinstate your own account.";
+    }
     if (err.includes("SELF_STATUS_CHANGE_FORBIDDEN")) {
       return "You cannot change the status of your own account.";
+    }
+    if (err.includes("CUSTOMER_NOT_BANNED")) {
+      return "Only banned customer accounts can be reinstated.";
     }
     if (err.includes("NOOP_TRANSITION") || err.includes("already in")) {
       return "Customer is already in the requested status.";
@@ -69,8 +78,14 @@ function getDisplayError(err: string, isVi: boolean): string {
   if (err.includes("INVALID_TARGET_ROLE")) {
     return "Chỉ có thể quản lý trạng thái của tài khoản khách hàng.";
   }
+  if (err.includes("SELF_REINSTATEMENT_FORBIDDEN")) {
+    return "Quý khách không thể tự kích hoạt lại tài khoản của chính mình.";
+  }
   if (err.includes("SELF_STATUS_CHANGE_FORBIDDEN")) {
     return "Quý khách không thể tự thay đổi trạng thái tài khoản của chính mình.";
+  }
+  if (err.includes("CUSTOMER_NOT_BANNED")) {
+    return "Chỉ tài khoản đang bị cấm mới có thể được kích hoạt lại.";
   }
   if (err.includes("NOOP_TRANSITION") || err.includes("already in")) {
     return "Khách hàng đã ở trạng thái này từ trước.";
@@ -112,7 +127,7 @@ export function CustomerStatusControl({
   const router = useRouter();
 
   const [targetAction, setTargetAction] = useState<
-    "active" | "suspended" | "banned" | null
+    "active" | "suspended" | "banned" | "reinstate" | null
   >(null);
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -126,7 +141,9 @@ export function CustomerStatusControl({
     return null;
   }
 
-  const handleOpenAction = (action: "active" | "suspended" | "banned") => {
+  const handleOpenAction = (
+    action: "active" | "suspended" | "banned" | "reinstate"
+  ) => {
     setError(null);
     setReason("");
     setTargetAction(action);
@@ -163,12 +180,18 @@ export function CustomerStatusControl({
 
     setError(null);
     startTransition(async () => {
-      const result = await manageCustomerStatusAction({
-        customerId,
-        currentStatus,
-        targetStatus: targetAction,
-        reason: trimmed,
-      });
+      const result =
+        targetAction === "reinstate"
+          ? await reinstateCustomerAction({
+              customerId,
+              reason: trimmed,
+            })
+          : await manageCustomerStatusAction({
+              customerId,
+              currentStatus,
+              targetStatus: targetAction,
+              reason: trimmed,
+            });
 
       if (result.error) {
         setError(getDisplayError(result.error, isVi));
@@ -202,18 +225,33 @@ export function CustomerStatusControl({
       {targetAction === null ? (
         <div className="space-y-4">
           {currentStatus === "banned" ? (
-            <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-4 space-y-2">
+            <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-4 space-y-3">
               <div className="flex items-center gap-2 text-destructive font-medium text-xs">
                 <Ban className="h-4 w-4 shrink-0" />
                 <span>
-                  {isVi ? "Tài khoản bị cấm vĩnh viễn" : "Account Permanently Banned"}
+                  {isVi ? "Tài khoản bị cấm" : "Account Banned"}
                 </span>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 {isVi
-                  ? "Tài khoản này đã bị cấm truy cập. Trong phiên bản hiện tại, trạng thái cấm là cố định và không thể thay đổi."
-                  : "This customer account is permanently banned. In this version, banned status is terminal and cannot be reversed."}
+                  ? "Tài khoản này đã bị cấm truy cập. Thao tác thông thường không thể thay đổi trạng thái này. Quản trị viên có thể kích hoạt lại tài khoản có kiểm soát với lý do giải trình bắt buộc."
+                  : "This customer account is currently banned from accessing the store. Normal status transitions cannot reverse this state. An authorized administrator may reinstate the account with a mandatory audit reason."}
               </p>
+              <div className="pt-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full justify-start text-sage border-sage/30 hover:bg-sage/10 hover:text-sage hover:border-sage/40 text-xs h-9"
+                  onClick={() => handleOpenAction("reinstate")}
+                >
+                  <CheckCircle2 className="h-4 w-4 mr-2 shrink-0" />
+                  <span>
+                    {isVi
+                      ? "Kích hoạt lại tài khoản bị cấm"
+                      : "Reinstate Banned Customer"}
+                  </span>
+                </Button>
+              </div>
             </div>
           ) : currentStatus === "pending" ? (
             <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-2">
@@ -316,7 +354,11 @@ export function CustomerStatusControl({
             )}
             <div className="space-y-1">
               <h3 className="text-sm font-semibold text-foreground">
-                {targetAction === "banned"
+                {targetAction === "reinstate"
+                  ? isVi
+                    ? "Xác nhận kích hoạt lại tài khoản bị cấm"
+                    : "Confirm Reinstatement of Banned Customer"
+                  : targetAction === "banned"
                   ? isVi
                     ? "Xác nhận cấm tài khoản vĩnh viễn"
                     : "Confirm Account Ban"
@@ -329,14 +371,32 @@ export function CustomerStatusControl({
                   : "Confirm Account Reactivation"}
               </h3>
               <p className="text-xs leading-relaxed text-muted-foreground">
-                {targetAction === "banned"
+                {targetAction === "reinstate"
+                  ? isVi ? (
+                      <>
+                        Quý khách có chắc chắn muốn kích hoạt lại tài khoản bị cấm của{" "}
+                        <span className="font-medium text-foreground">
+                          {displayName}
+                        </span>
+                        ? Trạng thái tài khoản sẽ được chuyển thành hoạt động (Active), khôi phục quyền đăng nhập và đặt hàng. Thao tác này được lưu vết kiểm toán vĩnh viễn.
+                      </>
+                    ) : (
+                      <>
+                        Are you sure you want to reinstate the banned account for{" "}
+                        <span className="font-medium text-foreground">
+                          {displayName}
+                        </span>
+                        ? The account status will be restored to Active, restoring sign-in and checkout abilities. This executive action is permanently recorded in the audit log.
+                      </>
+                    )
+                  : targetAction === "banned"
                   ? isVi ? (
                       <>
                         Quý khách có chắc chắn muốn cấm tài khoản của{" "}
                         <span className="font-medium text-foreground">
                           {displayName}
                         </span>
-                        ? Cấm tài khoản là vĩnh viễn và không thể khôi phục.
+                        ? Cấm tài khoản là vĩnh viễn trong luồng quản lý thông thường.
                       </>
                     ) : (
                       <>
@@ -344,7 +404,7 @@ export function CustomerStatusControl({
                         <span className="font-medium text-foreground">
                           {displayName}
                         </span>
-                        ? Banning is permanent and cannot be reversed.
+                        ? Banning is permanent within the normal status-management workflow.
                       </>
                     )
                   : targetAction === "suspended"
@@ -409,7 +469,11 @@ export function CustomerStatusControl({
               rows={2}
               maxLength={255}
               placeholder={
-                targetAction === "banned"
+                targetAction === "reinstate"
+                  ? isVi
+                    ? "Ví dụ: Ban quản trị đã phê duyệt kích hoạt lại tài khoản sau khi xem xét và xác minh thông tin..."
+                    : "e.g. Executive approval to reinstate customer account following formal review and verification..."
+                  : targetAction === "banned"
                   ? isVi
                     ? "Ví dụ: Vi phạm nghiêm trọng điều khoản sử dụng, gian lận thanh toán..."
                     : "e.g. Terms of service violation, fraudulent payment attempt..."
@@ -464,12 +528,16 @@ export function CustomerStatusControl({
                 "order-1 sm:order-2 text-xs",
                 targetAction === "suspended" &&
                   "bg-amber hover:bg-amber/90 text-primary-foreground",
-                targetAction === "active" &&
+                (targetAction === "active" || targetAction === "reinstate") &&
                   "bg-sage hover:bg-sage/90 text-primary-foreground"
               )}
             >
               <span>
-                {targetAction === "banned"
+                {targetAction === "reinstate"
+                  ? isVi
+                    ? "Xác nhận kích hoạt lại"
+                    : "Confirm Reinstatement"
+                  : targetAction === "banned"
                   ? isVi
                     ? "Xác nhận cấm"
                     : "Confirm Ban"

@@ -83,3 +83,27 @@ export interface CustomerStatusActionState {
   error?: string;
   fieldErrors?: Record<string, string[] | undefined>;
 }
+
+export const customerReinstatementSchema = z.object({
+  customerId: z.string().refine(isValidUuid, {
+    message: "Invalid customer ID format.",
+  }),
+  reason: z
+    .string()
+    .trim()
+    .min(5, "Reason must be at least 5 characters.")
+    .max(255, "Reason cannot exceed 255 characters."),
+});
+
+export type CustomerReinstatementInput = z.infer<
+  typeof customerReinstatementSchema
+>;
+
+export interface CustomerReinstatementActionState {
+  success?: boolean;
+  customerId?: string;
+  previousStatus?: AccountStatus;
+  newStatus?: AccountStatus;
+  error?: string;
+  fieldErrors?: Record<string, string[] | undefined>;
+}

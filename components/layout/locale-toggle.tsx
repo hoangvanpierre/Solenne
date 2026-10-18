@@ -37,7 +37,7 @@ export function LocaleToggle({
       onClick={handleToggle}
       disabled={isPending}
       className={cn(
-        "relative flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium tracking-wide transition-colors duration-200 cursor-pointer select-none",
+        "relative flex items-center gap-1 rounded-full px-2 py-0.5 text-[11.5px] font-normal tracking-[0.06em] transition-colors duration-200 cursor-pointer select-none",
         variant === "default" &&
           "text-foreground/70 hover:text-foreground hover:bg-muted",
         variant === "transparent" &&
@@ -57,7 +57,7 @@ export function LocaleToggle({
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -6, opacity: 0 }}
           transition={{ duration: 0.15 }}
-          className="inline-flex items-center gap-1 uppercase font-semibold"
+          className="inline-flex items-center gap-1 uppercase font-normal"
         >
           {label}
         </motion.span>

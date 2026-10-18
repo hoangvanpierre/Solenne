@@ -74,18 +74,18 @@ export default async function AdminProductsPage() {
             <ShieldAlert className="h-6 w-6 text-amber" />
           </div>
 
-          <h2 className="mt-5 font-serif text-2xl font-medium text-foreground">
+          <h2 className="mt-5 text-2xl font-normal text-foreground">
             {isVi ? "Khu vực không khả dụng" : "Area unavailable"}
           </h2>
 
-          <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">
+          <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground font-normal">
             {isVi
               ? "Quý khách không có quyền truy cập vào danh mục quản trị sản phẩm."
               : "You do not have permission to view the administrative product catalog."}
           </p>
 
           <div className="mt-7 flex justify-center">
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="font-normal text-xs">
               <Link href="/admin" className="inline-flex items-center gap-2">
                 <ArrowLeft className="h-4 w-4" />
                 <span>
@@ -105,7 +105,7 @@ export default async function AdminProductsPage() {
         <nav aria-label="Breadcrumb">
           <Link
             href="/admin"
-            className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
+            className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground font-normal"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             <span>{isVi ? "Trung tâm quản trị" : "Admin Hub"}</span>
@@ -113,7 +113,7 @@ export default async function AdminProductsPage() {
         </nav>
 
         <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-8 text-center">
-          <p className="text-sm font-medium text-destructive">
+          <p className="text-sm font-normal text-destructive">
             {isVi
               ? "Không thể tải danh sách sản phẩm lúc này. Vui lòng làm mới trang hoặc thử lại sau."
               : "Unable to load products at this time. Please refresh the page or try again later."}
@@ -130,7 +130,7 @@ export default async function AdminProductsPage() {
         <nav aria-label="Breadcrumb">
           <Link
             href="/admin"
-            className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
+            className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground font-normal"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             <span>{isVi ? "Trung tâm quản trị" : "Admin Hub"}</span>
@@ -144,10 +144,10 @@ export default async function AdminProductsPage() {
             </div>
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="font-serif text-3xl md:text-4xl font-semibold text-foreground">
+                <h1 className="text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground">
                   {isVi ? "Quản lý sản phẩm" : "Products"}
                 </h1>
-                <span className="rounded-full border border-border bg-muted/40 px-3 py-0.5 text-xs font-medium text-muted-foreground">
+                <span className="rounded-full border border-border bg-muted/40 px-3 py-0.5 text-xs font-normal tabular-nums text-muted-foreground">
                   {products.length}{" "}
                   {isVi
                     ? "sản phẩm"
@@ -163,7 +163,7 @@ export default async function AdminProductsPage() {
             <Button
               asChild
               size="sm"
-              className="inline-flex items-center gap-1.5 self-start sm:self-auto bg-amber text-primary-foreground hover:bg-amber/90"
+              className="inline-flex items-center gap-1.5 self-start sm:self-auto bg-amber text-primary-foreground hover:bg-amber/90 font-normal text-xs"
             >
               <Link href="/admin/products/new">
                 <Plus className="h-4 w-4" />
@@ -173,7 +173,7 @@ export default async function AdminProductsPage() {
           )}
         </div>
 
-        <p className="text-sm text-muted-foreground max-w-2xl">
+        <p className="text-sm text-muted-foreground max-w-2xl font-normal">
           {isVi
             ? "Theo dõi toàn bộ danh mục nến thơm, trạng thái hiển thị, nhóm hương và cơ cấu phiên bản."
             : "Monitor all candle creations, publication statuses, scent families, and variant structures."}

@@ -52,21 +52,21 @@ export async function OrderHistoryCard({ userId }: OrderHistoryCardProps) {
   return (
     <div>
       <div className="flex items-baseline justify-between gap-4">
-        <h2 className="font-serif text-2xl md:text-3xl font-medium text-foreground">
+        <h2 className="font-serif text-xl sm:text-2xl font-normal text-foreground leading-[1.28]">
           {isVi ? "Lịch sử tác phẩm đã thỉnh" : "Order History"}
         </h2>
-        <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+        <span className="text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground tabular-nums font-normal">
           {totalOrders} {isVi ? "đơn hàng" : totalOrders === 1 ? "order" : "orders"}
         </span>
       </div>
-      <p className="mt-2 text-base text-muted-foreground">
+      <p className="mt-2 text-[13.5px] sm:text-[14px] text-muted-foreground font-normal leading-relaxed">
         {isVi
           ? "Những tác phẩm được lưu dấu gần nhất, mới nhất trước."
           : "Your most recent orders, newest first."}
       </p>
 
       {loadFailed ? (
-        <p className="mt-8 text-sm text-muted-foreground">
+        <p className="mt-8 text-sm text-muted-foreground font-normal">
           {isVi ? (
             <>
               Chưa thể tải lịch sử đơn hàng lúc này. Quý khách vui lòng tải lại trang hoặc{" "}
@@ -94,14 +94,14 @@ export async function OrderHistoryCard({ userId }: OrderHistoryCardProps) {
         </p>
       ) : orders.length === 0 ? (
         <div className="mt-8">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground font-normal">
             {isVi
               ? "Quý khách chưa có đơn nến nào. Tác phẩm nến thơm đầu tiên sẽ xuất hiện tại đây."
               : "No orders yet. Your first candle order will appear here."}
           </p>
           <Link
             href="/products"
-            className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline"
+            className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-normal text-foreground underline-offset-4 hover:underline"
           >
             <span>{isVi ? "Khám phá bộ sưu tập" : "Explore the collection"}</span>
             <ArrowRight className="h-3.5 w-3.5" />
@@ -114,20 +114,20 @@ export async function OrderHistoryCard({ userId }: OrderHistoryCardProps) {
               <Link
                 key={order.id}
                 href={`/checkout/success?number=${order.orderNumber}`}
-                className="group block py-5 transition-colors hover:bg-muted/30"
+                className="group block py-4 sm:py-5 transition-colors hover:bg-muted/30"
               >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                      <span className="font-serif text-lg text-foreground">
+                      <span className="font-serif text-base sm:text-[17px] font-normal tabular-nums text-foreground">
                         {order.orderNumber}
                       </span>
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-[13px] text-muted-foreground font-normal tabular-nums">
                         {order.items.length}{" "}
                         {isVi ? "tác phẩm" : order.items.length === 1 ? "item" : "items"}
                       </span>
                     </div>
-                    <p className="mt-1 text-xs text-muted-foreground">
+                    <p className="mt-1 text-[11.5px] text-muted-foreground font-normal tabular-nums">
                       {new Date(order.createdAt).toLocaleDateString(isVi ? "vi-VN" : "en-US", {
                         month: "long",
                         day: "numeric",
@@ -137,7 +137,7 @@ export async function OrderHistoryCard({ userId }: OrderHistoryCardProps) {
                   </div>
                   <div className="flex items-center gap-4">
                     <OrderStatusBadge status={order.status} locale={locale} />
-                    <span className="text-sm font-medium text-foreground">
+                    <span className="text-[13.5px] font-normal tabular-nums text-foreground">
                       {formatPrice(order.total)}
                     </span>
                   </div>
@@ -149,7 +149,7 @@ export async function OrderHistoryCard({ userId }: OrderHistoryCardProps) {
           {hasMore && (
             <Link
               href="/account/orders"
-              className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline"
+              className="mt-6 inline-flex items-center gap-1.5 text-[13px] font-normal tabular-nums text-foreground underline-offset-4 hover:underline"
             >
               <span>
                 {isVi ? `Xem tất cả đơn hàng (${totalOrders})` : `View all orders (${totalOrders})`}
@@ -167,11 +167,11 @@ export function OrderHistoryCardSkeleton() {
   return (
     <div>
       <div className="flex items-baseline justify-between gap-4">
-        <h2 className="font-serif text-2xl md:text-3xl font-medium text-foreground">
+        <h2 className="font-serif text-xl sm:text-2xl font-normal text-foreground leading-[1.28]">
           Order History
         </h2>
       </div>
-      <p className="mt-2 text-base text-muted-foreground">
+      <p className="mt-2 text-[13.5px] sm:text-[14px] text-muted-foreground font-normal leading-relaxed">
         Your most recent orders, newest first.
       </p>
       <div className="mt-6 space-y-4 border-y border-border/60 py-4">

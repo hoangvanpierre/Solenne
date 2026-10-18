@@ -202,17 +202,17 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <span className="text-[10.5px] font-normal text-muted-foreground uppercase tracking-wider">
               {isVi ? "Tổng sản phẩm" : "Total Products"}
             </span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-muted-foreground">
               <Layers className="h-4 w-4" />
             </div>
           </div>
-          <div className="mt-2 font-mono text-2xl font-bold text-foreground">
+          <div className="mt-2 tabular-nums text-2xl font-normal text-foreground">
             {metrics.total}
           </div>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs font-normal text-muted-foreground">
             {isVi ? "Toàn bộ danh mục nến" : "All candle creations"}
           </span>
         </button>
@@ -230,17 +230,17 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-sage uppercase tracking-wider">
+            <span className="text-[10.5px] font-normal text-sage uppercase tracking-wider">
               {isVi ? "Đang mở bán" : "Active / Live"}
             </span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-sage/15 text-sage">
               <CheckCircle2 className="h-4 w-4" />
             </div>
           </div>
-          <div className="mt-2 font-mono text-2xl font-bold text-foreground">
+          <div className="mt-2 tabular-nums text-2xl font-normal text-foreground">
             {metrics.active}
           </div>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs font-normal text-muted-foreground">
             {isVi ? "Hiển thị trên tiệm nến" : "Visible in storefront"}
           </span>
         </button>
@@ -258,17 +258,17 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-amber uppercase tracking-wider">
+            <span className="text-[10.5px] font-normal text-amber uppercase tracking-wider">
               {isVi ? "Tạm ẩn / Bản nháp" : "Inactive / Draft"}
             </span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber/15 text-amber">
               <EyeOff className="h-4 w-4" />
             </div>
           </div>
-          <div className="mt-2 font-mono text-2xl font-bold text-foreground">
+          <div className="mt-2 tabular-nums text-2xl font-normal text-foreground">
             {metrics.inactive}
           </div>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs font-normal text-muted-foreground">
             {isVi ? "Ẩn khỏi cửa hàng" : "Hidden from storefront"}
           </span>
         </button>
@@ -276,17 +276,17 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
         {/* Featured Products */}
         <div className="rounded-2xl border border-border bg-card/40 p-4 text-left">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <span className="text-[10.5px] font-normal text-muted-foreground uppercase tracking-wider">
               {isVi ? "Nổi bật" : "Featured"}
             </span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber/15 text-amber">
               <Sparkles className="h-4 w-4" />
             </div>
           </div>
-          <div className="mt-2 font-mono text-2xl font-bold text-foreground">
+          <div className="mt-2 tabular-nums text-2xl font-normal text-foreground">
             {metrics.featured}
           </div>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs font-normal text-muted-foreground">
             {isVi ? "Trang chủ & Bộ sưu tập" : "Homepage showcase"}
           </span>
         </div>
@@ -307,7 +307,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                   ? "Tìm theo tên tác phẩm, slug hoặc SKU..."
                   : "Search by product name, slug, or SKU..."
               }
-              className="w-full rounded-xl border border-border bg-background pl-9 pr-9 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              className="w-full rounded-xl border border-border bg-background pl-9 pr-9 py-2 text-[13px] font-normal text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
             />
             {searchQuery && (
               <button
@@ -324,7 +324,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
           {/* Quick Filter Controls */}
           <div className="flex flex-wrap items-center gap-2">
             {/* Category Filter */}
-            <div className="flex items-center gap-1 text-xs">
+            <div className="flex items-center gap-1 text-xs font-normal">
               <span className="text-muted-foreground hidden sm:inline mr-1">
                 {isVi ? "Nhóm hương:" : "Category:"}
               </span>
@@ -333,7 +333,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                 onChange={(e) =>
                   setCategoryFilter(e.target.value as ScentCategory | "all")
                 }
-                className="rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                className="rounded-xl border border-border bg-background px-3 py-2 text-xs font-normal text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
                 aria-label={isVi ? "Lọc theo nhóm hương" : "Filter by category"}
               >
                 <option value="all">
@@ -347,14 +347,14 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
             </div>
 
             {/* Status Filter */}
-            <div className="flex items-center gap-1 text-xs">
+            <div className="flex items-center gap-1 text-xs font-normal">
               <span className="text-muted-foreground hidden sm:inline mr-1">
                 {isVi ? "Trạng thái:" : "Status:"}
               </span>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-                className="rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                className="rounded-xl border border-border bg-background px-3 py-2 text-xs font-normal text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
                 aria-label={isVi ? "Lọc theo trạng thái" : "Filter by status"}
               >
                 <option value="all">
@@ -370,11 +370,11 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
             </div>
 
             {/* Sort Selector */}
-            <div className="flex items-center gap-1 text-xs">
+            <div className="flex items-center gap-1 text-xs font-normal">
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                className="rounded-xl border border-border bg-background px-3 py-2 text-xs font-normal text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
                 aria-label={isVi ? "Sắp xếp danh sách" : "Sort list"}
               >
                 <option value="newest">
@@ -408,7 +408,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                 variant="outline"
                 size="sm"
                 onClick={handleResetFilters}
-                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+                className="inline-flex items-center gap-1.5 text-xs font-normal text-muted-foreground hover:text-foreground"
               >
                 <RotateCcw className="h-3 w-3" />
                 <span>{isVi ? "Đặt lại" : "Reset"}</span>
@@ -418,7 +418,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
         </div>
 
         {/* Filter Summary Results */}
-        <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border/40">
+        <div className="flex items-center justify-between text-xs font-normal text-muted-foreground pt-1 border-t border-border/40">
           <span>
             {isVi
               ? `Hiển thị ${filteredProducts.length} trên tổng số ${metrics.total} tác phẩm`
@@ -426,7 +426,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
           </span>
 
           {hasActiveFilters && (
-            <span className="text-xs text-amber font-medium">
+            <span className="text-xs text-amber font-normal">
               {isVi ? "Bộ lọc đang kích hoạt" : "Filters active"}
             </span>
           )}
@@ -439,7 +439,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted/40">
             <Layers className="h-6 w-6 text-muted-foreground" />
           </div>
-          <h3 className="mt-4 font-serif text-lg font-medium text-foreground">
+          <h3 className="mt-4 text-lg font-normal text-foreground">
             {metrics.total === 0
               ? isVi
                 ? "Chưa có sản phẩm nào"
@@ -448,7 +448,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                 ? "Không tìm thấy tác phẩm phù hợp"
                 : "No matching products found"}
           </h3>
-          <p className="mt-1 text-xs text-muted-foreground max-w-sm">
+          <p className="mt-1 text-[13.5px] leading-[1.6] font-normal text-muted-foreground max-w-sm">
             {metrics.total === 0
               ? isVi
                 ? "Chưa có tác phẩm nến nào trong danh mục quản trị."
@@ -464,7 +464,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                 variant="outline"
                 size="sm"
                 onClick={handleResetFilters}
-                className="inline-flex items-center gap-1.5"
+                className="inline-flex items-center gap-1.5 text-xs font-normal"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
                 <span>{isVi ? "Xóa bộ lọc" : "Clear filters"}</span>
@@ -478,28 +478,28 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
           <div className="hidden md:block overflow-x-auto rounded-2xl border border-border bg-card/40">
             <table className="w-full text-left text-sm border-collapse">
               <thead>
-                <tr className="border-b border-border bg-muted/20 text-xs uppercase tracking-wider text-muted-foreground">
-                  <th scope="col" className="py-3.5 px-6 font-medium">
+                <tr className="border-b border-border bg-muted/20 text-[11px] font-normal uppercase tracking-wider text-muted-foreground">
+                  <th scope="col" className="py-3.5 px-6 font-normal">
                     {isVi ? "Tác phẩm" : "Product"}
                   </th>
-                  <th scope="col" className="py-3.5 px-4 font-medium">
+                  <th scope="col" className="py-3.5 px-4 font-normal">
                     {isVi ? "Nhóm hương" : "Category"}
                   </th>
-                  <th scope="col" className="py-3.5 px-4 font-medium">
+                  <th scope="col" className="py-3.5 px-4 font-normal">
                     {isVi ? "Phiên bản" : "Variants"}
                   </th>
-                  <th scope="col" className="py-3.5 px-4 font-medium">
+                  <th scope="col" className="py-3.5 px-4 font-normal">
                     {isVi ? "Giá cơ bản" : "Base Price"}
                   </th>
-                  <th scope="col" className="py-3.5 px-6 font-medium">
+                  <th scope="col" className="py-3.5 px-6 font-normal">
                     {isVi ? "Tổng tồn kho" : "Total Stock"}
                   </th>
-                  <th scope="col" className="py-3.5 px-4 font-medium">
+                  <th scope="col" className="py-3.5 px-4 font-normal">
                     {isVi ? "Ngày tạo" : "Created"}
                   </th>
                   <th
                     scope="col"
-                    className="py-3.5 px-6 text-right font-medium"
+                    className="py-3.5 px-6 text-right font-normal"
                   >
                     {isVi ? "Thao tác" : "Actions"}
                   </th>
@@ -545,14 +545,14 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                                 className="object-cover"
                               />
                             ) : (
-                              <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground/40 font-mono">
+                              <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground/40 tabular-nums">
                                 —
                               </div>
                             )}
                           </div>
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
-                              <span className="font-medium text-foreground text-sm">
+                              <span className="font-normal text-foreground text-[13.5px]">
                                 {product.name}
                               </span>
 
@@ -573,25 +573,25 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
 
                             {/* Status Badge */}
                             {product.isActive ? (
-                              <span className="inline-flex items-center rounded-md border border-sage/40 bg-sage/10 px-1.5 py-0.5 text-xs font-medium text-sage">
+                              <span className="inline-flex items-center rounded-md border border-sage/40 bg-sage/10 px-1.5 py-0.5 text-[11px] font-normal text-sage">
                                 {isVi ? "Mở bán" : "Active"}
                               </span>
                             ) : (
-                              <span className="inline-flex items-center rounded-md border border-border bg-muted/60 px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
+                              <span className="inline-flex items-center rounded-md border border-border bg-muted/60 px-1.5 py-0.5 text-[11px] font-normal text-muted-foreground">
                                 {isVi ? "Tạm ẩn" : "Draft"}
                               </span>
                             )}
 
                             {/* Featured Badge */}
                             {product.isFeatured && (
-                              <span className="inline-flex items-center gap-0.5 rounded-md border border-amber/40 bg-amber/10 px-1.5 py-0.5 text-xs font-medium text-amber">
+                              <span className="inline-flex items-center gap-0.5 rounded-md border border-amber/40 bg-amber/10 px-1.5 py-0.5 text-[11px] font-normal text-amber">
                                 <Sparkles className="h-2.5 w-2.5" />
                                 <span>{isVi ? "Nổi bật" : "Featured"}</span>
                               </span>
                             )}
                           </div>
 
-                          <div className="text-xs text-muted-foreground font-mono">
+                          <div className="text-xs text-muted-foreground tabular-nums font-normal">
                             /{product.slug}
                           </div>
                         </div>
@@ -601,7 +601,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                       {/* Category */}
                       <td className="py-4 px-4 whitespace-nowrap">
                         <span
-                          className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${categoryMeta.className}`}
+                          className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-normal ${categoryMeta.className}`}
                         >
                           {isVi ? categoryMeta.labelVi : categoryMeta.labelEn}
                         </span>
@@ -610,7 +610,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                       {/* Variants */}
                       <td className="py-4 px-4 whitespace-nowrap">
                         <div className="text-xs">
-                          <span className="font-medium text-foreground">
+                          <span className="font-normal tabular-nums text-foreground">
                             {variantCount}{" "}
                             {isVi
                               ? "phiên bản"
@@ -627,7 +627,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                       </td>
 
                       {/* Base Price */}
-                      <td className="py-4 px-4 font-mono text-xs font-semibold text-foreground whitespace-nowrap">
+                      <td className="py-4 px-4 tabular-nums text-[13px] font-normal text-foreground whitespace-nowrap">
                         <div>{formatPrice(product.basePrice)}</div>
                         {product.compareAtPrice && (
                           <div className="text-xs text-muted-foreground line-through">
@@ -640,7 +640,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                       <td className="py-4 px-6 whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <span
-                            className={`font-mono text-sm font-bold ${
+                            className={`tabular-nums text-[13.5px] font-normal ${
                               totalStock === 0
                                 ? "text-destructive"
                                 : totalStock <= 10
@@ -665,7 +665,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                       </td>
 
                       {/* Created Date */}
-                      <td className="py-4 px-4 text-xs text-muted-foreground whitespace-nowrap">
+                      <td className="py-4 px-4 text-xs font-normal tabular-nums text-muted-foreground whitespace-nowrap">
                         {formattedDate}
                       </td>
 
@@ -675,7 +675,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                           asChild
                           variant="outline"
                           size="sm"
-                          className="inline-flex items-center gap-1.5 text-xs"
+                          className="inline-flex items-center gap-1.5 text-xs font-normal"
                         >
                           <Link href={`/admin/products/${product.id}`}>
                             <span>{isVi ? "Chi tiết" : "Manage"}</span>
@@ -719,40 +719,40 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                             className="object-cover"
                           />
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground/40 font-mono">
+                          <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground/40 tabular-nums">
                             —
                           </div>
                         )}
                       </div>
                       <div className="space-y-0.5 min-w-0 flex-1">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <h4 className="font-medium text-sm text-foreground truncate">
+                          <h4 className="font-normal text-sm text-foreground truncate">
                             {product.name}
                           </h4>
                         {product.isActive ? (
-                          <span className="rounded-md border border-sage/40 bg-sage/10 px-1.5 py-0.5 text-xs text-sage font-medium">
+                          <span className="rounded-md border border-sage/40 bg-sage/10 px-1.5 py-0.5 text-[11px] text-sage font-normal">
                             {isVi ? "Mở bán" : "Active"}
                           </span>
                         ) : (
-                          <span className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-muted-foreground font-medium">
+                          <span className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground font-normal">
                             {isVi ? "Tạm ẩn" : "Draft"}
                           </span>
                         )}
                         {product.isFeatured && (
-                          <span className="rounded-md border border-amber/40 bg-amber/10 px-1.5 py-0.5 text-xs text-amber font-medium inline-flex items-center gap-0.5">
+                          <span className="rounded-md border border-amber/40 bg-amber/10 px-1.5 py-0.5 text-[11px] text-amber font-normal inline-flex items-center gap-0.5">
                             <Sparkles className="h-2.5 w-2.5" />
                             <span>{isVi ? "Nổi bật" : "Featured"}</span>
                           </span>
                         )}
                       </div>
-                      <div className="font-mono text-xs text-muted-foreground">
+                      <div className="tabular-nums font-normal text-xs text-muted-foreground">
                         /{product.slug}
                       </div>
                     </div>
                   </div>
 
                   <span
-                    className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium shrink-0 ${categoryMeta.className}`}
+                    className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-normal shrink-0 ${categoryMeta.className}`}
                   >
                       {isVi ? categoryMeta.labelVi : categoryMeta.labelEn}
                     </span>
@@ -760,7 +760,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
 
                   {/* Pricing and Variants count */}
                   <div className="flex items-center justify-between text-xs border-t border-border/50 pt-2">
-                    <div className="text-muted-foreground">
+                    <div className="text-muted-foreground tabular-nums font-normal">
                       {variantCount}{" "}
                       {isVi
                         ? "phiên bản"
@@ -768,7 +768,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                           ? "variant"
                           : "variants"}
                     </div>
-                    <div className="font-mono font-semibold text-foreground">
+                    <div className="tabular-nums font-normal text-xs text-foreground">
                       {formatPrice(product.basePrice)}
                     </div>
                   </div>
@@ -780,7 +780,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                         {isVi ? "Tồn kho:" : "Stock:"}
                       </span>
                       <span
-                        className={`font-mono font-bold ${
+                        className={`tabular-nums font-normal text-sm ${
                           totalStock === 0
                             ? "text-destructive"
                             : totalStock <= 10
@@ -813,7 +813,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                         asChild
                         variant="outline"
                         size="sm"
-                        className="inline-flex items-center gap-1 text-xs py-1 h-7"
+                        className="inline-flex items-center gap-1 text-xs py-1 h-7 font-normal"
                       >
                         <Link href={`/admin/products/${product.id}`}>
                           <span>{isVi ? "Chi tiết" : "Manage"}</span>

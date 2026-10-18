@@ -5,3 +5,4 @@ export { Footer } from './footer';
 export { CurrencyToggle } from './currency-toggle';
 export { LocaleToggle } from './locale-toggle';
 export { I18nProvider, useI18n } from './i18n-provider';
+export { BrandLogo, handleBrandLogoClick } from './brand-logo';

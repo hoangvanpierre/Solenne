@@ -30,12 +30,12 @@ export interface TextFillAnimationProps {
   accentColor?: string;
   /**
    * Responsive text size classes (Tailwind).
-   * @default "text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl"
+   * @default "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
    */
   textSize?: string;
   /**
    * Font weight class (Tailwind).
-   * @default "font-semibold"
+   * @default "font-normal"
    */
   fontWeight?: string;
   /**
@@ -64,10 +64,9 @@ export interface TextFillAnimationProps {
  * clipped to the text glyph (`background-clip: text`).
  *
  * Generic Typography & Descender Preservation:
- * In calligraphic and script fonts (like Birthstone), characters with descenders
- * ("g", "p", "q", "y", "j") extend up to ~95% below the font baseline, and tall
- * ascenders / diacritics extend significantly above the baseline. Birthstone's OS/2
- * font metrics report a descent of ~953/1000 units — nearly a full em.
+ * In expressive serif fonts (like Cactus Classical Serif), characters with descenders
+ * ("g", "p", "q", "y", "j") extend below the font baseline, and tall
+ * ascenders / diacritics extend significantly above the baseline.
  *
  * When using `background-clip: text`, the browser clips the background painting area
  * to the element's border-box. If the character's border-box has insufficient vertical
@@ -77,7 +76,7 @@ export interface TextFillAnimationProps {
  * Solution:
  * We expand the character's bounding box generously in all directions:
  * - `padding: 0.6em 0.15em 1.0em 0.15em` extends the background painting box to fully
- *   encompass Birthstone's extreme descenders below (~0.95em) and tall ascenders/accents
+ *   encompass extreme descenders below and tall ascenders/accents
  *   above, plus diacritics for Vietnamese and other accented characters.
  * - `margin: -0.6em -0.15em -1.0em -0.15em` counterbalances the padding exactly,
  *   ensuring zero distortion to the line height, vertical alignment, or horizontal
@@ -90,8 +89,8 @@ export function TextFillAnimation({
   mutedColor = "var(--brand-story-muted, #B0A8A0)",
   activeColor = "var(--brand-story-active, #14100E)",
   accentColor = "var(--brand-story-accent, #C4956A)",
-  textSize = "text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl",
-  fontWeight = "font-semibold",
+  textSize = "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl",
+  fontWeight = "font-normal",
   maxWidth = "max-w-4xl",
   scrollDistance = "220vh",
   scrub = 0.8,
@@ -132,9 +131,9 @@ export function TextFillAnimation({
 
   // Initial style for each animatable character:
   // - paddingTop: 0.65em / paddingBottom: 1.05em expands the background-clip border-box
-  //   vertically so calligraphic descenders (g, p, y, q, j) and ascenders (d, h, b, E, accents)
+  //   vertically so expressive descenders (g, p, y, q, j) and ascenders (d, h, b, E, accents)
   //   are never sliced off at the line box boundary, even with bolder font-weights.
-  // - paddingLeft / paddingRight: 0.2em prevents clipping of cursive horizontal swashes.
+  // - paddingLeft / paddingRight: 0.2em prevents clipping of horizontal swashes and serifs.
   // - Negative margins exactly negate the padding in layout, preserving natural line spacing
   //   and letter kerning.
   // - 300% width background positioned at 100% shows pure mutedColor initially.

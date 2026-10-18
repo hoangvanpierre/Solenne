@@ -54,13 +54,13 @@ export function Newsletter() {
       <Container>
         <div className="mx-auto max-w-2xl text-center">
           <ScrollReveal>
-            <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold mb-4">
+            <h2 className="font-serif text-2xl sm:text-3xl font-normal leading-[1.25] text-balance mb-3 text-cream">
               {t("title")}
             </h2>
           </ScrollReveal>
 
           <ScrollReveal delay={0.1}>
-            <p className="text-cream/70 text-lg mb-10 max-w-lg mx-auto">
+            <p className="text-cream/75 text-sm sm:text-base mb-8 max-w-lg mx-auto leading-[1.6]">
               {t("description")}
             </p>
           </ScrollReveal>

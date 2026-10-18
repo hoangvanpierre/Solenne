@@ -159,7 +159,7 @@ export function CheckoutForm({
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
             <ShoppingBag className="h-8 w-8 text-muted-foreground" />
           </div>
-          <h1 className="font-serif text-3xl font-semibold text-foreground">
+          <h1 className="text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground">
             {isVi ? "Giỏ hàng đang trống" : "Your cart is empty"}
           </h1>
           <p className="text-muted-foreground">
@@ -180,10 +180,10 @@ export function CheckoutForm({
   return (
     <Container>
       <div className="mb-10">
-        <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-4 text-foreground">
+        <h1 className="font-serif text-2xl sm:text-3xl font-normal leading-[1.22] mb-3 text-foreground tracking-[0.02em]">
           {isVi ? "Thanh toán đơn hàng" : "Checkout"}
         </h1>
-        <p className="text-muted-foreground text-lg">
+        <p className="text-muted-foreground text-sm sm:text-base leading-relaxed font-normal">
           {isVi
             ? "Đơn hàng của quý khách sẽ được giữ chỗ trang trọng ngay khi xác nhận. Hình thức thanh toán trực tuyến đang được hoàn thiện — Nhà hương sẽ liên hệ qua email để hướng dẫn thanh toán chu toàn."
             : "Your order is reserved once placed. Payment options are coming soon — we'll be in touch by email to complete payment."}
@@ -194,7 +194,7 @@ export function CheckoutForm({
         {/* Contact & shipping */}
         <form onSubmit={handleSubmit} className="space-y-6 lg:col-span-3" noValidate>
           <section className="rounded-2xl border border-border p-6 sm:p-8">
-            <h2 className="font-serif text-xl font-semibold mb-6 text-foreground">
+            <h2 className="font-serif text-lg font-normal mb-5 text-foreground leading-[1.3]">
               {isVi ? "Thông tin liên hệ" : "Contact"}
             </h2>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -224,7 +224,7 @@ export function CheckoutForm({
           </section>
 
           <section className="rounded-2xl border border-border p-6 sm:p-8">
-            <h2 className="font-serif text-xl font-semibold mb-6 text-foreground">
+            <h2 className="font-serif text-lg font-normal mb-5 text-foreground leading-[1.3]">
               {isVi ? "Địa chỉ đón nhận nến" : "Shipping Address"}
             </h2>
             <div className="space-y-5">
@@ -251,7 +251,7 @@ export function CheckoutForm({
           </section>
 
           <section className="rounded-2xl border border-border p-6 sm:p-8">
-            <h2 className="font-serif text-xl font-semibold mb-6 text-foreground">
+            <h2 className="font-serif text-lg font-normal mb-5 text-foreground leading-[1.3]">
               {isVi ? "Lời chúc gửi trao hoặc ghi chú (tùy chọn)" : "Order Notes (optional)"}
             </h2>
             <textarea
@@ -264,7 +264,7 @@ export function CheckoutForm({
                   ? "Lời chúc viết tay trên thiệp, ghi chú riêng cho nghệ nhân đóng gói..."
                   : "Delivery notes, gift messages..."
               }
-              className="flex w-full rounded-lg border border-border bg-transparent px-4 py-2 text-sm transition-colors duration-200 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex w-full rounded-lg border border-border bg-transparent px-4 py-2.5 text-[13.5px] font-normal transition-colors duration-200 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
           </section>
 
@@ -297,7 +297,7 @@ export function CheckoutForm({
         {/* Order summary */}
         <aside className="lg:col-span-2">
           <div className="rounded-2xl border border-border p-6 sm:p-8">
-            <h2 className="font-serif text-xl font-semibold mb-6 text-foreground">
+            <h2 className="font-serif text-lg font-normal mb-5 text-foreground leading-[1.3]">
               {isVi ? "Tổng kết đơn tác phẩm" : "Order Summary"}
             </h2>
             <div className="space-y-4">
@@ -307,34 +307,34 @@ export function CheckoutForm({
                   className="flex items-start justify-between gap-4"
                 >
                   <div>
-                    <p className="text-sm font-medium text-foreground">
+                    <p className="text-[13.5px] font-normal text-foreground">
                       {item.product.name}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-[12px] text-muted-foreground font-normal tabular-nums">
                       {item.variant.name}
                       {item.variant.size && ` · ${item.variant.size}`} · {isVi ? "Số lượng:" : "Qty"}{" "}
                       {item.quantity}
                     </p>
                   </div>
-                  <p className="whitespace-nowrap text-sm text-foreground">
+                  <p className="whitespace-nowrap text-[13px] font-normal tabular-nums text-foreground">
                     {format(item.variant.price * item.quantity)}
                   </p>
                 </div>
               ))}
             </div>
 
-            <div className="mt-6 space-y-3 border-t border-border pt-6 text-sm">
+            <div className="mt-6 space-y-2.5 border-t border-border pt-5 text-[13px] font-normal">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">
                   {isVi ? "Tạm tính" : "Subtotal"}
                 </span>
-                <span>{formatDisplay(subtotal)}</span>
+                <span className="tabular-nums">{formatDisplay(subtotal)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">
                   {isVi ? "Phí vận chuyển" : "Shipping"}
                 </span>
-                <span>
+                <span className="tabular-nums">
                   {shippingFee === 0
                     ? isVi
                       ? "Trân quý miễn phí"
@@ -342,23 +342,23 @@ export function CheckoutForm({
                     : formatDisplay(shippingFee)}
                 </span>
               </div>
-              <div className="flex justify-between border-t border-border pt-3 text-base font-semibold">
+              <div className="flex justify-between border-t border-border pt-3 text-[14.5px] sm:text-[15px] font-normal text-foreground">
                 <span>{isVi ? "Tổng cộng" : "Total"}</span>
-                <span>{formatDisplay(total)}</span>
+                <span className="tabular-nums">{formatDisplay(total)}</span>
               </div>
             </div>
 
-            <p className="mt-6 text-xs leading-relaxed text-muted-foreground">
+            <p className="mt-5 text-[11.5px] leading-relaxed text-muted-foreground font-normal">
               {isVi ? (
                 <>
                   Tổng tiền hiển thị theo {currency}. Đơn hàng của quý khách được ghi nhận ở trạng thái{" "}
-                  <span className="font-medium text-foreground">chờ thanh toán</span>{" "}
+                  <span className="font-normal text-foreground">chờ thanh toán</span>{" "}
                   và sẽ được hướng dẫn hoàn tất khi phương thức thanh toán sẵn sàng.
                 </>
               ) : (
                 <>
                   Totals are shown in {currency}. Your order is placed as{" "}
-                  <span className="font-medium text-foreground">pending payment</span>{" "}
+                  <span className="font-normal text-foreground">pending payment</span>{" "}
                   and payment can be completed once payment options are enabled.
                 </>
               )}

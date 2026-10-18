@@ -66,28 +66,28 @@ export default async function CareGuidePage() {
   return (
     <div className="py-24 lg:py-32">
       <Container className="max-w-3xl">
-        <div className="mb-16">
-          <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-4 text-foreground">
+        <div className="mb-14">
+          <h1 className="font-serif text-2xl sm:text-3xl font-normal leading-[1.22] mb-3 text-foreground tracking-[0.02em]">
             {isVi ? "Nghi Thức Chăm Sóc Nến" : "Candle Care Guide"}
           </h1>
-          <p className="text-muted-foreground text-lg leading-relaxed">
+          <p className="text-muted-foreground text-sm sm:text-base leading-relaxed font-normal">
             {isVi
               ? "Một ngọn nến được nâng niu là một ngọn nến tỏa rạng dài lâu. Sáu nghi thức nhỏ để lưu giữ trọn vẹn hương sắc và kéo dài thanh xuân của ngọn lửa."
               : "A candle cared for is a candle that lasts. Six small rituals for the fullest scent and the longest life."}
           </p>
         </div>
 
-        <ol className="space-y-10">
+        <ol className="space-y-8">
           {steps.map((step, index) => (
-            <li key={step.title} className="flex gap-6">
-              <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-muted font-serif text-lg font-semibold text-foreground">
+            <li key={step.title} className="flex gap-5 sm:gap-6">
+              <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-muted font-serif text-base font-normal tabular-nums text-foreground">
                 {index + 1}
               </span>
               <div>
-                <h2 className="font-serif text-xl font-semibold text-foreground">
+                <h2 className="font-serif text-base sm:text-lg font-normal text-foreground leading-[1.3]">
                   {step.title}
                 </h2>
-                <p className="mt-2 text-base leading-relaxed text-muted-foreground">
+                <p className="mt-1.5 text-[14px] sm:text-[14.5px] leading-[1.7] text-muted-foreground font-normal">
                   {step.body}
                 </p>
               </div>
@@ -95,11 +95,11 @@ export default async function CareGuidePage() {
           ))}
         </ol>
 
-        <section className="mt-16 rounded-2xl border border-border p-8">
-          <h2 className="font-serif text-xl font-semibold mb-3 text-foreground">
+        <section className="mt-14 rounded-2xl border border-border p-6 sm:p-8">
+          <h2 className="font-serif text-lg font-normal mb-2 text-foreground">
             {isVi ? "An toàn là trên hết" : "Safety first"}
           </h2>
-          <p className="text-sm leading-relaxed text-muted-foreground">
+          <p className="text-[13.5px] leading-[1.65] text-muted-foreground font-normal">
             {isVi
               ? "Tuyệt đối không để nến cháy ngoài tầm mắt. Đặt nến tránh xa luồng gió, trẻ nhỏ và thú cưng. Luôn thắp nến trên bề mặt phẳng chịu nhiệt, và giữ khoảng cách an toàn với rèm cửa hoặc vật dễ bắt lửa."
               : "Never leave a burning candle unattended. Keep away from drafts, children, and pets. Always burn on a stable, heat-resistant surface, and keep the flame away from walls and curtains."}

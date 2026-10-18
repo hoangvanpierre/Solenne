@@ -14,6 +14,7 @@ import { useSamePageReload } from "@/hooks/use-same-page-reload";
 import { NAV_LINKS } from "@/lib/constants";
 import { CurrencyToggle } from "@/components/layout/currency-toggle";
 import { LocaleToggle } from "@/components/layout/locale-toggle";
+import { BrandLogo } from "@/components/layout/brand-logo";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -50,13 +51,13 @@ export function Navbar() {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
         solid
-          ? "bg-background/80 backdrop-blur-xl border-b border-border shadow-sm"
+          ? "bg-background/85 backdrop-blur-md border-b border-border shadow-xs transform-gpu"
           : "bg-transparent"
       )}
     >
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Left: Mobile menu + Logo */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 shrink-0 mr-8 lg:mr-12">
           <IconButton
             className="lg:hidden"
             onClick={toggleMobileNav}
@@ -65,30 +66,30 @@ export function Navbar() {
             <Menu className="h-5 w-5" />
           </IconButton>
 
-          <Link
+          <BrandLogo
             href="/"
             className={cn(
-              "font-serif text-2xl font-bold tracking-tight transition-colors",
+              "font-serif text-xl sm:text-2xl font-normal tracking-[0.04em] shrink-0 transition-colors",
               solid ? "text-foreground" : "text-cream"
             )}
           >
             Solenne
-          </Link>
+          </BrandLogo>
         </div>
 
         {/* Center: Navigation (desktop only) */}
-        <div className="hidden lg:flex items-center gap-8">
+        <div className="hidden lg:flex items-center justify-center gap-6 xl:gap-8 flex-1">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={(event) => handleNavClick(event, link.href)}
               className={cn(
-                "text-sm font-medium transition-colors hover:text-primary relative",
+                "text-[13px] font-normal tracking-[0.03em] whitespace-nowrap transition-colors relative hover:text-primary",
                 "after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full",
                 solid
-                  ? "text-foreground/70 hover:text-foreground"
-                  : "text-cream/80 hover:text-cream"
+                  ? "text-foreground/75 hover:text-foreground"
+                  : "text-cream/85 hover:text-cream"
               )}
             >
               {locale === "vi" ? link.labelVi : link.label}
@@ -97,7 +98,7 @@ export function Navbar() {
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-3 sm:gap-4 shrink-0 ml-6">
           <IconButton
             aria-label={locale === "vi" ? "Tìm kiếm" : "Search"}
             className={cn(!solid && "text-cream hover:bg-white/10")}

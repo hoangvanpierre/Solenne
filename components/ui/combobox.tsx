@@ -199,7 +199,7 @@ export const Combobox = forwardRef<HTMLButtonElement, ComboboxProps>(
               <>
                 <span className="text-foreground">{selectedOption.label}</span>
                 {selectedOption.badge && (
-                  <span className="text-[10px] uppercase font-mono tracking-wider px-1.5 py-0.5 rounded bg-amber/10 text-amber border border-amber/20">
+                  <span className="text-[10px] uppercase tabular-nums tracking-wider px-1.5 py-0.5 rounded bg-amber/10 text-amber border border-amber/20 font-normal">
                     {selectedOption.badge}
                   </span>
                 )}
@@ -290,7 +290,7 @@ export const Combobox = forwardRef<HTMLButtonElement, ComboboxProps>(
                         <div className="flex items-center gap-2">
                           <span className="truncate">{option.label}</span>
                           {option.badge && (
-                            <span className="text-[10px] uppercase font-mono tracking-wider px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border/60">
+                            <span className="text-[10px] uppercase tabular-nums tracking-wider px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border/60 font-normal">
                               {option.badge}
                             </span>
                           )}

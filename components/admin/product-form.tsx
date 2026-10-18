@@ -381,10 +381,10 @@ export function ProductForm({
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Global Feedback Banner */}
         {generalError && (
-          <div className="flex items-start gap-2.5 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-xs text-destructive animate-in fade-in duration-200">
+          <div className="flex items-start gap-2.5 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-xs font-normal text-destructive animate-in fade-in duration-200">
             <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
             <div className="space-y-1">
-              <p className="font-semibold">
+              <p className="font-normal">
                 {isVi ? "Không thể lưu sản phẩm:" : "Failed to save product:"}
               </p>
               <p>{generalError}</p>
@@ -393,9 +393,9 @@ export function ProductForm({
         )}
 
         {successMessage && (
-          <div className="flex items-center gap-2.5 rounded-xl border border-sage/40 bg-sage/10 p-4 text-xs text-sage animate-in fade-in duration-200">
+          <div className="flex items-center gap-2.5 rounded-xl border border-sage/40 bg-sage/10 p-4 text-xs font-normal text-sage animate-in fade-in duration-200">
             <CheckCircle2 className="h-4 w-4 shrink-0" />
-            <span className="font-medium">{successMessage}</span>
+            <span className="font-normal">{successMessage}</span>
           </div>
         )}
 
@@ -406,10 +406,10 @@ export function ProductForm({
               <Sparkles className="h-4 w-4" />
             </div>
             <div>
-              <h3 className="font-serif text-lg font-semibold text-foreground">
+              <h3 className="text-lg font-normal text-foreground">
                 {isVi ? "Thông tin cơ bản" : "Core Information"}
               </h3>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs font-normal text-muted-foreground">
                 {isVi
                   ? "Tên, định danh URL và mô tả nghệ thuật của sáng tạo nến thơm."
                   : "Name, URL slug, and artistic descriptions for the candle creation."}
@@ -433,7 +433,7 @@ export function ProductForm({
                 <div className="flex items-center justify-between">
                   <label
                     htmlFor="product-slug"
-                    className="text-sm font-medium text-foreground"
+                    className="text-sm font-normal text-foreground"
                   >
                     {isVi ? "Đường dẫn định danh (Slug) *" : "URL Slug *"}
                   </label>
@@ -441,7 +441,7 @@ export function ProductForm({
                     <button
                       type="button"
                       onClick={handleRegenerateSlug}
-                      className="text-xs text-amber hover:underline inline-flex items-center gap-1"
+                      className="text-xs font-normal text-amber hover:underline inline-flex items-center gap-1"
                       title={
                         isVi
                           ? "Tạo lại slug từ tên"
@@ -462,16 +462,16 @@ export function ProductForm({
                     setIsSlugManuallyEdited(true);
                   }}
                   placeholder="solenne-aura"
-                  className="flex h-11 w-full rounded-lg border border-border bg-transparent px-4 py-2 font-mono text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent disabled:opacity-50 transition-colors"
+                  className="flex h-11 w-full rounded-lg border border-border bg-transparent px-4 py-2 tabular-nums text-[13.5px] font-normal placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent disabled:opacity-50 transition-colors"
                   required
                   disabled={isPending}
                 />
                 {fieldErrors.slug?.[0] ? (
-                  <p className="text-xs text-destructive">
+                  <p className="text-xs font-normal text-destructive">
                     {fieldErrors.slug[0]}
                   </p>
                 ) : (
-                  <p className="text-xs text-muted-foreground font-mono">
+                  <p className="text-xs text-muted-foreground tabular-nums font-normal">
                     /products/{slug || "slug"}
                   </p>
                 )}
@@ -494,7 +494,7 @@ export function ProductForm({
             <div className="space-y-1.5">
               <label
                 htmlFor="product-description"
-                className="text-sm font-medium text-foreground"
+                className="text-sm font-normal text-foreground"
               >
                 {isVi ? "Mô tả chi tiết" : "Detailed Description"}
               </label>
@@ -508,11 +508,11 @@ export function ProductForm({
                     ? "Mô tả nguồn cảm hứng, tầng hương và không gian phù hợp để thưởng thức..."
                     : "Describe the artistic inspiration, atmospheric qualities, and sensory journey..."
                 }
-                className="flex w-full rounded-lg border border-border bg-transparent px-4 py-2.5 text-sm transition-colors duration-200 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex w-full rounded-lg border border-border bg-transparent px-4 py-2.5 text-[13px] font-normal transition-colors duration-200 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={isPending}
               />
               {fieldErrors.description?.[0] && (
-                <p className="text-xs text-destructive">
+                <p className="text-xs font-normal text-destructive">
                   {fieldErrors.description[0]}
                 </p>
               )}
@@ -527,10 +527,10 @@ export function ProductForm({
               <Tag className="h-4 w-4" />
             </div>
             <div>
-              <h3 className="font-serif text-lg font-semibold text-foreground">
+              <h3 className="text-lg font-normal text-foreground">
                 {isVi ? "Nhóm hương & Trạng thái" : "Scent Family & Publication"}
               </h3>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs font-normal text-muted-foreground">
                 {isVi
                   ? "Chọn nhóm hương đại diện và trạng thái hiển thị tại cửa hàng."
                   : "Select the primary fragrance family and catalog visibility states."}
@@ -540,7 +540,7 @@ export function ProductForm({
 
           {/* Scent Category Selection */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">
+            <label className="text-sm font-normal text-foreground">
               {isVi ? "Nhóm hương chính *" : "Fragrance Category *"}
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -559,14 +559,14 @@ export function ProductForm({
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-foreground">
+                      <span className="text-sm font-normal text-foreground">
                         {isVi ? opt.labelVi : opt.labelEn}
                       </span>
                       {isSelected && (
                         <CheckCircle2 className="h-4 w-4 text-amber" />
                       )}
                     </div>
-                    <p className="mt-1 text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                    <p className="mt-1 text-xs font-normal text-muted-foreground leading-relaxed line-clamp-2">
                       {isVi ? opt.descVi : opt.descEn}
                     </p>
                   </button>
@@ -620,10 +620,10 @@ export function ProductForm({
                 className="mt-1 h-4 w-4 rounded border-border text-amber focus:ring-amber"
               />
               <label htmlFor="is-active-toggle" className="cursor-pointer space-y-0.5">
-                <span className="text-sm font-medium text-foreground block">
+                <span className="text-sm font-normal text-foreground block">
                   {isVi ? "Đang mở bán (Active)" : "Active in Boutique"}
                 </span>
-                <span className="text-xs text-muted-foreground block leading-relaxed">
+                <span className="text-xs font-normal text-muted-foreground block leading-relaxed">
                   {isVi
                     ? "Hiển thị công khai trong danh mục và cho phép khách mua sắm."
                     : "Publicly visible in boutique collections and available to purchase."}
@@ -642,10 +642,10 @@ export function ProductForm({
                 className="mt-1 h-4 w-4 rounded border-border text-amber focus:ring-amber"
               />
               <label htmlFor="is-featured-toggle" className="cursor-pointer space-y-0.5">
-                <span className="text-sm font-medium text-foreground block">
+                <span className="text-sm font-normal text-foreground block">
                   {isVi ? "Sản phẩm nổi bật (Featured)" : "Featured Collection"}
                 </span>
-                <span className="text-xs text-muted-foreground block leading-relaxed">
+                <span className="text-xs font-normal text-muted-foreground block leading-relaxed">
                   {isVi
                     ? "Ghim tại vị trí trang trọng trên trang chủ và bộ sưu tập tiêu biểu."
                     : "Prominently featured on the storefront homepage and curated showcases."}
@@ -662,10 +662,10 @@ export function ProductForm({
               <Flame className="h-4 w-4" />
             </div>
             <div>
-              <h3 className="font-serif text-lg font-semibold text-foreground">
+              <h3 className="text-lg font-normal text-foreground">
                 {isVi ? "Cấu trúc tầng hương" : "Scent Architecture"}
               </h3>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs font-normal text-muted-foreground">
                 {isVi
                   ? "Từng lớp hương đầu, hương giữa và hương cuối theo chuẩn nước hoa xa xỉ."
                   : "Top, heart, and base notes composing the olfactive narrative."}
@@ -734,12 +734,12 @@ export function ProductForm({
                   <Layers className="h-4 w-4" />
                 </div>
                 <div>
-                  <h3 className="font-serif text-lg font-semibold text-foreground">
+                  <h3 className="text-lg font-normal text-foreground">
                     {isVi
                       ? "Khởi tạo phiên bản sản phẩm"
                       : "Initial Product Variants"}
                   </h3>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs font-normal text-muted-foreground">
                     {isVi
                       ? "Thiết lập một hoặc nhiều phiên bản kèm tồn kho khởi tạo."
                       : "Configure one or more variants with creation-time initial stock."}
@@ -752,7 +752,7 @@ export function ProductForm({
                 variant="outline"
                 size="sm"
                 onClick={handleAddDraftVariant}
-                className="inline-flex items-center gap-1.5 self-start sm:self-auto text-xs"
+                className="inline-flex items-center gap-1.5 self-start sm:self-auto text-xs font-normal"
               >
                 <Plus className="h-3.5 w-3.5" />
                 <span>{isVi ? "Thêm quy cách" : "Add Another Variant"}</span>
@@ -762,8 +762,8 @@ export function ProductForm({
             {/* Creation-time stock boundary notice */}
             <div className="rounded-xl border border-amber/30 bg-amber/5 p-3.5 flex items-start gap-2.5">
               <Boxes className="h-4 w-4 text-amber shrink-0 mt-0.5" />
-              <div className="text-xs text-muted-foreground leading-relaxed">
-                <span className="font-medium text-foreground">
+              <div className="text-xs font-normal text-muted-foreground leading-relaxed">
+                <span className="font-normal text-foreground">
                   {isVi
                     ? "Nguyên tắc quản lý kho: "
                     : "Inventory Management Policy: "}
@@ -781,7 +781,7 @@ export function ProductForm({
                   className="rounded-xl border border-border bg-card/60 p-4 space-y-4"
                 >
                   <div className="flex items-center justify-between border-b border-border pb-3">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <span className="text-[11px] font-normal uppercase tracking-wider text-muted-foreground">
                       {isVi
                         ? `Phiên bản #${index + 1}`
                         : `Variant #${index + 1}`}
@@ -886,7 +886,7 @@ export function ProductForm({
 
         {/* Section 5: Form Action Buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border pt-6">
-          <Button asChild variant="outline" size="sm">
+          <Button asChild variant="outline" size="sm" className="font-normal text-xs">
             <Link
               href="/admin/products"
               className="inline-flex items-center gap-2"
@@ -902,7 +902,7 @@ export function ProductForm({
             <Button
               type="submit"
               disabled={isPending || (mode === "create" ? !canCreate : !canUpdate)}
-              className="w-full sm:w-auto bg-amber text-primary-foreground hover:bg-amber/90"
+              className="w-full sm:w-auto bg-amber text-primary-foreground hover:bg-amber/90 font-normal text-xs"
             >
               {isPending
                 ? isVi
@@ -927,10 +927,10 @@ export function ProductForm({
         <div className="mt-12 rounded-2xl border border-destructive/30 bg-destructive/5 p-6 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="space-y-1">
-              <h3 className="font-serif text-lg font-semibold text-destructive">
+              <h3 className="text-lg font-normal text-destructive">
                 {isVi ? "Vùng nguy hiểm: Xóa sản phẩm" : "Danger Zone: Delete Product"}
               </h3>
-              <p className="text-xs text-muted-foreground max-w-xl leading-relaxed">
+              <p className="text-xs text-muted-foreground max-w-xl leading-relaxed font-normal">
                 {isVi
                   ? "Hệ thống bảo vệ lịch sử đơn hàng của khách. Nếu sản phẩm hoặc phiên bản đã từng được đặt mua, việc xóa sẽ bị ngăn chặn hoàn toàn trên máy chủ. Trong trường hợp đó, quý khách vui lòng chọn trạng thái ẩn (Inactive)."
                   : "Historical customer order data is strictly protected. If this product or any of its variants are referenced in past orders, server-side validation will reject deletion. In that case, deactivate the product instead."}
@@ -946,7 +946,7 @@ export function ProductForm({
                   setDeleteError(null);
                   setIsDeleteModalOpen(true);
                 }}
-                className="self-start sm:self-auto shrink-0"
+                className="self-start sm:self-auto shrink-0 font-normal text-xs"
               >
                 <Trash2 className="h-4 w-4 mr-1.5" />
                 <span>{isVi ? "Xóa sản phẩm" : "Delete Product"}</span>
@@ -976,12 +976,12 @@ export function ProductForm({
                   <div className="space-y-1">
                     <h3
                       id="delete-product-title"
-                      className="font-serif text-lg font-semibold text-foreground"
+                      className="text-lg font-normal text-foreground"
                     >
                       {isVi ? "Xác nhận xóa sản phẩm?" : "Delete this product?"}
                     </h3>
-                    <p className="text-xs text-muted-foreground">
-                      <span className="font-semibold text-foreground">
+                    <p className="text-xs font-normal text-muted-foreground">
+                      <span className="font-normal text-foreground">
                         {product.name}
                       </span>{" "}
                       ({product.slug})
@@ -990,19 +990,19 @@ export function ProductForm({
                 </div>
 
                 {deleteError && (
-                  <div className="flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
+                  <div className="flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs font-normal text-destructive">
                     <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
                     <span>{deleteError}</span>
                   </div>
                 )}
 
-                <div className="rounded-xl border border-border bg-muted/20 p-3.5 text-xs text-muted-foreground space-y-2 leading-relaxed">
+                <div className="rounded-xl border border-border bg-muted/20 p-3.5 text-xs text-muted-foreground space-y-2 leading-relaxed font-normal">
                   <p>
                     {isVi
                       ? "Hành động này sẽ xóa vĩnh viễn sản phẩm cùng tất cả các phiên bản trực thuộc."
                       : "This action will permanently delete the product and all of its associated variants."}
                   </p>
-                  <p className="font-medium text-foreground">
+                  <p className="font-normal text-foreground">
                     {isVi
                       ? "Lưu ý: Nếu sản phẩm đã phát sinh đơn hàng, máy chủ sẽ từ chối xóa và yêu cầu chuyển sang trạng thái Ẩn."
                       : "Notice: If any variant has appeared in customer orders, the server will block deletion and require deactivation instead."}
@@ -1016,6 +1016,7 @@ export function ProductForm({
                     size="sm"
                     onClick={() => setIsDeleteModalOpen(false)}
                     disabled={isPending}
+                    className="font-normal text-xs"
                   >
                     {isVi ? "Hủy bỏ" : "Cancel"}
                   </Button>
@@ -1025,6 +1026,7 @@ export function ProductForm({
                     size="sm"
                     onClick={handleDeleteProduct}
                     disabled={isPending}
+                    className="font-normal text-xs"
                   >
                     {isPending
                       ? isVi

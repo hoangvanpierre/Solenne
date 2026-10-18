@@ -53,7 +53,7 @@ export function CartDrawer() {
             <div className="flex h-full flex-col">
               {/* Header */}
               <div className="flex items-center justify-between border-b border-border px-6 py-4">
-                <h2 className="font-serif text-xl font-semibold">
+                <h2 className="font-serif text-lg font-normal">
                   {t("title")} ({itemCount})
                 </h2>
                 <button
@@ -153,7 +153,7 @@ export function CartDrawer() {
 
                             {/* Price + Remove */}
                             <div className="flex items-center gap-3">
-                              <span className="text-sm font-medium">
+                              <span className="text-[13px] font-normal tabular-nums">
                                 {format(
                                   item.variant.price * item.quantity
                                 )}
@@ -178,19 +178,19 @@ export function CartDrawer() {
                   <div className="border-t border-border px-6 py-4 space-y-3">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">{t("subtotal")}</span>
-                      <span>{formatDisplay(subtotal)}</span>
+                      <span className="tabular-nums font-normal">{formatDisplay(subtotal)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">{t("shipping")}</span>
-                      <span>
+                      <span className="tabular-nums font-normal">
                         {shippingFee === 0
                           ? tCommon("freeShipping")
                           : formatDisplay(shippingFee)}
                       </span>
                     </div>
-                    <div className="flex justify-between text-base font-semibold border-t border-border pt-3">
+                    <div className="flex justify-between text-base font-normal border-t border-border pt-3">
                       <span>{t("total")}</span>
-                      <span>{formatDisplay(total)}</span>
+                      <span className="tabular-nums">{formatDisplay(total)}</span>
                     </div>
 
                     <Button className="w-full" size="lg" asChild onClick={closeCart}>

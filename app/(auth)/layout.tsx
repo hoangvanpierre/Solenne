@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getLocale } from "next-intl/server";
 import { ArrowLeft, Sparkles } from "lucide-react";
+import { BrandLogo } from "@/components/layout";
 
 export default async function AuthLayout({
   children,
@@ -21,25 +22,25 @@ export default async function AuthLayout({
 
         {/* Brand Header */}
         <div className="relative z-10">
-          <Link
+          <BrandLogo
             href="/"
-            className="inline-flex items-center gap-2 font-serif text-2xl tracking-wider font-semibold text-cream hover:opacity-80 transition-opacity"
+            className="inline-flex items-center gap-2 font-serif text-xl sm:text-2xl tracking-[0.04em] font-normal text-cream hover:opacity-80 transition-opacity"
           >
             SOLENNE
-          </Link>
-          <p className="text-xs uppercase tracking-[0.25em] text-cream/60 mt-1 font-sans">
+          </BrandLogo>
+          <p className="text-[10.5px] uppercase tracking-[0.2em] text-cream/60 mt-1 font-normal">
             {isVi ? "Nến thơm nghệ nhân thủ công" : "Artisan Scented Candles"}
           </p>
         </div>
 
         {/* Center Quote & Craft Narrative */}
         <div className="relative z-10 max-w-md my-auto space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber/30 bg-amber/10 text-amber text-xs tracking-wide">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber/30 bg-amber/10 text-amber text-[11px] tracking-wide font-normal">
             <Sparkles className="w-3 h-3" />
             <span>{isVi ? "Góc riêng tĩnh tại Solenne" : "The Solenne Sanctuary"}</span>
           </div>
 
-          <blockquote className="font-script text-4xl xl:text-5xl font-normal leading-relaxed text-amber-light/95">
+          <blockquote className="font-serif text-2xl xl:text-3xl font-normal leading-relaxed text-amber-light/95">
             {isVi
               ? "“Mỗi ngọn nến đong đầy tâm niệm, mang hơi ấm dịu dàng và cõi an yên thuần khiết vào chốn thiêng liêng của bạn.”"
               : "“Candles poured with intention, casting warmth and serene peace into your sacred space.”"}
@@ -72,12 +73,12 @@ export default async function AuthLayout({
           </Link>
 
           {/* Mobile Logo */}
-          <Link
+          <BrandLogo
             href="/"
-            className="lg:hidden font-serif text-xl tracking-wider font-semibold text-foreground"
+            className="lg:hidden text-xl tracking-[0.04em] font-normal text-foreground"
           >
             SOLENNE
-          </Link>
+          </BrandLogo>
         </div>
 
         {/* Center Content */}

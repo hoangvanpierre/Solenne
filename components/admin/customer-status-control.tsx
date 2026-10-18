@@ -217,7 +217,7 @@ export function CustomerStatusControl({
     >
       <div className="flex items-center gap-2 border-b border-border pb-4">
         <ShieldAlert className="h-5 w-5 text-muted-foreground" />
-        <h2 className="font-serif text-lg font-medium text-foreground">
+        <h2 className="text-lg font-normal text-foreground">
           {isVi ? "Quản lý trạng thái tài khoản" : "Account Status Management"}
         </h2>
       </div>
@@ -226,13 +226,13 @@ export function CustomerStatusControl({
         <div className="space-y-4">
           {currentStatus === "banned" ? (
             <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-4 space-y-3">
-              <div className="flex items-center gap-2 text-destructive font-medium text-xs">
+              <div className="flex items-center gap-2 text-destructive font-normal text-xs">
                 <Ban className="h-4 w-4 shrink-0" />
                 <span>
                   {isVi ? "Tài khoản bị cấm" : "Account Banned"}
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground leading-relaxed">
+              <p className="text-xs text-muted-foreground font-normal leading-relaxed">
                 {isVi
                   ? "Tài khoản này đã bị cấm truy cập. Thao tác thông thường không thể thay đổi trạng thái này. Quản trị viên có thể kích hoạt lại tài khoản có kiểm soát với lý do giải trình bắt buộc."
                   : "This customer account is currently banned from accessing the store. Normal status transitions cannot reverse this state. An authorized administrator may reinstate the account with a mandatory audit reason."}
@@ -241,7 +241,7 @@ export function CustomerStatusControl({
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full justify-start text-sage border-sage/30 hover:bg-sage/10 hover:text-sage hover:border-sage/40 text-xs h-9"
+                  className="w-full justify-start text-sage border-sage/30 hover:bg-sage/10 hover:text-sage hover:border-sage/40 text-xs font-normal h-9"
                   onClick={() => handleOpenAction("reinstate")}
                 >
                   <CheckCircle2 className="h-4 w-4 mr-2 shrink-0" />
@@ -255,13 +255,13 @@ export function CustomerStatusControl({
             </div>
           ) : currentStatus === "pending" ? (
             <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-2">
-              <div className="flex items-center gap-2 text-muted-foreground font-medium text-xs">
+              <div className="flex items-center gap-2 text-muted-foreground font-normal text-xs">
                 <Lock className="h-4 w-4 shrink-0" />
                 <span>
                   {isVi ? "Tài khoản chờ kích hoạt" : "Pending Activation"}
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground leading-relaxed">
+              <p className="text-xs text-muted-foreground font-normal leading-relaxed">
                 {isVi
                   ? "Tài khoản đang chờ xác thực email ban đầu. Thao tác quản trị trạng thái không áp dụng cho tài khoản này."
                   : "This account is awaiting email activation. Administrative status transitions cannot be performed on pending accounts."}
@@ -269,7 +269,7 @@ export function CustomerStatusControl({
             </div>
           ) : (
             <div className="space-y-3">
-              <p className="text-xs leading-relaxed text-muted-foreground">
+              <p className="text-xs leading-relaxed text-muted-foreground font-normal">
                 {isVi
                   ? "Thực hiện thay đổi trạng thái khách hàng có hiệu lực tức thì và được lưu vết kiểm toán đầy đủ."
                   : "Status transitions take effect immediately and are permanently recorded in the audit trail."}
@@ -281,7 +281,7 @@ export function CustomerStatusControl({
                     <Button
                       type="button"
                       variant="outline"
-                      className="w-full justify-start text-amber border-amber/30 hover:bg-amber/10 hover:text-amber hover:border-amber/40 text-xs h-9"
+                      className="w-full justify-start text-amber border-amber/30 hover:bg-amber/10 hover:text-amber hover:border-amber/40 text-xs font-normal h-9"
                       onClick={() => handleOpenAction("suspended")}
                     >
                       <PauseCircle className="h-4 w-4 mr-2 shrink-0" />
@@ -293,7 +293,7 @@ export function CustomerStatusControl({
                     <Button
                       type="button"
                       variant="outline"
-                      className="w-full justify-start text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/40 text-xs h-9"
+                      className="w-full justify-start text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/40 text-xs font-normal h-9"
                       onClick={() => handleOpenAction("banned")}
                     >
                       <Ban className="h-4 w-4 mr-2 shrink-0" />
@@ -307,7 +307,7 @@ export function CustomerStatusControl({
                     <Button
                       type="button"
                       variant="outline"
-                      className="w-full justify-start text-sage border-sage/30 hover:bg-sage/10 hover:text-sage hover:border-sage/40 text-xs h-9"
+                      className="w-full justify-start text-sage border-sage/30 hover:bg-sage/10 hover:text-sage hover:border-sage/40 text-xs font-normal h-9"
                       onClick={() => handleOpenAction("active")}
                     >
                       <CheckCircle2 className="h-4 w-4 mr-2 shrink-0" />
@@ -321,7 +321,7 @@ export function CustomerStatusControl({
                     <Button
                       type="button"
                       variant="outline"
-                      className="w-full justify-start text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/40 text-xs h-9"
+                      className="w-full justify-start text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/40 text-xs font-normal h-9"
                       onClick={() => handleOpenAction("banned")}
                     >
                       <Ban className="h-4 w-4 mr-2 shrink-0" />
@@ -353,7 +353,7 @@ export function CustomerStatusControl({
               <CheckCircle2 className="h-5 w-5 text-sage shrink-0 mt-0.5" />
             )}
             <div className="space-y-1">
-              <h3 className="text-sm font-semibold text-foreground">
+              <h3 className="text-sm font-normal text-foreground">
                 {targetAction === "reinstate"
                   ? isVi
                     ? "Xác nhận kích hoạt lại tài khoản bị cấm"
@@ -370,12 +370,12 @@ export function CustomerStatusControl({
                   ? "Xác nhận kích hoạt lại tài khoản"
                   : "Confirm Account Reactivation"}
               </h3>
-              <p className="text-xs leading-relaxed text-muted-foreground">
+              <p className="text-xs leading-relaxed text-muted-foreground font-normal">
                 {targetAction === "reinstate"
                   ? isVi ? (
                       <>
                         Quý khách có chắc chắn muốn kích hoạt lại tài khoản bị cấm của{" "}
-                        <span className="font-medium text-foreground">
+                        <span className="font-normal text-foreground">
                           {displayName}
                         </span>
                         ? Trạng thái tài khoản sẽ được chuyển thành hoạt động (Active), khôi phục quyền đăng nhập và đặt hàng. Thao tác này được lưu vết kiểm toán vĩnh viễn.
@@ -383,7 +383,7 @@ export function CustomerStatusControl({
                     ) : (
                       <>
                         Are you sure you want to reinstate the banned account for{" "}
-                        <span className="font-medium text-foreground">
+                        <span className="font-normal text-foreground">
                           {displayName}
                         </span>
                         ? The account status will be restored to Active, restoring sign-in and checkout abilities. This executive action is permanently recorded in the audit log.
@@ -393,7 +393,7 @@ export function CustomerStatusControl({
                   ? isVi ? (
                       <>
                         Quý khách có chắc chắn muốn cấm tài khoản của{" "}
-                        <span className="font-medium text-foreground">
+                        <span className="font-normal text-foreground">
                           {displayName}
                         </span>
                         ? Cấm tài khoản là vĩnh viễn trong luồng quản lý thông thường.
@@ -401,7 +401,7 @@ export function CustomerStatusControl({
                     ) : (
                       <>
                         Are you sure you want to ban the account of{" "}
-                        <span className="font-medium text-foreground">
+                        <span className="font-normal text-foreground">
                           {displayName}
                         </span>
                         ? Banning is permanent within the normal status-management workflow.
@@ -411,7 +411,7 @@ export function CustomerStatusControl({
                   ? isVi ? (
                       <>
                         Tài khoản của{" "}
-                        <span className="font-medium text-foreground">
+                        <span className="font-normal text-foreground">
                           {displayName}
                         </span>{" "}
                         sẽ bị chặn đăng nhập và đặt đơn mới. Lịch sử đơn hàng vẫn được lưu giữ.
@@ -419,7 +419,7 @@ export function CustomerStatusControl({
                     ) : (
                       <>
                         Account for{" "}
-                        <span className="font-medium text-foreground">
+                        <span className="font-normal text-foreground">
                           {displayName}
                         </span>{" "}
                         will be blocked from signing in and placing new orders. Order history remains preserved.
@@ -428,7 +428,7 @@ export function CustomerStatusControl({
                   : isVi ? (
                       <>
                         Tài khoản của{" "}
-                        <span className="font-medium text-foreground">
+                        <span className="font-normal text-foreground">
                           {displayName}
                         </span>{" "}
                         sẽ được mở khóa và có thể đăng nhập bình thường.
@@ -436,7 +436,7 @@ export function CustomerStatusControl({
                     ) : (
                       <>
                         Account for{" "}
-                        <span className="font-medium text-foreground">
+                        <span className="font-normal text-foreground">
                           {displayName}
                         </span>{" "}
                         will be restored and able to sign in normally.
@@ -451,12 +451,12 @@ export function CustomerStatusControl({
             <div className="flex items-center justify-between">
               <label
                 htmlFor={`status-reason-${customerId}`}
-                className="block text-xs font-medium text-foreground"
+                className="block text-xs font-normal text-foreground"
               >
                 {isVi ? "Lý do thay đổi trạng thái" : "Reason for status change"}
                 <span className="text-destructive ml-1">*</span>
               </label>
-              <span className="text-xs text-muted-foreground font-mono">
+              <span className="text-xs text-muted-foreground tabular-nums font-normal">
                 {reason.trim().length}/255
               </span>
             </div>
@@ -485,9 +485,9 @@ export function CustomerStatusControl({
                   ? "Ví dụ: Đã giải quyết xong xác minh danh tính khách hàng..."
                   : "e.g. Customer identity verification successfully resolved..."
               }
-              className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
+              className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-[13px] font-normal text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground font-normal">
               {isVi
                 ? "Tối thiểu 5 ký tự, tối đa 255 ký tự. Được lưu trữ bảo mật trong nhật ký kiểm toán."
                 : "Between 5 and 255 characters. Recorded securely in the audit log."}
@@ -499,7 +499,7 @@ export function CustomerStatusControl({
             <div
               role="alert"
               aria-live="polite"
-              className="rounded-lg border border-destructive/30 bg-destructive/10 p-2.5 text-xs text-destructive leading-relaxed"
+              className="rounded-lg border border-destructive/30 bg-destructive/10 p-2.5 text-xs font-normal text-destructive leading-relaxed"
             >
               {error}
             </div>
@@ -513,7 +513,7 @@ export function CustomerStatusControl({
               size="sm"
               disabled={isPending}
               onClick={handleClose}
-              className="order-2 sm:order-1 text-xs"
+              className="order-2 sm:order-1 text-xs font-normal"
             >
               {isVi ? "Hủy bỏ" : "Cancel"}
             </Button>
@@ -525,7 +525,7 @@ export function CustomerStatusControl({
               disabled={isPending}
               onClick={handleConfirm}
               className={cn(
-                "order-1 sm:order-2 text-xs",
+                "order-1 sm:order-2 text-xs font-normal",
                 targetAction === "suspended" &&
                   "bg-amber hover:bg-amber/90 text-primary-foreground",
                 (targetAction === "active" || targetAction === "reinstate") &&

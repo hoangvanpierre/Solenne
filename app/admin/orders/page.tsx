@@ -73,18 +73,18 @@ export default async function AdminOrdersPage() {
             <ShieldAlert className="h-6 w-6 text-amber" />
           </div>
 
-          <h2 className="mt-5 font-serif text-2xl font-medium text-foreground">
+          <h2 className="mt-5 text-2xl font-normal text-foreground">
             {isVi ? "Khu vực không khả dụng" : "Area unavailable"}
           </h2>
 
-          <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">
+          <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground font-normal">
             {isVi
               ? "Quý khách không có quyền truy cập vào danh sách đơn hàng quản trị."
               : "You do not have permission to view the management order list."}
           </p>
 
           <div className="mt-7 flex justify-center">
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="font-normal text-xs">
               <Link href="/admin" className="inline-flex items-center gap-2">
                 <ArrowLeft className="h-4 w-4" />
                 <span>
@@ -104,7 +104,7 @@ export default async function AdminOrdersPage() {
         <nav aria-label="Breadcrumb">
           <Link
             href="/admin"
-            className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
+            className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground font-normal"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             <span>{isVi ? "Trung tâm quản trị" : "Admin Hub"}</span>
@@ -112,7 +112,7 @@ export default async function AdminOrdersPage() {
         </nav>
 
         <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-8 text-center">
-          <p className="text-sm font-medium text-destructive">
+          <p className="text-sm font-normal text-destructive">
             {isVi
               ? "Không thể tải danh sách đơn hàng lúc này. Vui lòng làm mới trang hoặc thử lại sau."
               : "Unable to load orders at this time. Please refresh the page or try again later."}
@@ -128,7 +128,7 @@ export default async function AdminOrdersPage() {
         <nav aria-label="Breadcrumb">
           <Link
             href="/admin"
-            className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
+            className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground font-normal"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             <span>{isVi ? "Trung tâm quản trị" : "Admin Hub"}</span>
@@ -137,10 +137,10 @@ export default async function AdminOrdersPage() {
 
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <h1 className="font-serif text-3xl md:text-4xl font-semibold text-foreground">
+            <h1 className="text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground">
               {isVi ? "Quản lý đơn hàng" : "Orders"}
             </h1>
-            <span className="rounded-full border border-border bg-muted/40 px-3 py-0.5 text-xs font-medium text-muted-foreground">
+            <span className="rounded-full border border-border bg-muted/40 px-3 py-0.5 text-xs font-normal tabular-nums text-muted-foreground">
               {totalCount}{" "}
               {isVi
                 ? "đơn hàng"
@@ -151,7 +151,7 @@ export default async function AdminOrdersPage() {
           </div>
         </div>
 
-        <p className="text-sm text-muted-foreground max-w-2xl">
+        <p className="text-sm text-muted-foreground max-w-2xl font-normal">
           {isVi
             ? "Danh sách đơn hàng toàn hệ thống, hiển thị mới nhất trước."
             : "System-wide order records, newest first."}
@@ -163,10 +163,10 @@ export default async function AdminOrdersPage() {
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted/40">
             <Package className="h-6 w-6 text-muted-foreground" />
           </div>
-          <h2 className="mt-4 font-serif text-xl font-medium text-foreground">
+          <h2 className="mt-4 text-xl font-normal text-foreground">
             {isVi ? "Chưa có đơn hàng nào" : "No orders found"}
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 text-sm text-muted-foreground font-normal">
             {isVi
               ? "Khi có đơn hàng mới phát sinh, thông tin sẽ hiển thị tại đây."
               : "When new orders are placed, they will appear here."}
@@ -178,26 +178,26 @@ export default async function AdminOrdersPage() {
           <div className="hidden md:block overflow-x-auto rounded-2xl border border-border bg-card/40">
             <table className="w-full text-left text-sm border-collapse">
               <thead>
-                <tr className="border-b border-border bg-muted/20 text-xs uppercase tracking-wider text-muted-foreground">
-                  <th scope="col" className="py-3.5 px-6 font-medium">
+                <tr className="border-b border-border bg-muted/20 text-[11px] font-normal uppercase tracking-wider text-muted-foreground">
+                  <th scope="col" className="py-3.5 px-6 font-normal">
                     {isVi ? "Đơn hàng" : "Order"}
                   </th>
-                  <th scope="col" className="py-3.5 px-6 font-medium">
+                  <th scope="col" className="py-3.5 px-6 font-normal">
                     {isVi ? "Ngày đặt" : "Date"}
                   </th>
-                  <th scope="col" className="py-3.5 px-6 font-medium">
+                  <th scope="col" className="py-3.5 px-6 font-normal">
                     {isVi ? "Khách hàng" : "Customer"}
                   </th>
-                  <th scope="col" className="py-3.5 px-6 font-medium">
+                  <th scope="col" className="py-3.5 px-6 font-normal">
                     {isVi ? "Tác phẩm" : "Items"}
                   </th>
-                  <th scope="col" className="py-3.5 px-6 font-medium">
+                  <th scope="col" className="py-3.5 px-6 font-normal">
                     {isVi ? "Trạng thái" : "Status"}
                   </th>
-                  <th scope="col" className="py-3.5 px-6 text-right font-medium">
+                  <th scope="col" className="py-3.5 px-6 text-right font-normal">
                     {isVi ? "Tổng tiền" : "Total"}
                   </th>
-                  <th scope="col" className="py-3.5 px-6 text-right font-medium">
+                  <th scope="col" className="py-3.5 px-6 text-right font-normal">
                     {isVi ? "Thao tác" : "Actions"}
                   </th>
                 </tr>
@@ -229,7 +229,7 @@ export default async function AdminOrdersPage() {
                       key={order.id}
                       className="transition-colors hover:bg-muted/30"
                     >
-                      <td className="py-4 px-6 font-mono text-xs font-semibold text-foreground">
+                      <td className="py-4 px-6 tabular-nums text-xs font-normal text-foreground">
                         <Link
                           href={`/admin/orders/${order.id}`}
                           className="inline-flex items-center hover:text-amber hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/40 focus-visible:ring-offset-2 rounded"
@@ -247,7 +247,7 @@ export default async function AdminOrdersPage() {
                           {order.orderNumber}
                         </Link>
                       </td>
-                      <td className="py-4 px-6 text-xs text-muted-foreground whitespace-nowrap">
+                      <td className="py-4 px-6 text-xs text-muted-foreground whitespace-nowrap tabular-nums font-normal">
                         {new Date(order.createdAt).toLocaleDateString(
                           isVi ? "vi-VN" : "en-US",
                           {
@@ -258,17 +258,17 @@ export default async function AdminOrdersPage() {
                         )}
                       </td>
                       <td className="py-4 px-6">
-                        <div className="font-medium text-foreground">
+                        <div className="font-normal text-foreground">
                           {customerName}
                         </div>
                         {customerDetail && (
-                          <div className="text-xs text-muted-foreground truncate max-w-xs">
+                          <div className="text-xs text-muted-foreground truncate max-w-xs tabular-nums font-normal">
                             {customerDetail}
                           </div>
                         )}
                       </td>
                       <td className="py-4 px-6">
-                        <div className="text-xs font-medium text-foreground">
+                        <div className="text-xs font-normal tabular-nums text-foreground">
                           {itemCount}{" "}
                           {isVi
                             ? "tác phẩm"
@@ -278,7 +278,7 @@ export default async function AdminOrdersPage() {
                         </div>
                         {itemsSummary && (
                           <div
-                            className="text-xs text-muted-foreground truncate max-w-xs"
+                            className="text-xs text-muted-foreground truncate max-w-xs font-normal"
                             title={itemsSummary}
                           >
                             {itemsSummary}
@@ -291,7 +291,7 @@ export default async function AdminOrdersPage() {
                           locale={locale}
                         />
                       </td>
-                      <td className="py-4 px-6 text-right font-medium text-foreground whitespace-nowrap">
+                      <td className="py-4 px-6 text-right font-normal tabular-nums text-foreground whitespace-nowrap">
                         {formatPrice(order.total)}
                       </td>
                       <td className="py-4 px-6 text-right whitespace-nowrap">
@@ -299,7 +299,7 @@ export default async function AdminOrdersPage() {
                           asChild
                           variant="outline"
                           size="sm"
-                          className="inline-flex items-center gap-1.5 text-xs"
+                          className="inline-flex items-center gap-1.5 text-xs font-normal"
                         >
                           <Link href={`/admin/orders/${order.id}`}>
                             <span>{isVi ? "Quản lý" : "Manage"}</span>
@@ -337,7 +337,7 @@ export default async function AdminOrdersPage() {
                   <div className="flex items-center justify-between gap-2">
                     <Link
                       href={`/admin/orders/${order.id}`}
-                      className="font-mono text-xs font-semibold text-foreground hover:text-amber hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/40 focus-visible:ring-offset-2 rounded"
+                      className="tabular-nums text-xs font-normal text-foreground hover:text-amber hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/40 focus-visible:ring-offset-2 rounded"
                       title={
                         isVi
                           ? `Quản lý đơn hàng ${order.orderNumber}`
@@ -358,11 +358,11 @@ export default async function AdminOrdersPage() {
                   </div>
 
                   <div className="border-t border-border/60 pt-2 text-xs space-y-1">
-                    <div className="font-medium text-foreground">
+                    <div className="font-normal text-foreground">
                       {customerName}
                     </div>
                     {customerDetail && (
-                      <div className="text-muted-foreground truncate">
+                      <div className="text-muted-foreground truncate tabular-nums font-normal">
                         {customerDetail}
                       </div>
                     )}
@@ -370,7 +370,7 @@ export default async function AdminOrdersPage() {
 
                   <div className="flex items-center justify-between border-t border-border/60 pt-2.5">
                     <div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-muted-foreground tabular-nums font-normal">
                         {itemCount}{" "}
                         {isVi
                           ? "tác phẩm"
@@ -387,7 +387,7 @@ export default async function AdminOrdersPage() {
                           }
                         )}
                       </div>
-                      <div className="font-medium text-foreground text-sm">
+                      <div className="font-normal tabular-nums text-foreground text-sm">
                         {formatPrice(order.total)}
                       </div>
                     </div>
@@ -395,7 +395,7 @@ export default async function AdminOrdersPage() {
                       asChild
                       variant="outline"
                       size="sm"
-                      className="inline-flex items-center gap-1.5 text-xs h-8"
+                      className="inline-flex items-center gap-1.5 text-xs font-normal h-8"
                     >
                       <Link href={`/admin/orders/${order.id}`}>
                         <span>{isVi ? "Quản lý" : "Manage"}</span>
@@ -409,7 +409,7 @@ export default async function AdminOrdersPage() {
           </div>
 
           {totalCount > orders.length && (
-            <p className="pt-2 text-center text-xs text-muted-foreground">
+            <p className="pt-2 text-center text-xs text-muted-foreground tabular-nums font-normal">
               {isVi
                 ? `Hiển thị ${orders.length} đơn hàng mới nhất trên tổng số ${totalCount} đơn.`
                 : `Showing newest ${orders.length} of ${totalCount} orders.`}

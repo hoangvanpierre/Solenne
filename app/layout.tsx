@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Birthstone } from "next/font/google";
+import { Cactus_Classical_Serif } from "next/font/google";
 import { getLocale, getMessages, getTimeZone } from "next-intl/server";
 import { I18nProvider } from "@/components/layout";
 import { AuthzShell } from "@/components/authz-shell";
 import "./globals.css";
 
-const birthstone = Birthstone({
-  variable: "--font-birthstone",
+const cactusClassicalSerif = Cactus_Classical_Serif({
+  variable: "--font-cactus",
   subsets: ["latin", "latin-ext", "vietnamese"],
   weight: "400",
   display: "swap",
@@ -42,14 +42,16 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const locale = await getLocale();
-  const messages = await getMessages();
-  const timeZone = await getTimeZone();
+  const [locale, messages, timeZone] = await Promise.all([
+    getLocale(),
+    getMessages(),
+    getTimeZone(),
+  ]);
 
   return (
     <html
       lang={locale}
-      className={`${birthstone.variable} ${birthstone.className} h-full antialiased`}
+      className={`${cactusClassicalSerif.variable} ${cactusClassicalSerif.className} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <I18nProvider

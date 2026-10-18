@@ -51,7 +51,7 @@ export default async function JournalPostPage({
       <Container className="max-w-3xl">
         <nav
           aria-label="Breadcrumb"
-          className="mb-8 text-sm text-muted-foreground"
+          className="mb-8 text-[13px] text-muted-foreground font-normal"
         >
           <Link
             href="/journal"
@@ -64,13 +64,13 @@ export default async function JournalPostPage({
         </nav>
 
         <header className="mb-12">
-          <p className="mb-4 text-xs uppercase tracking-[0.2em] text-muted-foreground">
+          <p className="mb-3 text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground tabular-nums font-normal">
             {tag} · {readTime} · {date}
           </p>
-          <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-4 text-foreground leading-tight">
+          <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-normal mb-4 text-foreground leading-[1.22]">
             {title}
           </h1>
-          <p className="text-lg text-muted-foreground leading-relaxed">
+          <p className="text-sm sm:text-base text-muted-foreground leading-[1.7] font-normal">
             {excerpt}
           </p>
         </header>
@@ -81,7 +81,7 @@ export default async function JournalPostPage({
           {body.map((paragraph) => (
             <p
               key={paragraph.slice(0, 24)}
-              className="text-base leading-relaxed text-muted-foreground"
+              className="text-[14px] sm:text-[15px] leading-[1.7] text-muted-foreground font-normal"
             >
               {paragraph}
             </p>
@@ -91,7 +91,7 @@ export default async function JournalPostPage({
         <div className="mt-16 border-t border-border pt-8">
           <Link
             href="/journal"
-            className="text-sm font-medium text-foreground underline-offset-4 hover:underline"
+            className="text-[13px] font-normal text-foreground underline-offset-4 hover:underline"
           >
             {isVi ? "← Trở về Nhật ký hương" : "← Back to the Journal"}
           </Link>

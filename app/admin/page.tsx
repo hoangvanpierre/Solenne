@@ -54,14 +54,14 @@ export default async function AdminPage() {
   return (
     <div className="py-8 lg:py-12 space-y-8">
       <header className="space-y-3">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber/30 bg-amber/10 text-amber text-xs tracking-wider uppercase font-medium">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber/30 bg-amber/10 text-amber text-[11px] font-normal tracking-wider uppercase">
           <ShieldCheck className="w-3.5 h-3.5" />
           <span>{badgeLabel}</span>
         </div>
-        <h1 className="font-serif text-3xl md:text-4xl font-semibold text-foreground">
+        <h1 className="text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground">
           {title}
         </h1>
-        <p className="text-lg text-muted-foreground">
+        <p className="text-base font-normal text-muted-foreground">
           {description}
         </p>
       </header>
@@ -76,10 +76,10 @@ export default async function AdminPage() {
                   <Package className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="font-serif text-xl font-medium text-foreground">
+                  <h2 className="text-lg font-normal text-foreground">
                     {isVi ? "Quản lý đơn hàng" : "Orders Management"}
                   </h2>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs font-normal text-muted-foreground">
                     {canCancelOrders
                       ? isVi
                         ? "Xem đơn, vận đơn và kiểm soát hủy đơn"
@@ -91,7 +91,7 @@ export default async function AdminPage() {
                 </div>
               </div>
 
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-sm font-normal text-muted-foreground leading-relaxed">
                 {isVi
                   ? "Theo dõi tiến độ đơn hàng toàn hệ thống, xử lý cập nhật trạng thái giao vận và kiểm tra thông tin khách hàng."
                   : "Track system-wide orders, perform status and fulfillment transitions, and inspect customer details."}
@@ -99,7 +99,7 @@ export default async function AdminPage() {
             </div>
 
             <div className="pt-2">
-              <Button asChild variant="outline" className="w-full sm:w-auto inline-flex items-center gap-2">
+              <Button asChild variant="outline" className="w-full sm:w-auto inline-flex items-center gap-2 font-normal text-xs">
                 <Link href="/admin/orders">
                   <span>{isVi ? "Truy cập đơn hàng" : "Open Orders"}</span>
                   <ArrowRight className="h-4 w-4" />
@@ -117,10 +117,10 @@ export default async function AdminPage() {
                   <Layers className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="font-serif text-xl font-medium text-foreground">
+                  <h2 className="text-lg font-normal text-foreground">
                     {isVi ? "Quản lý sản phẩm" : "Products Management"}
                   </h2>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs font-normal text-muted-foreground">
                     {isVi
                       ? "Xem danh mục, tác phẩm và các phiên bản"
                       : "View catalog, products, and candle variants"}
@@ -128,7 +128,7 @@ export default async function AdminPage() {
                 </div>
               </div>
 
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-sm font-normal text-muted-foreground leading-relaxed">
                 {isVi
                   ? "Quản lý toàn bộ danh mục nến thơm Solenne, theo dõi trạng thái hiển thị, nhóm hương và giá niêm yết của từng sáng tạo."
                   : "Oversee the complete Solenne candle catalog, monitor publication status, scent families, and base pricing across all creations."}
@@ -136,7 +136,7 @@ export default async function AdminPage() {
             </div>
 
             <div className="pt-2">
-              <Button asChild variant="outline" className="w-full sm:w-auto inline-flex items-center gap-2">
+              <Button asChild variant="outline" className="w-full sm:w-auto inline-flex items-center gap-2 font-normal text-xs">
                 <Link href="/admin/products">
                   <span>{isVi ? "Truy cập sản phẩm" : "Open Products"}</span>
                   <ArrowRight className="h-4 w-4" />
@@ -154,10 +154,10 @@ export default async function AdminPage() {
                   <Boxes className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="font-serif text-xl font-medium text-foreground">
+                  <h2 className="text-lg font-normal text-foreground">
                     {isVi ? "Quản lý tồn kho" : "Inventory Management"}
                   </h2>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs font-normal text-muted-foreground">
                     {canUpdateInventory
                       ? isVi
                         ? "Theo dõi và điều chỉnh mức tồn kho"
@@ -169,7 +169,7 @@ export default async function AdminPage() {
                 </div>
               </div>
 
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-sm font-normal text-muted-foreground leading-relaxed">
                 {isVi
                   ? "Kiểm soát số lượng tồn kho từng phiên bản sản phẩm, nhận diện các tác phẩm sắp hết hàng và thực hiện cập nhật kho an toàn."
                   : "Track stock quantities across all product variants, monitor low-stock thresholds, and perform atomic inventory adjustments."}
@@ -177,7 +177,7 @@ export default async function AdminPage() {
             </div>
 
             <div className="pt-2">
-              <Button asChild variant="outline" className="w-full sm:w-auto inline-flex items-center gap-2">
+              <Button asChild variant="outline" className="w-full sm:w-auto inline-flex items-center gap-2 font-normal text-xs">
                 <Link href="/admin/inventory">
                   <span>{isVi ? "Truy cập tồn kho" : "Open Inventory"}</span>
                   <ArrowRight className="h-4 w-4" />
@@ -195,10 +195,10 @@ export default async function AdminPage() {
                   <Users className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="font-serif text-xl font-medium text-foreground">
+                  <h2 className="text-lg font-normal text-foreground">
                     {isVi ? "Quản lý khách hàng" : "Customers Management"}
                   </h2>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs font-normal text-muted-foreground">
                     {isVi
                       ? "Xem danh bạ và tổng quan lịch sử mua hàng"
                       : "View customer directory and purchase overview"}
@@ -206,7 +206,7 @@ export default async function AdminPage() {
                 </div>
               </div>
 
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-sm font-normal text-muted-foreground leading-relaxed">
                 {isVi
                   ? "Theo dõi hồ sơ thành viên, trạng thái tài khoản và thông tin mua sắm của khách hàng Solenne."
                   : "Monitor member profiles, account statuses, and purchase overview across Solenne patrons."}
@@ -214,7 +214,7 @@ export default async function AdminPage() {
             </div>
 
             <div className="pt-2">
-              <Button asChild variant="outline" className="w-full sm:w-auto inline-flex items-center gap-2">
+              <Button asChild variant="outline" className="w-full sm:w-auto inline-flex items-center gap-2 font-normal text-xs">
                 <Link href="/admin/customers">
                   <span>{isVi ? "Truy cập khách hàng" : "Open Customers"}</span>
                   <ArrowRight className="h-4 w-4" />
@@ -232,16 +232,16 @@ export default async function AdminPage() {
                   <UserCheck className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="font-serif text-xl font-medium text-foreground">
+                  <h2 className="text-lg font-normal text-foreground">
                     {isVi ? "Hệ thống quản trị" : "System Administration"}
                   </h2>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs font-normal text-muted-foreground">
                     {isVi ? "Quyền quản trị cấp cao" : "Superuser authorization"}
                   </p>
                 </div>
               </div>
 
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-sm font-normal text-muted-foreground leading-relaxed">
                 {isVi
                   ? "Tài khoản của quý khách sở hữu toàn quyền quản trị, bao gồm kiểm soát phân quyền RBAC và xem nhật ký bảo mật."
                   : "Your account holds full administrative authority, including RBAC permission management and security audit inspection."}
@@ -250,7 +250,7 @@ export default async function AdminPage() {
 
             {canReadAudit && (
               <div className="pt-2">
-                <Button asChild variant="outline" className="w-full sm:w-auto inline-flex items-center gap-2">
+                <Button asChild variant="outline" className="w-full sm:w-auto inline-flex items-center gap-2 font-normal text-xs">
                   <Link href="/admin/audit">
                     <span>{isVi ? "Truy cập nhật ký" : "Open Audit Trail"}</span>
                     <ArrowRight className="h-4 w-4" />

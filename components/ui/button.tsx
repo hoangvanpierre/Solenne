@@ -33,10 +33,10 @@ const variantStyles: Record<string, string> = {
 };
 
 const sizeStyles: Record<string, string> = {
-  sm: "h-9 px-4 text-sm",
-  default: "h-11 px-6 text-sm",
-  lg: "h-12 px-8 text-base",
-  icon: "h-10 w-10",
+  sm: "h-8 sm:h-9 px-3.5 text-xs tracking-[0.03em]",
+  default: "h-9 sm:h-10 px-5 text-[13px] tracking-[0.03em]",
+  lg: "h-10 sm:h-11 px-6 sm:px-7 text-[13.5px] sm:text-sm tracking-[0.03em]",
+  icon: "h-9 w-9 sm:h-10 sm:w-10",
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -59,7 +59,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <Comp
         ref={ref}
         className={cn(
-          "inline-flex items-center justify-center gap-2 rounded-full font-medium transition-all duration-300",
+          "inline-flex items-center justify-center gap-2 rounded-full font-normal transition-all duration-300",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
           "disabled:pointer-events-none disabled:opacity-50",
           "active:scale-[0.98]",

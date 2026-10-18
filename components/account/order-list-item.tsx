@@ -16,16 +16,16 @@ export function OrderListItem({ order, locale = "en" }: OrderListItemProps) {
       className="block rounded-xl border border-border/60 p-4 transition-colors hover:border-foreground/20"
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="font-serif text-sm font-medium text-foreground">
+        <span className="font-serif text-sm font-normal tabular-nums text-foreground">
           {order.orderNumber}
         </span>
-        <span className="text-sm text-foreground">
+        <span className="text-sm font-normal tabular-nums text-foreground">
           {formatPrice(order.total)}
         </span>
       </div>
       <div className="mt-2 flex items-center justify-between gap-2">
         <OrderStatusBadge status={order.status} locale={locale} />
-        <span className="text-xs text-muted-foreground">
+        <span className="text-[12px] text-muted-foreground font-normal tabular-nums">
           {order.items.length}{" "}
           {isVi ? "tác phẩm" : order.items.length === 1 ? "item" : "items"} ·{" "}
           {new Date(order.createdAt).toLocaleDateString(isVi ? "vi-VN" : "en-US", {

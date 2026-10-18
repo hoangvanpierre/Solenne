@@ -50,6 +50,7 @@ export function Testimonials() {
 
   useEffect(() => {
     const interval = setInterval(() => {
+      if (typeof document !== "undefined" && document.hidden) return;
       setCurrentIndex((prev) => (prev + 1) % TESTIMONIALS.length);
     }, 5000);
     return () => clearInterval(interval);
@@ -76,7 +77,7 @@ export function Testimonials() {
                     ))}
                   </div>
 
-                  <blockquote className="font-serif text-2xl md:text-3xl lg:text-4xl font-medium leading-tight text-foreground mb-8 italic">
+                  <blockquote className="font-serif text-xl sm:text-2xl font-normal leading-[1.4] text-foreground mb-6 italic text-balance">
                     &ldquo;
                     {locale === "vi"
                       ? TESTIMONIALS[currentIndex].quoteVi

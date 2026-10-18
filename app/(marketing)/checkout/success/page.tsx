@@ -67,15 +67,15 @@ export default async function CheckoutSuccessPage({
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-sage/20">
             <CheckCircle2 className="h-8 w-8 text-sage" />
           </div>
-          <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-4 text-foreground">
+          <h1 className="font-serif text-2xl sm:text-3xl font-normal leading-[1.22] mb-3 text-foreground tracking-[0.02em]">
             {isVi ? "Trân trọng cảm ơn quý khách" : "Thank you for your order"}
           </h1>
           {order && (
-            <p className="text-muted-foreground text-lg">
+            <p className="text-muted-foreground text-sm sm:text-base leading-relaxed font-normal">
               {isVi ? (
                 <>
                   Tác phẩm với mã đơn{" "}
-                  <span className="font-medium text-foreground">
+                  <span className="font-normal tabular-nums text-foreground">
                     {order.orderNumber}
                   </span>{" "}
                   đã được xác nhận và lưu giữ trang trọng.
@@ -83,7 +83,7 @@ export default async function CheckoutSuccessPage({
               ) : (
                 <>
                   Order{" "}
-                  <span className="font-medium text-foreground">
+                  <span className="font-normal tabular-nums text-foreground">
                     {order.orderNumber}
                   </span>{" "}
                   is confirmed and reserved.
@@ -97,16 +97,16 @@ export default async function CheckoutSuccessPage({
           <>
             <div className="rounded-2xl border border-border p-6 sm:p-8">
               <div className="mb-6 flex items-center justify-between border-b border-border pb-6">
-                <div className="flex items-center gap-2 text-sm">
+                <div className="flex items-center gap-2 text-[13px]">
                   <Package className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">
+                  <span className="text-muted-foreground font-normal">
                     {isVi ? "Trạng thái:" : "Status:"}
                   </span>
-                  <span className="rounded-full border border-amber/30 bg-amber/10 px-3 py-1 text-xs font-medium uppercase tracking-wider text-amber">
+                  <span className="rounded-full border border-amber/30 bg-amber/10 px-2.5 py-0.5 text-[11px] font-normal uppercase tracking-wider text-amber">
                     {isVi ? "Đang chờ thanh toán" : "Pending Payment"}
                   </span>
                 </div>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-[13px] text-muted-foreground font-normal tabular-nums">
                   {new Date(order.createdAt).toLocaleDateString(isVi ? "vi-VN" : "en-US", {
                     month: "long",
                     day: "numeric",
@@ -122,34 +122,34 @@ export default async function CheckoutSuccessPage({
                     className="flex items-start justify-between gap-4"
                   >
                     <div>
-                      <p className="text-sm font-medium text-foreground">
+                      <p className="text-[13.5px] font-normal text-foreground">
                         {item.productName}
                       </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-[12px] text-muted-foreground font-normal tabular-nums">
                         {item.variantName}
                         {item.variantName ? " · " : ""}
                         {isVi ? "Số lượng:" : "Qty"} {item.quantity}
                       </p>
                     </div>
-                    <p className="whitespace-nowrap text-sm text-foreground">
+                    <p className="whitespace-nowrap text-[13px] font-normal tabular-nums text-foreground">
                       {formatPrice(item.totalPrice)}
                     </p>
                   </div>
                 ))}
               </div>
 
-              <div className="mt-6 space-y-3 border-t border-border pt-6 text-sm">
+              <div className="mt-6 space-y-2.5 border-t border-border pt-5 text-[13px] font-normal">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">
                     {isVi ? "Tạm tính" : "Subtotal"}
                   </span>
-                  <span>{formatPrice(order.subtotal)}</span>
+                  <span className="tabular-nums">{formatPrice(order.subtotal)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">
                     {isVi ? "Phí vận chuyển" : "Shipping"}
                   </span>
-                  <span>
+                  <span className="tabular-nums">
                     {order.shippingFee === 0
                       ? isVi
                         ? "Trân quý miễn phí"
@@ -157,16 +157,16 @@ export default async function CheckoutSuccessPage({
                       : formatPrice(order.shippingFee)}
                   </span>
                 </div>
-                <div className="flex justify-between border-t border-border pt-3 text-base font-semibold">
+                <div className="flex justify-between border-t border-border pt-3 text-[14.5px] sm:text-[15px] font-normal text-foreground">
                   <span>{isVi ? "Tổng cộng" : "Total"}</span>
-                  <span>{formatPrice(order.total)}</span>
+                  <span className="tabular-nums">{formatPrice(order.total)}</span>
                 </div>
               </div>
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
-              <div className="rounded-2xl border border-border p-6 text-sm">
-                <h2 className="mb-3 font-serif text-lg font-semibold text-foreground">
+              <div className="rounded-2xl border border-border p-6 text-[13.5px] font-normal leading-relaxed">
+                <h2 className="mb-3 font-serif text-base font-normal text-foreground leading-[1.3]">
                   {isVi ? "Địa chỉ đón nhận" : "Shipping to"}
                 </h2>
                 <p className="text-muted-foreground">
@@ -191,8 +191,8 @@ export default async function CheckoutSuccessPage({
                     : order.shippingAddress.country}
                 </p>
               </div>
-              <div className="rounded-2xl border border-border p-6 text-sm">
-                <h2 className="mb-3 flex items-center gap-2 font-serif text-lg font-semibold text-foreground">
+              <div className="rounded-2xl border border-border p-6 text-[13.5px] font-normal leading-relaxed">
+                <h2 className="mb-3 flex items-center gap-2 font-serif text-base font-normal text-foreground leading-[1.3]">
                   <Mail className="h-4 w-4" />
                   {isVi ? "Bước tiếp theo" : "Next step"}
                 </h2>
@@ -200,7 +200,7 @@ export default async function CheckoutSuccessPage({
                   {isVi ? (
                     <>
                       Phương thức thanh toán trực tuyến đang được hoàn thiện. Đơn hàng của quý khách đã được lưu giữ trang trọng và an toàn — Nhà hương sẽ gửi email đến{" "}
-                      <span className="font-medium text-foreground">
+                      <span className="font-normal text-foreground">
                         {order.shippingAddress.email ?? user.email}
                       </span>{" "}
                       kèm hướng dẫn thanh toán chi tiết, hoặc quý khách có thể liên hệ chúng tôi bất cứ lúc nào qua{" "}

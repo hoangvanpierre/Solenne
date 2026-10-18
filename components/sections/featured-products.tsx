@@ -41,7 +41,7 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
         {/* Section header */}
         <div className="mb-16 text-center">
           <ScrollReveal>
-            <p className="text-sm tracking-[0.2em] uppercase text-muted-foreground mb-3">
+            <p className="text-[10.5px] sm:text-[11px] tracking-[0.16em] uppercase text-muted-foreground font-normal mb-2.5">
               {locale === "vi" ? "Tuyển chọn của Nhà hương" : "Maison Curations"}
             </p>
           </ScrollReveal>
@@ -52,7 +52,7 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
                 : "Treasured Creations"
             }
             as="h2"
-            className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold text-foreground"
+            className="font-serif text-2xl sm:text-3xl font-normal leading-[1.25] text-foreground text-balance"
             splitBy="word"
           />
         </div>
@@ -107,15 +107,15 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
                       return locale === "vi" ? cat.nameVi : cat.name;
                     })()}
                   </p>
-                  <h3 className="font-serif text-lg font-medium text-foreground group-hover:text-primary transition-colors">
+                  <h3 className="font-serif text-[16px] sm:text-[17px] font-normal leading-[1.35] text-foreground group-hover:text-primary transition-colors">
                     {product.name}
                   </h3>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">
+                    <span className="text-[13px] font-normal tabular-nums">
                       {fmt(product.basePrice)}
                     </span>
                     {product.compareAtPrice && (
-                      <span className="text-sm text-muted-foreground line-through">
+                      <span className="text-[12.5px] tabular-nums text-muted-foreground line-through">
                         {fmt(product.compareAtPrice)}
                       </span>
                     )}

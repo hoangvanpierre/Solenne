@@ -52,7 +52,7 @@ export function StockStatusBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium tracking-wide",
+        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-normal tracking-wide",
         STATUS_STYLES[status],
         className
       )}

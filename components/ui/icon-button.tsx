@@ -55,7 +55,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
       >
         {children}
         {badge !== undefined && badge > 0 && (
-          <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+          <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-normal tabular-nums text-primary-foreground">
             {badge > 99 ? "99+" : badge}
           </span>
         )}

@@ -36,10 +36,10 @@ export function ScentNotes({ top, heart, base }: ScentNotesProps) {
       {tiers.map((tier, i) => (
         <ScrollReveal key={i} delay={i * 0.1}>
           <div className={`p-5 rounded-xl ${tier.bg} border border-stone-200/50`}>
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">
+            <p className="text-[11px] font-normal uppercase tracking-[0.14em] text-muted-foreground mb-1.5">
               {tier.label}
             </p>
-            <p className="font-serif text-lg text-foreground">
+            <p className="font-serif text-[15px] sm:text-base font-normal text-foreground leading-[1.5]">
               {tier.notes.join(", ")}
             </p>
           </div>

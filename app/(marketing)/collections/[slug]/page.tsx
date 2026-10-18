@@ -75,7 +75,7 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
       <Container>
         <nav
           aria-label="Breadcrumb"
-          className="mb-8 text-sm text-muted-foreground"
+          className="mb-8 text-[13px] text-muted-foreground font-normal"
         >
           <Link
             href="/collections"
@@ -88,10 +88,10 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
         </nav>
 
         <div className="mb-12">
-          <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-4 text-foreground">
+          <h1 className="font-serif text-2xl sm:text-3xl font-normal leading-[1.22] mb-3 text-foreground tracking-[0.02em]">
             {collection.title}
           </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl">
+          <p className="text-muted-foreground text-sm sm:text-base max-w-2xl font-normal leading-relaxed">
             {collection.description}
           </p>
         </div>

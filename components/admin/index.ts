@@ -28,3 +28,5 @@ export { CustomerTable } from "./customer-table";
 export type { CustomerTableProps } from "./customer-table";
 export { CustomerStatusControl } from "./customer-status-control";
 export type { CustomerStatusControlProps } from "./customer-status-control";
+export { AdminBrandLogo } from "./admin-brand-logo";
+export type { AdminBrandLogoProps } from "./admin-brand-logo";

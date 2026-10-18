@@ -105,18 +105,18 @@ export default async function AdminAuditPage({ searchParams }: AdminAuditPagePro
             <ShieldAlert className="h-6 w-6 text-amber" />
           </div>
 
-          <h2 className="mt-5 font-serif text-2xl font-medium text-foreground">
+          <h2 className="mt-5 text-xl font-normal text-foreground">
             {isVi ? "Khu vực không khả dụng" : "Area unavailable"}
           </h2>
 
-          <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">
+          <p className="mx-auto mt-3 max-w-lg text-sm font-normal leading-relaxed text-muted-foreground">
             {isVi
               ? "Quý khách không có quyền truy cập vào nhật ký kiểm toán quản trị."
               : "You do not have permission to view the security audit logs."}
           </p>
 
           <div className="mt-7 flex justify-center">
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" size="sm" className="font-normal text-xs">
               <Link href="/admin" className="inline-flex items-center gap-2">
                 <ArrowLeft className="h-4 w-4" />
                 <span>
@@ -138,18 +138,18 @@ export default async function AdminAuditPage({ searchParams }: AdminAuditPagePro
             <ShieldAlert className="h-6 w-6 text-destructive" />
           </div>
 
-          <h2 className="mt-5 font-serif text-2xl font-medium text-foreground">
+          <h2 className="mt-5 text-xl font-normal text-foreground">
             {isVi ? "Không thể tải dữ liệu" : "Unable to load audit logs"}
           </h2>
 
-          <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">
+          <p className="mx-auto mt-3 max-w-lg text-sm font-normal leading-relaxed text-muted-foreground">
             {isVi
               ? "Đã xảy ra lỗi khi truy vấn nhật ký kiểm toán. Vui lòng thử lại sau."
               : "An unexpected error occurred while loading audit records. Please try again later."}
           </p>
 
           <div className="mt-7 flex justify-center">
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" size="sm" className="font-normal text-xs">
               <Link href="/admin" className="inline-flex items-center gap-2">
                 <ArrowLeft className="h-4 w-4" />
                 <span>
@@ -167,25 +167,26 @@ export default async function AdminAuditPage({ searchParams }: AdminAuditPagePro
     <div className="py-8 lg:py-12 space-y-8">
       {/* Header and Back Link */}
       <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Button asChild variant="ghost" size="sm" className="-ml-2 text-muted-foreground">
-            <Link href="/admin" className="inline-flex items-center gap-1.5 text-xs">
-              <ArrowLeft className="h-3.5 w-3.5" />
-              <span>{isVi ? "Trung tâm quản trị" : "Admin Hub"}</span>
-            </Link>
-          </Button>
-        </div>
+        <nav aria-label="Breadcrumb">
+          <Link
+            href="/admin"
+            className="inline-flex items-center gap-1.5 text-[11px] font-normal uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            <span>{isVi ? "Trung tâm quản trị" : "Admin Hub"}</span>
+          </Link>
+        </nav>
 
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber/30 bg-amber/10 text-amber text-xs tracking-wider uppercase font-medium mb-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber/30 bg-amber/10 text-amber text-[11px] tracking-wider uppercase font-normal mb-3">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>{isVi ? "Kiểm toán bảo mật" : "Security Audit"}</span>
             </div>
-            <h1 className="font-serif text-3xl md:text-4xl font-semibold text-foreground">
+            <h1 className="text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground">
               {isVi ? "Nhật ký kiểm toán" : "Audit Trail"}
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-sm font-normal text-muted-foreground">
               {isVi
                 ? "Nhật ký bất biến ghi nhận mọi hoạt động quản trị, vận hành và thay đổi trạng thái trong hệ thống."
                 : "Append-only audit record of administrative, operational, and system status transitions."}

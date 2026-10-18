@@ -82,10 +82,10 @@ export function ContactForm() {
   if (isSent) {
     return (
       <div className="rounded-2xl border border-border p-10 text-center">
-        <h3 className="font-serif text-2xl font-semibold text-foreground">
+        <h3 className="font-serif text-xl font-normal text-foreground">
           {t("thankYou")}
         </h3>
-        <p className="mt-3 text-muted-foreground leading-relaxed">
+        <p className="mt-2 text-sm text-muted-foreground leading-relaxed font-normal">
           {t("thankYouDescription")}
         </p>
         <Button
@@ -132,7 +132,7 @@ export function ContactForm() {
       <div className="space-y-1.5">
         <label
           htmlFor="message"
-          className="text-sm font-medium text-foreground"
+          className="text-[13px] font-normal text-foreground"
         >
           {t("message")}
         </label>
@@ -143,14 +143,14 @@ export function ContactForm() {
           value={values.message}
           onChange={handleChange}
           placeholder={t("messagePlaceholder")}
-          className="flex w-full rounded-lg border border-border bg-transparent px-4 py-2 text-sm transition-colors duration-200 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex w-full rounded-lg border border-border bg-transparent px-4 py-2.5 text-[13.5px] font-normal transition-colors duration-200 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
         />
         {errors.message && (
-          <p className="text-xs text-destructive">{errors.message}</p>
+          <p className="text-[12px] font-normal text-destructive">{errors.message}</p>
         )}
       </div>
       {serverError && (
-        <div className="rounded-lg bg-destructive/10 p-3 text-xs text-destructive">
+        <div className="rounded-lg bg-destructive/10 p-3 text-[12px] font-normal text-destructive">
           {serverError}
         </div>
       )}

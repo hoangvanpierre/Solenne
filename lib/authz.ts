@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import type {
   AccountStatus,
@@ -82,6 +83,13 @@ export async function requireUserId(): Promise<string> {
  * agree.
  */
 async function resolveActorContext(): Promise<ActorContext | null> {
+  const cookieStore = await cookies();
+  const hasAuthCookies = cookieStore
+    .getAll()
+    .some((c) => c.name.startsWith("sb-") && c.name.includes("-auth-token"));
+
+  if (!hasAuthCookies) return null;
+
   const supabase = await createClient();
   const {
     data: { user },

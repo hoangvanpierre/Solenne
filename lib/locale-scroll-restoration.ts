@@ -127,6 +127,16 @@ export function saveLocaleScrollPosition({
   return payload;
 }
 
+/**
+ * Park the current scroll position so it can be restored after a full-page document reload
+ * (such as a brand logo click), retaining the exact route, query parameters, hash, and section.
+ */
+export function saveReloadScrollPosition(): LocaleScrollPosition | null {
+  if (isServer()) return null;
+  const currentLocale = currentDocumentLocale() || "en";
+  return saveLocaleScrollPosition({ from: currentLocale, to: currentLocale });
+}
+
 /** Outcome of reading the parked payload out of session storage. */
 type StoredPositionRead =
   | { status: "empty" }
@@ -367,8 +377,47 @@ export function restoreLocaleScrollPosition(): () => void {
     removeStoredPosition();
   }
 
-  /** Instant, never smooth: the visitor should appear to stay put. */
+  function resolveTargetY(target: number, maxY: number): number {
+    let top = clamp(target, 0, maxY);
+    if (typeof window !== "undefined" && window.location.hash) {
+      try {
+        const hashId = window.location.hash.slice(1);
+        const targetElement =
+          document.getElementById(hashId) ||
+          document.querySelector(window.location.hash);
+        if (targetElement instanceof HTMLElement) {
+          const rect = targetElement.getBoundingClientRect();
+          const targetOffset = rect.top + window.scrollY;
+          if (targetOffset >= 0 && targetOffset <= maxY + 50) {
+            top = clamp(targetOffset, 0, maxY);
+          }
+        }
+      } catch {
+        // Fall back to clamped target
+      }
+    }
+    return top;
+  }
+
+  /** Instant, never smooth: the visitor should appear to stay put. Coordinates with Lenis if active. */
   function applyScrollPosition(top: number, left: number): void {
+    const lenis =
+      typeof window !== "undefined"
+        ? (
+            window as unknown as {
+              __lenis?: {
+                scrollTo: (
+                  target: number,
+                  options?: { immediate?: boolean }
+                ) => void;
+              };
+            }
+          ).__lenis
+        : null;
+
+    if (lenis && typeof lenis.scrollTo === "function") {
+      lenis.scrollTo(top, { immediate: true });
+    }
     window.scrollTo({ top, left, behavior: "instant" });
   }
 
@@ -403,7 +452,7 @@ export function restoreLocaleScrollPosition(): () => void {
     retryTimer = null;
 
     const { maxX, maxY } = getScrollLimits();
-    const top = clamp(targetY, 0, maxY);
+    const top = resolveTargetY(targetY, maxY);
     const left = clamp(targetX, 0, maxX);
     const outOfTime = Date.now() >= deadlineAt;
 
@@ -481,7 +530,7 @@ export function restoreLocaleScrollPosition(): () => void {
     }
 
     const { maxX, maxY } = getScrollLimits();
-    const top = clamp(targetY, 0, maxY);
+    const top = resolveTargetY(targetY, maxY);
     const left = clamp(targetX, 0, maxX);
 
     if (isCorrectPosition(top, left)) return;

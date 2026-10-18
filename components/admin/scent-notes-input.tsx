@@ -105,15 +105,15 @@ export function ScentNotesInput({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-2">
-        <label className="text-sm font-medium text-foreground flex items-center gap-1.5">
+        <label className="text-sm font-normal text-foreground flex items-center gap-1.5">
           <Tag className="h-3.5 w-3.5 text-muted-foreground" />
           <span>{label}</span>
-          <span className="text-xs text-muted-foreground font-normal">
+          <span className="text-xs text-muted-foreground font-normal tabular-nums">
             ({notes.length})
           </span>
         </label>
         {description && (
-          <span className="text-xs text-muted-foreground hidden sm:inline">
+          <span className="text-xs text-muted-foreground font-normal hidden sm:inline">
             {description}
           </span>
         )}
@@ -122,7 +122,7 @@ export function ScentNotesInput({
       {/* Chips Container */}
       <div className="flex flex-wrap gap-2 min-h-9 items-center p-2 rounded-lg border border-border bg-card/30">
         {notes.length === 0 && (
-          <span className="text-xs text-muted-foreground italic px-1">
+          <span className="text-xs text-muted-foreground italic px-1 font-normal">
             {isVi ? "Chưa có nốt hương nào" : "No scent notes added yet"}
           </span>
         )}
@@ -143,7 +143,7 @@ export function ScentNotesInput({
                   onKeyDown={(e) => handleEditKeyDown(e, index)}
                   onBlur={() => saveEdit(index)}
                   autoFocus
-                  className="w-24 text-xs bg-transparent outline-none text-foreground font-medium"
+                  className="w-24 text-xs bg-transparent outline-none text-foreground font-normal"
                   aria-label={isVi ? "Chỉnh sửa nốt hương" : "Edit scent note"}
                 />
                 <button
@@ -162,7 +162,7 @@ export function ScentNotesInput({
             <span
               key={`${note}-${index}`}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium tracking-wide transition-colors",
+                "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-normal tracking-wide transition-colors",
                 styles.chip
               )}
             >
@@ -211,13 +211,13 @@ export function ScentNotesInput({
               ? "Nhập nốt hương và nhấn Enter..."
               : "Type a note and press Enter...")
           }
-          className="flex h-9 w-full rounded-lg border border-border bg-transparent px-3 py-1 text-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:border-transparent transition-colors"
+          className="flex h-9 w-full rounded-lg border border-border bg-transparent px-3 py-1 text-[13px] font-normal placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:border-transparent transition-colors"
         />
         <button
           type="button"
           onClick={handleAdd}
           disabled={!inputValue.trim()}
-          className="inline-flex items-center gap-1 rounded-lg border border-border bg-muted/30 px-3 py-1 text-xs font-medium text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+          className="inline-flex items-center gap-1 rounded-lg border border-border bg-muted/30 px-3 py-1 text-xs font-normal text-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
         >
           <Plus className="h-3.5 w-3.5" />
           <span>{isVi ? "Thêm" : "Add"}</span>

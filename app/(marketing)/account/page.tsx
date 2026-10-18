@@ -61,6 +61,25 @@ export default async function AccountPage() {
   }
   const isManagement = hasManagementAccess(actor);
 
+  let profile: { full_name: string | null; phone: string | null } | null = null;
+  try {
+    const { data } = await supabase
+      .from("profiles")
+      .select("full_name, phone")
+      .eq("id", user.id)
+      .maybeSingle();
+    profile = data;
+  } catch (profileError) {
+    console.warn("AccountPage: Failed to load profile:", profileError);
+  }
+
+  const displayName =
+    profile?.full_name?.trim() ||
+    user.user_metadata?.full_name?.trim() ||
+    (isVi ? "Khách hàng ẩn danh" : "Anonymous Member");
+  const phone = profile?.phone?.trim() || null;
+  const email = user.email?.trim() || null;
+
   return (
     <div className="py-24 lg:py-32 account-page">
       <Container>
@@ -235,12 +254,46 @@ export default async function AccountPage() {
             </div>
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                {isVi ? "Thông tin tài khoản" : "Account Details"}
+                {isVi ? "Thông tin tài khoản" : "Account Information"}
               </p>
-              <p className="mt-3 text-sm leading-relaxed break-all text-foreground">
-                {user.email}
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <div className="mt-3 space-y-2.5 text-sm">
+                <div>
+                  <span className="text-xs uppercase tracking-wider text-muted-foreground block">
+                    {isVi ? "Tên hiển thị" : "Display Name"}
+                  </span>
+                  <span className="font-medium text-foreground mt-0.5 block">
+                    {displayName}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-xs uppercase tracking-wider text-muted-foreground block">
+                    {isVi ? "Số điện thoại" : "Phone"}
+                  </span>
+                  <span className="mt-0.5 block font-mono text-xs text-foreground">
+                    {phone || (
+                      <span className="text-muted-foreground italic font-sans">
+                        {isVi ? "Chưa cung cấp" : "Not provided"}
+                      </span>
+                    )}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-xs uppercase tracking-wider text-muted-foreground block">
+                    {isVi ? "Địa chỉ email" : "Email Address"}
+                  </span>
+                  <span className="mt-0.5 block text-sm break-all text-foreground">
+                    {email || (
+                      <span className="text-muted-foreground italic">
+                        {isVi ? "Chưa cung cấp" : "Not provided"}
+                      </span>
+                    )}
+                  </span>
+                </div>
+              </div>
+
+              <p className="mt-3 text-xs text-muted-foreground">
                 {isVi ? "Đồng hành từ " : "Member since "}
                 {new Date(user.created_at).toLocaleDateString(isVi ? "vi-VN" : "en-US", {
                   month: "long",

@@ -327,10 +327,16 @@ export default async function CustomerDetailPage({
 
               <div>
                 <span className="text-xs uppercase tracking-wider text-muted-foreground block">
-                  {isVi ? "Mã định danh" : "Account Identifier"}
+                  {isVi ? "Địa chỉ email" : "Email Address"}
                 </span>
-                <span className="mt-0.5 block font-mono text-xs text-muted-foreground break-all select-all">
-                  {customer.id}
+                <span className="mt-0.5 block text-xs break-all text-foreground">
+                  {customer.email ? (
+                    <span className="font-mono">{customer.email}</span>
+                  ) : (
+                    <span className="text-muted-foreground italic font-sans">
+                      {isVi ? "Chưa cung cấp" : "Not provided"}
+                    </span>
+                  )}
                 </span>
               </div>
             </div>

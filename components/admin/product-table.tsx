@@ -212,7 +212,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
           <div className="mt-2 font-mono text-2xl font-bold text-foreground">
             {metrics.total}
           </div>
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-xs text-muted-foreground">
             {isVi ? "Toàn bộ danh mục nến" : "All candle creations"}
           </span>
         </button>
@@ -240,7 +240,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
           <div className="mt-2 font-mono text-2xl font-bold text-foreground">
             {metrics.active}
           </div>
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-xs text-muted-foreground">
             {isVi ? "Hiển thị trên tiệm nến" : "Visible in storefront"}
           </span>
         </button>
@@ -268,7 +268,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
           <div className="mt-2 font-mono text-2xl font-bold text-foreground">
             {metrics.inactive}
           </div>
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-xs text-muted-foreground">
             {isVi ? "Ẩn khỏi cửa hàng" : "Hidden from storefront"}
           </span>
         </button>
@@ -286,7 +286,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
           <div className="mt-2 font-mono text-2xl font-bold text-foreground">
             {metrics.featured}
           </div>
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-xs text-muted-foreground">
             {isVi ? "Trang chủ & Bộ sưu tập" : "Homepage showcase"}
           </span>
         </div>
@@ -426,7 +426,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
           </span>
 
           {hasActiveFilters && (
-            <span className="text-[11px] text-amber font-medium">
+            <span className="text-xs text-amber font-medium">
               {isVi ? "Bộ lọc đang kích hoạt" : "Filters active"}
             </span>
           )}
@@ -545,7 +545,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                                 className="object-cover"
                               />
                             ) : (
-                              <div className="flex h-full w-full items-center justify-center text-[10px] text-muted-foreground/40 font-mono">
+                              <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground/40 font-mono">
                                 —
                               </div>
                             )}
@@ -573,18 +573,18 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
 
                             {/* Status Badge */}
                             {product.isActive ? (
-                              <span className="inline-flex items-center rounded-md border border-sage/40 bg-sage/10 px-1.5 py-0.5 text-[10px] font-medium text-sage">
+                              <span className="inline-flex items-center rounded-md border border-sage/40 bg-sage/10 px-1.5 py-0.5 text-xs font-medium text-sage">
                                 {isVi ? "Mở bán" : "Active"}
                               </span>
                             ) : (
-                              <span className="inline-flex items-center rounded-md border border-border bg-muted/60 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                              <span className="inline-flex items-center rounded-md border border-border bg-muted/60 px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
                                 {isVi ? "Tạm ẩn" : "Draft"}
                               </span>
                             )}
 
                             {/* Featured Badge */}
                             {product.isFeatured && (
-                              <span className="inline-flex items-center gap-0.5 rounded-md border border-amber/40 bg-amber/10 px-1.5 py-0.5 text-[10px] font-medium text-amber">
+                              <span className="inline-flex items-center gap-0.5 rounded-md border border-amber/40 bg-amber/10 px-1.5 py-0.5 text-xs font-medium text-amber">
                                 <Sparkles className="h-2.5 w-2.5" />
                                 <span>{isVi ? "Nổi bật" : "Featured"}</span>
                               </span>
@@ -619,7 +619,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                                 : "variants"}
                           </span>
                           {sizes && (
-                            <div className="text-[11px] text-muted-foreground truncate max-w-[12rem]">
+                            <div className="text-xs text-muted-foreground truncate max-w-[12rem]">
                               {sizes}
                             </div>
                           )}
@@ -630,7 +630,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                       <td className="py-4 px-4 font-mono text-xs font-semibold text-foreground whitespace-nowrap">
                         <div>{formatPrice(product.basePrice)}</div>
                         {product.compareAtPrice && (
-                          <div className="text-[10px] text-muted-foreground line-through">
+                          <div className="text-xs text-muted-foreground line-through">
                             {formatPrice(product.compareAtPrice)}
                           </div>
                         )}
@@ -719,7 +719,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                             className="object-cover"
                           />
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center text-[10px] text-muted-foreground/40 font-mono">
+                          <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground/40 font-mono">
                             —
                           </div>
                         )}
@@ -730,16 +730,16 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                             {product.name}
                           </h4>
                         {product.isActive ? (
-                          <span className="rounded-md border border-sage/40 bg-sage/10 px-1.5 py-0.2 text-[10px] text-sage font-medium">
+                          <span className="rounded-md border border-sage/40 bg-sage/10 px-1.5 py-0.5 text-xs text-sage font-medium">
                             {isVi ? "Mở bán" : "Active"}
                           </span>
                         ) : (
-                          <span className="rounded-md border border-border bg-muted px-1.5 py-0.2 text-[10px] text-muted-foreground font-medium">
+                          <span className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-muted-foreground font-medium">
                             {isVi ? "Tạm ẩn" : "Draft"}
                           </span>
                         )}
                         {product.isFeatured && (
-                          <span className="rounded-md border border-amber/40 bg-amber/10 px-1.5 py-0.2 text-[10px] text-amber font-medium inline-flex items-center gap-0.5">
+                          <span className="rounded-md border border-amber/40 bg-amber/10 px-1.5 py-0.5 text-xs text-amber font-medium inline-flex items-center gap-0.5">
                             <Sparkles className="h-2.5 w-2.5" />
                             <span>{isVi ? "Nổi bật" : "Featured"}</span>
                           </span>
@@ -752,7 +752,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                   </div>
 
                   <span
-                    className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium shrink-0 ${categoryMeta.className}`}
+                    className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium shrink-0 ${categoryMeta.className}`}
                   >
                       {isVi ? categoryMeta.labelVi : categoryMeta.labelEn}
                     </span>
@@ -792,7 +792,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                       </span>
                       <Link
                         href="/admin/inventory"
-                        className="text-muted-foreground hover:text-amber text-[11px] underline underline-offset-2 ml-1"
+                        className="text-muted-foreground hover:text-amber text-xs underline underline-offset-2 ml-1"
                       >
                         {isVi ? "Kho hàng" : "Inventory"}
                       </Link>

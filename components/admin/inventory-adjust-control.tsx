@@ -336,7 +336,7 @@ export function InventoryAdjustControl({
 
                 {/* Quick Presets */}
                 <div className="flex flex-wrap gap-1.5">
-                  <span className="text-[11px] text-muted-foreground self-center mr-1">
+                  <span className="text-xs text-muted-foreground self-center mr-1">
                     {isVi ? "Tăng:" : "Add:"}
                   </span>
                   {[1, 5, 10, 25].map((amt) => (
@@ -356,7 +356,7 @@ export function InventoryAdjustControl({
                     </button>
                   ))}
 
-                  <span className="text-[11px] text-muted-foreground self-center ml-2 mr-1">
+                  <span className="text-xs text-muted-foreground self-center ml-2 mr-1">
                     {isVi ? "Giảm:" : "Deduct:"}
                   </span>
                   {[-1, -5, -10].map((amt) => (
@@ -423,7 +423,7 @@ export function InventoryAdjustControl({
                   </label>
                   <span
                     className={cn(
-                      "text-[11px]",
+                      "text-xs",
                       trimmedReason.length > 255
                         ? "text-destructive font-medium"
                         : trimmedReason.length >= 3

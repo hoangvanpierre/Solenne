@@ -404,54 +404,76 @@ a:visited {
   min-height: 3.25rem;
 }
 
-/* --- Admin Back-Office Typography Scale (~1.5x Multiplier) --- */
+/* --- Admin Back-Office Typography Scale --- */
 .admin-scope {
-  /* Mobile-first baseline (~1.25x - 1.3x to maintain balance on compact mobile screens) */
-  --text-xs: 1.4rem;
-  --text-sm: 1.625rem;
-  --text-base: 1.95rem;
-  --text-lg: 2.25rem;
-  --text-xl: 2.5rem;
-  --text-2xl: 2.95rem;
-  --text-3xl: 3.5rem;
-  --text-4xl: 4.25rem;
-  --text-5xl: 5.5rem;
-  --text-6xl: 7rem;
-  --text-7xl: 8.5rem;
-  --text-8xl: 11rem;
-  --text-9xl: 14rem;
-  font-size: var(--text-base);
+  /* Birthstone Luxury Typography */
+  font-family: var(--font-birthstone), cursive, sans-serif;
+  --font-sans: var(--font-birthstone), cursive, sans-serif;
+  --font-serif: var(--font-birthstone), cursive, serif;
+  --font-script: var(--font-birthstone), cursive;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Scaled 1.5x for Birthstone cursive font clarity */
+  --text-xs: 1.3125rem;         /* 21px (Secondary text, metadata, timestamps, badges, table captions) */
+  --text-xs--line-height: 1.875rem;
+  --text-sm: 1.5rem;            /* 24px (Body text, standard table cells, navigation labels, form controls, buttons) */
+  --text-sm--line-height: 2.25rem;
+  --text-base: 1.6875rem;       /* 27px */
+  --text-base--line-height: 2.4375rem;
+  --text-lg: 1.875rem;          /* 30px */
+  --text-lg--line-height: 2.625rem;
+  --text-xl: 2.0625rem;         /* 33px (Card titles, sub-section headings) */
+  --text-xl--line-height: 2.8125rem;
+  --text-2xl: 2.4375rem;        /* 39px (Section headings, stat numbers) */
+  --text-2xl--line-height: 3.1875rem;
+  --text-3xl: 3rem;             /* 48px (Page titles mobile) */
+  --text-3xl--line-height: 3.75rem;
+  --text-4xl: 3.375rem;         /* 54px (Page titles desktop, major headings) */
+  --text-4xl--line-height: 4.125rem;
+  --text-5xl: 4.125rem;         /* 66px (Hero titles) */
+  --text-5xl--line-height: 4.875rem;
+  --text-6xl: 4.875rem;         /* 78px */
+  --text-6xl--line-height: 5.625rem;
+  --text-7xl: 6rem;
+  --text-7xl--line-height: 6.75rem;
+  --text-8xl: 6.75rem;
+  --text-8xl--line-height: 7.5rem;
+  --text-9xl: 7.5rem;
+  --text-9xl--line-height: 8.25rem;
+
+  font-size: var(--text-sm);    /* Default base font */
 }
 
-/* Tablet & Desktop full 1.5x scaling */
-@media (min-width: 640px) {
-  .admin-scope {
-    --text-xs: 1.6875rem;
-    --text-sm: 1.96875rem;
-    --text-base: 2.25rem;
-    --text-lg: 2.53125rem;
-    --text-xl: 2.8125rem;
-    --text-2xl: 3.375rem;
-    --text-3xl: 4.21875rem;
-    --text-4xl: 5.0625rem;
-    --text-5xl: 6.75rem;
-    --text-6xl: 8.4375rem;
-    --text-7xl: 10.125rem;
-    --text-8xl: 13.5rem;
-    --text-9xl: 18rem;
-  }
+.admin-scope h1,
+.admin-scope h2,
+.admin-scope h3,
+.admin-scope h4 {
+  font-family: inherit;
+  letter-spacing: 0.02em;
+}
+
+/* Enforce minimum on arbitrary tiny font utility classes within admin scope */
+.admin-scope [class*="text-[10px]"],
+.admin-scope [class*="text-[11px]"],
+.admin-scope [class*="text-[12px]"],
+.admin-scope [class*="text-[13px]"] {
+  font-size: var(--text-xs) !important;
+  line-height: var(--text-xs--line-height, 1.875rem) !important;
 }
 
 .admin-scope input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
 .admin-scope select,
 .admin-scope textarea {
-  min-height: 2.875rem;
+  min-height: 3.125rem;
+  font-size: var(--text-sm);
 }
 
 .admin-scope button.rounded-full,
 .admin-scope a.rounded-full[class*="inline-flex"] {
-  min-height: 2.625rem;
+  min-height: 2.875rem;
   height: auto;
-  padding-top: 0.45rem;
-  padding-bottom: 0.45rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }

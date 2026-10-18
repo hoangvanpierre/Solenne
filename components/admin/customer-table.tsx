@@ -289,7 +289,7 @@ export function CustomerTable({
                               )}
                               {c.phone && <span>•</span>}
                               <span
-                                className="font-mono text-[11px] text-muted-foreground/80 truncate max-w-[120px]"
+                                className="font-mono text-xs text-muted-foreground/80 truncate max-w-[120px]"
                                 title={c.id}
                               >
                                 {c.id.slice(0, 8)}…
@@ -323,7 +323,7 @@ export function CustomerTable({
                         )}
                       </td>
 
-                      <td className="py-4 px-6 text-right font-serif font-medium text-foreground whitespace-nowrap">
+                      <td className="py-4 px-6 text-right font-medium text-foreground whitespace-nowrap">
                         {canReadOrders && c.lifetimeSpend !== null
                           ? formatPrice(c.lifetimeSpend)
                           : "—"}
@@ -389,7 +389,7 @@ export function CustomerTable({
 
                   <div className="grid grid-cols-2 gap-3 pt-2 border-t border-border/60 text-xs">
                     <div>
-                      <span className="text-muted-foreground block text-[11px] uppercase tracking-wider">
+                      <span className="text-muted-foreground block text-xs uppercase tracking-wider">
                         {isVi ? "Đơn hàng" : "Orders"}
                       </span>
                       <span className="font-medium text-foreground mt-0.5 inline-block">
@@ -411,10 +411,10 @@ export function CustomerTable({
                     </div>
 
                     <div className="text-right">
-                      <span className="text-muted-foreground block text-[11px] uppercase tracking-wider">
+                      <span className="text-muted-foreground block text-xs uppercase tracking-wider">
                         {isVi ? "Tổng chi tiêu" : "Spend"}
                       </span>
-                      <span className="font-serif font-medium text-foreground mt-0.5 inline-block">
+                      <span className="font-medium text-foreground mt-0.5 inline-block">
                         {canReadOrders && c.lifetimeSpend !== null ? (
                           formatPrice(c.lifetimeSpend)
                         ) : (
@@ -426,7 +426,7 @@ export function CustomerTable({
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-border/60 text-[11px] text-muted-foreground">
+                  <div className="flex items-center justify-between pt-2 border-t border-border/60 text-xs text-muted-foreground">
                     <span>
                       {isVi ? "Gia nhập: " : "Joined: "}
                       {formatDate(c.createdAt)}

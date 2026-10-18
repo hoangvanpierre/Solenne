@@ -58,7 +58,7 @@ export default async function AdminPage() {
           <ShieldCheck className="w-3.5 h-3.5" />
           <span>{badgeLabel}</span>
         </div>
-        <h1 className="font-serif text-4xl md:text-5xl font-semibold text-foreground">
+        <h1 className="font-serif text-3xl md:text-4xl font-semibold text-foreground">
           {title}
         </h1>
         <p className="text-lg text-muted-foreground">

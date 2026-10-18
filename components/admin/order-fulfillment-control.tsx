@@ -273,7 +273,7 @@ export function OrderFulfillmentControl({
             <button
               type="button"
               onClick={handleCopyTracking}
-              className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
               aria-label={isVi ? "Sao chép mã vận đơn" : "Copy tracking code"}
             >
               {copied ? (
@@ -389,7 +389,7 @@ export function OrderFulfillmentControl({
                     {isVi ? "Mã vận đơn" : "Tracking Code"}
                     <span className="text-destructive ml-1">*</span>
                   </label>
-                  <span className="text-muted-foreground text-[11px]">
+                  <span className="text-muted-foreground text-xs">
                     {trackingInput.trim().length}/100
                   </span>
                 </div>
@@ -586,7 +586,7 @@ export function OrderFulfillmentControl({
                     {isVi ? "Lý do chuyển lùi" : "Rollback Reason"}
                     <span className="text-destructive ml-1">*</span>
                   </label>
-                  <span className="text-muted-foreground text-[11px]">
+                  <span className="text-muted-foreground text-xs">
                     {rollbackReason.trim().length}/500
                   </span>
                 </div>

@@ -179,7 +179,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
           <div className="mt-2 font-mono text-2xl font-bold text-foreground">
             {metrics.total}
           </div>
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-xs text-muted-foreground">
             {isVi ? "Toàn bộ danh mục" : "All catalog variants"}
           </span>
         </button>
@@ -207,7 +207,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
           <div className="mt-2 font-mono text-2xl font-bold text-foreground">
             {metrics.healthy}
           </div>
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-xs text-muted-foreground">
             {isVi ? "Tồn kho an toàn" : "Healthy inventory levels"}
           </span>
         </button>
@@ -235,7 +235,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
           <div className="mt-2 font-mono text-2xl font-bold text-foreground">
             {metrics.lowStock}
           </div>
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-xs text-muted-foreground">
             {isVi ? "Cần lên kế hoạch nhập" : "Needs replenishment"}
           </span>
         </button>
@@ -263,7 +263,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
           <div className="mt-2 font-mono text-2xl font-bold text-foreground">
             {metrics.outOfStock}
           </div>
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-xs text-muted-foreground">
             {isVi ? "Không thể đặt hàng" : "Unavailable for purchase"}
           </span>
         </button>
@@ -383,7 +383,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
           </span>
 
           {hasActiveFilters && (
-            <span className="text-[11px] text-amber font-medium">
+            <span className="text-xs text-amber font-medium">
               {isVi ? "Bộ lọc đang kích hoạt" : "Filters active"}
             </span>
           )}
@@ -481,19 +481,19 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
                               </Link>
                             )}
                             {!item.isProductActive && (
-                              <span className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground font-medium">
+                              <span className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-muted-foreground font-medium">
                                 {isVi ? "Ẩn" : "Draft"}
                               </span>
                             )}
                           </div>
 
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <span className="font-serif italic text-foreground/80">
+                            <span className="font-medium text-foreground/90">
                               {item.name}
                             </span>
                             {item.size && <span>· {item.size}</span>}
                             {item.sku && (
-                              <span className="font-mono text-[11px] text-muted-foreground bg-muted/40 px-1.5 py-0.5 rounded">
+                              <span className="font-mono text-xs text-muted-foreground bg-muted/40 px-1.5 py-0.5 rounded">
                                 {item.sku}
                               </span>
                             )}
@@ -567,13 +567,13 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
                           {item.productName}
                         </h4>
                         {!item.isProductActive && (
-                          <span className="rounded-md border border-border bg-muted px-1.5 py-0.2 text-[10px] text-muted-foreground font-medium">
+                          <span className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-muted-foreground font-medium">
                             {isVi ? "Ẩn" : "Draft"}
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <span className="font-serif italic text-foreground/80">
+                        <span className="font-medium text-foreground/90">
                           {item.name}
                         </span>
                         {item.size && <span>· {item.size}</span>}
@@ -581,7 +581,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
                     </div>
 
                     <span
-                      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium shrink-0 ${categoryMeta.className}`}
+                      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium shrink-0 ${categoryMeta.className}`}
                     >
                       {isVi ? categoryMeta.labelVi : categoryMeta.labelEn}
                     </span>

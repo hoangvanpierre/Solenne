@@ -456,7 +456,7 @@ export function CustomerStatusControl({
                 {isVi ? "Lý do thay đổi trạng thái" : "Reason for status change"}
                 <span className="text-destructive ml-1">*</span>
               </label>
-              <span className="text-[11px] text-muted-foreground font-mono">
+              <span className="text-xs text-muted-foreground font-mono">
                 {reason.trim().length}/255
               </span>
             </div>
@@ -487,7 +487,7 @@ export function CustomerStatusControl({
               }
               className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
             />
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {isVi
                 ? "Tối thiểu 5 ký tự, tối đa 255 ký tự. Được lưu trữ bảo mật trong nhật ký kiểm toán."
                 : "Between 5 and 255 characters. Recorded securely in the audit log."}

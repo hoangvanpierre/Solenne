@@ -370,7 +370,7 @@ export default async function AdminOrdersPage() {
 
                   <div className="flex items-center justify-between border-t border-border/60 pt-2.5">
                     <div>
-                      <div className="text-[11px] text-muted-foreground">
+                      <div className="text-xs text-muted-foreground">
                         {itemCount}{" "}
                         {isVi
                           ? "tác phẩm"

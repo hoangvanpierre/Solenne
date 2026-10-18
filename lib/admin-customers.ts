@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { requirePermission } from "@/lib/authz";
 import { isValidUuid } from "@/lib/audit-utils";
 import type {
@@ -49,6 +50,7 @@ interface PurchaseMetricsRpcRow {
 export interface AdminCustomerDetail {
   id: string;
   fullName: string | null;
+  email: string | null;
   phone: string | null;
   avatarUrl: string | null;
   status: AccountStatus;
@@ -341,7 +343,28 @@ export async function getAdminCustomerById(
   // Case C — Successful query, matching row: proceed with profile mapping
   const profile = profileData as unknown as ProfileRow;
 
-  // 3. Compute customer metrics via bounded database aggregation RPC if actor has order.read
+  // 3. Retrieve single customer email via Auth Admin API after customer.read check
+  let email: string | null = null;
+  try {
+    const admin = createAdminClient();
+    const { data: authUser, error: authError } =
+      await admin.auth.admin.getUserById(customerId);
+    if (!authError && authUser?.user?.email) {
+      email = authUser.user.email;
+    } else if (authError) {
+      console.warn(
+        "getAdminCustomerById: Auth user lookup warning:",
+        authError.message
+      );
+    }
+  } catch (authErr) {
+    console.warn(
+      "getAdminCustomerById: Auth user lookup exception:",
+      authErr instanceof Error ? authErr.message : authErr
+    );
+  }
+
+  // 4. Compute customer metrics via bounded database aggregation RPC if actor has order.read
   let orderCount: number | null = null;
   let lifetimeSpend: number | null = null;
 
@@ -374,6 +397,7 @@ export async function getAdminCustomerById(
   return {
     id: profile.id,
     fullName: profile.full_name,
+    email,
     phone: profile.phone,
     avatarUrl: profile.avatar_url,
     status: profile.status as AccountStatus,

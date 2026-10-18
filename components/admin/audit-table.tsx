@@ -483,7 +483,7 @@ export function AuditTable({
           {/* Active Filter Indicator */}
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             {hasActiveFilters && (
-              <span className="inline-flex items-center gap-1 rounded-full border border-amber/30 bg-amber/10 px-2.5 py-0.5 text-[11px] font-medium text-amber">
+              <span className="inline-flex items-center gap-1 rounded-full border border-amber/30 bg-amber/10 px-2.5 py-0.5 text-xs font-medium text-amber">
                 <Filter className="h-3 w-3" />
                 <span>{isVi ? "Bộ lọc đang kích hoạt" : "Filters active"}</span>
               </span>
@@ -612,7 +612,7 @@ export function AuditTable({
                           {/* Expanded Metadata Disclosure */}
                           {isExpanded && (
                             <div className="mt-3 rounded-xl border border-border/60 bg-muted/20 p-3 space-y-2">
-                              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                                 {isVi ? "Siêu dữ liệu được phê duyệt" : "Approved Metadata"}
                               </span>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
@@ -621,7 +621,7 @@ export function AuditTable({
                                     key={key}
                                     className="flex flex-col bg-background/60 p-2 rounded-lg border border-border/40"
                                   >
-                                    <span className="text-[10px] text-muted-foreground uppercase">
+                                    <span className="text-xs text-muted-foreground uppercase">
                                       {key}
                                     </span>
                                     <span
@@ -693,7 +693,7 @@ export function AuditTable({
                       {log.action}
                     </span>
                     <span
-                      className="inline-flex items-center gap-1 font-mono text-[11px] text-muted-foreground"
+                      className="inline-flex items-center gap-1 font-mono text-xs text-muted-foreground"
                       title={log.createdAt}
                     >
                       <Clock className="h-3 w-3 opacity-60" />
@@ -709,13 +709,13 @@ export function AuditTable({
                   {/* Actor and Target Details */}
                   <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-border/40">
                     <div>
-                      <span className="text-[10px] uppercase text-muted-foreground block">
+                      <span className="text-xs uppercase text-muted-foreground block">
                         {isVi ? "Người thực hiện" : "Actor"}
                       </span>
                       <div className="mt-0.5">{renderActor(log)}</div>
                     </div>
                     <div>
-                      <span className="text-[10px] uppercase text-muted-foreground block">
+                      <span className="text-xs uppercase text-muted-foreground block">
                         {isVi ? "Đối tượng" : "Target"}
                       </span>
                       <div className="mt-0.5">{renderTargetEntity(log)}</div>
@@ -751,7 +751,7 @@ export function AuditTable({
 
                       {isExpanded && (
                         <div className="mt-2.5 rounded-xl border border-border/60 bg-muted/20 p-3 space-y-2">
-                          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                             {isVi ? "Siêu dữ liệu được phê duyệt" : "Approved Metadata"}
                           </span>
                           <div className="space-y-1.5 text-xs font-mono">
@@ -760,7 +760,7 @@ export function AuditTable({
                                 key={key}
                                 className="flex flex-col bg-background/60 p-2 rounded-lg border border-border/40"
                               >
-                                <span className="text-[10px] text-muted-foreground uppercase">
+                                <span className="text-xs text-muted-foreground uppercase">
                                   {key}
                                 </span>
                                 <span

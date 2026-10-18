@@ -59,20 +59,24 @@ export const FOOTER_LINKS = {
 export const SOCIAL_LINKS = [
   {
     label: "Instagram",
-    href: "https://instagram.com/solenne",
+    href: "https://www.instagram.com/w.vennn/",
     icon: "instagram",
   },
   {
     label: "Facebook",
-    href: "https://facebook.com/solenne",
+    href: "https://www.facebook.com/to.van.374",
     icon: "facebook",
   },
   {
     label: "Pinterest",
-    href: "https://pinterest.com/solenne",
+    href: "https://pin.it/2KLHbLCl4",
     icon: "pinterest",
   },
-  { label: "TikTok", href: "https://tiktok.com/@solenne", icon: "tiktok" },
+  {
+    label: "TikTok",
+    href: "https://www.tiktok.com/@imabigpig4",
+    icon: "tiktok",
+  },
 ] as const;
 
 // --- Currency Configuration ---

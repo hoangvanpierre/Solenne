@@ -10,6 +10,7 @@ import { useSamePageReload } from "@/hooks/use-same-page-reload";
 import { NAV_LINKS, SOCIAL_LINKS } from "@/lib/constants";
 import { CurrencyToggle } from "@/components/layout/currency-toggle";
 import { LocaleToggle } from "@/components/layout/locale-toggle";
+import { BrandLogo } from "@/components/layout/brand-logo";
 
 export function MobileNav() {
   const isOpen = useUIStore((s) => s.isMobileNavOpen);
@@ -47,7 +48,13 @@ export function MobileNav() {
             <div className="flex h-full flex-col px-8 py-6">
               {/* Header */}
               <div className="flex items-center justify-between mb-12">
-                <span className="font-serif text-2xl font-bold">Solenne</span>
+                <BrandLogo
+                  href="/"
+                  onBeforeReload={closeMobileNav}
+                  className="font-serif text-xl sm:text-2xl font-normal tracking-[0.04em] text-foreground hover:opacity-90 transition-opacity"
+                >
+                  Solenne
+                </BrandLogo>
                 <button
                   onClick={closeMobileNav}
                   className="p-2 hover:bg-muted rounded-full transition-colors"
@@ -75,7 +82,7 @@ export function MobileNav() {
                         closeMobileNav();
                         handleNavClick(event, link.href);
                       }}
-                      className="block py-3 font-serif text-3xl font-medium text-foreground hover:text-primary transition-colors"
+                      className="block py-2.5 font-serif text-lg sm:text-xl font-normal leading-relaxed text-foreground hover:text-primary transition-colors"
                     >
                       {locale === "vi" ? link.labelVi : link.label}
                     </Link>

@@ -169,17 +169,17 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <span className="text-[10.5px] font-normal text-muted-foreground uppercase tracking-wider">
               {isVi ? "Tổng phiên bản" : "Total Variants"}
             </span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-muted-foreground">
               <Boxes className="h-4 w-4" />
             </div>
           </div>
-          <div className="mt-2 font-mono text-2xl font-bold text-foreground">
+          <div className="mt-2 tabular-nums text-2xl font-normal text-foreground">
             {metrics.total}
           </div>
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-xs font-normal text-muted-foreground">
             {isVi ? "Toàn bộ danh mục" : "All catalog variants"}
           </span>
         </button>
@@ -197,17 +197,17 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-sage uppercase tracking-wider">
+            <span className="text-[10.5px] font-normal text-sage uppercase tracking-wider">
               {isVi ? "Dồi dào (>10)" : "In Stock (>10)"}
             </span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-sage/15 text-sage">
               <CheckCircle2 className="h-4 w-4" />
             </div>
           </div>
-          <div className="mt-2 font-mono text-2xl font-bold text-foreground">
+          <div className="mt-2 tabular-nums text-2xl font-normal text-foreground">
             {metrics.healthy}
           </div>
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-xs font-normal text-muted-foreground">
             {isVi ? "Tồn kho an toàn" : "Healthy inventory levels"}
           </span>
         </button>
@@ -225,17 +225,17 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-amber uppercase tracking-wider">
+            <span className="text-[10.5px] font-normal text-amber uppercase tracking-wider">
               {isVi ? `Sắp hết (≤${LOW_STOCK_THRESHOLD})` : `Low Stock (≤${LOW_STOCK_THRESHOLD})`}
             </span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber/15 text-amber">
               <AlertTriangle className="h-4 w-4" />
             </div>
           </div>
-          <div className="mt-2 font-mono text-2xl font-bold text-foreground">
+          <div className="mt-2 tabular-nums text-2xl font-normal text-foreground">
             {metrics.lowStock}
           </div>
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-xs font-normal text-muted-foreground">
             {isVi ? "Cần lên kế hoạch nhập" : "Needs replenishment"}
           </span>
         </button>
@@ -253,17 +253,17 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-destructive uppercase tracking-wider">
+            <span className="text-[10.5px] font-normal text-destructive uppercase tracking-wider">
               {isVi ? "Hết hàng (0)" : "Out of Stock (0)"}
             </span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-destructive/15 text-destructive">
               <AlertOctagon className="h-4 w-4" />
             </div>
           </div>
-          <div className="mt-2 font-mono text-2xl font-bold text-foreground">
+          <div className="mt-2 tabular-nums text-2xl font-normal text-foreground">
             {metrics.outOfStock}
           </div>
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-xs font-normal text-muted-foreground">
             {isVi ? "Không thể đặt hàng" : "Unavailable for purchase"}
           </span>
         </button>
@@ -284,7 +284,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
                   ? "Tìm kiếm theo tên sản phẩm, phiên bản hoặc SKU..."
                   : "Search by product name, variant, or SKU..."
               }
-              className="w-full rounded-xl border border-border bg-background pl-9 pr-9 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              className="w-full rounded-xl border border-border bg-background pl-9 pr-9 py-2 text-[13px] font-normal text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
             />
             {searchQuery && (
               <button
@@ -301,7 +301,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
           {/* Quick Filter Controls: Category, Status, Sort */}
           <div className="flex flex-wrap items-center gap-2">
             {/* Category Filter */}
-            <div className="flex items-center gap-1 text-xs">
+            <div className="flex items-center gap-1 text-xs font-normal">
               <span className="text-muted-foreground hidden sm:inline mr-1">
                 {isVi ? "Nhóm hương:" : "Category:"}
               </span>
@@ -310,7 +310,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
                 onChange={(e) =>
                   setCategoryFilter(e.target.value as ScentCategory | "all")
                 }
-                className="rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                className="rounded-xl border border-border bg-background px-3 py-2 text-xs font-normal text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
                 aria-label={isVi ? "Lọc theo nhóm hương" : "Filter by category"}
               >
                 <option value="all">{isVi ? "Tất cả nhóm hương" : "All Categories"}</option>
@@ -322,7 +322,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
             </div>
 
             {/* Status Filter */}
-            <div className="flex items-center gap-1 text-xs">
+            <div className="flex items-center gap-1 text-xs font-normal">
               <span className="text-muted-foreground hidden sm:inline mr-1">
                 {isVi ? "Tồn kho:" : "Stock:"}
               </span>
@@ -331,7 +331,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
                 onChange={(e) =>
                   setStatusFilter(e.target.value as StockStatus | "all")
                 }
-                className="rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                className="rounded-xl border border-border bg-background px-3 py-2 text-xs font-normal text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
                 aria-label={isVi ? "Lọc theo trạng thái tồn kho" : "Filter by stock status"}
               >
                 <option value="all">{isVi ? "Tất cả trạng thái" : "All Stock"}</option>
@@ -344,11 +344,11 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
             </div>
 
             {/* Sort Selector */}
-            <div className="flex items-center gap-1 text-xs">
+            <div className="flex items-center gap-1 text-xs font-normal">
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                className="rounded-xl border border-border bg-background px-3 py-2 text-xs font-normal text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
                 aria-label={isVi ? "Sắp xếp danh sách" : "Sort list"}
               >
                 <option value="default">{isVi ? "Mặc định (Mới nhất)" : "Default (Newest)"}</option>
@@ -365,7 +365,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
                 variant="outline"
                 size="sm"
                 onClick={handleResetFilters}
-                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+                className="inline-flex items-center gap-1.5 text-xs font-normal text-muted-foreground hover:text-foreground"
               >
                 <RotateCcw className="h-3 w-3" />
                 <span>{isVi ? "Đặt lại" : "Reset"}</span>
@@ -375,7 +375,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
         </div>
 
         {/* Filter Summary Results */}
-        <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border/40">
+        <div className="flex items-center justify-between text-xs font-normal text-muted-foreground pt-1 border-t border-border/40">
           <span>
             {isVi
               ? `Hiển thị ${filteredItems.length} trên tổng số ${metrics.total} phiên bản`
@@ -383,7 +383,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
           </span>
 
           {hasActiveFilters && (
-            <span className="text-[11px] text-amber font-medium">
+            <span className="text-xs text-amber font-normal">
               {isVi ? "Bộ lọc đang kích hoạt" : "Filters active"}
             </span>
           )}
@@ -396,7 +396,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted/40">
             <Package className="h-6 w-6 text-muted-foreground" />
           </div>
-          <h3 className="mt-4 font-serif text-lg font-medium text-foreground">
+          <h3 className="mt-4 text-lg font-normal text-foreground">
             {metrics.total === 0
               ? isVi
                 ? "Chưa có dữ liệu tồn kho"
@@ -405,7 +405,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
                 ? "Không tìm thấy phiên bản phù hợp"
                 : "No matching variants"}
           </h3>
-          <p className="mt-1 text-xs text-muted-foreground max-w-sm">
+          <p className="mt-1 text-[13.5px] leading-[1.6] font-normal text-muted-foreground max-w-sm">
             {metrics.total === 0
               ? isVi
                 ? "Chưa có phiên bản sản phẩm nào trong hệ thống."
@@ -421,7 +421,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
                 variant="outline"
                 size="sm"
                 onClick={handleResetFilters}
-                className="inline-flex items-center gap-1.5"
+                className="inline-flex items-center gap-1.5 text-xs font-normal"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
                 <span>{isVi ? "Xóa bộ lọc" : "Clear filters"}</span>
@@ -435,20 +435,20 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
           <div className="hidden md:block overflow-x-auto rounded-2xl border border-border bg-card/40">
             <table className="w-full text-left text-sm border-collapse">
               <thead>
-                <tr className="border-b border-border bg-muted/20 text-xs uppercase tracking-wider text-muted-foreground">
-                  <th scope="col" className="py-3.5 px-6 font-medium">
+                <tr className="border-b border-border bg-muted/20 text-[11px] font-normal uppercase tracking-wider text-muted-foreground">
+                  <th scope="col" className="py-3.5 px-6 font-normal">
                     {isVi ? "Tác phẩm & Phiên bản" : "Product & Variant"}
                   </th>
-                  <th scope="col" className="py-3.5 px-4 font-medium">
+                  <th scope="col" className="py-3.5 px-4 font-normal">
                     {isVi ? "Nhóm hương" : "Category"}
                   </th>
-                  <th scope="col" className="py-3.5 px-4 font-medium">
+                  <th scope="col" className="py-3.5 px-4 font-normal">
                     {isVi ? "Đơn giá" : "Price"}
                   </th>
-                  <th scope="col" className="py-3.5 px-6 font-medium">
+                  <th scope="col" className="py-3.5 px-6 font-normal">
                     {isVi ? "Tồn kho" : "Stock Quantity"}
                   </th>
-                  <th scope="col" className="py-3.5 px-6 text-right font-medium">
+                  <th scope="col" className="py-3.5 px-6 text-right font-normal">
                     {isVi ? "Thao tác" : "Actions"}
                   </th>
                 </tr>
@@ -466,7 +466,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
                       <td className="py-4 px-6">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <span className="font-medium text-foreground">
+                            <span className="font-normal text-[13.5px] text-foreground">
                               {item.productName}
                             </span>
                             {item.productSlug && (
@@ -481,19 +481,19 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
                               </Link>
                             )}
                             {!item.isProductActive && (
-                              <span className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground font-medium">
+                              <span className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground font-normal">
                                 {isVi ? "Ẩn" : "Draft"}
                               </span>
                             )}
                           </div>
 
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <span className="font-serif italic text-foreground/80">
+                            <span className="font-normal text-foreground/90">
                               {item.name}
                             </span>
                             {item.size && <span>· {item.size}</span>}
                             {item.sku && (
-                              <span className="font-mono text-[11px] text-muted-foreground bg-muted/40 px-1.5 py-0.5 rounded">
+                              <span className="tabular-nums font-normal text-xs text-muted-foreground bg-muted/40 px-1.5 py-0.5 rounded">
                                 {item.sku}
                               </span>
                             )}
@@ -504,21 +504,21 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
                       {/* Category */}
                       <td className="py-4 px-4 whitespace-nowrap">
                         <span
-                          className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${categoryMeta.className}`}
+                          className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-normal ${categoryMeta.className}`}
                         >
                           {isVi ? categoryMeta.labelVi : categoryMeta.labelEn}
                         </span>
                       </td>
 
                       {/* Price */}
-                      <td className="py-4 px-4 font-mono text-xs font-semibold text-foreground whitespace-nowrap">
+                      <td className="py-4 px-4 tabular-nums text-[13px] font-normal text-foreground whitespace-nowrap">
                         {formatPrice(item.price)}
                       </td>
 
                       {/* Stock Quantity & Badge */}
                       <td className="py-4 px-6 whitespace-nowrap">
                         <div className="flex items-center gap-3">
-                          <span className="font-mono text-sm font-bold text-foreground min-w-[2.5rem]">
+                          <span className="tabular-nums text-[13.5px] font-normal text-foreground min-w-[2.5rem]">
                             {item.stockQuantity}
                           </span>
                           <StockStatusBadge
@@ -563,17 +563,17 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
                   <div className="flex items-start justify-between gap-2">
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-1.5">
-                        <h4 className="font-medium text-sm text-foreground">
+                        <h4 className="font-normal text-sm text-foreground">
                           {item.productName}
                         </h4>
                         {!item.isProductActive && (
-                          <span className="rounded-md border border-border bg-muted px-1.5 py-0.2 text-[10px] text-muted-foreground font-medium">
+                          <span className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground font-normal">
                             {isVi ? "Ẩn" : "Draft"}
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <span className="font-serif italic text-foreground/80">
+                        <span className="font-normal text-foreground/90">
                           {item.name}
                         </span>
                         {item.size && <span>· {item.size}</span>}
@@ -581,7 +581,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
                     </div>
 
                     <span
-                      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium shrink-0 ${categoryMeta.className}`}
+                      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-normal shrink-0 ${categoryMeta.className}`}
                     >
                       {isVi ? categoryMeta.labelVi : categoryMeta.labelEn}
                     </span>
@@ -589,10 +589,10 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
 
                   {/* SKU and Price */}
                   <div className="flex items-center justify-between text-xs border-t border-border/50 pt-2">
-                    <div className="font-mono text-muted-foreground">
+                    <div className="tabular-nums font-normal text-muted-foreground">
                       {item.sku ? item.sku : "—"}
                     </div>
-                    <div className="font-mono font-semibold text-foreground">
+                    <div className="tabular-nums font-normal text-xs text-foreground">
                       {formatPrice(item.price)}
                     </div>
                   </div>
@@ -600,7 +600,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
                   {/* Stock and Adjustment */}
                   <div className="flex items-center justify-between border-t border-border/50 pt-3">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-base font-bold text-foreground">
+                      <span className="tabular-nums text-sm font-normal text-foreground">
                         {item.stockQuantity}
                       </span>
                       <StockStatusBadge

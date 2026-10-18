@@ -47,7 +47,7 @@ export function Hero() {
         className="relative z-10 flex flex-col items-center text-center px-4"
       >
         {/* Top label */}
-        <p className="mb-6 text-xs tracking-[0.3em] uppercase text-cream/60 animate-fade-in">
+        <p className="mb-4 text-[10.5px] sm:text-[11px] tracking-[0.16em] uppercase text-warm-black/90 dark:text-cream/90 font-normal animate-fade-in max-w-xl">
           {t("subtitle")}
         </p>
 
@@ -55,7 +55,7 @@ export function Hero() {
         <TextReveal
           text="Solenne"
           as="h1"
-          className="font-serif text-7xl md:text-8xl lg:text-9xl font-bold text-cream mb-4 animate-fade-up"
+          className="font-serif text-[clamp(2.85rem,5.5vw,4.75rem)] leading-[1.06] tracking-[-0.015em] font-normal text-cream mb-4 animate-fade-up drop-shadow-sm"
           splitBy="character"
           priority
         />
@@ -64,7 +64,7 @@ export function Hero() {
         <TextReveal
           text={t("title")}
           as="p"
-          className="text-xl md:text-2xl text-cream/70 font-light mb-10 max-w-md animate-fade-up"
+          className="text-[15px] sm:text-[16.5px] md:text-[18px] text-cream/90 font-normal leading-[1.65] mb-8 max-w-xl text-balance animate-fade-up drop-shadow-xs"
           splitBy="word"
           priority
         />
@@ -74,12 +74,11 @@ export function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex flex-col sm:flex-row gap-4"
+          className="flex flex-col sm:flex-row gap-3 sm:gap-4"
         >
           <MagneticButton>
             <Button
-              size="lg"
-              className="bg-cream text-warm-black hover:bg-cream/90 px-8"
+              className="bg-cream text-warm-black hover:bg-cream/90 px-6 py-2.5 sm:px-7 sm:py-3 text-[12.5px] sm:text-[13px] font-normal tracking-[0.04em] shadow-md rounded-full h-auto"
               asChild
             >
               <Link href="/products">{tCommon("shopNow")}</Link>
@@ -88,9 +87,8 @@ export function Hero() {
 
           <MagneticButton>
             <Button
-              size="lg"
               variant="outline"
-              className="border-cream/30 text-cream hover:bg-cream/10 px-8"
+              className="bg-white/20 backdrop-blur-xs border-white/60 text-cream hover:bg-white/30 px-6 py-2.5 sm:px-7 sm:py-3 text-[12.5px] sm:text-[13px] font-normal tracking-[0.04em] shadow-sm rounded-full h-auto transform-gpu"
               asChild
             >
               <Link href="/about">{tCommon("readMore")}</Link>
@@ -104,16 +102,16 @@ export function Hero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 2 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5"
       >
-        <span className="text-xs tracking-widest uppercase text-cream/40">
+        <span className="text-[10px] tracking-[0.18em] uppercase text-cream/70 font-normal">
           {t("scroll")}
         </span>
         <motion.div
-          animate={{ y: [0, 8, 0] }}
+          animate={{ y: [0, 6, 0] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         >
-          <ArrowDown className="h-4 w-4 text-cream/40" />
+          <ArrowDown className="h-3.5 w-3.5 text-cream/70" />
         </motion.div>
       </motion.div>
     </section>

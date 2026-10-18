@@ -75,11 +75,11 @@ export default async function FaqPage() {
   return (
     <div className="py-24 lg:py-32">
       <Container className="max-w-3xl">
-        <div className="mb-16">
-          <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-4 text-foreground">
+        <div className="mb-14">
+          <h1 className="font-serif text-2xl sm:text-3xl font-normal leading-[1.22] mb-3 text-foreground tracking-[0.02em]">
             {isVi ? "Những Câu Hỏi Thường Gặp" : "Frequently Asked Questions"}
           </h1>
-          <p className="text-muted-foreground text-lg leading-relaxed">
+          <p className="text-muted-foreground text-sm sm:text-base leading-relaxed font-normal">
             {isVi ? (
               <>
                 Những điều khách quý thường băn khoăn khi tìm đến Solenne. Chưa
@@ -111,13 +111,13 @@ export default async function FaqPage() {
         <div className="divide-y divide-border">
           {faqs.map((faq) => (
             <details key={faq.question} className="group py-5">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium text-foreground [&::-webkit-details-marker]:hidden">
-                <span className="font-serif text-lg">{faq.question}</span>
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-normal text-foreground [&::-webkit-details-marker]:hidden">
+                <span className="font-serif text-base sm:text-[17px] font-normal leading-[1.35]">{faq.question}</span>
                 <span className="text-xl text-muted-foreground transition-transform group-open:rotate-45">
                   +
                 </span>
               </summary>
-              <p className="mt-3 text-muted-foreground leading-relaxed">
+              <p className="mt-3 text-[14px] sm:text-[14.5px] text-muted-foreground leading-[1.7] font-normal">
                 {faq.answer}
               </p>
             </details>

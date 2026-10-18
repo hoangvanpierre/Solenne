@@ -43,6 +43,9 @@ export function SmoothScroll({ children }: SmoothScrollProps) {
 
     lenisRef.current = lenis;
     activeLenis = lenis;
+    if (typeof window !== "undefined") {
+      (window as unknown as { __lenis?: Lenis | null }).__lenis = lenis;
+    }
 
     // Official Lenis <-> GSAP ScrollTrigger integration: drive the raf loop
     // from the gsap ticker and keep ScrollTrigger in sync with Lenis scrolls.
@@ -57,6 +60,9 @@ export function SmoothScroll({ children }: SmoothScrollProps) {
       lenis.destroy();
       lenisRef.current = null;
       activeLenis = null;
+      if (typeof window !== "undefined") {
+        (window as unknown as { __lenis?: Lenis | null }).__lenis = null;
+      }
     };
   }, []);
 

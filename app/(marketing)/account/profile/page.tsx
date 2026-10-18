@@ -35,7 +35,7 @@ export default async function ProfilePage() {
       <Container className="max-w-2xl">
         <nav
           aria-label="Breadcrumb"
-          className="mb-8 text-sm text-muted-foreground"
+          className="mb-8 text-[13px] text-muted-foreground font-normal"
         >
           <Link
             href="/account"
@@ -47,10 +47,10 @@ export default async function ProfilePage() {
         </nav>
 
         <div className="mb-10">
-          <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-4 text-foreground">
+          <h1 className="font-serif text-2xl sm:text-3xl font-normal leading-[1.22] mb-3 text-foreground tracking-[0.02em]">
             {isVi ? "Hồ Sơ Bản Sắc" : "Manage Profile"}
           </h1>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed font-normal">
             {isVi
               ? "Thông tin để Nhà hương trân trọng đón tiếp và liên hệ với quý khách."
               : "The details we use to greet you and reach you."}
@@ -58,11 +58,11 @@ export default async function ProfilePage() {
         </div>
 
         <div className="mb-8 border-t border-border pt-8">
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+          <p className="text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground font-normal">
             {isVi ? "Thư điện tử" : "Email"}
           </p>
-          <p className="mt-2 text-base text-foreground">{user.email}</p>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1.5 text-[14px] sm:text-[14.5px] text-foreground font-normal">{user.email}</p>
+          <p className="mt-1 text-[12.5px] sm:text-[13px] text-muted-foreground font-normal">
             {isVi
               ? "Địa chỉ email dùng để đăng nhập và không thể thay đổi tại đây."
               : "Your email is your sign-in and cannot be changed here."}

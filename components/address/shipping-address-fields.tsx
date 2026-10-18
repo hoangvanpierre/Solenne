@@ -226,7 +226,7 @@ export function ShippingAddressFields({
     <div className={className}>
       {/* Country Selection (Pill Toggle) */}
       <div className="space-y-2 mb-6">
-        <label className="text-xs font-medium uppercase tracking-wider text-foreground/80">
+        <label className="text-[10.5px] font-normal uppercase tracking-wider text-foreground/80">
           {isVi ? "Quốc gia điểm đến" : "Destination Country"} <span className="text-amber">*</span>
         </label>
         <div className="grid grid-cols-2 gap-3 p-1 rounded-xl bg-muted/30 border border-border/70">
@@ -238,14 +238,14 @@ export function ShippingAddressFields({
                 type="button"
                 disabled={disabled}
                 onClick={() => handleCountryChange(c.code)}
-                className={`py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 ${
+                className={`py-2 px-3 sm:px-4 rounded-lg text-[13px] font-normal transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 ${
                   isSelected
                     ? "bg-background text-foreground shadow-sm border border-border/60"
                     : "text-muted-foreground hover:text-foreground hover:bg-background/40"
                 }`}
               >
                 <span>{isVi ? c.nameVi : c.name}</span>
-                <span className="text-[10px] font-mono opacity-60 uppercase">({c.code})</span>
+                <span className="text-[10px] font-normal opacity-60 uppercase tabular-nums">({c.code})</span>
               </button>
             );
           })}
@@ -373,7 +373,7 @@ export function ShippingAddressFields({
                 disabled={disabled}
                 required
               />
-              <p className="text-[11px] text-muted-foreground mt-1">
+              <p className="text-[11px] text-muted-foreground mt-1 font-normal">
                 {isVi
                   ? "Tự động điền theo Tỉnh / Thành phố đã chọn, quý khách có thể tùy chỉnh nếu cần."
                   : "Pre-filled according to selected province, editable if necessary."}

@@ -39,7 +39,7 @@ export function OrderStatusBadge({ status, locale = "en", className }: OrderStat
   return (
     <span
       className={cn(
-        "rounded-full border px-2.5 py-1 text-xs font-medium uppercase tracking-wider",
+        "rounded-full border px-2.5 py-0.5 text-[11px] font-normal uppercase tracking-wider",
         STATUS_STYLES[status] ?? STATUS_STYLES.pending,
         className
       )}

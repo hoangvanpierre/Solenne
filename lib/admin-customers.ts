@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { requirePermission } from "@/lib/authz";
 import { isValidUuid } from "@/lib/audit-utils";
 import type {
@@ -49,6 +50,7 @@ interface PurchaseMetricsRpcRow {
 export interface AdminCustomerDetail {
   id: string;
   fullName: string | null;
+  email: string | null;
   phone: string | null;
   avatarUrl: string | null;
   status: AccountStatus;
@@ -341,7 +343,28 @@ export async function getAdminCustomerById(
   // Case C — Successful query, matching row: proceed with profile mapping
   const profile = profileData as unknown as ProfileRow;
 
-  // 3. Compute customer metrics via bounded database aggregation RPC if actor has order.read
+  // 3. Retrieve single customer email via Auth Admin API after customer.read check
+  let email: string | null = null;
+  try {
+    const admin = createAdminClient();
+    const { data: authUser, error: authError } =
+      await admin.auth.admin.getUserById(customerId);
+    if (!authError && authUser?.user?.email) {
+      email = authUser.user.email;
+    } else if (authError) {
+      console.warn(
+        "getAdminCustomerById: Auth user lookup warning:",
+        authError.message
+      );
+    }
+  } catch (authErr) {
+    console.warn(
+      "getAdminCustomerById: Auth user lookup exception:",
+      authErr instanceof Error ? authErr.message : authErr
+    );
+  }
+
+  // 4. Compute customer metrics via bounded database aggregation RPC if actor has order.read
   let orderCount: number | null = null;
   let lifetimeSpend: number | null = null;
 
@@ -374,6 +397,7 @@ export async function getAdminCustomerById(
   return {
     id: profile.id,
     fullName: profile.full_name,
+    email,
     phone: profile.phone,
     avatarUrl: profile.avatar_url,
     status: profile.status as AccountStatus,
@@ -403,6 +427,45 @@ export async function manageCustomerStatus(
   const { data, error } = await supabase.rpc("manage_customer_status", {
     p_customer_id: customerId,
     p_target_status: targetStatus,
+    p_reason: reason.trim(),
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  const result = data as {
+    success: boolean;
+    customer_id: string;
+    old_status: AccountStatus;
+    new_status: AccountStatus;
+  };
+
+  return {
+    success: result.success,
+    customerId: result.customer_id,
+    oldStatus: result.old_status,
+    newStatus: result.new_status,
+  };
+}
+
+/**
+ * Reinstates a banned customer's account using the dedicated atomic database RPC.
+ * Invoked on the user-scoped client under staff.manage authorization.
+ */
+export async function reinstateCustomer(
+  customerId: string,
+  reason: string
+): Promise<{
+  success: boolean;
+  customerId: string;
+  oldStatus: AccountStatus;
+  newStatus: AccountStatus;
+}> {
+  await requirePermission("staff.manage");
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("reinstate_banned_customer", {
+    p_customer_id: customerId,
     p_reason: reason.trim(),
   });
 

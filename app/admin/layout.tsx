@@ -16,6 +16,7 @@ import { CONTACT_EMAIL } from "@/lib/constants";
 import { MANAGEMENT_PERMISSIONS } from "@/lib/redirect";
 import { Button } from "@/components/ui";
 import { RestrictedAccountNotice } from "@/components/account";
+import { AdminBrandLogo } from "@/components/admin";
 
 // Server Component boundary for the management area. Lives outside the
 // (marketing) layout (no storefront Navbar/Footer/SmoothScroll) but inside
@@ -128,23 +129,13 @@ export default async function AdminLayout({
     <div className="flex-1 min-w-0 admin-scope">
       <header className="border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex min-h-16 sm:min-h-20 max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-          <Link
-            href="/admin"
-            className="group flex items-center gap-2.5 sm:gap-3 transition-opacity hover:opacity-90"
-          >
-            <span className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-              Solenne
-            </span>
-            <span className="inline-flex items-center rounded-md border border-border/80 bg-muted/60 px-2 py-0.5 sm:px-2.5 sm:py-1 text-[11px] sm:text-[12px] font-medium uppercase tracking-[0.2em] text-muted-foreground shadow-xs [font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif]">
-              {isVi ? "Quản trị" : "Administration"}
-            </span>
-          </Link>
+          <AdminBrandLogo isVi={isVi} />
 
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-[12px] sm:text-[13px] font-medium uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground [font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif]"
+            className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground"
           >
-            <ArrowLeft className="h-3.5 w-3.5" />
+            <ArrowLeft className="h-4 w-4" />
             <span>{isVi ? "Về tiệm" : "Return to boutique"}</span>
           </Link>
         </div>

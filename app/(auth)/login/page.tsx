@@ -30,7 +30,7 @@ function LoginForm() {
     <div className="space-y-8">
       {/* Header */}
       <div className="space-y-2 text-left">
-        <h1 className="font-serif text-3xl sm:text-4xl font-semibold tracking-tight text-foreground">
+        <h1 className="text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground">
           {isVi ? "Chào Mừng Trở Lại" : "Welcome Back"}
         </h1>
         <p className="text-sm text-muted-foreground">

@@ -61,18 +61,18 @@ export default async function AdminNewProductPage() {
             <ShieldAlert className="h-6 w-6 text-amber" />
           </div>
 
-          <h2 className="font-serif text-2xl font-medium text-foreground">
+          <h2 className="mt-5 text-2xl font-normal text-foreground">
             {isVi ? "Khu vực không khả dụng" : "Creation Restricted"}
           </h2>
 
-          <p className="mx-auto max-w-lg text-sm leading-relaxed text-muted-foreground">
+          <p className="mx-auto max-w-lg text-sm leading-relaxed text-muted-foreground font-normal">
             {isVi
               ? "Quý khách không có quyền tạo sản phẩm mới trong hệ thống quản trị."
               : "You do not hold administrative permission to create new products."}
           </p>
 
           <div className="pt-4 flex justify-center gap-3">
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="font-normal text-xs">
               <Link href="/admin/products" className="inline-flex items-center gap-2">
                 <ArrowLeft className="h-4 w-4" />
                 <span>
@@ -91,7 +91,7 @@ export default async function AdminNewProductPage() {
       {/* Header & Breadcrumb */}
       <header className="space-y-4">
         <nav aria-label="Breadcrumb">
-          <ol className="flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground">
+          <ol className="flex items-center gap-2 text-[11px] font-normal uppercase tracking-widest text-muted-foreground">
             <li>
               <Link
                 href="/admin"
@@ -110,7 +110,7 @@ export default async function AdminNewProductPage() {
               </Link>
             </li>
             <li aria-hidden="true">/</li>
-            <li className="text-foreground font-semibold">
+            <li className="text-foreground font-normal">
               {isVi ? "Thêm mới" : "New Creation"}
             </li>
           </ol>
@@ -122,10 +122,10 @@ export default async function AdminNewProductPage() {
               <PlusCircle className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="font-serif text-3xl md:text-4xl font-semibold text-foreground">
+              <h1 className="text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground">
                 {isVi ? "Tạo sản phẩm mới" : "Create New Product"}
               </h1>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-muted-foreground mt-1 font-normal">
                 {isVi
                   ? "Định hình sáng tạo nến thơm, cấu trúc hương thơm và quy cách phiên bản mở bán ban đầu."
                   : "Craft a new luxury candle creation, olfactory narrative, and initial variants."}

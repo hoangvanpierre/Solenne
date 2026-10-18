@@ -81,7 +81,7 @@ async function OrdersList({ userId, locale }: { userId: string; locale: string }
     return (
       <div className="flex flex-col items-center gap-4 rounded-2xl border border-border py-16 text-center">
         <Package className="h-10 w-10 text-muted-foreground" />
-        <p className="font-serif text-2xl font-medium text-foreground">
+        <p className="font-serif text-xl sm:text-2xl font-normal text-foreground">
           {isVi ? "Chưa có đơn hàng nào" : "No orders yet"}
         </p>
         <p className="text-sm text-muted-foreground">
@@ -138,7 +138,7 @@ export default async function OrdersPage() {
       <Container className="max-w-3xl">
         <nav
           aria-label="Breadcrumb"
-          className="mb-8 text-sm text-muted-foreground"
+          className="mb-8 text-[13px] text-muted-foreground font-normal"
         >
           <Link
             href="/account"
@@ -150,10 +150,10 @@ export default async function OrdersPage() {
         </nav>
 
         <div className="mb-10">
-          <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-4 text-foreground">
+          <h1 className="font-serif text-2xl sm:text-3xl font-normal leading-[1.22] mb-3 text-foreground tracking-[0.02em]">
             {isVi ? "Lịch Sử Đơn Hàng" : "Order History"}
           </h1>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed font-normal">
             {isVi
               ? "Tất cả các tác phẩm quý khách đã từng thỉnh, mới nhất trước."
               : "Every order you've placed, most recent first."}

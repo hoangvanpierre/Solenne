@@ -15,28 +15,46 @@ export function useIntersection<T extends Element = HTMLDivElement>(
   } = options;
 
   const ref = useRef<T | null>(null);
+  const [element, setElement] = useState<T | null>(null);
   const [isIntersecting, setIsIntersecting] = useState(false);
 
   useEffect(() => {
-    const element = ref.current;
-    if (!element || typeof window === "undefined") return;
+    if (ref.current !== element) {
+      setElement(ref.current);
+    }
+  });
+
+  useEffect(() => {
+    const target = element || ref.current;
+    if (!target || typeof window === "undefined") return;
+
+    let hasTriggered = false;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setIsIntersecting(entry.isIntersecting);
-        if (entry.isIntersecting && triggerOnce) {
-          observer.unobserve(element);
+        const intersecting = Boolean(entry?.isIntersecting);
+        setIsIntersecting(intersecting);
+        if (intersecting && triggerOnce && !hasTriggered) {
+          hasTriggered = true;
+          observer.unobserve(target);
+          observer.disconnect();
         }
       },
       { threshold, root, rootMargin }
     );
 
-    observer.observe(element);
+    observer.observe(target);
 
     return () => {
       observer.disconnect();
     };
-  }, [threshold, root, rootMargin, triggerOnce]);
+  }, [
+    element,
+    Array.isArray(threshold) ? threshold.join(",") : threshold,
+    root,
+    rootMargin,
+    triggerOnce,
+  ]);
 
   return [ref, isIntersecting];
 }

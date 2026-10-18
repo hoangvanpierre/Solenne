@@ -14,16 +14,18 @@ export interface BackToTopProps {
 
 export function BackToTop({ threshold = 350, className }: BackToTopProps) {
   const [isVisible, setIsVisible] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const locale = useAppLocale();
   const isVi = locale === "vi";
-  // Track last committed values so scroll events that change nothing visible
-  // do not trigger a React re-render.
-  const lastCommitted = useRef({ visible: false, progress: 0 });
+  const waxRef = useRef<HTMLDivElement>(null);
+  const emberRef = useRef<HTMLDivElement>(null);
+  const percentRef = useRef<HTMLSpanElement>(null);
+  const progressRef = useRef(0);
 
   useEffect(() => {
-    const handleScroll = () => {
+    let ticking = false;
+
+    const updateScrollMetrics = () => {
       const scrollY = window.scrollY;
       const totalHeight =
         document.documentElement.scrollHeight - window.innerHeight;
@@ -34,22 +36,56 @@ export function BackToTop({ threshold = 350, className }: BackToTopProps) {
           ? Math.round(Math.min(Math.max((scrollY / totalHeight) * 100, 0), 100))
           : 0;
 
-      if (
-        visible === lastCommitted.current.visible &&
-        progress === lastCommitted.current.progress
-      ) {
-        return;
+      progressRef.current = progress;
+      setIsVisible((prev) => (prev !== visible ? visible : prev));
+
+      // Direct DOM updates for butter-smooth 60fps animations without React re-renders
+      if (waxRef.current) {
+        waxRef.current.style.height = `${progress}%`;
       }
-      lastCommitted.current = { visible, progress };
-      setIsVisible(visible);
-      setScrollProgress(progress);
+      if (emberRef.current) {
+        const emberBottom = Math.min(Math.max(progress, 5), 95);
+        emberRef.current.style.bottom = `calc(${emberBottom}% - 4px)`;
+      }
+      if (percentRef.current) {
+        percentRef.current.textContent = `${progress}%`;
+      }
+
+      ticking = false;
+    };
+
+    const handleScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(updateScrollMetrics);
+        ticking = true;
+      }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
+    updateScrollMetrics();
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, [threshold]);
+
+  // Synchronize initial DOM metrics upon capsule mount
+  useEffect(() => {
+    if (isVisible) {
+      if (waxRef.current) {
+        waxRef.current.style.height = `${progressRef.current}%`;
+      }
+      if (emberRef.current) {
+        const emberBottom = Math.min(Math.max(progressRef.current, 5), 95);
+        emberRef.current.style.bottom = `calc(${emberBottom}% - 4px)`;
+      }
+    }
+  }, [isVisible]);
+
+  // Synchronize tooltip percent text upon tooltip hover reveal
+  useEffect(() => {
+    if (isHovered && percentRef.current) {
+      percentRef.current.textContent = `${progressRef.current}%`;
+    }
+  }, [isHovered]);
 
   const scrollToTop = () => {
     const lenis = getLenis();
@@ -59,9 +95,6 @@ export function BackToTop({ threshold = 350, className }: BackToTopProps) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
-
-  // Clamps ember pip strictly within the track line
-  const emberBottom = Math.min(Math.max(scrollProgress, 5), 95);
 
   return (
     <AnimatePresence>
@@ -82,14 +115,14 @@ export function BackToTop({ threshold = 350, className }: BackToTopProps) {
                 animate={{ opacity: 1, x: 0, scale: 1 }}
                 exit={{ opacity: 0, x: 8, scale: 0.95 }}
                 transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                className="absolute right-full mr-3 whitespace-nowrap px-3.5 py-1.5 rounded-full bg-cream/95 backdrop-blur-2xl border border-amber/35 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_8px_25px_rgba(0,0,0,0.12)] text-warm-black pointer-events-none flex items-center gap-2 select-none"
+                className="absolute right-full mr-3 whitespace-nowrap px-3.5 py-1.5 rounded-full bg-cream/95 backdrop-blur-md border border-amber/35 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_8px_25px_rgba(0,0,0,0.12)] text-warm-black pointer-events-none flex items-center gap-2 select-none"
               >
-                <span className="text-[10px] font-medium uppercase tracking-[0.22em] text-warm-black/90">
+                <span className="text-[10px] font-normal uppercase tracking-[0.2em] text-warm-black/90">
                   {isVi ? "Về đầu trang" : "Return to Top"}
                 </span>
                 <span className="w-1 h-1 rounded-full bg-amber/70" />
-                <span className="text-[10px] font-mono font-medium text-amber">
-                  {Math.round(scrollProgress)}%
+                <span ref={percentRef} className="text-[10px] tabular-nums font-normal text-amber">
+                  0%
                 </span>
               </motion.div>
             )}
@@ -108,23 +141,15 @@ export function BackToTop({ threshold = 350, className }: BackToTopProps) {
             className={cn(
               "relative flex flex-col items-center justify-between",
               "w-9 sm:w-10 py-3.5 px-1 rounded-full",
-              "bg-cream/90 backdrop-blur-2xl text-warm-black",
+              "bg-cream/90 backdrop-blur-md text-warm-black",
               "border border-amber/35",
               "shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_10px_30px_rgba(0,0,0,0.1)]",
               "hover:border-amber hover:bg-cream hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_14px_40px_rgba(196,149,106,0.38)]",
               "transition-all duration-300 group cursor-pointer select-none",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/50"
             )}
-            aria-label={
-              isVi
-                ? `Về đầu trang (đã cuộn ${Math.round(scrollProgress)}%)`
-                : `Return to top (${Math.round(scrollProgress)}% scrolled)`
-            }
-            title={
-              isVi
-                ? `Về đầu trang (${Math.round(scrollProgress)}%)`
-                : `Return to top (${Math.round(scrollProgress)}%)`
-            }
+            aria-label={isVi ? "Về đầu trang" : "Return to top"}
+            title={isVi ? "Về đầu trang" : "Return to top"}
           >
             {/* Subtle Upward Arrow */}
             <span className="flex items-center justify-center w-5 h-5 rounded-full text-warm-black/80 group-hover:text-amber transition-colors">
@@ -144,15 +169,17 @@ export function BackToTop({ threshold = 350, className }: BackToTopProps) {
 
               {/* Rising Liquid Wax Bar */}
               <div
+                ref={waxRef}
                 className="absolute bottom-0 w-[2px] bg-gradient-to-t from-amber/90 via-amber to-amber/80 rounded-full transition-all duration-150 ease-out"
-                style={{ height: `${scrollProgress}%` }}
+                style={{ height: "0%" }}
               />
 
               {/* Glowing Ember Pip riding the wax crest */}
               <motion.div
+                ref={emberRef}
                 className="absolute w-2 h-2 rounded-full bg-amber shadow-[0_0_8px_#C4956A] transition-all duration-150 ease-out flex items-center justify-center pointer-events-none"
                 style={{
-                  bottom: `calc(${emberBottom}% - 4px)`,
+                  bottom: "calc(5% - 4px)",
                 }}
                 animate={
                   isHovered

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import type { Product, ProductVariant, ScentCategory } from "@/types";
 
@@ -75,7 +76,7 @@ function mapProduct(row: ProductRow): Product {
   };
 }
 
-export async function getProducts(): Promise<Product[]> {
+export const getProducts = cache(async function getProducts(): Promise<Product[]> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -88,9 +89,9 @@ export async function getProducts(): Promise<Product[]> {
   if (error) throw new Error(`Failed to fetch products: ${error.message}`);
 
   return (data as unknown as ProductRow[]).map(mapProduct);
-}
+});
 
-export async function getProductsByCategory(
+export const getProductsByCategory = cache(async function getProductsByCategory(
   category: ScentCategory
 ): Promise<Product[]> {
   const supabase = await createClient();
@@ -108,9 +109,11 @@ export async function getProductsByCategory(
   }
 
   return (data as unknown as ProductRow[]).map(mapProduct);
-}
+});
 
-export async function getProductBySlug(slug: string): Promise<Product | null> {
+export const getProductBySlug = cache(async function getProductBySlug(
+  slug: string
+): Promise<Product | null> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -124,9 +127,9 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   if (error) throw new Error(`Failed to fetch product: ${error.message}`);
 
   return data ? mapProduct(data as unknown as ProductRow) : null;
-}
+});
 
-export async function getFeaturedProducts(): Promise<Product[]> {
+export const getFeaturedProducts = cache(async function getFeaturedProducts(): Promise<Product[]> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -140,4 +143,4 @@ export async function getFeaturedProducts(): Promise<Product[]> {
   if (error) throw new Error(`Failed to fetch featured products: ${error.message}`);
 
   return (data as unknown as ProductRow[]).map(mapProduct);
-}
+});

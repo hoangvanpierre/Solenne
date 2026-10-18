@@ -55,31 +55,31 @@ export default async function ShippingPage() {
   return (
     <div className="py-24 lg:py-32">
       <Container className="max-w-3xl">
-        <div className="mb-16">
-          <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-4 text-foreground">
+        <div className="mb-14">
+          <h1 className="font-serif text-2xl sm:text-3xl font-normal leading-[1.22] mb-3 text-foreground tracking-[0.02em]">
             {isVi ? "Giao Nhận & Đổi Trả" : "Shipping & Returns"}
           </h1>
-          <p className="text-muted-foreground text-lg leading-relaxed">
+          <p className="text-muted-foreground text-sm sm:text-base leading-relaxed font-normal">
             {isVi
               ? "Mỗi kiện nến thơm đều được gói ghém bằng cả tấm lòng tại xưởng và gửi đi trong vòng 1-2 ngày làm việc."
               : "Every order is wrapped with care in the studio and dispatched within 1-2 business days."}
           </p>
         </div>
 
-        <section className="mb-16">
-          <h2 className="font-serif text-2xl font-semibold mb-6 text-foreground">
+        <section className="mb-14">
+          <h2 className="font-serif text-xl sm:text-2xl font-normal leading-[1.28] mb-5 text-foreground">
             {isVi ? "Biểu Phí & Thời Gian Giao Nhận" : "Rates & Delivery"}
           </h2>
           <div className="overflow-hidden rounded-2xl border border-border">
             {shippingRows.map((row, index) => (
               <div
                 key={index}
-                className={`flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-2 ${
+                className={`flex flex-col sm:flex-row sm:items-center justify-between p-5 sm:p-6 gap-2 ${
                   index > 0 ? "border-t border-border" : ""
                 }`}
               >
-                <span className="text-foreground font-medium">{row.label}</span>
-                <div className="flex gap-4 text-sm text-muted-foreground">
+                <span className="text-foreground font-normal text-[14px] sm:text-[14.5px]">{row.label}</span>
+                <div className="flex gap-4 text-[13px] text-muted-foreground font-normal tabular-nums">
                   <span>{row.usd}</span>
                   <span>/</span>
                   <span>{row.vnd}</span>
@@ -90,20 +90,20 @@ export default async function ShippingPage() {
         </section>
 
         <section>
-          <h2 className="font-serif text-2xl font-semibold mb-6 text-foreground">
+          <h2 className="font-serif text-xl sm:text-2xl font-normal leading-[1.28] mb-5 text-foreground">
             {isVi ? "Chính Sách Đổi Trả trong 30 Ngày" : "Our 30-Day Return Policy"}
           </h2>
-          <ol className="space-y-8">
+          <ol className="space-y-7">
             {returnSteps.map((step, index) => (
-              <li key={index} className="flex gap-6">
-                <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-muted font-serif font-semibold text-foreground">
+              <li key={index} className="flex gap-5 sm:gap-6">
+                <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-muted font-serif font-normal tabular-nums text-foreground">
                   {index + 1}
                 </span>
                 <div>
-                  <h3 className="font-serif text-lg font-semibold text-foreground">
+                  <h3 className="font-serif text-base sm:text-[17px] font-normal text-foreground leading-[1.3]">
                     {step.title}
                   </h3>
-                  <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
+                  <p className="mt-1.5 text-[13.5px] sm:text-[14px] text-muted-foreground leading-[1.65] font-normal">
                     {step.body}
                   </p>
                 </div>

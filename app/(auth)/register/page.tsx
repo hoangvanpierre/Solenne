@@ -143,7 +143,7 @@ function RegisterForm() {
           <Mail className="w-7 h-7" />
         </div>
         <div className="space-y-2.5">
-          <h1 className="font-serif text-3xl font-semibold tracking-tight text-foreground">
+          <h1 className="text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground">
             {isVi ? "Xác Thực Quyền Truy Cập" : "Verify Your Sanctuary Access"}
           </h1>
           <p className="text-sm text-muted-foreground leading-relaxed">
@@ -151,7 +151,7 @@ function RegisterForm() {
           </p>
           <div className="p-3.5 rounded-xl bg-background border border-border/80 text-xs text-foreground/90 font-mono">
             {isVi ? "Người nhận:" : "Recipient:"}{" "}
-            <span className="font-semibold text-amber">{state.email || email}</span>
+            <span className="font-normal text-amber underline underline-offset-4">{state.email || email}</span>
           </div>
           <p className="text-xs text-muted-foreground/80 pt-1">
             {isVi
@@ -173,7 +173,7 @@ function RegisterForm() {
     <div className="space-y-8">
       {/* Header */}
       <div className="space-y-2 text-left">
-        <h1 className="font-serif text-3xl sm:text-4xl font-semibold tracking-tight text-foreground">
+        <h1 className="text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground">
           {isVi ? "Khởi Tạo Tài Khoản" : "Create an Account"}
         </h1>
         <p className="text-sm text-muted-foreground">

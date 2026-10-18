@@ -277,14 +277,14 @@ export function VariantManager({
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <h2 className="font-serif text-xl font-semibold text-foreground">
+              <h2 className="text-xl font-normal text-foreground">
                 {isVi ? "Cơ cấu phiên bản" : "Product Variants"}
               </h2>
-              <span className="rounded-full border border-border bg-muted/30 px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+              <span className="rounded-full border border-border bg-muted/30 px-2.5 py-0.5 text-xs font-normal tabular-nums text-muted-foreground">
                 {variants.length}
               </span>
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs font-normal text-muted-foreground">
               {isVi
                 ? "Quản lý kích cỡ, giá và quy cách. Tồn kho của phiên bản hiện có được cập nhật qua trang Quản lý kho."
                 : "Manage size, price, and specs. Existing stock quantities are updated via Inventory Management."}
@@ -296,7 +296,7 @@ export function VariantManager({
               type="button"
               size="sm"
               onClick={handleOpenAdd}
-              className="inline-flex items-center gap-1.5 self-start sm:self-auto bg-amber text-primary-foreground hover:bg-amber/90"
+              className="inline-flex items-center gap-1.5 self-start sm:self-auto bg-amber text-primary-foreground hover:bg-amber/90 font-normal text-xs"
             >
               <Plus className="h-4 w-4" />
               <span>{isVi ? "Thêm phiên bản" : "Add Variant"}</span>
@@ -306,7 +306,7 @@ export function VariantManager({
 
         {/* Global Feedback Banner */}
         {successMessage && (
-          <div className="flex items-center gap-2 rounded-xl border border-sage/40 bg-sage/10 p-3 text-xs text-sage">
+          <div className="flex items-center gap-2 rounded-xl border border-sage/40 bg-sage/10 p-3 text-xs font-normal text-sage">
             <CheckCircle2 className="h-4 w-4 shrink-0" />
             <span>{successMessage}</span>
           </div>
@@ -317,10 +317,10 @@ export function VariantManager({
           <div className="rounded-xl border border-dashed border-border p-8 text-center space-y-3">
             <Layers className="mx-auto h-8 w-8 text-muted-foreground/60" />
             <div className="space-y-1">
-              <p className="text-sm font-medium text-foreground">
+              <p className="text-sm font-normal text-foreground">
                 {isVi ? "Chưa có phiên bản nào" : "No variants defined"}
               </p>
-              <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+              <p className="text-xs font-normal text-muted-foreground max-w-sm mx-auto">
                 {isVi
                   ? "Sản phẩm cần có ít nhất một phiên bản để khách hàng có thể đặt mua tại boutique."
                   : "Every product needs at least one variant before it can be purchased in the boutique."}
@@ -332,7 +332,7 @@ export function VariantManager({
                 variant="outline"
                 size="sm"
                 onClick={handleOpenAdd}
-                className="inline-flex items-center gap-1.5"
+                className="inline-flex items-center gap-1.5 font-normal text-xs"
               >
                 <Plus className="h-3.5 w-3.5" />
                 <span>{isVi ? "Tạo phiên bản đầu tiên" : "Add First Variant"}</span>
@@ -350,17 +350,17 @@ export function VariantManager({
                   {/* Variant info */}
                   <div className="space-y-1.5 min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-sm font-semibold text-foreground truncate">
+                      <h3 className="text-sm font-normal text-foreground truncate">
                         {variant.name}
                       </h3>
                       {variant.sku && (
-                        <span className="font-mono text-xs text-muted-foreground rounded bg-muted/40 px-1.5 py-0.5">
+                        <span className="tabular-nums text-xs font-normal text-muted-foreground rounded bg-muted/40 px-1.5 py-0.5">
                           {variant.sku}
                         </span>
                       )}
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground font-normal">
                       {variant.size && (
                         <span className="inline-flex items-center gap-1">
                           <Scale className="h-3 w-3 text-muted-foreground/70" />
@@ -373,7 +373,7 @@ export function VariantManager({
                           <span>{variant.burnTime}</span>
                         </span>
                       )}
-                      <span className="font-medium text-foreground">
+                      <span className="tabular-nums font-normal text-foreground">
                         {formatPrice(variant.price, "USD")}
                       </span>
                     </div>
@@ -394,7 +394,7 @@ export function VariantManager({
                             ? "Điều chỉnh tồn kho tại mục Quản lý kho"
                             : "Adjust stock via Inventory Management"
                         }
-                        className="inline-flex items-center gap-1 text-xs text-amber hover:underline hover:text-amber/80 font-medium whitespace-nowrap"
+                        className="inline-flex items-center gap-1 text-xs text-amber hover:underline hover:text-amber/80 font-normal whitespace-nowrap"
                       >
                         <Boxes className="h-3 w-3" />
                         <span>{isVi ? "Kho hàng" : "Inventory"}</span>
@@ -408,7 +408,7 @@ export function VariantManager({
                         <button
                           type="button"
                           onClick={() => handleOpenEdit(variant)}
-                          className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                          className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors font-normal"
                           aria-label={
                             isVi
                               ? `Sửa thông tin ${variant.name}`
@@ -424,7 +424,7 @@ export function VariantManager({
                         <button
                           type="button"
                           onClick={() => handleOpenDelete(variant)}
-                          className="rounded-lg p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                          className="rounded-lg p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors font-normal"
                           aria-label={
                             isVi
                               ? `Xóa phiên bản ${variant.name}`
@@ -470,12 +470,12 @@ export function VariantManager({
                   </div>
                   <h3
                     id="add-variant-title"
-                    className="font-serif text-lg font-semibold text-foreground"
+                    className="text-lg font-normal text-foreground"
                   >
                     {isVi ? "Thêm phiên bản mới" : "Add New Variant"}
                   </h3>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs font-normal text-muted-foreground">
                   {productName}
                 </p>
               </div>
@@ -493,7 +493,7 @@ export function VariantManager({
 
             {/* Error Banner */}
             {modalError && (
-              <div className="flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
+              <div className="flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs font-normal text-destructive">
                 <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
                 <span>{modalError}</span>
               </div>
@@ -563,7 +563,7 @@ export function VariantManager({
 
               {/* Initial Stock (Creation-time ONLY) */}
               <div className="rounded-xl border border-amber/30 bg-amber/5 p-3.5 space-y-2">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-amber">
+                <div className="flex items-center gap-1.5 text-xs font-normal text-amber">
                   <Boxes className="h-3.5 w-3.5" />
                   <span>
                     {isVi
@@ -571,7 +571,7 @@ export function VariantManager({
                       : "Initial Stock (Creation-time only)"}
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground leading-relaxed">
+                <p className="text-xs font-normal text-muted-foreground leading-relaxed">
                   {isVi
                     ? "Số lượng này sẽ được ghi nhận làm tồn kho khởi tạo. Mọi điều chỉnh sau khi tạo cần thực hiện thông qua mục Quản lý kho."
                     : "This establishes the initial stock quantity for the new variant. Subsequent stock adjustments must be performed through Inventory Management."}
@@ -600,6 +600,7 @@ export function VariantManager({
                   size="sm"
                   onClick={() => setIsAddOpen(false)}
                   disabled={isPending}
+                  className="font-normal text-xs"
                 >
                   {isVi ? "Hủy" : "Cancel"}
                 </Button>
@@ -607,7 +608,7 @@ export function VariantManager({
                   type="submit"
                   size="sm"
                   disabled={isPending || !newForm.name.trim()}
-                  className="bg-amber text-primary-foreground hover:bg-amber/90"
+                  className="bg-amber text-primary-foreground hover:bg-amber/90 font-normal text-xs"
                 >
                   {isPending
                     ? isVi
@@ -649,13 +650,13 @@ export function VariantManager({
                   </div>
                   <h3
                     id="edit-variant-title"
-                    className="font-serif text-lg font-semibold text-foreground"
+                    className="text-lg font-normal text-foreground"
                   >
                     {isVi ? "Chỉnh sửa phiên bản" : "Edit Variant Details"}
                   </h3>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  <span className="font-medium text-foreground">
+                <p className="text-xs font-normal text-muted-foreground">
+                  <span className="font-normal text-foreground">
                     {editingVariant.name}
                   </span>
                   {" — "}
@@ -676,7 +677,7 @@ export function VariantManager({
 
             {/* Error Banner */}
             {modalError && (
-              <div className="flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
+              <div className="flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs font-normal text-destructive">
                 <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
                 <span>{modalError}</span>
               </div>
@@ -748,10 +749,10 @@ export function VariantManager({
               {/* Explicit Stock Boundary Notice (READ ONLY) */}
               <div className="rounded-xl border border-border bg-muted/20 p-3.5 space-y-2">
                 <div className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-1.5 font-medium text-foreground">
+                  <div className="flex items-center gap-1.5 font-normal text-foreground">
                     <Boxes className="h-3.5 w-3.5 text-muted-foreground" />
                     <span>{isVi ? "Tồn kho hiện tại:" : "Current Stock:"}</span>
-                    <span className="font-mono font-bold">
+                    <span className="tabular-nums font-normal">
                       {editingVariant.stockQuantity}
                     </span>
                   </div>
@@ -760,16 +761,16 @@ export function VariantManager({
                     locale={locale}
                   />
                 </div>
-                <p className="text-xs text-muted-foreground leading-relaxed">
+                <p className="text-xs font-normal text-muted-foreground leading-relaxed">
                   {isVi
                     ? "Tồn kho không thể chỉnh sửa trực tiếp tại mục này. Để điều chỉnh số lượng tồn kho hoặc nhập lý do điều chỉnh, vui lòng dùng trang Quản lý kho."
                     : "Stock cannot be altered here. To adjust stock or log restock reasons, please use Inventory Management."}
                 </p>
                 <div className="pt-1">
-                  <Button asChild variant="outline" size="sm" className="w-full">
+                  <Button asChild variant="outline" size="sm" className="w-full font-normal text-xs">
                     <Link
                       href="/admin/inventory"
-                      className="inline-flex items-center justify-center gap-1.5 text-xs text-amber"
+                      className="inline-flex items-center justify-center gap-1.5 text-xs text-amber font-normal"
                     >
                       <Boxes className="h-3.5 w-3.5" />
                       <span>
@@ -789,6 +790,7 @@ export function VariantManager({
                   size="sm"
                   onClick={() => setEditingVariant(null)}
                   disabled={isPending}
+                  className="font-normal text-xs"
                 >
                   {isVi ? "Hủy" : "Cancel"}
                 </Button>
@@ -796,7 +798,7 @@ export function VariantManager({
                   type="submit"
                   size="sm"
                   disabled={isPending || !editForm.name.trim()}
-                  className="bg-amber text-primary-foreground hover:bg-amber/90"
+                  className="bg-amber text-primary-foreground hover:bg-amber/90 font-normal text-xs"
                 >
                   {isPending
                     ? isVi
@@ -837,28 +839,28 @@ export function VariantManager({
               <div className="space-y-1">
                 <h3
                   id="delete-variant-title"
-                  className="font-serif text-lg font-semibold text-foreground"
+                  className="text-lg font-normal text-foreground"
                 >
                   {isVi ? "Xóa phiên bản này?" : "Delete Variant?"}
                 </h3>
-                <p className="text-xs text-muted-foreground">
-                  <span className="font-semibold text-foreground">
+                <p className="text-xs font-normal text-muted-foreground">
+                  <span className="font-normal text-foreground">
                     {deletingVariant.name}
                   </span>{" "}
-                  {deletingVariant.sku && `(${deletingVariant.sku})`}
+                  {deletingVariant.sku && <span className="tabular-nums font-normal">({deletingVariant.sku})</span>}
                 </p>
               </div>
             </div>
 
             {/* Error Banner */}
             {modalError && (
-              <div className="flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
+              <div className="flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs font-normal text-destructive">
                 <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
                 <span>{modalError}</span>
               </div>
             )}
 
-            <p className="text-xs text-muted-foreground leading-relaxed">
+            <p className="text-xs font-normal text-muted-foreground leading-relaxed">
               {isVi
                 ? "Hành động này không thể hoàn tác. Các phiên bản đã từng phát sinh đơn hàng từ khách không thể xóa khỏi hệ thống. Nếu không muốn bán nữa, vui lòng cập nhật trạng thái sản phẩm cha thành ẩn."
                 : "This action cannot be undone. Variants referenced in customer order history cannot be deleted. If you no longer wish to offer it, deactivate the parent product instead."}
@@ -871,6 +873,7 @@ export function VariantManager({
                 size="sm"
                 onClick={() => setDeletingVariant(null)}
                 disabled={isPending}
+                className="font-normal text-xs"
               >
                 {isVi ? "Hủy" : "Cancel"}
               </Button>
@@ -880,6 +883,7 @@ export function VariantManager({
                 size="sm"
                 onClick={handleDeleteVariant}
                 disabled={isPending}
+                className="font-normal text-xs"
               >
                 {isPending
                   ? isVi

@@ -17,11 +17,11 @@ export function SizeSelector({ variants, selectedId, onSelect }: SizeSelectorPro
   return (
     <div className="space-y-3">
       <div className="flex justify-between items-center">
-        <span className="text-sm font-medium">
+        <span className="text-[13px] font-normal text-foreground">
           {isVi ? "Kích cỡ / Dung tích" : "Size"}
         </span>
         {variants.find(v => v.id === selectedId)?.burnTime && (
-          <span className="text-xs text-muted-foreground">
+          <span className="text-[11.5px] tabular-nums text-muted-foreground">
             {isVi
               ? `Thời gian tỏa hương ~${variants.find(v => v.id === selectedId)?.burnTime}`
               : `Approx. ${variants.find(v => v.id === selectedId)?.burnTime} burn time`}
@@ -40,7 +40,7 @@ export function SizeSelector({ variants, selectedId, onSelect }: SizeSelectorPro
               onClick={() => !isOutOfStock && onSelect(variant.id)}
               disabled={isOutOfStock}
               className={cn(
-                "relative flex-1 min-w-[120px] rounded-xl border px-4 py-3 text-sm transition-all duration-200",
+                "relative flex-1 min-w-[110px] rounded-xl border px-3.5 py-2.5 text-[13px] font-normal transition-all duration-200",
                 isSelected
                   ? "border-primary bg-primary/5 text-primary ring-1 ring-primary shadow-sm"
                   : "border-border bg-transparent text-foreground hover:border-primary/50",
@@ -48,10 +48,10 @@ export function SizeSelector({ variants, selectedId, onSelect }: SizeSelectorPro
               )}
             >
               <div className="flex flex-col items-center gap-1">
-                <span className="font-medium">{variant.name}</span>
+                <span className="font-normal">{variant.name}</span>
                 {variant.size && (
                   <span className={cn(
-                    "text-xs",
+                    "text-[11.5px] tabular-nums",
                     isSelected ? "text-primary/80" : "text-muted-foreground"
                   )}>
                     {variant.size}

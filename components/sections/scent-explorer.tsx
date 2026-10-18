@@ -116,14 +116,14 @@ export function ScentExplorer() {
         {/* Section Header */}
         <div className="mb-14 text-center">
           <ScrollReveal>
-            <p className="text-xs tracking-[0.25em] uppercase text-muted-foreground mb-3">
+            <p className="text-[10.5px] sm:text-[11px] tracking-[0.16em] uppercase text-muted-foreground font-normal mb-2.5">
               {t("tagline")}
             </p>
           </ScrollReveal>
           <TextReveal
             text={t("title")}
             as="h2"
-            className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold text-foreground"
+            className="font-serif text-2xl sm:text-3xl font-normal leading-[1.25] text-foreground text-balance"
             splitBy="word"
           />
           <ScrollReveal delay={0.1}>

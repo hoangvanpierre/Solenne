@@ -38,6 +38,13 @@
   --brand-story-active: #14100E;
   --brand-story-muted: #B0A8A0;
   --brand-story-accent: #C4956A;
+
+  /* Fluid Custom Variables for Cactus Classical Serif */
+  --text-display: clamp(2.75rem, 5.2vw, 4.5rem);
+  --text-h1: clamp(1.95rem, 3.5vw, 3.0rem);
+  --text-h2: clamp(1.5rem, 2.5vw, 2.15rem);
+  --text-h3: clamp(1.1875rem, 1.7vw, 1.5rem);
+  --text-body-lg: clamp(0.9375rem, 1.1vw, 1.0625rem);
 }
 
 /* --- Dark Mode CSS Variables --- */
@@ -112,39 +119,41 @@
   --color-blush-light: #E4BFBF;
   --color-blush-dark: #B88A8A;
 
-  /* Fonts - Global Birthstone */
-  --font-sans: var(--font-birthstone), cursive, sans-serif;
-  --font-serif: var(--font-birthstone), cursive, serif;
-  --font-mono: var(--font-birthstone), cursive, monospace;
-  --font-script: var(--font-birthstone), cursive;
+  /* Fonts - Global Cactus Classical Serif */
+  --font-sans: var(--font-cactus), "Cactus Classical Serif", serif;
+  --font-serif: var(--font-cactus), "Cactus Classical Serif", serif;
+  --font-mono: var(--font-cactus), "Cactus Classical Serif", serif;
+  --font-script: var(--font-cactus), "Cactus Classical Serif", serif;
 
-  /* Scaled Typography Scale (1.5x across all sections) */
-  --text-xs: 1.125rem;
-  --text-xs--line-height: calc(1.5 / 1.125);
-  --text-sm: 1.3125rem;
-  --text-sm--line-height: calc(1.875 / 1.3125);
-  --text-base: 1.5rem;
-  --text-base--line-height: calc(2.25 / 1.5);
-  --text-lg: 1.6875rem;
-  --text-lg--line-height: calc(2.625 / 1.6875);
-  --text-xl: 1.875rem;
-  --text-xl--line-height: calc(2.625 / 1.875);
-  --text-2xl: 2.25rem;
-  --text-2xl--line-height: calc(3 / 2.25);
-  --text-3xl: 2.8125rem;
-  --text-3xl--line-height: calc(3.375 / 2.8125);
-  --text-4xl: 3.375rem;
-  --text-4xl--line-height: calc(3.75 / 3.375);
-  --text-5xl: 4.5rem;
+  /* Optical Type Scale Tokens for Cactus Classical Serif */
+  --text-2xs: 0.65625rem;     /* 10.5px - micro labels / eyebrows */
+  --text-2xs--line-height: 1.4;
+  --text-xs: 0.71875rem;      /* 11.5px - badges, captions, table headers, meta */
+  --text-xs--line-height: 1.45;
+  --text-sm: 0.8125rem;       /* 13px - nav links, buttons, inputs, table cells, UI controls */
+  --text-sm--line-height: 1.55;
+  --text-base: 0.875rem;      /* 14px - primary body copy */
+  --text-base--line-height: 1.7;
+  --text-lg: 0.96875rem;      /* 15.5px - lead paragraphs, card titles */
+  --text-lg--line-height: 1.6;
+  --text-xl: 1.09375rem;      /* 17.5px - subheadings, section intros */
+  --text-xl--line-height: 1.5;
+  --text-2xl: 1.28125rem;     /* 20.5px - h3 / card headings */
+  --text-2xl--line-height: 1.38;
+  --text-3xl: 1.5625rem;      /* 25px - h2 / section titles */
+  --text-3xl--line-height: 1.3;
+  --text-4xl: 1.9375rem;      /* 31px - h1 / page titles */
+  --text-4xl--line-height: 1.22;
+  --text-5xl: 2.375rem;       /* 38px */
   --text-5xl--line-height: 1.15;
-  --text-6xl: 5.625rem;
-  --text-6xl--line-height: 1.15;
-  --text-7xl: 6.75rem;
-  --text-7xl--line-height: 1.1;
-  --text-8xl: 9rem;
-  --text-8xl--line-height: 1.1;
-  --text-9xl: 12rem;
-  --text-9xl--line-height: 1.1;
+  --text-6xl: 2.875rem;       /* 46px */
+  --text-6xl--line-height: 1.1;
+  --text-7xl: 3.5rem;         /* 56px */
+  --text-7xl--line-height: 1.08;
+  --text-8xl: 4.25rem;        /* 68px */
+  --text-8xl--line-height: 1.06;
+  --text-9xl: 5.25rem;        /* 84px */
+  --text-9xl--line-height: 1.05;
 
   /* Border Radius */
   --radius-sm: 0.375rem;
@@ -218,20 +227,59 @@
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-family: var(--font-birthstone), cursive, sans-serif;
+  font-family: var(--font-cactus), "Cactus Classical Serif", serif;
+  font-weight: 400;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-birthstone), cursive, sans-serif;
+  font-family: var(--font-cactus), "Cactus Classical Serif", serif;
   font-size: var(--text-base);
-  line-height: 1.6;
+  font-weight: 400;
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+  font-kerning: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
 }
 
-button, input, select, textarea, optgroup {
+/* Headings: enforce true regular weight 400 to eliminate faux-bold blurring,
+   with safe line-heights for stacked Vietnamese diacritics */
+h1, h2, h3, h4, h5, h6 {
   font-family: inherit;
+  font-weight: 400;
+  letter-spacing: 0.015em;
+  text-wrap: balance;
+}
+
+h1 {
+  line-height: 1.18;
+}
+
+h2 {
+  line-height: 1.25;
+}
+
+h3 {
+  line-height: 1.32;
+}
+
+h4, h5, h6 {
+  line-height: 1.4;
+}
+
+/* Numeric alignment: tabular figures for monetary values, codes, quantities, and tables */
+table,
+.tabular-nums,
+[class*="font-mono"] {
+  font-variant-numeric: tabular-nums;
+}
+
+button, input, select, textarea, optgroup, code, pre, kbd, samp {
+  font-family: inherit;
+  font-weight: 400;
 }
 
 /* --- Form Controls Browser Overrides --- */
@@ -372,86 +420,71 @@ a:visited {
   overflow: hidden;
 }
 
-/* --- Utility: Birthstone Script --- */
+/* --- Utility: Cactus Classical Serif Script / Display --- */
 .font-script {
-  font-family: var(--font-birthstone), cursive;
+  font-family: var(--font-cactus), "Cactus Classical Serif", serif;
   font-weight: 400;
   letter-spacing: 0.02em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* --- Account Page Typography Scale (1.5x Multiplier) --- */
+.cactus-classical-serif-regular {
+  font-family: "Cactus Classical Serif", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* --- Account Page Typography --- */
 .account-page {
-  --text-xs: 1.6875rem;
-  --text-sm: 1.96875rem;
-  --text-base: 2.25rem;
-  --text-lg: 2.53125rem;
-  --text-xl: 2.8125rem;
-  --text-2xl: 3.375rem;
-  --text-3xl: 4.21875rem;
-  --text-4xl: 5.0625rem;
-  --text-5xl: 6.75rem;
-  --text-6xl: 8.4375rem;
-  --text-7xl: 10.125rem;
-  --text-8xl: 13.5rem;
-  --text-9xl: 18rem;
   font-size: var(--text-base);
+  line-height: 1.65;
 }
 
 .account-page input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
 .account-page select {
-  min-height: 3.25rem;
+  min-height: 2.75rem;
 }
 
-/* --- Admin Back-Office Typography Scale (~1.5x Multiplier) --- */
+/* --- Admin Back-Office Typography --- */
 .admin-scope {
-  /* Mobile-first baseline (~1.25x - 1.3x to maintain balance on compact mobile screens) */
-  --text-xs: 1.4rem;
-  --text-sm: 1.625rem;
-  --text-base: 1.95rem;
-  --text-lg: 2.25rem;
-  --text-xl: 2.5rem;
-  --text-2xl: 2.95rem;
-  --text-3xl: 3.5rem;
-  --text-4xl: 4.25rem;
-  --text-5xl: 5.5rem;
-  --text-6xl: 7rem;
-  --text-7xl: 8.5rem;
-  --text-8xl: 11rem;
-  --text-9xl: 14rem;
-  font-size: var(--text-base);
+  /* Cactus Classical Serif Typography */
+  font-family: var(--font-cactus), "Cactus Classical Serif", serif;
+  --font-sans: var(--font-cactus), "Cactus Classical Serif", serif;
+  --font-serif: var(--font-cactus), "Cactus Classical Serif", serif;
+  --font-script: var(--font-cactus), "Cactus Classical Serif", serif;
+  --font-mono: var(--font-cactus), "Cactus Classical Serif", serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  font-size: var(--text-sm);    /* 13px compact base for back-office tables and controls */
+  line-height: 1.55;
 }
 
-/* Tablet & Desktop full 1.5x scaling */
-@media (min-width: 640px) {
-  .admin-scope {
-    --text-xs: 1.6875rem;
-    --text-sm: 1.96875rem;
-    --text-base: 2.25rem;
-    --text-lg: 2.53125rem;
-    --text-xl: 2.8125rem;
-    --text-2xl: 3.375rem;
-    --text-3xl: 4.21875rem;
-    --text-4xl: 5.0625rem;
-    --text-5xl: 6.75rem;
-    --text-6xl: 8.4375rem;
-    --text-7xl: 10.125rem;
-    --text-8xl: 13.5rem;
-    --text-9xl: 18rem;
-  }
+.admin-scope h1,
+.admin-scope h2,
+.admin-scope h3,
+.admin-scope h4 {
+  font-family: inherit;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.admin-scope table {
+  font-variant-numeric: tabular-nums;
 }
 
 .admin-scope input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
 .admin-scope select,
 .admin-scope textarea {
-  min-height: 2.875rem;
+  min-height: 2.5rem;
+  font-size: var(--text-sm);
 }
 
 .admin-scope button.rounded-full,
 .admin-scope a.rounded-full[class*="inline-flex"] {
-  min-height: 2.625rem;
+  min-height: 2.25rem;
   height: auto;
-  padding-top: 0.45rem;
-  padding-bottom: 0.45rem;
+  padding-top: 0.375rem;
+  padding-bottom: 0.375rem;
 }

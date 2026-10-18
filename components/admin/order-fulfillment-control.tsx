@@ -247,7 +247,7 @@ export function OrderFulfillmentControl({
       {/* Header */}
       <div className="flex items-center gap-2 border-b border-border pb-4">
         <PackageCheck className="h-5 w-5 text-muted-foreground" />
-        <h2 className="font-serif text-lg font-medium text-foreground">
+        <h2 className="text-lg font-normal text-foreground">
           {isVi ? "Trạng thái giao vận" : "Fulfillment Controls"}
         </h2>
       </div>
@@ -257,7 +257,7 @@ export function OrderFulfillmentControl({
         <div
           role="alert"
           aria-live="polite"
-          className="rounded-lg border border-destructive/30 bg-destructive/10 p-2.5 text-xs text-destructive leading-relaxed"
+          className="rounded-lg border border-destructive/30 bg-destructive/10 p-2.5 text-xs font-normal text-destructive leading-relaxed"
         >
           {actionError}
         </div>
@@ -267,13 +267,13 @@ export function OrderFulfillmentControl({
       {trackingCode && status !== "processing" && (
         <div className="rounded-xl border border-border bg-background/50 p-3.5 space-y-1.5">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="uppercase tracking-wider">
+            <span className="uppercase tracking-wider font-normal">
               {isVi ? "Mã vận đơn hiện tại" : "Active Tracking Code"}
             </span>
             <button
               type="button"
               onClick={handleCopyTracking}
-              className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors font-normal"
               aria-label={isVi ? "Sao chép mã vận đơn" : "Copy tracking code"}
             >
               {copied ? (
@@ -289,7 +289,7 @@ export function OrderFulfillmentControl({
               )}
             </button>
           </div>
-          <div className="font-mono text-sm font-semibold text-foreground select-all">
+          <div className="tabular-nums text-sm font-normal text-foreground select-all">
             {trackingCode}
           </div>
         </div>
@@ -301,7 +301,7 @@ export function OrderFulfillmentControl({
       {/* ------------------------------------------------------------- */}
       {(status === "pending" || status === "paid") && (
         <div className="space-y-3">
-          <p className="text-xs leading-relaxed text-muted-foreground">
+          <p className="text-xs leading-relaxed text-muted-foreground font-normal">
             {isVi
               ? "Bắt đầu đóng gói và xử lý tác phẩm cho đơn hàng này."
               : "Commence atelier preparation and crafting for this order."}
@@ -310,7 +310,7 @@ export function OrderFulfillmentControl({
           {canUpdate ? (
             <Button
               type="button"
-              className="w-full"
+              className="w-full font-normal text-xs"
               isLoading={isPending}
               disabled={isPending}
               onClick={handleStartProcessing}
@@ -319,7 +319,7 @@ export function OrderFulfillmentControl({
               <span>{isVi ? "Bắt đầu chế tác" : "Start Processing"}</span>
             </Button>
           ) : (
-            <p className="text-xs text-muted-foreground italic">
+            <p className="text-xs text-muted-foreground italic font-normal">
               {isVi
                 ? "Cần quyền order.update để bắt đầu xử lý."
                 : "order.update permission required to process."}
@@ -336,7 +336,7 @@ export function OrderFulfillmentControl({
         <div className="space-y-3">
           {activeAction !== "ship" ? (
             <div className="space-y-3">
-              <p className="text-xs leading-relaxed text-muted-foreground">
+              <p className="text-xs leading-relaxed text-muted-foreground font-normal">
                 {isVi
                   ? "Đơn hàng đang được chuẩn bị. Khi bưu kiện sẵn sàng gửi giao, hãy nhập mã vận đơn để xác nhận chuyển giao."
                   : "Order is currently being crafted. Once the parcel is ready for dispatch, enter a tracking code to mark as shipped."}
@@ -345,7 +345,7 @@ export function OrderFulfillmentControl({
               {canUpdate ? (
                 <Button
                   type="button"
-                  className="w-full"
+                  className="w-full font-normal text-xs"
                   disabled={isPending}
                   onClick={() => setActiveAction("ship")}
                 >
@@ -353,7 +353,7 @@ export function OrderFulfillmentControl({
                   <span>{isVi ? "Xác nhận gửi hàng" : "Mark as Shipped"}</span>
                 </Button>
               ) : (
-                <p className="text-xs text-muted-foreground italic">
+                <p className="text-xs text-muted-foreground italic font-normal">
                   {isVi
                     ? "Cần quyền order.update để gửi hàng."
                     : "order.update permission required to mark as shipped."}
@@ -368,10 +368,10 @@ export function OrderFulfillmentControl({
               <div className="flex items-start gap-2.5">
                 <Truck className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <div className="space-y-1">
-                  <h3 className="text-sm font-semibold text-foreground">
+                  <h3 className="text-sm font-normal text-foreground">
                     {isVi ? "Xác nhận gửi hàng" : "Dispatch Order"}
                   </h3>
-                  <p className="text-xs leading-relaxed text-muted-foreground">
+                  <p className="text-xs leading-relaxed text-muted-foreground font-normal">
                     {isVi
                       ? "Nhập mã vận đơn bưu chính / giao vận cho đơn hàng này."
                       : "Enter the courier tracking code for parcel dispatch."}
@@ -384,12 +384,12 @@ export function OrderFulfillmentControl({
                 <div className="flex justify-between items-center text-xs">
                   <label
                     htmlFor={`tracking-input-${orderId}`}
-                    className="font-medium text-foreground"
+                    className="font-normal text-foreground"
                   >
                     {isVi ? "Mã vận đơn" : "Tracking Code"}
                     <span className="text-destructive ml-1">*</span>
                   </label>
-                  <span className="text-muted-foreground text-[11px]">
+                  <span className="text-muted-foreground text-xs tabular-nums font-normal">
                     {trackingInput.trim().length}/100
                   </span>
                 </div>
@@ -410,14 +410,14 @@ export function OrderFulfillmentControl({
                       : "e.g. VN-POST-8392019, DHL-928172..."
                   }
                   className={cn(
-                    "w-full rounded-xl border bg-background px-3 py-2 text-xs font-mono text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 disabled:opacity-50",
+                    "w-full rounded-xl border bg-background px-3 py-2 text-[13px] tabular-nums font-normal text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 disabled:opacity-50",
                     trackingError
                       ? "border-destructive focus:border-destructive focus:ring-destructive"
                       : "border-border focus:border-ring focus:ring-ring"
                   )}
                 />
                 {trackingError && (
-                  <p className="text-xs text-destructive">{trackingError}</p>
+                  <p className="text-xs font-normal text-destructive">{trackingError}</p>
                 )}
               </div>
 
@@ -429,7 +429,7 @@ export function OrderFulfillmentControl({
                   size="sm"
                   disabled={isPending}
                   onClick={handleCloseAction}
-                  className="order-2 sm:order-1"
+                  className="order-2 sm:order-1 font-normal text-xs"
                 >
                   {isVi ? "Hủy bỏ" : "Cancel"}
                 </Button>
@@ -442,7 +442,7 @@ export function OrderFulfillmentControl({
                     trackingInput.trim().length < 3 ||
                     trackingInput.trim().length > 100
                   }
-                  className="order-1 sm:order-2"
+                  className="order-1 sm:order-2 font-normal text-xs"
                 >
                   <span>{isVi ? "Xác nhận gửi" : "Confirm & Ship"}</span>
                 </Button>
@@ -461,7 +461,7 @@ export function OrderFulfillmentControl({
         <div className="space-y-3">
           {activeAction === null && (
             <div className="space-y-3">
-              <p className="text-xs leading-relaxed text-muted-foreground">
+              <p className="text-xs leading-relaxed text-muted-foreground font-normal">
                 {isVi
                   ? "Bưu kiện đang trên đường vận chuyển. Khi khách hàng đã an nhận, xác nhận để hoàn tất quy trình."
                   : "Parcel is in transit. Once confirmed received by the client, complete the fulfillment workflow."}
@@ -471,7 +471,7 @@ export function OrderFulfillmentControl({
                 {canUpdate && (
                   <Button
                     type="button"
-                    className="w-full"
+                    className="w-full font-normal text-xs"
                     disabled={isPending}
                     onClick={() => setActiveAction("deliver")}
                   >
@@ -484,7 +484,7 @@ export function OrderFulfillmentControl({
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full text-amber border-amber/30 hover:bg-amber/10 hover:text-amber hover:border-amber/40"
+                    className="w-full text-amber border-amber/30 hover:bg-amber/10 hover:text-amber hover:border-amber/40 font-normal text-xs"
                     disabled={isPending}
                     onClick={() => setActiveAction("rollback")}
                   >
@@ -506,14 +506,14 @@ export function OrderFulfillmentControl({
               <div className="flex items-start gap-2.5">
                 <CheckCircle2 className="h-5 w-5 text-sage shrink-0 mt-0.5" />
                 <div className="space-y-1">
-                  <h3 className="text-sm font-semibold text-foreground">
+                  <h3 className="text-sm font-normal text-foreground">
                     {isVi ? "Xác nhận đã an nhận" : "Confirm Delivery"}
                   </h3>
-                  <p className="text-xs leading-relaxed text-muted-foreground">
+                  <p className="text-xs leading-relaxed text-muted-foreground font-normal">
                     {isVi ? (
                       <>
                         Xác nhận đơn hàng{" "}
-                        <span className="font-mono font-medium text-foreground">
+                        <span className="tabular-nums font-normal text-foreground">
                           {orderNumber}
                         </span>{" "}
                         đã được giao thành công tới quý khách. Đây là trạng thái hoàn tất giao vận.
@@ -521,7 +521,7 @@ export function OrderFulfillmentControl({
                     ) : (
                       <>
                         Confirm that order{" "}
-                        <span className="font-mono font-medium text-foreground">
+                        <span className="tabular-nums font-normal text-foreground">
                           {orderNumber}
                         </span>{" "}
                         has been successfully delivered. This is a terminal fulfillment state.
@@ -538,7 +538,7 @@ export function OrderFulfillmentControl({
                   size="sm"
                   disabled={isPending}
                   onClick={handleCloseAction}
-                  className="order-2 sm:order-1"
+                  className="order-2 sm:order-1 font-normal text-xs"
                 >
                   {isVi ? "Hủy bỏ" : "Cancel"}
                 </Button>
@@ -548,7 +548,7 @@ export function OrderFulfillmentControl({
                   isLoading={isPending}
                   disabled={isPending}
                   onClick={handleConfirmDeliver}
-                  className="order-1 sm:order-2"
+                  className="order-1 sm:order-2 font-normal text-xs"
                 >
                   <span>{isVi ? "Xác nhận đã giao" : "Confirm Delivery"}</span>
                 </Button>
@@ -565,10 +565,10 @@ export function OrderFulfillmentControl({
               <div className="flex items-start gap-2.5">
                 <AlertTriangle className="h-5 w-5 text-amber shrink-0 mt-0.5" />
                 <div className="space-y-1">
-                  <h3 className="text-sm font-semibold text-foreground">
+                  <h3 className="text-sm font-normal text-foreground">
                     {isVi ? "Chuyển lùi trạng thái" : "Rollback to Processing"}
                   </h3>
-                  <p className="text-xs leading-relaxed text-muted-foreground">
+                  <p className="text-xs leading-relaxed text-muted-foreground font-normal">
                     {isVi
                       ? "Chuyển lùi trạng thái sẽ đưa đơn hàng về Đang chế tác và xóa mã vận đơn hiện tại. Bắt buộc nhập lý do cho hồ sơ kiểm toán."
                       : "Rolling back will return this order to Processing and clear its active tracking code. A reason is required for the audit record."}
@@ -581,12 +581,12 @@ export function OrderFulfillmentControl({
                 <div className="flex justify-between items-center text-xs">
                   <label
                     htmlFor={`rollback-reason-${orderId}`}
-                    className="font-medium text-foreground"
+                    className="font-normal text-foreground"
                   >
                     {isVi ? "Lý do chuyển lùi" : "Rollback Reason"}
                     <span className="text-destructive ml-1">*</span>
                   </label>
-                  <span className="text-muted-foreground text-[11px]">
+                  <span className="text-muted-foreground text-xs tabular-nums font-normal">
                     {rollbackReason.trim().length}/500
                   </span>
                 </div>
@@ -607,14 +607,14 @@ export function OrderFulfillmentControl({
                       : "e.g. Courier returned damaged parcel to atelier for inspection..."
                   }
                   className={cn(
-                    "w-full resize-none rounded-xl border bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 disabled:opacity-50",
+                    "w-full resize-none rounded-xl border bg-background px-3 py-2 text-[13px] font-normal text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 disabled:opacity-50",
                     rollbackError
                       ? "border-destructive focus:border-destructive focus:ring-destructive"
                       : "border-border focus:border-ring focus:ring-ring"
                   )}
                 />
                 {rollbackError && (
-                  <p className="text-xs text-destructive">{rollbackError}</p>
+                  <p className="text-xs font-normal text-destructive">{rollbackError}</p>
                 )}
               </div>
 
@@ -625,7 +625,7 @@ export function OrderFulfillmentControl({
                   size="sm"
                   disabled={isPending}
                   onClick={handleCloseAction}
-                  className="order-2 sm:order-1"
+                  className="order-2 sm:order-1 font-normal text-xs"
                 >
                   {isVi ? "Giữ trạng thái" : "Keep Shipped"}
                 </Button>
@@ -639,7 +639,7 @@ export function OrderFulfillmentControl({
                     rollbackReason.trim().length < 3 ||
                     rollbackReason.trim().length > 500
                   }
-                  className="order-1 sm:order-2 text-amber border-amber/40 hover:bg-amber/15 hover:text-amber"
+                  className="order-1 sm:order-2 text-amber border-amber/40 hover:bg-amber/15 hover:text-amber font-normal text-xs"
                 >
                   <span>{isVi ? "Xác nhận chuyển lùi" : "Confirm Rollback"}</span>
                 </Button>
@@ -654,7 +654,7 @@ export function OrderFulfillmentControl({
       {/* ------------------------------------------------------------- */}
       {status === "delivered" && (
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-xs text-sage font-medium">
+          <div className="flex items-center gap-2 text-xs text-sage font-normal">
             <CheckCircle2 className="h-4 w-4" />
             <span>
               {isVi
@@ -662,7 +662,7 @@ export function OrderFulfillmentControl({
                 : "Order fulfillment complete."}
             </span>
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground font-normal">
             {isVi
               ? "Tác phẩm đã được chuyển giao trọn vẹn tới quý khách."
               : "All creations have been safely received by the client."}

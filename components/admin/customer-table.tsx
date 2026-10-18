@@ -146,10 +146,10 @@ export function CustomerTable({
                     ? "Tìm theo tên khách hàng, số điện thoại hoặc ID..."
                     : "Search by customer name, phone, or UUID..."
                 }
-                className="pl-9.5 pr-4 h-10 text-xs sm:text-sm rounded-xl bg-background border-border"
+                className="pl-9.5 pr-4 h-10 text-[13px] rounded-xl bg-background border-border"
               />
             </div>
-            <Button type="submit" size="sm" className="h-10 px-4 rounded-xl text-xs">
+            <Button type="submit" size="sm" className="h-10 px-4 rounded-xl text-xs font-normal">
               <span>{isVi ? "Tìm kiếm" : "Search"}</span>
             </Button>
           </form>
@@ -160,7 +160,7 @@ export function CustomerTable({
               <Filter className="h-3.5 w-3.5 text-muted-foreground" />
               <label
                 htmlFor="customer-status-filter"
-                className="text-xs font-medium text-muted-foreground whitespace-nowrap"
+                className="text-xs font-normal text-muted-foreground whitespace-nowrap"
               >
                 {isVi ? "Trạng thái:" : "Status:"}
               </label>
@@ -168,7 +168,7 @@ export function CustomerTable({
                 id="customer-status-filter"
                 value={currentStatus}
                 onChange={(e) => handleStatusChange(e.target.value)}
-                className="bg-transparent text-xs font-medium text-foreground outline-hidden cursor-pointer"
+                className="bg-transparent text-xs font-normal text-foreground outline-hidden cursor-pointer"
               >
                 {STATUS_FILTER_OPTIONS.map((opt) => (
                   <option
@@ -188,7 +188,7 @@ export function CustomerTable({
                 variant="ghost"
                 size="sm"
                 onClick={handleResetFilters}
-                className="h-9 px-2.5 text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5"
+                className="h-9 px-2.5 text-xs font-normal text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
                 <span>{isVi ? "Đặt lại" : "Reset"}</span>
@@ -205,10 +205,10 @@ export function CustomerTable({
             <Users className="h-6 w-6" />
           </div>
           <div className="space-y-1">
-            <h3 className="font-serif text-lg font-medium text-foreground">
+            <h3 className="text-lg font-normal text-foreground">
               {isVi ? "Không tìm thấy khách hàng" : "No customers found"}
             </h3>
-            <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            <p className="text-[13.5px] leading-[1.6] font-normal text-muted-foreground max-w-md mx-auto">
               {hasActiveFilters
                 ? isVi
                   ? "Không có khách hàng nào khớp với tiêu chí tìm kiếm hoặc bộ lọc hiện tại."
@@ -224,7 +224,7 @@ export function CustomerTable({
               variant="outline"
               size="sm"
               onClick={handleResetFilters}
-              className="inline-flex items-center gap-1.5 text-xs"
+              className="inline-flex items-center gap-1.5 text-xs font-normal"
             >
               <RotateCcw className="h-3.5 w-3.5" />
               <span>{isVi ? "Xóa bộ lọc" : "Clear filters"}</span>
@@ -236,24 +236,24 @@ export function CustomerTable({
           {/* Desktop Table View */}
           <div className="hidden md:block overflow-x-auto rounded-2xl border border-border bg-card/40 shadow-2xs">
             <table className="w-full text-left text-sm">
-              <thead className="border-b border-border bg-muted/30 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <thead className="border-b border-border bg-muted/30 text-[11px] font-normal uppercase tracking-wider text-muted-foreground">
                 <tr>
-                  <th scope="col" className="py-3.5 px-6">
+                  <th scope="col" className="py-3.5 px-6 font-normal">
                     {isVi ? "Khách hàng" : "Customer"}
                   </th>
-                  <th scope="col" className="py-3.5 px-6">
+                  <th scope="col" className="py-3.5 px-6 font-normal">
                     {isVi ? "Trạng thái" : "Status"}
                   </th>
-                  <th scope="col" className="py-3.5 px-6">
+                  <th scope="col" className="py-3.5 px-6 font-normal">
                     {isVi ? "Số đơn hàng" : "Orders"}
                   </th>
-                  <th scope="col" className="py-3.5 px-6 text-right">
+                  <th scope="col" className="py-3.5 px-6 text-right font-normal">
                     {isVi ? "Tổng chi tiêu" : "Lifetime Spend"}
                   </th>
-                  <th scope="col" className="py-3.5 px-6 whitespace-nowrap">
+                  <th scope="col" className="py-3.5 px-6 whitespace-nowrap font-normal">
                     {isVi ? "Gia nhập" : "Member Since"}
                   </th>
-                  <th scope="col" className="py-3.5 px-6 text-right">
+                  <th scope="col" className="py-3.5 px-6 text-right font-normal">
                     <span className="sr-only">{isVi ? "Thao tác" : "Actions"}</span>
                   </th>
                 </tr>
@@ -277,19 +277,19 @@ export function CustomerTable({
                           <div className="min-w-0">
                             <Link
                               href={`/admin/customers/${c.id}`}
-                              className="font-medium text-foreground hover:text-amber transition-colors line-clamp-1"
+                              className="font-normal text-[13.5px] text-foreground hover:text-amber transition-colors line-clamp-1"
                             >
                               {displayName}
                             </Link>
                             <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
                               {c.phone && (
-                                <span className="font-mono text-foreground/80">
+                                <span className="tabular-nums font-normal text-xs text-foreground/80">
                                   {c.phone}
                                 </span>
                               )}
                               {c.phone && <span>•</span>}
                               <span
-                                className="font-mono text-[11px] text-muted-foreground/80 truncate max-w-[120px]"
+                                className="tabular-nums font-normal text-xs text-muted-foreground/80 truncate max-w-[120px]"
                                 title={c.id}
                               >
                                 {c.id.slice(0, 8)}…
@@ -305,7 +305,7 @@ export function CustomerTable({
 
                       <td className="py-4 px-6 whitespace-nowrap">
                         {canReadOrders && c.orderCount !== null ? (
-                          <div className="inline-flex items-center gap-1.5 text-xs text-foreground font-medium">
+                          <div className="inline-flex items-center gap-1.5 text-xs text-foreground font-normal tabular-nums">
                             <ShoppingBag className="h-3.5 w-3.5 text-muted-foreground" />
                             <span>
                               {c.orderCount}{" "}
@@ -323,13 +323,13 @@ export function CustomerTable({
                         )}
                       </td>
 
-                      <td className="py-4 px-6 text-right font-serif font-medium text-foreground whitespace-nowrap">
+                      <td className="py-4 px-6 text-right font-normal tabular-nums text-foreground whitespace-nowrap text-[13.5px]">
                         {canReadOrders && c.lifetimeSpend !== null
                           ? formatPrice(c.lifetimeSpend)
                           : "—"}
                       </td>
 
-                      <td className="py-4 px-6 text-xs text-muted-foreground whitespace-nowrap">
+                      <td className="py-4 px-6 text-xs font-normal tabular-nums text-muted-foreground whitespace-nowrap">
                         {formatDate(c.createdAt)}
                       </td>
 
@@ -338,7 +338,7 @@ export function CustomerTable({
                           asChild
                           variant="outline"
                           size="sm"
-                          className="inline-flex items-center gap-1.5 text-xs h-8 px-3 rounded-lg"
+                          className="inline-flex items-center gap-1.5 text-xs font-normal h-8 px-3 rounded-lg"
                         >
                           <Link href={`/admin/customers/${c.id}`}>
                             <span>{isVi ? "Xem hồ sơ" : "View"}</span>
@@ -373,12 +373,12 @@ export function CustomerTable({
                       <div className="min-w-0">
                         <Link
                           href={`/admin/customers/${c.id}`}
-                          className="font-medium text-foreground hover:text-amber line-clamp-1 text-sm"
+                          className="font-normal text-foreground hover:text-amber line-clamp-1 text-sm"
                         >
                           {displayName}
                         </Link>
                         {c.phone && (
-                          <div className="text-xs font-mono text-muted-foreground">
+                          <div className="text-xs tabular-nums font-normal text-muted-foreground">
                             {c.phone}
                           </div>
                         )}
@@ -389,10 +389,10 @@ export function CustomerTable({
 
                   <div className="grid grid-cols-2 gap-3 pt-2 border-t border-border/60 text-xs">
                     <div>
-                      <span className="text-muted-foreground block text-[11px] uppercase tracking-wider">
+                      <span className="text-muted-foreground block text-[10.5px] font-normal uppercase tracking-wider">
                         {isVi ? "Đơn hàng" : "Orders"}
                       </span>
-                      <span className="font-medium text-foreground mt-0.5 inline-block">
+                      <span className="font-normal tabular-nums text-foreground mt-0.5 inline-block text-xs">
                         {canReadOrders && c.orderCount !== null ? (
                           <>
                             {c.orderCount}{" "}
@@ -403,7 +403,7 @@ export function CustomerTable({
                                 : "orders"}
                           </>
                         ) : (
-                          <span className="text-muted-foreground italic font-sans">
+                          <span className="text-muted-foreground italic font-normal">
                             —
                           </span>
                         )}
@@ -411,14 +411,14 @@ export function CustomerTable({
                     </div>
 
                     <div className="text-right">
-                      <span className="text-muted-foreground block text-[11px] uppercase tracking-wider">
+                      <span className="text-muted-foreground block text-[10.5px] font-normal uppercase tracking-wider">
                         {isVi ? "Tổng chi tiêu" : "Spend"}
                       </span>
-                      <span className="font-serif font-medium text-foreground mt-0.5 inline-block">
+                      <span className="font-normal tabular-nums text-foreground mt-0.5 inline-block text-xs">
                         {canReadOrders && c.lifetimeSpend !== null ? (
                           formatPrice(c.lifetimeSpend)
                         ) : (
-                          <span className="text-muted-foreground italic font-sans">
+                          <span className="text-muted-foreground italic font-normal">
                             —
                           </span>
                         )}
@@ -426,8 +426,8 @@ export function CustomerTable({
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-border/60 text-[11px] text-muted-foreground">
-                    <span>
+                  <div className="flex items-center justify-between pt-2 border-t border-border/60 text-xs text-muted-foreground">
+                    <span className="tabular-nums font-normal text-xs">
                       {isVi ? "Gia nhập: " : "Joined: "}
                       {formatDate(c.createdAt)}
                     </span>
@@ -435,7 +435,7 @@ export function CustomerTable({
                       asChild
                       variant="outline"
                       size="sm"
-                      className="h-7 px-2.5 text-xs rounded-lg inline-flex items-center gap-1"
+                      className="h-7 px-2.5 text-xs font-normal rounded-lg inline-flex items-center gap-1"
                     >
                       <Link href={`/admin/customers/${c.id}`}>
                         <span>{isVi ? "Xem" : "View"}</span>
@@ -450,18 +450,18 @@ export function CustomerTable({
 
           {/* Bounded Pagination Controls */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
-            <div className="text-xs text-muted-foreground">
+            <div className="text-xs font-normal text-muted-foreground">
               {isVi ? (
                 <>
-                  Hiển thị <span className="font-medium text-foreground">{startRecord}</span> đến{" "}
-                  <span className="font-medium text-foreground">{endRecord}</span> trên{" "}
-                  <span className="font-medium text-foreground">{totalCount}</span> khách hàng
+                  Hiển thị <span className="font-normal tabular-nums text-foreground">{startRecord}</span> đến{" "}
+                  <span className="font-normal tabular-nums text-foreground">{endRecord}</span> trên{" "}
+                  <span className="font-normal tabular-nums text-foreground">{totalCount}</span> khách hàng
                 </>
               ) : (
                 <>
-                  Showing <span className="font-medium text-foreground">{startRecord}</span> to{" "}
-                  <span className="font-medium text-foreground">{endRecord}</span> of{" "}
-                  <span className="font-medium text-foreground">{totalCount}</span> customers
+                  Showing <span className="font-normal tabular-nums text-foreground">{startRecord}</span> to{" "}
+                  <span className="font-normal tabular-nums text-foreground">{endRecord}</span> of{" "}
+                  <span className="font-normal tabular-nums text-foreground">{totalCount}</span> customers
                 </>
               )}
             </div>
@@ -473,13 +473,13 @@ export function CustomerTable({
                 size="sm"
                 onClick={handlePreviousPage}
                 disabled={page <= 1}
-                className="h-8 px-3 rounded-lg text-xs inline-flex items-center gap-1"
+                className="h-8 px-3 rounded-lg text-xs font-normal inline-flex items-center gap-1"
               >
                 <ChevronLeft className="h-3.5 w-3.5" />
                 <span>{isVi ? "Trước" : "Previous"}</span>
               </Button>
 
-              <span className="text-xs font-medium text-muted-foreground px-2">
+              <span className="text-xs font-normal tabular-nums text-muted-foreground px-2">
                 {isVi ? `Trang ${page}` : `Page ${page}`}
               </span>
 
@@ -489,7 +489,7 @@ export function CustomerTable({
                 size="sm"
                 onClick={handleNextPage}
                 disabled={!hasMore}
-                className="h-8 px-3 rounded-lg text-xs inline-flex items-center gap-1"
+                className="h-8 px-3 rounded-lg text-xs font-normal inline-flex items-center gap-1"
               >
                 <span>{isVi ? "Sau" : "Next"}</span>
                 <ChevronRight className="h-3.5 w-3.5" />

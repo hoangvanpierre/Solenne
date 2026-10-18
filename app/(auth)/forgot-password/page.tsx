@@ -26,7 +26,7 @@ export default function ForgotPasswordPage() {
           <CheckCircle2 className="w-6 h-6" />
         </div>
         <div className="space-y-2">
-          <h1 className="font-serif text-3xl font-semibold text-foreground">
+          <h1 className="text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground">
             {isVi ? "Đã Gửi Liên Kết Khôi Phục" : "Reset Link Sent"}
           </h1>
           <p className="text-sm text-muted-foreground leading-relaxed">
@@ -49,7 +49,7 @@ export default function ForgotPasswordPage() {
         <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center mb-4 text-foreground/80">
           <KeyRound className="w-5 h-5" />
         </div>
-        <h1 className="font-serif text-3xl sm:text-4xl font-semibold tracking-tight text-foreground">
+        <h1 className="text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground">
           {isVi ? "Khôi Phục Mật Khẩu" : "Recover Password"}
         </h1>
         <p className="text-sm text-muted-foreground">

@@ -179,8 +179,8 @@ export function ScentCanvas({ category, active = true }: ScentCanvasProps) {
     <div className="relative h-[380px] w-full sm:h-[450px] lg:h-[500px]">
       <Canvas
         camera={{ position: [0, 1.2, 3.8], fov: 42 }}
-        dpr={[1, 2]}
-        gl={{ antialias: true, alpha: true }}
+        dpr={[1, 1.5]}
+        gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
         frameloop={active ? "always" : "never"}
       >
         <ambientLight intensity={0.8} />

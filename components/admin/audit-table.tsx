@@ -273,7 +273,7 @@ export function AuditTable({
         return (
           <Link
             href={`/admin/orders/${encodeURIComponent(log.resourceId)}`}
-            className="inline-flex items-center gap-1 font-mono text-xs text-amber hover:underline transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber"
+            className="inline-flex items-center gap-1 tabular-nums font-normal text-xs text-amber hover:underline transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber"
             title={`View order details: ${log.resourceId}`}
           >
             <span>{label}</span>
@@ -284,7 +284,7 @@ export function AuditTable({
 
       return (
         <span
-          className="font-mono text-xs text-foreground/80"
+          className="tabular-nums font-normal text-xs text-foreground/80"
           title={`Order ID: ${log.resourceId}`}
         >
           {label}
@@ -304,7 +304,7 @@ export function AuditTable({
         return (
           <Link
             href={`/admin/products/${encodeURIComponent(log.resourceId)}`}
-            className="inline-flex items-center gap-1 font-mono text-xs text-sage hover:underline transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sage"
+            className="inline-flex items-center gap-1 font-normal text-xs text-sage hover:underline transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sage"
             title={`View product: ${log.resourceId}`}
           >
             <span>{productName}</span>
@@ -315,7 +315,7 @@ export function AuditTable({
 
       return (
         <span
-          className="font-mono text-xs text-foreground/80"
+          className="font-normal text-xs text-foreground/80"
           title={`Product ID: ${log.resourceId}`}
         >
           {productName}
@@ -335,7 +335,7 @@ export function AuditTable({
         return (
           <Link
             href={`/admin/products/${encodeURIComponent(rawProductId)}`}
-            className="inline-flex items-center gap-1 font-mono text-xs text-sage hover:underline transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sage"
+            className="inline-flex items-center gap-1 tabular-nums font-normal text-xs text-sage hover:underline transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sage"
             title={`View parent product: ${rawProductId}`}
           >
             <span>{label}</span>
@@ -346,7 +346,7 @@ export function AuditTable({
 
       return (
         <span
-          className="font-mono text-xs text-foreground/80"
+          className="tabular-nums font-normal text-xs text-foreground/80"
           title={`Variant ID: ${log.resourceId}`}
         >
           {label}
@@ -357,7 +357,7 @@ export function AuditTable({
     if (log.resourceType === "profile" && log.resourceId) {
       return (
         <span
-          className="font-mono text-xs text-muted-foreground"
+          className="tabular-nums font-normal text-xs text-muted-foreground"
           title={`User Profile: ${log.resourceId}`}
         >
           {log.actorName ? log.actorName : `User: ${log.resourceId.slice(0, 8)}…`}
@@ -366,7 +366,7 @@ export function AuditTable({
     }
 
     return (
-      <span className="font-mono text-xs text-muted-foreground">
+      <span className="tabular-nums font-normal text-xs text-muted-foreground">
         {log.resourceId ? `${log.resourceType}:${log.resourceId.slice(0, 8)}…` : log.resourceType}
       </span>
     );
@@ -375,7 +375,7 @@ export function AuditTable({
   const renderActor = (log: AuditLog) => {
     if (!log.actorId) {
       return (
-        <span className="inline-flex items-center gap-1 text-xs italic text-muted-foreground">
+        <span className="inline-flex items-center gap-1 text-xs italic font-normal text-muted-foreground">
           <ShieldCheck className="h-3.5 w-3.5 opacity-60" />
           <span>{isVi ? "Hệ thống" : "System"}</span>
         </span>
@@ -384,7 +384,7 @@ export function AuditTable({
 
     if (log.actorName) {
       return (
-        <span className="inline-flex items-center gap-1 text-xs font-medium text-foreground">
+        <span className="inline-flex items-center gap-1 text-xs font-normal text-foreground">
           <User className="h-3.5 w-3.5 text-muted-foreground" />
           <span>{log.actorName}</span>
         </span>
@@ -393,7 +393,7 @@ export function AuditTable({
 
     return (
       <span
-        className="inline-flex items-center gap-1 font-mono text-xs text-muted-foreground"
+        className="inline-flex items-center gap-1 tabular-nums font-normal text-xs text-muted-foreground"
         title={`Actor UUID: ${log.actorId}`}
       >
         <User className="h-3.5 w-3.5 opacity-60" />
@@ -409,7 +409,7 @@ export function AuditTable({
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-wrap items-center gap-3">
             {/* Action / Category Filter */}
-            <div className="flex items-center gap-1.5 text-xs">
+            <div className="flex items-center gap-1.5 text-xs font-normal">
               <label htmlFor="audit-action-filter" className="sr-only">
                 {isVi ? "Lọc theo hành động" : "Filter by action"}
               </label>
@@ -417,7 +417,7 @@ export function AuditTable({
                 id="audit-action-filter"
                 value={currentAction}
                 onChange={(e) => handleActionChange(e.target.value)}
-                className="rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-amber focus:outline-none focus:ring-1 focus:ring-amber"
+                className="rounded-xl border border-border bg-background px-3 py-2 text-xs font-normal text-foreground focus:border-amber focus:outline-none focus:ring-1 focus:ring-amber"
               >
                 {ACTION_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -428,7 +428,7 @@ export function AuditTable({
             </div>
 
             {/* Resource Type Filter */}
-            <div className="flex items-center gap-1.5 text-xs">
+            <div className="flex items-center gap-1.5 text-xs font-normal">
               <label htmlFor="audit-resource-filter" className="sr-only">
                 {isVi ? "Lọc theo tài nguyên" : "Filter by resource"}
               </label>
@@ -436,7 +436,7 @@ export function AuditTable({
                 id="audit-resource-filter"
                 value={currentResourceType}
                 onChange={(e) => handleResourceTypeChange(e.target.value)}
-                className="rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-amber focus:outline-none focus:ring-1 focus:ring-amber"
+                className="rounded-xl border border-border bg-background px-3 py-2 text-xs font-normal text-foreground focus:border-amber focus:outline-none focus:ring-1 focus:ring-amber"
               >
                 {RESOURCE_TYPE_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -447,7 +447,7 @@ export function AuditTable({
             </div>
 
             {/* Date Preset Filter */}
-            <div className="flex items-center gap-1.5 text-xs">
+            <div className="flex items-center gap-1.5 text-xs font-normal">
               <label htmlFor="audit-date-filter" className="sr-only">
                 {isVi ? "Lọc theo thời gian" : "Filter by date"}
               </label>
@@ -455,7 +455,7 @@ export function AuditTable({
                 id="audit-date-filter"
                 value={currentDatePreset}
                 onChange={(e) => handleDatePresetChange(e.target.value)}
-                className="rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-amber focus:outline-none focus:ring-1 focus:ring-amber"
+                className="rounded-xl border border-border bg-background px-3 py-2 text-xs font-normal text-foreground focus:border-amber focus:outline-none focus:ring-1 focus:ring-amber"
               >
                 {DATE_PRESET_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -472,7 +472,7 @@ export function AuditTable({
                 variant="outline"
                 size="sm"
                 onClick={handleResetFilters}
-                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+                className="inline-flex items-center gap-1.5 text-xs font-normal text-muted-foreground hover:text-foreground"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
                 <span>{isVi ? "Đặt lại" : "Reset"}</span>
@@ -481,14 +481,14 @@ export function AuditTable({
           </div>
 
           {/* Active Filter Indicator */}
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2 text-xs font-normal text-muted-foreground">
             {hasActiveFilters && (
-              <span className="inline-flex items-center gap-1 rounded-full border border-amber/30 bg-amber/10 px-2.5 py-0.5 text-[11px] font-medium text-amber">
+              <span className="inline-flex items-center gap-1 rounded-full border border-amber/30 bg-amber/10 px-2.5 py-0.5 text-[11px] font-normal text-amber">
                 <Filter className="h-3 w-3" />
                 <span>{isVi ? "Bộ lọc đang kích hoạt" : "Filters active"}</span>
               </span>
             )}
-            <span>
+            <span className="tabular-nums">
               {isVi
                 ? `Trang ${page} • ${logs.length} bản ghi${totalCount > 0 ? ` (tổng ${totalCount})` : ""}`
                 : `Page ${page} • ${logs.length} records${totalCount > 0 ? ` (${totalCount} total)` : ""}`}
@@ -503,10 +503,10 @@ export function AuditTable({
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted/40">
             <Package className="h-6 w-6 text-muted-foreground" />
           </div>
-          <h3 className="mt-4 font-serif text-lg font-medium text-foreground">
+          <h3 className="mt-4 text-lg font-normal text-foreground">
             {isVi ? "Không tìm thấy nhật ký kiểm toán" : "No audit records found"}
           </h3>
-          <p className="mt-1 text-xs text-muted-foreground max-w-sm">
+          <p className="mt-1 text-[13.5px] leading-[1.6] font-normal text-muted-foreground max-w-sm">
             {hasActiveFilters
               ? isVi
                 ? "Không có bản ghi nào thỏa mãn điều kiện lọc. Vui lòng thử thay đổi tiêu chí hoặc đặt lại bộ lọc."
@@ -522,7 +522,7 @@ export function AuditTable({
                 variant="outline"
                 size="sm"
                 onClick={handleResetFilters}
-                className="inline-flex items-center gap-1.5"
+                className="inline-flex items-center gap-1.5 text-xs font-normal"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
                 <span>{isVi ? "Xóa bộ lọc" : "Clear filters"}</span>
@@ -536,24 +536,24 @@ export function AuditTable({
           <div className="hidden lg:block overflow-hidden rounded-2xl border border-border bg-card/40">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="border-b border-border bg-muted/20 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <thead className="border-b border-border bg-muted/20 text-[11px] font-normal text-muted-foreground uppercase tracking-wider">
                   <tr>
-                    <th scope="col" className="px-5 py-3.5">
+                    <th scope="col" className="px-5 py-3.5 font-normal">
                       {isVi ? "Thời gian" : "Timestamp"}
                     </th>
-                    <th scope="col" className="px-5 py-3.5">
+                    <th scope="col" className="px-5 py-3.5 font-normal">
                       {isVi ? "Hành động" : "Action"}
                     </th>
-                    <th scope="col" className="px-5 py-3.5">
+                    <th scope="col" className="px-5 py-3.5 font-normal">
                       {isVi ? "Người thực hiện" : "Actor"}
                     </th>
-                    <th scope="col" className="px-5 py-3.5">
+                    <th scope="col" className="px-5 py-3.5 font-normal">
                       {isVi ? "Đối tượng" : "Target"}
                     </th>
-                    <th scope="col" className="px-5 py-3.5">
+                    <th scope="col" className="px-5 py-3.5 font-normal">
                       {isVi ? "Nội dung tóm tắt" : "Summary"}
                     </th>
-                    <th scope="col" className="px-5 py-3.5 text-right">
+                    <th scope="col" className="px-5 py-3.5 text-right font-normal">
                       {isVi ? "Chi tiết" : "Details"}
                     </th>
                   </tr>
@@ -572,7 +572,7 @@ export function AuditTable({
                         {/* Timestamp */}
                         <td className="px-5 py-4 whitespace-nowrap text-xs text-muted-foreground">
                           <span
-                            className="inline-flex items-center gap-1 font-mono"
+                            className="inline-flex items-center gap-1 tabular-nums font-normal"
                             title={log.createdAt}
                           >
                             <Clock className="h-3.5 w-3.5 opacity-60" />
@@ -583,7 +583,7 @@ export function AuditTable({
                         {/* Action Badge */}
                         <td className="px-5 py-4 whitespace-nowrap">
                           <span
-                            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${getActionBadgeStyle(
+                            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-normal ${getActionBadgeStyle(
                               log.action
                             )}`}
                           >
@@ -602,7 +602,7 @@ export function AuditTable({
                         </td>
 
                         {/* Human-readable Summary */}
-                        <td className="px-5 py-4 text-xs text-foreground/90 max-w-md">
+                        <td className="px-5 py-4 text-xs font-normal text-foreground/90 max-w-md">
                           <div>
                             <span>
                               {formatAuditSummary(log.action, log.metadata, locale)}
@@ -612,16 +612,16 @@ export function AuditTable({
                           {/* Expanded Metadata Disclosure */}
                           {isExpanded && (
                             <div className="mt-3 rounded-xl border border-border/60 bg-muted/20 p-3 space-y-2">
-                              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                              <span className="text-[10.5px] font-normal uppercase tracking-wider text-muted-foreground">
                                 {isVi ? "Siêu dữ liệu được phê duyệt" : "Approved Metadata"}
                               </span>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs tabular-nums font-normal">
                                 {metadataEntries.map(([key, val]) => (
                                   <div
                                     key={key}
                                     className="flex flex-col bg-background/60 p-2 rounded-lg border border-border/40"
                                   >
-                                    <span className="text-[10px] text-muted-foreground uppercase">
+                                    <span className="text-[10.5px] font-normal text-muted-foreground uppercase">
                                       {key}
                                     </span>
                                     <span
@@ -650,7 +650,7 @@ export function AuditTable({
                               size="sm"
                               onClick={() => toggleExpand(log.id)}
                               aria-expanded={isExpanded}
-                              className="inline-flex items-center gap-1 text-xs"
+                              className="inline-flex items-center gap-1 text-xs font-normal"
                             >
                               <span>{isExpanded ? (isVi ? "Thu gọn" : "Hide") : (isVi ? "Xem" : "Inspect")}</span>
                               {isExpanded ? (
@@ -686,14 +686,14 @@ export function AuditTable({
                   {/* Top Bar: Action Badge & Timestamp */}
                   <div className="flex items-center justify-between gap-2">
                     <span
-                      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${getActionBadgeStyle(
+                      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-normal ${getActionBadgeStyle(
                         log.action
                       )}`}
                     >
                       {log.action}
                     </span>
                     <span
-                      className="inline-flex items-center gap-1 font-mono text-[11px] text-muted-foreground"
+                      className="inline-flex items-center gap-1 tabular-nums font-normal text-xs text-muted-foreground"
                       title={log.createdAt}
                     >
                       <Clock className="h-3 w-3 opacity-60" />
@@ -702,20 +702,20 @@ export function AuditTable({
                   </div>
 
                   {/* Summary */}
-                  <p className="text-xs font-medium text-foreground leading-relaxed">
+                  <p className="text-xs font-normal text-foreground leading-relaxed">
                     {formatAuditSummary(log.action, log.metadata, locale)}
                   </p>
 
                   {/* Actor and Target Details */}
                   <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-border/40">
                     <div>
-                      <span className="text-[10px] uppercase text-muted-foreground block">
+                      <span className="text-[10.5px] font-normal uppercase text-muted-foreground block">
                         {isVi ? "Người thực hiện" : "Actor"}
                       </span>
                       <div className="mt-0.5">{renderActor(log)}</div>
                     </div>
                     <div>
-                      <span className="text-[10px] uppercase text-muted-foreground block">
+                      <span className="text-[10.5px] font-normal uppercase text-muted-foreground block">
                         {isVi ? "Đối tượng" : "Target"}
                       </span>
                       <div className="mt-0.5">{renderTargetEntity(log)}</div>
@@ -731,7 +731,7 @@ export function AuditTable({
                         size="sm"
                         onClick={() => toggleExpand(log.id)}
                         aria-expanded={isExpanded}
-                        className="w-full inline-flex items-center justify-center gap-1 text-xs"
+                        className="w-full inline-flex items-center justify-center gap-1 text-xs font-normal"
                       >
                         <span>
                           {isExpanded
@@ -751,16 +751,16 @@ export function AuditTable({
 
                       {isExpanded && (
                         <div className="mt-2.5 rounded-xl border border-border/60 bg-muted/20 p-3 space-y-2">
-                          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          <span className="text-[10.5px] font-normal uppercase tracking-wider text-muted-foreground">
                             {isVi ? "Siêu dữ liệu được phê duyệt" : "Approved Metadata"}
                           </span>
-                          <div className="space-y-1.5 text-xs font-mono">
+                          <div className="space-y-1.5 text-xs tabular-nums font-normal">
                             {metadataEntries.map(([key, val]) => (
                               <div
                                 key={key}
                                 className="flex flex-col bg-background/60 p-2 rounded-lg border border-border/40"
                               >
-                                <span className="text-[10px] text-muted-foreground uppercase">
+                                <span className="text-[10.5px] font-normal text-muted-foreground uppercase">
                                   {key}
                                 </span>
                                 <span
@@ -787,7 +787,7 @@ export function AuditTable({
 
           {/* Pagination Controls */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs font-normal tabular-nums text-muted-foreground">
               {isVi
                 ? `Đang xem trang ${page} (${limit} bản ghi/trang)`
                 : `Viewing page ${page} (${limit} per page)`}
@@ -800,13 +800,13 @@ export function AuditTable({
                 size="sm"
                 onClick={handlePreviousPage}
                 disabled={page <= 1}
-                className="inline-flex items-center gap-1 text-xs"
+                className="inline-flex items-center gap-1 text-xs font-normal"
               >
                 <ChevronLeft className="h-3.5 w-3.5" />
                 <span>{isVi ? "Trang trước" : "Previous"}</span>
               </Button>
 
-              <span className="px-2 text-xs font-medium font-mono text-foreground">
+              <span className="px-2 text-xs font-normal tabular-nums text-foreground">
                 {page}
               </span>
 
@@ -816,7 +816,7 @@ export function AuditTable({
                 size="sm"
                 onClick={handleNextPage}
                 disabled={!hasMore}
-                className="inline-flex items-center gap-1 text-xs"
+                className="inline-flex items-center gap-1 text-xs font-normal"
               >
                 <span>{isVi ? "Trang sau" : "Next"}</span>
                 <ChevronRight className="h-3.5 w-3.5" />

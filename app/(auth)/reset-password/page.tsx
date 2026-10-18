@@ -27,7 +27,7 @@ export default function ResetPasswordPage() {
         <div className="w-10 h-10 rounded-full bg-amber/10 text-amber flex items-center justify-center mb-4">
           <ShieldCheck className="w-5 h-5" />
         </div>
-        <h1 className="font-serif text-3xl sm:text-4xl font-semibold tracking-tight text-foreground">
+        <h1 className="text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground">
           {isVi ? "Thiết Lập Mật Khẩu Mới" : "Set New Password"}
         </h1>
         <p className="text-sm text-muted-foreground">

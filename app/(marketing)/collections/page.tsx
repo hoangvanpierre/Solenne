@@ -18,10 +18,10 @@ export default async function CollectionsPage() {
     <div className="py-24 lg:py-32">
       <Container>
         <div className="mb-16">
-          <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-4 text-foreground">
+          <h1 className="font-serif text-2xl sm:text-3xl font-normal leading-[1.22] mb-3 text-foreground">
             {isVi ? "Các Bộ sưu tập Hương sắc" : "Collections"}
           </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl leading-relaxed">
+          <p className="text-muted-foreground text-sm sm:text-base max-w-2xl leading-relaxed">
             {isVi
               ? "Mỗi bộ sưu tập được kiến tạo xoay quanh một họ hương đặc trưng, đưa bạn chạm vào miền cảm xúc hằng kiếm tìm. Đổ tay theo từng mẻ nhỏ từ sáp đậu nành thiên nhiên thuần khiết và tinh dầu nước hoa Pháp cao cấp."
               : "Each collection is composed around a scent family, so you can find the mood you're seeking. Hand-poured in small batches with natural soy wax and premium fragrance oils."}
@@ -40,7 +40,7 @@ export default async function CollectionsPage() {
                 aria-hidden="true"
               />
               <div className="relative">
-                <h2 className="font-serif text-3xl font-semibold text-foreground">
+                <h2 className="font-serif text-xl sm:text-2xl font-normal leading-[1.25] text-foreground">
                   {isVi ? category.nameVi : category.name}
                 </h2>
                 <p className="mt-3 max-w-md text-muted-foreground leading-relaxed">

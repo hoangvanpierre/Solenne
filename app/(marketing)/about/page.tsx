@@ -60,31 +60,31 @@ export default async function AboutPage() {
     <div className="py-24 lg:py-32">
       <Container className="max-w-3xl">
         <header className="mb-20">
-          <p className="mb-4 text-sm uppercase tracking-[0.3em] text-muted-foreground">
+          <p className="mb-3 text-[10.5px] sm:text-[11px] uppercase tracking-[0.16em] text-muted-foreground font-normal">
             {isVi ? "Di sản & Nghệ thuật chế tác" : "Our Story"}
           </p>
-          <h1 className="font-serif text-4xl md:text-6xl font-semibold mb-6 text-foreground">
+          <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-normal leading-[1.22] mb-5 text-foreground">
             {isVi
               ? "Ba mươi năm thắp sáng, tĩnh lặng và ướp hương."
               : "Crafted with intention. Born from nature."}
           </h1>
-          <p className="text-lg leading-relaxed text-muted-foreground">
+          <p className="text-sm sm:text-base leading-[1.7] text-muted-foreground font-normal">
             {isVi
               ? "Solenne được khai sinh từ một suy tưởng mộc mạc: một ngọn nến không đơn thuần là mùi hương. Đó là một nghi thức tĩnh tại, được tạo tác chân thực từ tinh hoa đất trời để tôn vinh chốn an trú của tâm hồn."
               : "Solenne began with a simple belief: that a candle should be more than a scent. It should be a moment of peace, made honestly, from materials that respect the home it burns in and the world it comes from."}
           </p>
         </header>
 
-        <div className="space-y-20">
+        <div className="space-y-16">
           {sections.map((section) => (
             <section key={section.id} id={section.id} className="scroll-mt-24">
-              <h2 className="font-serif text-3xl font-semibold mb-6 text-foreground">
+              <h2 className="font-serif text-xl sm:text-2xl font-normal leading-[1.28] mb-4 text-foreground">
                 {section.title}
               </h2>
               {section.paragraphs.map((paragraph) => (
                 <p
                   key={paragraph.slice(0, 24)}
-                  className="mb-4 text-base leading-relaxed text-muted-foreground"
+                  className="mb-4 text-[14px] sm:text-[15px] leading-[1.7] text-muted-foreground font-normal"
                 >
                   {paragraph}
                 </p>

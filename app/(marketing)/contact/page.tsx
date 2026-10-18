@@ -48,10 +48,10 @@ export default async function ContactPage() {
     <div className="py-24 lg:py-32">
       <Container className="max-w-5xl">
         <div className="mb-16">
-          <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-4 text-foreground">
+          <h1 className="font-serif text-2xl sm:text-3xl font-normal leading-[1.22] mb-3 text-foreground tracking-[0.02em]">
             {isVi ? "Liên hệ Nhà hương" : "Contact"}
           </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl leading-relaxed">
+          <p className="text-muted-foreground text-sm sm:text-base max-w-2xl font-normal leading-relaxed">
             {isVi
               ? "Dù là một băn khoăn về đơn hàng, nốt hương quý khách đang kiếm tìm, hay món quà gửi trao người thương, chúng tôi luôn ở đây để lắng nghe."
               : "Whether it's a question about an order, a scent you're searching for, or a gift you'd like help choosing, we'd love to hear from you."}
@@ -66,18 +66,18 @@ export default async function ContactPage() {
                   <Icon className="h-5 w-5 text-foreground" />
                 </div>
                 <div>
-                  <h2 className="font-serif text-lg font-semibold text-foreground">
+                  <h2 className="font-serif text-base font-normal text-foreground leading-[1.3]">
                     {title}
                   </h2>
                   {lines.map((line) => (
-                    <p key={line} className="text-sm text-muted-foreground">
+                    <p key={line} className="text-[13px] text-muted-foreground font-normal">
                       {line}
                     </p>
                   ))}
                 </div>
               </div>
             ))}
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-[13px] text-muted-foreground font-normal leading-relaxed">
               {isVi
                 ? "Đối với các câu hỏi về đơn hàng cụ thể, quý khách vui lòng kèm theo mã đơn hàng để chúng tôi hỗ trợ nhanh nhất."
                 : "For order-specific questions, please include your order number so we can help you faster."}

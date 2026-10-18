@@ -56,23 +56,23 @@ export function ProductInfo({ product }: ProductInfoProps) {
     <div className="flex flex-col gap-6">
       {/* Header */}
       <div>
-        <Badge className="mb-4">{catName}</Badge>
-        <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-2">
+        <Badge className="mb-3">{catName}</Badge>
+        <h1 className="font-serif text-2xl sm:text-3xl font-normal leading-[1.2] mb-2 text-foreground">
           {product.name}
         </h1>
         {product.tagline && (
-          <p className="text-lg text-muted-foreground">{product.tagline}</p>
+          <p className="text-sm sm:text-base text-muted-foreground">{product.tagline}</p>
         )}
       </div>
 
       {/* Price & Rating */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <span className="text-2xl font-medium">
+          <span className="text-xl sm:text-2xl font-normal tabular-nums text-foreground">
             {format(selectedVariant.price)}
           </span>
           {isSale && (
-            <span className="text-lg text-muted-foreground line-through">
+            <span className="text-base tabular-nums text-muted-foreground line-through">
               {format(product.compareAtPrice!)}
             </span>
           )}

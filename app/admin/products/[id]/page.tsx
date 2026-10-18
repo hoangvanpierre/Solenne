@@ -131,18 +131,18 @@ export default async function AdminProductDetailPage({
             <ShieldAlert className="h-6 w-6 text-amber" />
           </div>
 
-          <h2 className="font-serif text-2xl font-medium text-foreground">
+          <h2 className="mt-5 text-2xl font-normal text-foreground">
             {isVi ? "Khu vực không khả dụng" : "Access Restricted"}
           </h2>
 
-          <p className="mx-auto max-w-lg text-sm leading-relaxed text-muted-foreground">
+          <p className="mx-auto max-w-lg text-sm leading-relaxed text-muted-foreground font-normal">
             {isVi
               ? "Quý khách không có quyền quản trị hoặc xem chi tiết sản phẩm này."
               : "You do not have permission to view or manage this administrative product record."}
           </p>
 
           <div className="pt-4 flex justify-center">
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="font-normal text-xs">
               <Link href="/admin/products" className="inline-flex items-center gap-2">
                 <ArrowLeft className="h-4 w-4" />
                 <span>
@@ -162,7 +162,7 @@ export default async function AdminProductDetailPage({
         <nav aria-label="Breadcrumb">
           <Link
             href="/admin/products"
-            className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
+            className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground font-normal"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             <span>{isVi ? "Quay lại Sản phẩm" : "Back to Products"}</span>
@@ -174,18 +174,18 @@ export default async function AdminProductDetailPage({
             <Layers className="h-6 w-6" />
           </div>
 
-          <h2 className="font-serif text-2xl font-medium text-foreground">
+          <h2 className="mt-4 text-2xl font-normal text-foreground">
             {isVi ? "Không tìm thấy sản phẩm" : "Product Not Found"}
           </h2>
 
-          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+          <p className="text-sm text-muted-foreground max-w-md mx-auto font-normal">
             {isVi
               ? "Sản phẩm yêu cầu không tồn tại trong hệ thống hoặc đã bị xóa."
               : "The requested product does not exist in the administrative database or has been deleted."}
           </p>
 
           <div className="pt-4 flex justify-center">
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="font-normal text-xs">
               <Link href="/admin/products">
                 {isVi ? "Về Danh mục sản phẩm" : "Return to Product Catalog"}
               </Link>
@@ -219,7 +219,7 @@ export default async function AdminProductDetailPage({
         <nav aria-label="Breadcrumb">
           <Link
             href="/admin/products"
-            className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:rounded"
+            className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:rounded font-normal"
             aria-label={
               isVi ? "Quay lại danh sách sản phẩm" : "Back to products list"
             }
@@ -245,25 +245,25 @@ export default async function AdminProductDetailPage({
             )}
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2.5">
-                <h1 className="font-serif text-3xl md:text-4xl font-semibold text-foreground">
+                <h1 className="text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground">
                   {product.name}
                 </h1>
 
               {/* Category Badge */}
               <span
-                className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${categoryMeta.className}`}
+                className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-normal ${categoryMeta.className}`}
               >
                 {isVi ? categoryMeta.labelVi : categoryMeta.labelEn}
               </span>
 
               {/* Status Badge */}
               {product.isActive ? (
-                <span className="inline-flex items-center gap-1 rounded-full border border-sage/40 bg-sage/15 px-2.5 py-0.5 text-xs font-medium text-sage">
+                <span className="inline-flex items-center gap-1 rounded-full border border-sage/40 bg-sage/15 px-2.5 py-0.5 text-xs font-normal text-sage">
                   <Eye className="h-3 w-3" />
                   <span>{isVi ? "Đang mở bán" : "Active"}</span>
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/40 px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/40 px-2.5 py-0.5 text-xs font-normal text-muted-foreground">
                   <EyeOff className="h-3 w-3" />
                   <span>{isVi ? "Tạm ẩn" : "Inactive"}</span>
                 </span>
@@ -271,21 +271,21 @@ export default async function AdminProductDetailPage({
 
               {/* Featured Badge */}
               {product.isFeatured && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-amber/40 bg-amber/15 px-2.5 py-0.5 text-xs font-medium text-amber">
+                <span className="inline-flex items-center gap-1 rounded-full border border-amber/40 bg-amber/15 px-2.5 py-0.5 text-xs font-normal text-amber">
                   <Sparkles className="h-3 w-3" />
                   <span>{isVi ? "Nổi bật" : "Featured"}</span>
                 </span>
               )}
             </div>
 
-            <p className="text-xs font-mono text-muted-foreground">
+            <p className="text-xs tabular-nums font-normal text-muted-foreground">
               /products/{product.slug}
             </p>
           </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <Button asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm" className="font-normal text-xs">
               <Link
                 href={`/products/${product.slug}`}
                 target="_blank"
@@ -302,40 +302,40 @@ export default async function AdminProductDetailPage({
         {/* Quick Stats Overview */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="rounded-xl border border-border bg-card/40 p-3.5 space-y-1">
-            <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider block">
+            <span className="text-[10.5px] text-muted-foreground font-normal uppercase tracking-wider block">
               {isVi ? "Giá cơ bản" : "Base Price"}
             </span>
-            <div className="font-serif text-lg font-semibold text-foreground">
+            <div className="tabular-nums text-lg font-normal text-foreground">
               {formatPrice(product.basePrice, "USD")}
             </div>
           </div>
 
           <div className="rounded-xl border border-border bg-card/40 p-3.5 space-y-1">
-            <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider block">
+            <span className="text-[10.5px] text-muted-foreground font-normal uppercase tracking-wider block">
               {isVi ? "Tổng số phiên bản" : "Total Variants"}
             </span>
-            <div className="font-serif text-lg font-semibold text-foreground">
+            <div className="tabular-nums text-lg font-normal text-foreground">
               {product.variants?.length ?? 0}
             </div>
           </div>
 
           <div className="rounded-xl border border-border bg-card/40 p-3.5 space-y-1">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider block">
+              <span className="text-[10.5px] text-muted-foreground font-normal uppercase tracking-wider block">
                 {isVi ? "Tổng tồn kho" : "Total Stock"}
               </span>
               <StockStatusBadge stock={totalStock} locale={locale} />
             </div>
-            <div className="font-mono text-lg font-semibold text-foreground">
+            <div className="tabular-nums text-lg font-normal text-foreground">
               {totalStock}
             </div>
           </div>
 
           <div className="rounded-xl border border-border bg-card/40 p-3.5 space-y-1">
-            <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider block">
+            <span className="text-[10.5px] text-muted-foreground font-normal uppercase tracking-wider block">
               {isVi ? "Ngày khởi tạo" : "Created On"}
             </span>
-            <div className="text-xs text-foreground font-medium flex items-center gap-1.5 pt-1">
+            <div className="text-xs text-foreground font-normal tabular-nums flex items-center gap-1.5 pt-1">
               <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
               <span>{formattedCreated}</span>
             </div>
@@ -374,7 +374,7 @@ export default async function AdminProductDetailPage({
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber/10 text-amber">
                 <Boxes className="h-4 w-4" />
               </div>
-              <h3 className="font-serif text-base font-semibold text-foreground">
+              <h3 className="text-base font-normal text-foreground">
                 {isVi ? "Quản lý kho tập trung" : "Centralized Inventory"}
               </h3>
             </div>

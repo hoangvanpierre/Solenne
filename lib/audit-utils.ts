@@ -28,6 +28,7 @@ export const AUDIT_ACTIONS = [
   "product_variant.deleted",
   "user.role_changed",
   "customer.status_changed",
+  "customer.reinstated",
 ] as const;
 
 export const AUDIT_ACTION_CATEGORIES = [
@@ -252,6 +253,18 @@ export function formatAuditSummary(
         }`;
       }
       return `Customer status changed from ${oldStatus ?? "–"} to ${newStatus ?? "–"}${
+        reason ? ` (Reason: ${reason})` : ""
+      }`;
+    }
+
+    case "customer.reinstated": {
+      const reason = metadata.reason ? String(metadata.reason) : undefined;
+      if (isVi) {
+        return `Kích hoạt lại tài khoản khách hàng bị cấm sang hoạt động${
+          reason ? ` (Lý do: ${reason})` : ""
+        }`;
+      }
+      return `Customer account reinstated from banned to active${
         reason ? ` (Reason: ${reason})` : ""
       }`;
     }

@@ -17,7 +17,7 @@ export function Footer() {
       <Container className="pt-16 pb-24 lg:pt-20 lg:pb-32">
         {/* Brand section */}
         <div className="mb-12 lg:mb-16">
-          <h2 className="font-serif text-4xl lg:text-5xl font-bold mb-3">
+          <h2 className="font-serif text-2xl lg:text-3xl font-normal tracking-[0.03em] mb-2.5">
             Solenne
           </h2>
           <p className="text-cream/60 max-w-md text-sm leading-relaxed">
@@ -31,7 +31,7 @@ export function Footer() {
         <div className="grid grid-cols-2 gap-8 lg:grid-cols-4 lg:gap-12">
           {Object.values(FOOTER_LINKS).map((section) => (
             <div key={section.title}>
-              <h3 className="text-sm font-semibold uppercase tracking-wider mb-4 text-cream/80">
+              <h3 className="text-xs uppercase tracking-[0.14em] font-normal mb-3.5 text-cream/70">
                 {locale === "vi" ? section.titleVi : section.title}
               </h3>
               <ul className="space-y-3">
@@ -51,7 +51,7 @@ export function Footer() {
 
           {/* Connect section */}
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider mb-4 text-cream/80">
+            <h3 className="text-xs uppercase tracking-[0.14em] font-normal mb-3.5 text-cream/70">
               {locale === "vi" ? "Kết nối tri âm" : "Connect"}
             </h3>
             <ul className="space-y-3">

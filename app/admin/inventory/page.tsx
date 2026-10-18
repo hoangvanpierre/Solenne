@@ -65,18 +65,18 @@ export default async function AdminInventoryPage() {
             <ShieldAlert className="h-6 w-6 text-amber" />
           </div>
 
-          <h2 className="mt-5 font-serif text-2xl font-medium text-foreground">
+          <h2 className="mt-5 text-xl font-normal text-foreground">
             {isVi ? "Khu vực không khả dụng" : "Area unavailable"}
           </h2>
 
-          <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">
+          <p className="mx-auto mt-3 max-w-lg text-sm font-normal leading-relaxed text-muted-foreground">
             {isVi
               ? "Quý khách không có quyền truy cập vào danh mục quản trị tồn kho."
               : "You do not have permission to view the administrative inventory."}
           </p>
 
           <div className="mt-7 flex justify-center">
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" size="sm" className="font-normal text-xs">
               <Link href="/admin" className="inline-flex items-center gap-2">
                 <ArrowLeft className="h-4 w-4" />
                 <span>
@@ -96,7 +96,7 @@ export default async function AdminInventoryPage() {
         <nav aria-label="Breadcrumb">
           <Link
             href="/admin"
-            className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
+            className="inline-flex items-center gap-1.5 text-[11px] font-normal uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             <span>{isVi ? "Trung tâm quản trị" : "Admin Hub"}</span>
@@ -104,7 +104,7 @@ export default async function AdminInventoryPage() {
         </nav>
 
         <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-8 text-center">
-          <p className="text-sm font-medium text-destructive">
+          <p className="text-sm font-normal text-destructive">
             {isVi
               ? "Không thể tải danh sách tồn kho lúc này. Vui lòng làm mới trang hoặc thử lại sau."
               : "Unable to load inventory at this time. Please refresh the page or try again later."}
@@ -121,7 +121,7 @@ export default async function AdminInventoryPage() {
         <nav aria-label="Breadcrumb">
           <Link
             href="/admin"
-            className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
+            className="inline-flex items-center gap-1.5 text-[11px] font-normal uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             <span>{isVi ? "Trung tâm quản trị" : "Admin Hub"}</span>
@@ -135,10 +135,10 @@ export default async function AdminInventoryPage() {
             </div>
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="font-serif text-3xl md:text-4xl font-semibold text-foreground">
+                <h1 className="text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground">
                   {isVi ? "Quản lý tồn kho" : "Inventory"}
                 </h1>
-                <span className="rounded-full border border-border bg-muted/40 px-3 py-0.5 text-xs font-medium text-muted-foreground">
+                <span className="rounded-full border border-border bg-muted/40 px-3 py-0.5 text-xs font-normal tabular-nums text-muted-foreground">
                   {items.length}{" "}
                   {isVi
                     ? "phiên bản"
@@ -151,7 +151,7 @@ export default async function AdminInventoryPage() {
           </div>
         </div>
 
-        <p className="text-sm text-muted-foreground max-w-2xl">
+        <p className="text-sm font-normal text-muted-foreground max-w-2xl">
           {isVi
             ? "Theo dõi số lượng tồn kho từng phiên bản sản phẩm và thực hiện điều chỉnh kho an toàn."
             : "Monitor variant-level stock quantities and execute atomic inventory adjustments."}

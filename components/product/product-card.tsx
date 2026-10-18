@@ -91,18 +91,18 @@ export function ProductCard({
         </div>
 
         <div className="space-y-1">
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">
+          <p className="text-[12px] leading-[1.5] uppercase tracking-wider text-muted-foreground/80">
             {catName}
           </p>
-          <h3 className="font-serif text-lg font-medium text-foreground group-hover:text-primary transition-colors">
+          <h3 className="font-serif text-[16px] sm:text-[17px] font-normal leading-[1.35] text-foreground group-hover:text-primary transition-colors">
             {product.name}
           </h3>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">
+            <span className="text-[13px] font-normal tabular-nums">
               {fmt(product.basePrice)}
             </span>
             {isSale && (
-              <span className="text-sm text-muted-foreground line-through">
+              <span className="text-[12.5px] tabular-nums text-muted-foreground line-through">
                 {fmt(product.compareAtPrice!)}
               </span>
             )}

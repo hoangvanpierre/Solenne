@@ -23,18 +23,18 @@ export function QuantitySelector({
   };
 
   return (
-    <div className="flex h-12 w-32 items-center justify-between rounded-full border border-border px-3">
+    <div className="flex h-10 w-28 items-center justify-between rounded-full border border-border px-2.5">
       <button
         type="button"
         onClick={handleDecrease}
         disabled={quantity <= 1}
-        className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50 disabled:hover:bg-transparent"
+        className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50 disabled:hover:bg-transparent"
         aria-label="Decrease quantity"
       >
-        <Minus className="h-4 w-4" />
+        <Minus className="h-3.5 w-3.5" />
       </button>
       
-      <span className="w-8 text-center text-sm font-medium">
+      <span className="w-8 text-center text-[13px] font-normal tabular-nums">
         {quantity}
       </span>
       

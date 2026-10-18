@@ -27,13 +27,13 @@ export function CraftSection() {
           {/* Text side */}
           <div className="lg:py-8">
             <ScrollReveal>
-              <p className="text-sm tracking-[0.2em] uppercase text-muted-foreground mb-4">
+              <p className="text-[10.5px] sm:text-[11px] tracking-[0.16em] uppercase text-muted-foreground font-normal mb-3">
                 {t("label")}
               </p>
             </ScrollReveal>
 
             <ScrollReveal delay={0.1}>
-              <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground mb-6 leading-tight">
+              <h2 className="font-serif text-2xl sm:text-3xl font-normal text-foreground mb-6 leading-[1.25] text-balance">
                 {t("title")}
               </h2>
             </ScrollReveal>

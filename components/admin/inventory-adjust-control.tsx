@@ -244,16 +244,16 @@ export function InventoryAdjustControl({
                   </div>
                   <h2
                     id={`adjust-title-${variantId}`}
-                    className="font-serif text-lg font-semibold text-foreground"
+                    className="text-lg font-normal text-foreground"
                   >
                     {isVi ? "Điều chỉnh tồn kho" : "Adjust Stock"}
                   </h2>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  <span className="font-medium text-foreground">{productName}</span>
+                <p className="text-xs text-muted-foreground font-normal">
+                  <span className="font-normal text-foreground">{productName}</span>
                   {" — "}
                   <span>{variantName}</span>
-                  {sku && <span className="font-mono text-muted-foreground ml-1.5">({sku})</span>}
+                  {sku && <span className="tabular-nums font-normal text-muted-foreground ml-1.5">({sku})</span>}
                 </p>
               </div>
 
@@ -272,33 +272,33 @@ export function InventoryAdjustControl({
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Current vs New Stock Preview */}
               <div className="rounded-xl border border-border bg-muted/20 p-4">
-                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
+                <div className="text-[10.5px] font-normal text-muted-foreground uppercase tracking-wider mb-2">
                   {isVi ? "Biến động tồn kho" : "Stock Impact Preview"}
                 </div>
-                <div className="flex items-center justify-between gap-4 text-sm">
+                <div className="flex items-center justify-between gap-4 text-sm font-normal">
                   <div className="space-y-0.5">
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs font-normal text-muted-foreground">
                       {isVi ? "Hiện tại" : "Current"}
                     </span>
-                    <div className="font-mono text-xl font-bold text-foreground">
+                    <div className="tabular-nums text-xl font-normal text-foreground">
                       {currentStock}
                     </div>
                   </div>
 
                   <div className="flex flex-col items-center justify-center text-xs text-muted-foreground">
-                    <span className="font-mono font-medium text-amber">
+                    <span className="tabular-nums font-normal text-amber">
                       {delta > 0 ? `+${delta}` : delta}
                     </span>
                     <ArrowRight className="h-4 w-4 my-0.5 text-muted-foreground" />
                   </div>
 
                   <div className="space-y-0.5 text-right">
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs font-normal text-muted-foreground">
                       {isVi ? "Sau điều chỉnh" : "Resulting"}
                     </span>
                     <div
                       className={cn(
-                        "font-mono text-xl font-bold",
+                        "tabular-nums text-xl font-normal",
                         isNegativeStock
                           ? "text-destructive"
                           : delta > 0
@@ -314,7 +314,7 @@ export function InventoryAdjustControl({
                 </div>
 
                 {isNegativeStock && (
-                  <div className="mt-3 flex items-center gap-1.5 text-xs text-destructive">
+                  <div className="mt-3 flex items-center gap-1.5 text-xs font-normal text-destructive">
                     <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
                     <span>
                       {isVi
@@ -329,14 +329,14 @@ export function InventoryAdjustControl({
               <div className="space-y-2">
                 <label
                   htmlFor={`delta-input-${variantId}`}
-                  className="block text-xs font-medium text-foreground"
+                  className="block text-xs font-normal text-foreground"
                 >
                   {isVi ? "Mức thay đổi (Delta)" : "Adjustment Delta"}
                 </label>
 
                 {/* Quick Presets */}
                 <div className="flex flex-wrap gap-1.5">
-                  <span className="text-[11px] text-muted-foreground self-center mr-1">
+                  <span className="text-xs font-normal text-muted-foreground self-center mr-1">
                     {isVi ? "Tăng:" : "Add:"}
                   </span>
                   {[1, 5, 10, 25].map((amt) => (
@@ -346,9 +346,9 @@ export function InventoryAdjustControl({
                       disabled={isPending}
                       onClick={() => setDeltaValue(amt)}
                       className={cn(
-                        "rounded-md border px-2 py-1 text-xs font-mono transition-colors",
+                        "rounded-md border px-2 py-1 text-xs tabular-nums font-normal transition-colors",
                         delta === amt
-                          ? "border-sage bg-sage/15 text-sage font-bold"
+                          ? "border-sage bg-sage/15 text-sage"
                           : "border-border bg-background text-muted-foreground hover:bg-muted"
                       )}
                     >
@@ -356,7 +356,7 @@ export function InventoryAdjustControl({
                     </button>
                   ))}
 
-                  <span className="text-[11px] text-muted-foreground self-center ml-2 mr-1">
+                  <span className="text-xs font-normal text-muted-foreground self-center ml-2 mr-1">
                     {isVi ? "Giảm:" : "Deduct:"}
                   </span>
                   {[-1, -5, -10].map((amt) => (
@@ -366,9 +366,9 @@ export function InventoryAdjustControl({
                       disabled={isPending}
                       onClick={() => setDeltaValue(amt)}
                       className={cn(
-                        "rounded-md border px-2 py-1 text-xs font-mono transition-colors",
+                        "rounded-md border px-2 py-1 text-xs tabular-nums font-normal transition-colors",
                         delta === amt
-                          ? "border-amber bg-amber/15 text-amber font-bold"
+                          ? "border-amber bg-amber/15 text-amber"
                           : "border-border bg-background text-muted-foreground hover:bg-muted"
                       )}
                     >
@@ -387,7 +387,7 @@ export function InventoryAdjustControl({
                     onChange={(e) => handleDeltaInputChange(e.target.value)}
                     disabled={isPending}
                     placeholder="+10 or -5"
-                    className="w-full rounded-xl border border-border bg-background px-3 py-2 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
+                    className="w-full rounded-xl border border-border bg-background px-3 py-2 tabular-nums text-[13.5px] font-normal text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
                   />
                   <div className="absolute inset-y-0 right-2 flex items-center gap-1">
                     <button
@@ -417,15 +417,15 @@ export function InventoryAdjustControl({
                 <div className="flex items-center justify-between text-xs">
                   <label
                     htmlFor={`reason-input-${variantId}`}
-                    className="font-medium text-foreground"
+                    className="font-normal text-foreground"
                   >
                     {isVi ? "Lý do điều chỉnh (Bắt buộc)" : "Adjustment Reason (Required)"}
                   </label>
                   <span
                     className={cn(
-                      "text-[11px]",
+                      "text-xs tabular-nums font-normal",
                       trimmedReason.length > 255
-                        ? "text-destructive font-medium"
+                        ? "text-destructive"
                         : trimmedReason.length >= 3
                           ? "text-muted-foreground"
                           : "text-amber"
@@ -450,7 +450,7 @@ export function InventoryAdjustControl({
                       ? "Ví dụ: Nhập hàng lô mới PO-102, hư hỏng trong kho, kiểm kê bù trừ..."
                       : "e.g. Received shipment PO-102, damaged in warehouse, cycle count adjustment..."
                   }
-                  className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
+                  className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-[13px] font-normal text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
                 />
               </div>
 
@@ -459,7 +459,7 @@ export function InventoryAdjustControl({
                 <div
                   role="alert"
                   aria-live="polite"
-                  className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive leading-relaxed"
+                  className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-xs font-normal text-destructive leading-relaxed"
                 >
                   {error}
                 </div>
@@ -469,7 +469,7 @@ export function InventoryAdjustControl({
                 <div
                   role="status"
                   aria-live="polite"
-                  className="flex items-center gap-2 rounded-lg border border-sage/40 bg-sage/15 p-3 text-xs text-sage"
+                  className="flex items-center gap-2 rounded-lg border border-sage/40 bg-sage/15 p-3 text-xs font-normal text-sage"
                 >
                   <Check className="h-4 w-4 shrink-0" />
                   <span>{successMsg}</span>
@@ -484,6 +484,7 @@ export function InventoryAdjustControl({
                   size="sm"
                   disabled={isPending}
                   onClick={handleClose}
+                  className="font-normal text-xs"
                 >
                   {isVi ? "Hủy bỏ" : "Cancel"}
                 </Button>
@@ -492,7 +493,7 @@ export function InventoryAdjustControl({
                   size="sm"
                   isLoading={isPending}
                   disabled={!canSubmit}
-                  className="bg-amber hover:bg-amber/90 text-primary-foreground font-medium"
+                  className="bg-amber hover:bg-amber/90 text-primary-foreground font-normal text-xs"
                 >
                   <span>{isVi ? "Xác nhận điều chỉnh" : "Confirm Adjustment"}</span>
                 </Button>

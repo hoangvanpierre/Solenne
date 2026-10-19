@@ -40,7 +40,7 @@ export function SizeSelector({ variants, selectedId, onSelect }: SizeSelectorPro
               onClick={() => !isOutOfStock && onSelect(variant.id)}
               disabled={isOutOfStock}
               className={cn(
-                "relative flex-1 min-w-[110px] rounded-xl border px-3.5 py-2.5 text-[13px] font-normal transition-all duration-200",
+                "relative flex-1 min-w-[calc(50%-0.375rem)] sm:min-w-[110px] rounded-xl border px-3.5 py-2.5 text-[13px] font-normal transition-all duration-200",
                 isSelected
                   ? "border-primary bg-primary/5 text-primary ring-1 ring-primary shadow-sm"
                   : "border-border bg-transparent text-foreground hover:border-primary/50",

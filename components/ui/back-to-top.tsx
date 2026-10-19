@@ -101,7 +101,9 @@ export function BackToTop({ threshold = 350, className }: BackToTopProps) {
       {isVisible && (
         <div
           className={cn(
-            "fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-40 flex items-center",
+            "fixed z-40 flex items-center",
+            "bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] right-4",
+            "sm:bottom-8 sm:right-8",
             className
           )}
           onMouseEnter={() => setIsHovered(true)}
@@ -140,7 +142,8 @@ export function BackToTop({ threshold = 350, className }: BackToTopProps) {
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             className={cn(
               "relative flex flex-col items-center justify-between",
-              "w-9 sm:w-10 py-3.5 px-1 rounded-full",
+              "w-9 sm:w-10 py-3 max-sm:max-h-28 sm:py-3.5 px-1 rounded-full",
+              "max-sm:[padding-bottom:calc(0.5rem+env(safe-area-inset-bottom,0px))]",
               "bg-cream/90 backdrop-blur-md text-warm-black",
               "border border-amber/35",
               "shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_10px_30px_rgba(0,0,0,0.1)]",

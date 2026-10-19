@@ -18,13 +18,13 @@ export default async function ProductPage({
   return (
     <div className="py-24 lg:py-32">
       <Container>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24">
+        <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:gap-24">
           <ProductGallery 
             images={product.images} 
             productName={product.name} 
           />
           
-          <div className="lg:py-12">
+          <div className="relative z-10 min-w-0 lg:py-12">
             <ProductInfo product={product} />
           </div>
         </div>

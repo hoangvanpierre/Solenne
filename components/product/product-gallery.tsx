@@ -18,9 +18,9 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
-    <div className="flex flex-col gap-4 sticky top-24">
+    <div className="relative z-0 flex min-w-0 flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
       {/* Main Image */}
-      <div className="group relative aspect-[3/4] overflow-hidden rounded-2xl bg-muted">
+      <div className="group relative aspect-[3/4] w-full overflow-hidden rounded-2xl bg-muted">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={activeIndex}
@@ -57,7 +57,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
 
       {/* Thumbnails */}
       {galleryImages.length > 1 && (
-        <div className="flex gap-4 overflow-x-auto pb-2 hide-scrollbar">
+        <div className="flex w-full gap-4 overflow-x-auto pb-2 hide-scrollbar">
           {galleryImages.map((img, idx) => (
             <button
               key={idx}

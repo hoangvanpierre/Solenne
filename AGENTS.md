@@ -19,12 +19,12 @@ Package manager is **pnpm** (see `pnpm-workspace.yaml`). Scripts defined in `pac
 | Command | Script | Notes |
 | --- | --- | --- |
 | `pnpm dev` | `next dev` | Starts dev server on :3000. Re-regenerates the `BEGIN:nextjs-agent-rules` block at the top of this file. |
-| `pnpm build` | `node scripts/generate-optimized-images.mjs && next build` | Regenerates the 36 AVIF/WebP variants in `public/images/product/optimized/` **before** building. The generator is deterministic — re-running it produces no diff against the committed files, so it is safe. |
+| `pnpm build` | `node scripts/generate-optimized-images.mjs && next build` | Regenerates the 36 AVIF/WebP variants in `public/images/product/optimized/` **before** building. ⚠️ **Not a "generally safe" verification command** — it invokes the product-image generator, so only run it when you actually intend a build. The generator is deterministic (a re-run produces no diff against the committed files), but it still executes and rewrites the optimized output. |
 | `pnpm start` | `next start` | Serve the production build. |
 | `pnpm lint` | `eslint` | ESLint flat config (`eslint.config.mjs`) using `eslint-config-next` core-web-vitals + TS presets. Note: runs `eslint` with no path arg — relies on config defaults. |
 | `pnpm generate:images` | `node scripts/generate-optimized-images.mjs` | Regenerates the optimized product variants on their own. |
-| `pnpm build:worker` | `node scripts/generate-optimized-images.mjs && opennextjs-cloudflare build` | OpenNext/Cloudflare worker build. |
-| `pnpm preview` | `opennextjs-cloudflare build && opennextjs-cloudflare preview` | Local worker preview. |
+| `pnpm build:worker` | `node scripts/generate-optimized-images.mjs && opennextjs-cloudflare build` | OpenNext/Cloudflare worker build. ⚠️ Also runs the product-image generator first — same caution as `pnpm build`. |
+| `pnpm preview` | `opennextjs-cloudflare build && opennextjs-cloudflare preview` | Local worker preview. ⚠️ Can invoke product-image regeneration via its worker build — treat it like `build:worker`, not as a lightweight verification step. |
 | `pnpm deploy` | `opennextjs-cloudflare build && opennextjs-cloudflare deploy` | Deploys to Cloudflare Workers. **Deployment state is currently UNVERIFIED** — see the Gotchas section. |
 | `pnpm upload` | `opennextjs-cloudflare build && opennextjs-cloudflare upload` | Uploads a worker version without promoting it. |
 | `pnpm cf-typegen` | `wrangler types ...` | Regenerates `cloudflare-env.d.ts` from the Worker bindings. |
@@ -127,7 +127,7 @@ On success the client clears the cart and redirects to `/checkout/success?number
 
 ### Contact & newsletter tables — **migration `0013` applied to production; do not re-run it**
 
-`app/actions/contact.ts` (`submitContactAction`) and `app/actions/newsletter.ts` (`subscribeNewsletterAction`) insert into `contact_messages` and `newsletter_subscribers` via the secret-key admin client. The DDL for both tables is the numbered migration **`supabase/migrations/0013_contact_newsletter_tables.sql`**. The older `scripts/schema-newsletter-contact.sql` is now a **superseded pointer** — it contains no DDL, only a comment telling you to apply `0013`. It used to be the canonical script, and it used to grant broad `INSERT` to `anon`/`authenticated` with `WITH CHECK (true)`; `0013` tightens this to `service_role` only.
+`app/actions/contact.ts` (`submitContactAction`) and `app/actions/newsletter.ts` (`subscribeNewsletterAction`) insert into `contact_messages` and `newsletter_subscribers` via the secret-key admin client. The DDL for both tables is the numbered migration **`supabase/migrations/0013_contact_newsletter_tables.sql`**. The older `scripts/schema-newsletter-contact.sql` is a **superseded pointer, not an instruction** — it contains no DDL at all, only a warning that `0013` is already applied and must not be re-run. It used to be the canonical script, and it used to grant broad `INSERT` to `anon`/`authenticated` with `WITH CHECK (true)`; `0013` tightens this to `service_role` only.
 
 **Both relations now exist in production.** When first audited (against the live PostgREST OpenAPI spec on 2026-10-20) the `definitions` block held exactly 11 relations — `order_outbox_events`, `role_permissions`, `orders`, `audit_logs`, `order_items`, `products`, `roles`, `profiles`, `addresses`, `product_variants`, `permissions` — and `contact_messages` / `newsletter_subscribers` were absent. `0013` has since been applied to production by hand, so both are now live, RLS-protected relations and both currently hold rows.
 
@@ -143,6 +143,8 @@ State of the code today:
 ### Database migrations & RPCs
 
 `supabase/migrations/` holds **13** migrations, `0001`–`0013`. **All 13 are applied to the live database** — `0001`–`0012` verified against the live schema on 2026-10-20, and `0013_contact_newsletter_tables.sql` applied manually to production afterwards. They are plain `.sql` files run via the Supabase SQL editor — there is **no migration runner script** in the repo, so applying a new one is a manual, out-of-band step.
+
+**Never re-run an already-applied migration** (`0013` included) as a way of "verifying" anything. Any future schema change must be authored as a **new** migration beginning with **`0014`**, reviewed, and applied manually via the Supabase SQL editor **only when explicitly authorized**.
 
 | Migration | Purpose |
 | --- | --- |

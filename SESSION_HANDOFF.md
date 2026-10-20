@@ -1,10 +1,10 @@
 # Solenne — Session Handoff Document
 **Date**: October 20, 2026
 **Repository**: `D:\solenne`
-**Current Head Commit**: `5321104 merge: mobile product detail overlap fix and atelier craft gallery`
-**Branch**: `chore/workstation-transfer-20261015` (local branch is **5 commits ahead** of `origin/chore/workstation-transfer-20261015`; **NOT pushed**)
-**Upstream `origin/main` is at the same commit `5321104`** — the merge has already landed on `main`.
-**Working tree**: 14 modified files + 2 untracked, all uncommitted. Modified: `.gitignore`, `AGENTS.md`, `SESSION_HANDOFF.md`, `app/actions/contact.ts`, `app/actions/newsletter.ts`, `components/sections/contact-form.tsx`, `components/sections/newsletter.tsx`, `lib/validations/contact.ts`, `lib/validations/newsletter.ts`, `messages/en.json`, `messages/vi.json`, `scripts/schema-newsletter-contact.sql`, `scripts/verify-post-login-routing.mjs`, `scripts/verify-product-management.mjs`. Untracked: `supabase/migrations/0013_contact_newsletter_tables.sql`, `scripts/verify-contact-newsletter.mjs`. No temporary/probe files inside the repository (all probes were written to `%TEMP%`).
+**Branch**: `chore/workstation-transfer-20261015` (tracks `origin/chore/workstation-transfer-20261015`).
+**Contact/Newsletter work**: committed as `900b119` — `fix: finalize contact and newsletter persistence` — and pushed to that branch's upstream.
+**Current Git state is deliberately NOT snapshotted here.** Any recorded HEAD, ahead/behind count, or working-tree file list goes stale the moment this file is committed, so previous snapshots were removed rather than replaced. For live state, run `git status --short`, `git log -1 --oneline`, and `git status -sb` (the last one shows the configured upstream and ahead/behind counts).
+**No probe or scratch files** live inside the repository — all probes were written to `%TEMP%`.
 
 > **Deployment status: UNVERIFIED.** This document makes **no claim** about whether the current HEAD is deployed to Cloudflare Workers/Pages, nor about the health of any live deployment. The repo has `wrangler.jsonc` and OpenNext config, and `pnpm deploy` exists, but no deployment was performed or verified in this session. Treat production state as unknown until you check Cloudflare directly.
 
@@ -100,7 +100,7 @@ D:\solenne/
 │   ├── schema-newsletter-contact.sql # SUPERSEDED POINTER — real DDL is 0013
 │   └── ...                           # 9 verify-*.mjs harnesses total
 └── supabase/
-    └── migrations/                 # PostgreSQL migrations (0001 through 0013 — 0001-0012 APPLIED, 0013 PENDING)
+    └── migrations/                 # PostgreSQL migrations (0001 through 0013 — ALL APPLIED to production; 0013 applied by hand)
 ```
 
 ### RBAC & Security Model
@@ -154,7 +154,7 @@ This handoff covers the work since the previous handoff document (dated October 
 ### 3.4 Mobile product-detail overlap fix + atelier craft gallery
 - `f9d91ac fix: prevent mobile product detail overlap` — spacing/overlap corrections in `app/(marketing)/products/[slug]/page.tsx`, `components/product/product-gallery.tsx`, `components/product/size-selector.tsx`, `components/ui/back-to-top.tsx`.
 - `fd5e27e feat: add atelier craft gallery imagery and sequential presentation` — `components/sections/craft-section.tsx` gained a sequential, pausable, bilingual slide carousel over seven new atelier photographs in `public/images/product/`.
-- Merged as `5321104` (also the tip of `origin/main`).
+- The merge landed as commit `5321104` (immutable history — run `git log -1 origin/main` for the *current* tip of `main`).
 
 ### 3.5 Contact & newsletter persistence — **DDL promoted to migration `0013` and applied to production**
 
@@ -177,7 +177,7 @@ return { success: true };
 
 So the contact form and the newsletter signup reported *"Thank you for subscribing!"* to the visitor while **nothing was persisted**.
 
-**Both halves of the gap are now fixed in the working tree:**
+**Both halves of the gap are now fixed and committed** (in `900b119` — `fix: finalize contact and newsletter persistence`):
 
 1. **DDL promoted to a numbered migration.** `supabase/migrations/0013_contact_newsletter_tables.sql` contains idempotent `create table if not exists` for both relations, RLS enabled with **no** permissive policies, `revoke all ... from anon, authenticated, public`, `grant select, insert ... to service_role`, and a `DO $$` block that `RAISE EXCEPTION`s if the end state is wrong (and prints `--- Solenne 0013 OK: ...` when it is right). `scripts/schema-newsletter-contact.sql` was gutted into a non-executable pointer that directs readers to `0013` — it no longer contains `CREATE TABLE`, `CREATE POLICY`, or any grant, so nobody can accidentally re-apply the old broad `WITH CHECK (true)` shape.
 2. **Actions no longer report false success.** `submitContactAction` and `subscribeNewsletterAction` now `console.error` and return `{ code: "persist_failed", error: ... }` on a failed insert; the `catch` branches do the same. Success is returned only after a clean insert. The newsletter's `23505` duplicate branch remains a legitimate success, now tagged `{ success: true, code: "already_subscribed" }`. Validation failures return `{ code: "validation" }`.
@@ -185,7 +185,7 @@ So the contact form and the newsletter signup reported *"Thank you for subscribi
 
 **RESOLVED — `0013` has been applied to production.** The contact form and newsletter signup are now functional: a contact submission lands in `contact_messages`, a subscription lands in `newsletter_subscribers`, the unique-email constraint rejects duplicates, and a duplicate signup renders the localized `newsletter.successDuplicate` message. **Do not run or reapply `0013`.**
 
-**Originally, to close the gap:** apply `supabase/migrations/0013_contact_newsletter_tables.sql` in the Supabase SQL editor (there is no migration runner in this repo), confirm the `--- Solenne 0013 OK: ...` notice fires, then re-read `GET /rest/v1/` and confirm both relations appear. Finally smoke-test a contact submission, a newsletter signup, and a duplicate newsletter signup. Guarded by `node scripts/verify-contact-newsletter.mjs`.
+**HISTORICAL — ALREADY COMPLETED, do NOT act on this.** The original plan to close the gap was to apply `supabase/migrations/0013_contact_newsletter_tables.sql` in the Supabase SQL editor (there is no migration runner in this repo), confirm the `--- Solenne 0013 OK: ...` notice fires, then re-read `GET /rest/v1/` and confirm both relations appear, and finally smoke-test a contact submission, a newsletter signup, and a duplicate newsletter signup. **Every one of those steps is done** — `0013` is applied to production and all three smoke tests passed (see §3.5). Never re-run `0013`. The static guard `node scripts/verify-contact-newsletter.mjs` checks the migration file's contents only and cannot tell whether it has been run.
 
 ---
 
@@ -362,7 +362,7 @@ The previous handoff and `AGENTS.md` both claimed product images were placeholde
 - `lib/product-images.ts` maps source filenames → variant slugs and builds `avifSrcSet` / `webpSrcSet` / `fallbackSrc`.
 - `components/product/product-picture.tsx` renders a `<picture>` with AVIF and WebP `<source>` elements plus a WebP fallback `<img>`, **bypassing the `/_next/image` runtime endpoint** (which is broken on Cloudflare Workers). It falls back to plain `next/image` for sources outside the map.
 - `ProductCard` and `ProductGallery` both render through `ProductPicture`.
-- `pnpm build` (and the worker build/deploy scripts) run the generator first. **The generator is deterministic** — re-running it leaves the tree clean, so there is no reason to avoid `pnpm build` anymore.
+- `pnpm build` and `pnpm run build:worker` run the generator first, and `pnpm run preview` runs a worker build — treat all three as able to regenerate product images. **The generator is deterministic** — a re-run leaves the tree clean — but these are **not** no-op verification commands, so avoid them during docs-only verification unless you actually intend a build.
 
 ---
 
@@ -374,7 +374,7 @@ The previous handoff and `AGENTS.md` both claimed product images were placeholde
 - **Module B2 follow-on (reinstatement)**: Complete and applied in production (migration `0012`).
 - **Stripe / online payment**: **Not built.** Orders are stored with status `pending` ("Pending Payment"). `stripe_session_id` / `stripe_payment_intent` columns are ready. Stripe deps are installed but unused.
 - **Journal content**: static placeholder posts in `lib/journal.ts`.
-- **Contact form & newsletter signup**: **Code complete, persistence broken.** The DDL exists (`scripts/schema-newsletter-contact.sql`) but the tables were never created in the live project, and both server actions swallow the insert error and return success. Both features silently drop every submission. See §3.5.
+- **Contact form & newsletter signup**: **Complete and working.** Migration `0013` is applied to production, so `contact_messages` and `newsletter_subscribers` exist and hold real rows; both server actions return an honest `{ code: "persist_failed", ... }` on a failed insert instead of false success. Smoke-tested end to end, including a duplicate newsletter signup. See §3.5.
 
 ---
 
@@ -390,14 +390,14 @@ The previous handoff and `AGENTS.md` both claimed product images were placeholde
 | Live roles / permissions | PostgREST `roles` + `permissions` | ✅ 4 roles, 21 permission keys |
 | Live audit trail | `audit_logs` query (limit 1000) | ✅ 8 distinct actions present |
 | Live catalog images | `products` query | ✅ 6/6 products have images, all in the optimized map |
-| Live table inventory | PostgREST OpenAPI spec (`definitions` block) | ⚠️ **11 relations** — `contact_messages` and `newsletter_subscribers` are **absent** (§3.5) |
+| Live table inventory | PostgREST OpenAPI spec (`definitions` block) | ⚠️ **Historical (pre-`0013`)** — 11 relations, with `contact_messages` and `newsletter_subscribers` absent *at the time of that audit*; both were added to production afterwards by `0013` (§3.5) |
 | Media inventory | filesystem scan of `public/images/product/` | ✅ 15 sources + 36 optimized variants; craft carousel uses 7 of 8 atelier photos |
-| Working tree | `git status --short` | ✅ exactly 4 modified files (`AGENTS.md`, `SESSION_HANDOFF.md`, and the two de-staled harnesses); no untracked files |
+| Working tree | `git status --short` | ⚠️ **Not durable** — never trust a recorded file list (an earlier snapshot of this row is now stale); run `git status --short` for current state |
 | Whitespace check | `git diff --check` | ✅ exit 0 |
 
-### 10.1 Verification harnesses (all 8)
+### 10.1 Verification harnesses (all 9)
 
-All eight `scripts/verify-*.mjs` harnesses were run and **all pass**. There is no `pnpm test` script — run them directly:
+All nine `scripts/verify-*.mjs` harnesses were run and **all pass**. There is no `pnpm test` script — run them directly:
 
 ```powershell
 node scripts/verify-rbac.mjs
@@ -423,13 +423,13 @@ Both harnesses were re-run after the fix and now pass.
 
 ## 11. Loose Ends / Open Questions
 
-1. **Production deployment is unconfirmed.** Nothing in this session verified whether `5321104` is live on Cloudflare. The repo has `wrangler.jsonc` + OpenNext config and a `pnpm deploy` script, but **no deployment was performed or verified**. Check the Cloudflare dashboard / `wrangler deployments list` before assuming. Do not describe the app as deployed or healthy until that check is done.
-2. **The local branch is 5 commits ahead of its remote.** `chore/workstation-transfer-20261015` tracks `origin/chore/workstation-transfer-20261015` at `cbc5dfa`; HEAD is `5321104`. `origin/main` is already at `5321104`. Decide whether to push the branch, or just work from `main`.
+1. **Production deployment is unconfirmed.** Nothing in this session verified whether the current HEAD is live on Cloudflare. The repo has `wrangler.jsonc` + OpenNext config and a `pnpm deploy` script, but **no deployment was performed or verified**. Check the Cloudflare dashboard / `wrangler deployments list` before assuming. Do not describe the app as deployed or healthy until that check is done.
+2. **Git state: check it live — this document does not snapshot it.** `chore/workstation-transfer-20261015` tracks `origin/chore/workstation-transfer-20261015`; the contact/newsletter work is committed as `900b119` (`fix: finalize contact and newsletter persistence`) and was pushed. Run `git status -sb` and `git log -1 --oneline` for the current upstream and ahead/behind state, then decide whether to push, reconcile with `main`, or continue on the branch.
 3. **The next migration will be `0014`.** `0013` (contact/newsletter tables) already exists and is **applied to production**. New schema changes need a new numbered migration, applied manually via the Supabase SQL editor. There is **no migration runner script** in the repo.
 4. **`scripts/cleanup-rbac-stale.mjs`** exists as a one-off data cleanup utility; it is not part of any verification harness.
 5. **Three lint warnings** remain in `hooks/use-intersection.ts` (`react-hooks/exhaustive-deps`). Harmless, but unaddressed.
 6. **The live schema contains objects that are NOT in the repo migrations** — notably the `rls_auto_enable` RPC, plus the `roles`/`permissions`/`audit_logs` tables seeded by `0002`. There is no drift-detection script; if you need the true live surface, re-read the PostgREST OpenAPI spec rather than trusting the migration files alone.
-7. **Repository hygiene**: the temporary probe scripts used to inspect the live database were written to the **system temp directory** (`%TEMP%\solenne-probe-*.cjs`), never inside `D:\solenne`. The repository contains no probe or scratch files. The working tree has **14 modified files and 2 untracked files** (see the header of this document for the exact list).
+7. **Repository hygiene**: the temporary probe scripts used to inspect the live database were written to the **system temp directory** (`%TEMP%\solenne-probe-*.cjs`), never inside `D:\solenne`. The repository contains no probe or scratch files. For current working-tree state, run `git status --short` — do not trust a recorded count or file list.
 8. **The contact and newsletter tables now EXIST in the live database.** Migration `supabase/migrations/0013_contact_newsletter_tables.sql` has **been applied to production**, so `contact_messages` and `newsletter_subscribers` are live relations holding real rows, with the unique-email constraint on `newsletter_subscribers.email`. The server actions still return `{ code: "persist_failed", ... }` rather than swallowing an insert error, so an outage surfaces an honest bilingual error instead of a false confirmation. See §3.5. **Do not apply `0013` again.** To confirm the live surface, re-read `GET /rest/v1/` — the static harness cannot tell you whether a migration was run.
 9. **Migration `0013` is applied**, so the repo now has **13** migration files, all live. When re-checking "all migrations applied", there is no longer an `0013` caveat to add — but do not *re-run* `0013` either. It is covered by `scripts/verify-contact-newsletter.mjs`, which checks the file's contents statically — that harness cannot tell you whether the migration has been run.
 
@@ -456,8 +456,8 @@ When the next session starts:
    git log -5 --oneline
    ```
    Expect the Contact/Newsletter work to be already committed. Unrelated leftover changes are `.gitignore` (adds `supabase/.temp/`) and the two de-staled harnesses (`scripts/verify-post-login-routing.mjs`, `scripts/verify-product-management.mjs`) if they were not yet committed — do not stage them blindly, and never `git add .`.
-2. **Confirm deployment state** — check Cloudflare for whether `5321104` is live. Do not assume, and do not describe the app as deployed or healthy until this check passes.
-3. **Apply the contact/newsletter schema** (see §3.5) — **DONE: migration `0013` has already been applied to production and both flows were smoke-tested. Do not run it again.**
+2. **Confirm deployment state** — check Cloudflare for whether the current HEAD is live. Do not assume, and do not describe the app as deployed or healthy until this check passes.
+3. **Do NOT apply the contact/newsletter schema.** Migration `0013` has already been applied to production and both flows were smoke-tested (see §3.5). There is nothing left to apply — never re-run `0013`.
 4. **Review with user**:
    - **Option A**: Push the local branch (or reconcile the branch with `main`).
    - **Option B**: Apply the next numbered migration (`0014`) for the next Phase 2 module (e.g. Module B3 — Staff & Role Management). `0013` is already applied — do not reuse that number.

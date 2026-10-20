@@ -1,26 +1,35 @@
 -- ===================================================
 -- Solenne: Newsletter & Contact Messages Tables
 -- ===================================================
--- SUPERSEDED — the canonical DDL now lives in the numbered migration chain:
+-- SUPERSEDED POINTER — this file is intentionally NOT executable DDL. Do not
+-- run it.
 --
---   supabase/migrations/0013_contact_newsletter_tables.sql
+-- The canonical migration supabase/migrations/0013_contact_newsletter_tables.sql
+-- HAS ALREADY BEEN APPLIED TO PRODUCTION (pasted into the Supabase SQL editor by
+-- hand). It stands up public.contact_messages and public.newsletter_subscribers
+-- with RLS enabled, grants restricted to the service_role, and a trailing
+-- self-verification block that RAISE EXCEPTIONs if the end state is wrong.
 --
--- Apply THAT file (via the Supabase SQL editor or `supabase db push`). It
--- creates the same two relations with hardened grants — RLS enabled, writes
--- restricted to `service_role`, reads restricted to `service_role` — and ends
--- with a self-verification block that raises an exception if the end state is
--- wrong. This file previously granted broad `INSERT` to `anon` / `authenticated`
--- with `WITH CHECK (true)`, which allowed any visitor holding the publishable
--- key to write directly into these tables.
+-- Do NOT reapply migration 0013 — and do not use either this file or 0013 as a
+-- verification step. Running them again against production is prohibited.
+-- scripts/verify-contact-newsletter.mjs only checks the migration file's static
+-- contents; it cannot tell whether the migration has been run, so a passing
+-- harness is not evidence about the live schema. To confirm the live surface,
+-- re-read the PostgREST OpenAPI spec (GET /rest/v1/).
 --
--- Kept as a pointer for anyone who has the old path bookmarked. It is
--- intentionally NOT executable DDL — do not run it directly.
+-- The canonical migration file above is retained for historical and schema
+-- reference only.
 --
--- To apply:
---   1. Open the Supabase SQL Editor.
---   2. Paste the full contents of 0013_contact_newsletter_tables.sql.
---   3. Run it. It prints: '--- Solenne 0013 OK: ... ---'
---   4. Confirm both relations appear in `GET /rest/v1/`.
+-- Historical note: this file used to be the canonical DDL and granted broad
+-- INSERT access with WITH CHECK (true), which let any visitor holding the
+-- publishable key write straight into these tables. That DDL has been removed —
+-- this file is now a pointer only, kept for anyone who still has the old path
+-- bookmarked.
+--
+-- Future schema changes belong in a NEW, separately reviewed migration beginning
+-- with 0014 — authored, reviewed, and applied manually via the Supabase SQL
+-- editor only when explicitly authorized. There is no migration runner in this
+-- repo.
 -- ===================================================
 
-\echo 'Superseded: apply supabase/migrations/0013_contact_newsletter_tables.sql instead.'
+\echo 'Superseded pointer — migration 0013 is already applied to production. This file is not executable DDL; do not run it or reapply 0013.'

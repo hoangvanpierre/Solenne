@@ -10,7 +10,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Solenne — Agent Guide
 
-Solenne is a luxury artisan scented-candle e-commerce storefront built with Next.js 16 (App Router), React 19, Tailwind CSS v4, and Supabase. The codebase is in an early "v0.1" stage: journal content and marketing copy are static placeholders, online payment is not yet wired (orders are placed as "pending payment"; Stripe deps installed but unused), and product images are not yet wired to real assets.
+Solenne is a luxury artisan scented-candle e-commerce storefront built with Next.js 16 (App Router), React 19, Tailwind CSS v4, and Supabase. The codebase is in an early "v0.1" stage: journal content and marketing copy are static placeholders and online payment is not yet wired (orders are placed as "pending payment"; Stripe deps installed but unused). Product photography **is** wired — the catalog renders real assets through a build-time AVIF/WebP pipeline.
 
 ## Commands
 
@@ -19,11 +19,19 @@ Package manager is **pnpm** (see `pnpm-workspace.yaml`). Scripts defined in `pac
 | Command | Script | Notes |
 | --- | --- | --- |
 | `pnpm dev` | `next dev` | Starts dev server on :3000. Re-regenerates the `BEGIN:nextjs-agent-rules` block at the top of this file. |
-| `pnpm build` | `next build` | Production build. |
+| `pnpm build` | `node scripts/generate-optimized-images.mjs && next build` | Regenerates the 36 AVIF/WebP variants in `public/images/product/optimized/` **before** building. ⚠️ **Not a "generally safe" verification command** — it invokes the product-image generator, so only run it when you actually intend a build. The generator is deterministic (a re-run produces no diff against the committed files), but it still executes and rewrites the optimized output. |
 | `pnpm start` | `next start` | Serve the production build. |
 | `pnpm lint` | `eslint` | ESLint flat config (`eslint.config.mjs`) using `eslint-config-next` core-web-vitals + TS presets. Note: runs `eslint` with no path arg — relies on config defaults. |
+| `pnpm generate:images` | `node scripts/generate-optimized-images.mjs` | Regenerates the optimized product variants on their own. |
+| `pnpm build:worker` | `node scripts/generate-optimized-images.mjs && opennextjs-cloudflare build` | OpenNext/Cloudflare worker build. ⚠️ Also runs the product-image generator first — same caution as `pnpm build`. |
+| `pnpm preview` | `opennextjs-cloudflare build && opennextjs-cloudflare preview` | Local worker preview. ⚠️ Can invoke product-image regeneration via its worker build — treat it like `build:worker`, not as a lightweight verification step. |
+| `pnpm deploy` | `opennextjs-cloudflare build && opennextjs-cloudflare deploy` | Deploys to Cloudflare Workers. **Deployment state is currently UNVERIFIED** — see the Gotchas section. |
+| `pnpm upload` | `opennextjs-cloudflare build && opennextjs-cloudflare upload` | Uploads a worker version without promoting it. |
+| `pnpm cf-typegen` | `wrangler types ...` | Regenerates `cloudflare-env.d.ts` from the Worker bindings. |
 
 There is **no test runner, typecheck script, or formatter configured**. To typecheck, run `npx tsc --noEmit`. Do not add a test framework or formatter unless asked.
+
+There are also **static verification harnesses** in `scripts/` — plain Node scripts (no test framework) that assert invariants over the SQL migrations, Zod schemas, and source code. Run them directly, e.g. `node scripts/verify-customer-status.mjs`. Each prints `[PASS]`/`[FAIL]` lines and a summary; the exit code is non-zero on failure. Current harnesses: `verify-rbac`, `verify-cancel-order`, `verify-fulfillment-transitions`, `verify-inventory-adjustment`, `verify-customer-status`, `verify-product-management`, `verify-post-login-routing`, `verify-callback-redirect`, `verify-contact-newsletter`.
 
 ## Architecture & Data Flow
 
@@ -34,28 +42,49 @@ app/
   layout.tsx            # Root layout: <html>/<body>, font (Cactus Classical Serif), metadata
   globals.css           # Tailwind v4 theme (CSS variables + @theme inline), keyframes, utilities
   (marketing)/          # Route group — shares one marketing layout, no URL prefix
-    layout.tsx          # "use client" — wraps every marketing page in SmoothScroll + AnnouncementBar + Navbar + MobileNav + CartDrawer + Footer
+    layout.tsx          # "use client" — wraps every marketing page in SmoothScroll + Navbar + MobileNav + CartDrawer + Footer + BackToTop
     page.tsx            # Home — Hero (eager) + 6 section components dynamically imported (ssr: true)
     products/
-    page.tsx          # Product listing — queries getProducts() from Supabase via lib/products.ts
-    [slug]/page.tsx   # Product detail — async Server Component, queries getProductBySlug() from Supabase
-  checkout/
-    page.tsx          # Checkout — auth-gated; server page prefills contact info, renders CheckoutForm (client)
-    success/page.tsx  # Order confirmation/receipt — reads ?number=<orderNumber>, shows "pending payment" status
+      page.tsx          # Product listing — queries getProducts() from Supabase via lib/products.ts
+      [slug]/page.tsx   # Product detail — async Server Component, queries getProductBySlug() from Supabase
+    collections/        # Scent families: page.tsx + [slug]/page.tsx
+    account/            # Account hub (auth-gated): page.tsx, orders/, address/, profile/
+    checkout/           # Checkout — auth-gated; server page prefills contact info, renders CheckoutForm (client)
+      success/page.tsx  # Order confirmation/receipt — reads ?number=<orderNumber>, shows "pending payment" status
+    about/ contact/ faq/ journal/ shipping/ care-guide/   # Static content routes
+  (auth)/               # Route group — auth pages share a minimal layout (no site chrome)
+    layout.tsx
+    login/ register/ forgot-password/ reset-password/
+  auth/callback/route.ts  # OAuth / PKCE callback → resolvePostLoginPath()
+  admin/                # Back-office (outside the (marketing) layout — no Navbar/Footer/SmoothScroll)
+    layout.tsx          # Server boundary; requireActiveActor() + requireAnyPermission(MANAGEMENT_PERMISSIONS)
+    page.tsx            # Admin dashboard
+    audit/              # Audit log viewer (Module A4)
+    customers/          # Customer directory (Module B1)
+      [id]/page.tsx     # Customer detail + CustomerStatusControl (Module B2)
+    inventory/          # Inventory management + adjustments (Module A3)
+    orders/             # Order management, cancellation, fulfillment (Modules A1/A2)
+      [id]/page.tsx
+    products/           # Product catalog management
+      new/page.tsx
+      [id]/page.tsx
+  actions/              # Server Actions ("use server"): auth, products, orders, inventory, customers, profile, locale, ...
 ```
 
 Key points:
 - The `(marketing)` route group's layout is a **Client Component** (`"use client"`), so every marketing page renders inside a client boundary. `MobileNav` and `CartDrawer` are `dynamic(..., { ssr: false })` imports within it.
 - Home page uses `dynamic()` with `ssr: true` for below-the-fold sections to keep the initial JS bundle small while still server-rendering HTML.
 - Dynamic route params in Next 16 are **async** — `params: Promise<{ slug: string }>` must be awaited (see `app/(marketing)/products/[slug]/page.tsx`).
-- Auth routes (`/login`, `/register`, `/forgot-password`, `/reset-password`) and `/account` are implemented. All routes referenced in `lib/constants.ts` (`NAV_LINKS`, `FOOTER_LINKS`) exist: `/collections` (scent-family listing + `/collections/[slug]`, where a slug matches a `SCENT_CATEGORIES` id or `gift-sets`), `/about` (with `#craft`/`#ingredients`/`#sustainability` anchors), `/journal` (static posts from `lib/journal.ts` + SSG `/journal/[slug]`), `/contact` (client `ContactForm` in `components/sections/contact-form.tsx`, no backend — simulates success locally), `/faq`, `/shipping`, and `/care-guide`.
+- Auth routes (`/login`, `/register`, `/forgot-password`, `/reset-password`) and `/account` are implemented. All routes referenced in `lib/constants.ts` (`NAV_LINKS`, `FOOTER_LINKS`) exist: `/collections` (scent-family listing + `/collections/[slug]`, where a slug matches a `SCENT_CATEGORIES` id or `gift-sets`), `/about` (with `#craft`/`#ingredients`/`#sustainability` anchors), `/journal` (static posts from `lib/journal.ts` + SSG `/journal/[slug]`), `/contact` (client `ContactForm` in `components/sections/contact-form.tsx` → `submitContactAction` in `app/actions/contact.ts`, which inserts into `contact_messages` via the admin client; the Newsletter section does the same for `newsletter_subscribers`), `/faq`, `/shipping`, and `/care-guide`.
 
 ### Middleware & Supabase Auth
 
 `middleware.ts` → `lib/supabase/middleware.ts` runs on every matched request (excludes `_next/static`, `_next/image`, `favicon.ico`, and common image extensions). It:
 - Creates a Supabase server client bound to the request/response cookies.
 - Calls `supabase.auth.getUser()` to refresh the session (do **not** insert logic between `createServerClient` and `getUser()` — see the comment in that file; it causes hard-to-debug random logouts).
-- Redirects unauthenticated users from `/account*` and `/checkout*` → `/login`, and logged-in users from `/login`/`/register` → `/account`.
+- **Fast-path**: if the request carries no Supabase auth cookie (`sb-*-auth-token`), it skips the remote `getUser()` round-trip entirely. Protected paths are still redirected to `/login?next=…`; everything else passes straight through.
+- **Route protection** is centralized in `lib/supabase/middleware.ts` via `PROTECTED_ROUTE_SEGMENTS = ["/admin", "/account", "/checkout"]` and the exported `isProtectedPath(pathname)` helper. It matches an exact root path or a child path segment, so `/admin` and `/admin/orders` are protected while `/administrator`, `/accounting`, and `/checkout-help` are **not** false-positived. Do not add ad-hoc prefix checks elsewhere — use `isProtectedPath()`.
+- Redirects unauthenticated users from protected paths → `/login` (preserving the original target in `?next=`), and logged-in users from `/login`/`/register` → the role-aware destination from `resolvePostLoginPath()` (see `lib/redirect.ts`).
 
 ### Supabase client pattern
 
@@ -96,24 +125,125 @@ On success the client clears the cart and redirects to `/checkout/success?number
 
 **Saved addresses** (`lib/addresses.ts`, backed by the `addresses` table): `createOrder` also saves the checkout shipping address as the user's single **default** address (best-effort — never fails the order). The `/checkout` page prefills the form from it (plus `profiles.full_name`/`phone`), and the account page's "Shipping Sanctuary" card displays it. The table has no full-name/phone columns, so those always come from the profile.
 
+### Contact & newsletter tables — **migration `0013` applied to production; do not re-run it**
+
+`app/actions/contact.ts` (`submitContactAction`) and `app/actions/newsletter.ts` (`subscribeNewsletterAction`) insert into `contact_messages` and `newsletter_subscribers` via the secret-key admin client. The DDL for both tables is the numbered migration **`supabase/migrations/0013_contact_newsletter_tables.sql`**. The older `scripts/schema-newsletter-contact.sql` is a **superseded pointer, not an instruction** — it contains no DDL at all, only a warning that `0013` is already applied and must not be re-run. It used to be the canonical script, and it used to grant broad `INSERT` to `anon`/`authenticated` with `WITH CHECK (true)`; `0013` tightens this to `service_role` only.
+
+**Both relations now exist in production.** When first audited (against the live PostgREST OpenAPI spec on 2026-10-20) the `definitions` block held exactly 11 relations — `order_outbox_events`, `role_permissions`, `orders`, `audit_logs`, `order_items`, `products`, `roles`, `profiles`, `addresses`, `product_variants`, `permissions` — and `contact_messages` / `newsletter_subscribers` were absent. `0013` has since been applied to production by hand, so both are now live, RLS-protected relations and both currently hold rows.
+
+State of the code today:
+
+- Both actions **no longer swallow insert errors**. On a failed insert they return `{ code: "persist_failed", error: ... }`; on success they return `{ success: true }`. The duplicate-subscription path (`error.code === "23505"`) is the one legitimate success branch: `{ success: true, code: "already_subscribed" }`.
+- Validation failures return `{ code: "validation", ... }`.
+- The UI maps `code` onto localized copy from `messages/en.json` / `messages/vi.json` (`contact.errorServer`, `contact.errorValidation`, `contact.errorUnexpected`, `newsletter.errorEmail`, `newsletter.errorPersist`, `newsletter.successDuplicate`) instead of rendering the English `error` string, so failure text stays bilingual.
+- **`0013` is applied, so both features genuinely persist.** Manual testing confirmed a contact submission in `contact_messages` and a subscription in `newsletter_subscribers`, plus the newsletter's unique-email constraint and the localized duplicate-subscription message. The honest-failure path is still in place: if an insert ever fails, the visitor gets a localized error rather than a false "sent" confirmation.
+
+**`0013` has already been applied to production — do NOT run or reapply it.** It was pasted into the Supabase SQL editor by hand (there is no migration runner in this repo); its trailing `DO $$ … $$` block `RAISE EXCEPTION`s if the end state is wrong and printed `--- Solenne 0013 OK: …` when it passed. Note that `node scripts/verify-contact-newsletter.mjs` only checks the migration file's *contents* statically — it cannot tell you whether the file has been run, so do not re-run `0013` as a way of "verifying" anything.
+
+### Database migrations & RPCs
+
+`supabase/migrations/` holds **13** migrations, `0001`–`0013`. **All 13 are applied to the live database** — `0001`–`0012` verified against the live schema on 2026-10-20, and `0013_contact_newsletter_tables.sql` applied manually to production afterwards. They are plain `.sql` files run via the Supabase SQL editor — there is **no migration runner script** in the repo, so applying a new one is a manual, out-of-band step.
+
+**Never re-run an already-applied migration** (`0013` included) as a way of "verifying" anything. Any future schema change must be authored as a **new** migration beginning with **`0014`**, reviewed, and applied manually via the Supabase SQL editor **only when explicitly authorized**.
+
+| Migration | Purpose |
+| --- | --- |
+| `0001_rbac_schema.sql` | Creates `roles`, `permissions`, `role_permissions`, `audit_logs`; alters the pre-existing `profiles` table with nullable role/status columns; adds the helper functions (`has_permission`, `has_role`, `has_min_role_rank`, `current_actor`, `is_active_account`, `handle_new_user`, `guard_profile_privileges`, …). Every helper is `SECURITY DEFINER` and **must be applied as the project owner (`postgres`)** — the owner bypasses RLS, which is what stops a `profiles` policy calling `has_permission()` from recursing into `profiles`. |
+| `0002_rbac_seed.sql` | Seeds the four roles, the explicit permission catalogue, and the role→permission matrix |
+| `0003_rbac_rls.sql` | RLS policies across the RBAC tables |
+| `0004_bootstrap_admin.sql` | First-admin bootstrap path |
+| `0005_rbac_security_foundation.sql` | Hardens `has_permission()` and the RBAC security model |
+| `0006_cancel_order_atomic.sql` | `cancel_order` — atomic order cancellation |
+| `0007_order_fulfillment_transitions.sql` | `update_order_status` — guarded order status transitions (fulfillment). Also creates `public.order_outbox_events` (`create table if not exists`). |
+| `0008_cancel_order_outbox_event.sql` | Replaces `cancel_order` to also emit an outbox event (into the `order_outbox_events` table created by `0007`) |
+| `0009_inventory_adjust_atomic.sql` | `adjust_inventory_stock` — atomic stock adjustment |
+| `0010_customer_metrics_rpcs.sql` | `customer_role_id`, `get_customer_purchase_metrics` — customer metrics/count RPCs for the admin directory |
+| `0011_manage_customer_status_atomic.sql` | `manage_customer_status` — atomic, permission-checked status change + audit row |
+| `0012_reinstate_banned_customer_atomic.sql` | `reinstate_banned_customer` — atomic reinstatement of a banned customer + audit row |
+| `0013_contact_newsletter_tables.sql` | Creates `public.contact_messages` and `public.newsletter_subscribers`. RLS enabled; `anon`/`authenticated` privileges revoked, `service_role` only; ends with a self-verifying `DO $$` block. **Applied to production — do not re-run.** |
+
+#### Live RPC inventory (19 RPCs — verified 2026-10-20 against the live PostgREST OpenAPI spec)
+
+The live schema is the **source of truth** for RPC signatures — query `GET /rest/v1/` with the secret key and read `paths["/rpc/<name>"]`. `*` marks a **required** parameter.
+
+| RPC | Parameters | Notes |
+| --- | --- | --- |
+| `adjust_inventory_stock` | `p_variant_id uuid*`, `p_delta integer*`, `p_reason text*` | Atomic stock adjustment; all three required. |
+| `cancel_order` | `p_order_id uuid*`, `p_reason text` | `p_reason` optional. Emits an outbox event (migration `0008`). |
+| `count_active_admins` | — | Last-admin lockout guard. |
+| `current_actor` | — | Returns the caller's actor context (user_id, role, status, permissions). Used by `lib/authz.ts` and the middleware. |
+| `current_role_name` | — | Current caller's role name. |
+| `current_role_rank` | — | Current caller's role rank. |
+| `customer_role_id` | — | Minimal `SECURITY DEFINER` helper returning the customer role UUID (`0010`). |
+| `default_role_id` | — | Default role for newly created profiles. |
+| `get_customer_purchase_metrics` | `p_user_ids uuid[]*` | Batch customer metrics for the admin directory. |
+| `has_min_role_rank` | `p_rank integer*` | Rank-based authorization helper. |
+| `has_permission` | `p_key text*` | Permission check by explicit key (no wildcards). |
+| `has_role` | `p_name text*` | Role-name check helper. |
+| `is_active_account` | — | Account-status check used by the profile guard. |
+| `manage_customer_status` | `p_customer_id uuid*`, `p_target_status text*`, `p_reason text*` | All three required. `banned` is terminal here. |
+| `reinstate_banned_customer` | `p_customer_id uuid*`, `p_reason text*` | Both required. `EXECUTE` revoked from `service_role` by design. |
+| `requesting_role` | — | DB role of the current request (`service_role`, `postgres`, …); used by the guard triggers. |
+| `rls_auto_enable` | — | Helper that turns RLS on for a table; **not defined in the repo migrations** (Supabase-managed / out-of-band). Treat as read-only infrastructure. |
+| `role_id_by_name` | `p_name text*` | Role-name → UUID lookup. `SECURITY INVOKER`. |
+| `update_order_status` | `p_order_id uuid*`, `p_target_status text*`, `p_reason text`, `p_tracking_code text` | Only `p_order_id` + `p_target_status` are required. **`p_tracking_code` is a real live parameter** (added by migration `0007`) — it stores the courier tracking code on the `shipped` transition. Do not omit it from documentation or from `app/actions/orders.ts`. |
+
+Notes:
+- The live list is **19 RPCs**; the repo migrations only define a subset. Anything not in `supabase/migrations/*.sql` (notably `rls_auto_enable`) was created out-of-band in the Supabase console and must not be dropped.
+- `update_order_status` also accepts `p_reason`; `cancel_order` and `update_order_status` are the only two with a *text* reason, and neither requires it.
+
+#### Live table inventory (11 relations — verified 2026-10-20)
+
+Read from the `definitions` block of the live PostgREST OpenAPI spec (`GET /rest/v1/` with the secret key):
+
+| Relation | Created by | Notes |
+| --- | --- | --- |
+| `orders` | pre-existing | Order records; totals stored in **USD**. |
+| `order_items` | pre-existing | Line items. Its `INSERT` policy rejects `authenticated` writes — see Gotchas. |
+| `order_outbox_events` | migration `0007` | Durable notification outbox; written by `cancel_order` (`0008`). |
+| `products` | pre-existing | Catalog; 6 live rows, each with exactly one image. |
+| `product_variants` | pre-existing | Size/price variants; stock is decremented with an optimistic-concurrency guard. |
+| `profiles` | pre-existing (altered by `0001`) | Role/status columns added by `0001`; `status` is writable only through the RPCs. |
+| `addresses` | pre-existing | Default shipping address per user; no full-name/phone columns. |
+| `roles` | migration `0001`/`0002` | 4 system roles: `customer` (10), `staff` (20), `manager` (30), `admin` (40). |
+| `permissions` | migration `0001`/`0002` | 21 explicit permission keys — no wildcards. |
+| `role_permissions` | migration `0001`/`0002` | Role → permission matrix. |
+| `audit_logs` | migration `0001` | 71 rows across 8 distinct actions as of 2026-10-20. |
+
+**Now present live:** `contact_messages` and `newsletter_subscribers` — migration `0013` **has been applied** to production, so the 11-relation count above predates it; see "Contact & newsletter tables" above.
+
+Key conventions in the atomic RPCs (`0011`, `0012`):
+- `SECURITY DEFINER` with a **hardened `search_path`** (`''`, empty string) — never leave the default `search_path` on a definer function.
+- The function **re-checks the caller's permission inside the transaction**; do not rely on the server action's pre-check alone.
+- **Self-modification is forbidden** (`SELF_STATUS_CHANGE_FORBIDDEN` / `SELF_REINSTATEMENT_FORBIDDEN`).
+- `banned` is **terminal** for `manage_customer_status` (`BANNED_STATUS_TERMINAL`); reversal goes through the dedicated `reinstate_banned_customer` RPC.
+- `pending` accounts cannot be transitioned (`PENDING_STATUS_UNSUPPORTED`).
+- The `authenticated` role must **not** hold `UPDATE` on `profiles.status` — the status column is writable only through the RPCs.
+- Every migration ends with a **verification block** that `RAISE EXCEPTION`s if the expected privileges are wrong, so a partially-applied migration fails loudly.
+
 ## Conventions
 
 ### File organization
 
 ```
 components/
-  ui/           # Primitives: Button, Input, Badge, Skeleton, Separator, Container, IconButton — each barrel-exported via index.ts
-  product/      # Product-domain components (card, grid, gallery, info, selectors, scent-notes)
-  layout/       # Site chrome: AnnouncementBar, Navbar, MobileNav, CartDrawer, Footer
-  sections/     # Marketing page sections (Hero, BrandStory, FeaturedProducts, CraftSection, ScentExplorer, Testimonials, Newsletter, ContactForm)
-  animations/   # Motion primitives (SmoothScroll, ScrollReveal, TextReveal, ParallaxImage, HorizontalScroll, PinnedSection, MagneticButton)
-hooks/          # Custom hooks (use-cart, use-locked-body, use-intersection, use-media-query)
-stores/         # Zustand stores
-lib/            # utils.ts (cn, formatPrice, slugify, ...), constants.ts, products.ts, journal.ts, supabase/, validations/
+  ui/           # Primitives: Button, Input, Badge, Skeleton, Separator, Container, IconButton, BackToTop, Combobox — each barrel-exported via index.ts
+  product/      # Product-domain components (card, grid, gallery, info, picture, selectors, scent-notes)
+  layout/       # Site chrome: Navbar, MobileNav, CartDrawer, Footer, BrandLogo, LocaleToggle, CurrencyToggle, I18nProvider
+  sections/     # Marketing page sections (Hero, BrandStory, FeaturedProducts, CraftSection, ScentExplorer, ScentCanvas, Testimonials, Newsletter, ContactForm)
+  animations/   # Motion primitives (SmoothScroll, ScrollReveal, TextReveal, TextFillAnimation, ParallaxImage, HorizontalScroll, PinnedSection, MagneticButton)
+  account/      # Account hub UI: OrderHistoryCard, OrderListItem, AddressForm, ProfileForm, StatusBadge, RestrictedAccountNotice
+  admin/        # Back-office UI: order/customer/product/inventory/audit panels and tables
+  auth/         # PasswordStrengthMeter only — the only component folder WITHOUT a barrel
+  address/      # Address form primitives shared by checkout + account (shipping-address-fields)
+  checkout/     # CheckoutForm and checkout step components
+hooks/          # Custom hooks (use-cart, use-locked-body, use-intersection, use-media-query, use-authz, use-locale, use-locale-scroll-restoration, use-same-page-reload)
+stores/         # Zustand stores (cart-store, filter-store, ui-store)
+lib/            # utils.ts (cn, formatPrice, slugify, ...), constants.ts, products.ts, journal.ts, addresses.ts, inventory.ts, orders.ts, authz.ts, authz-ux.ts, redirect.ts, audit.ts, audit-utils.ts, admin-*.ts, product-images.ts, locale-scroll-restoration.ts, supabase/, validations/
 types/          # TypeScript interfaces; index.ts re-exports all
 ```
 
-Every component directory has an `index.ts` barrel. **Import from the barrel, not deep paths** — e.g. `import { Button } from "@/components/ui"` and `import { ProductCard, ProductGrid } from "@/components/product"`. The `@/*` path alias maps to the repo root (`tsconfig.json` paths).
+Every component directory **except `components/auth/`** has an `index.ts` barrel (`components/auth/` holds a single file and is imported directly). **Import from the barrel, not deep paths** — e.g. `import { Button } from "@/components/ui"` and `import { ProductCard, ProductGrid } from "@/components/product"`. The `@/*` path alias maps to the repo root (`tsconfig.json` paths).
 
 ### Component style
 
@@ -139,8 +269,19 @@ This project uses **Tailwind CSS v4** (not v3). Differences that bite:
 - **GSAP** + `@gsap/react` drive the `BrandStory` scroll-scrub section (`components/sections/brand-story.tsx`).
 - `html` must **not** have `scroll-behavior: smooth` — it conflicts with Lenis (kept out of `globals.css` deliberately).
 - **`useLockedBody`** uses a module-level lock counter so overlapping locks (CartDrawer + MobileNav) capture/restore body styles only once — restoring per-instance could leave the body stuck with `overflow: hidden`.
-- **three.js** + `@react-three/fiber` + `@react-three/drei` are dependencies (likely for the `ScentExplorer` 3D section — verify before use).
+- **three.js** + `@react-three/fiber` + `@react-three/drei` drive the 3D candle in the `ScentExplorer` section (`components/sections/scent-canvas.tsx`, imported dynamically by `scent-explorer.tsx`). The scene is palette-mapped per `ScentCategory` and only animates while the canvas is in view.
 - Global reduced-motion handling is in `globals.css` (`@media (prefers-reduced-motion: reduce)` zeroes out animation/transition durations).
+
+### Admin back-office & RBAC
+
+A separate `/admin` back-office exists outside the `(marketing)` route group (no Navbar/Footer/Lenis). It is gated by an **RBAC** system built on four roles and an explicit permission catalogue:
+
+- **Roles** (rank-ordered, `supabase/migrations/0002_rbac_seed.sql`): `customer` (10) → `staff` (20) → `manager` (30) → `admin` (40). All four are live in the `roles` table and are `is_system = true`.
+- **Permissions** are explicit keys with no wildcards. The live catalogue has exactly **21** keys: `analytics.read`, `audit.read`, `customer.read`, `customer.update`, `inventory.read`, `inventory.update`, `order.cancel`, `order.create`, `order.read`, `order.read_own`, `order.update`, `product.create`, `product.delete`, `product.read`, `product.update`, `profile.read_own`, `profile.update_own`, `role.manage`, `role.read`, `staff.manage`, `staff.read`. The `*_own` variants are the self-service pairings.
+- **Authorization** happens in two places: the **layout** (`app/admin/layout.tsx`) calls `requireActiveActor()` then `requireAnyPermission(MANAGEMENT_PERMISSIONS)` and redirects/403s otherwise; each **action/server function** re-checks the specific permission it needs. Never rely on the layout check alone — it does not protect direct calls into `app/actions/*` or `lib/admin-*.ts`.
+- `MANAGEMENT_PERMISSIONS` (the list of keys that grant `/admin` access) lives in `lib/redirect.ts`, which also owns `sanitizeNextPath()` (open-redirect protection) and `resolvePostLoginPath()` (post-login routing: management role → `/admin`, otherwise `/account`).
+- `lib/admin.ts`-style helpers are split per domain: `lib/admin-customers.ts`, `lib/admin-products.ts`, `lib/admin-audit.ts`.
+- **Customer moderation** (`manageCustomerStatus`, `reinstateCustomer` in `lib/admin-customers.ts`) does **not** write rows directly — it calls atomic, permission-checked Postgres RPCs (`manage_customer_status`, `reinstate_banned_customer`) that re-verify the caller's permission inside the transaction and write an `audit_logs` row. Banned customers cannot be reinstated by un-banning alone; reinstatement is its own RPC. `lib/audit-utils.ts` holds the shared audit helper.
 
 ### Currency & i18n
 
@@ -158,9 +299,13 @@ Dual-currency (USD default, VND) and dual-locale (`en`/`vi`) support is scaffold
 - **`CLAUDE.md` is a one-line `@AGENTS.md` include** — edits go in this file, not `CLAUDE.md`.
 - **The marketing layout is a Client Component**, so Server Components rendered inside it still work, but any shared layout-level context (e.g. a React Context provider) added there runs on the client.
 - **Cart persistence only stores `items`** (via `partialize`) — `isCartOpen` resets to `false` on reload. The `useCart` hook spreads `...store` so `isCartOpen` reflects the in-memory value.
-- **`useCart` converts via a fixed `USD_TO_VND` rate** (`lib/constants.ts`), not live exchange rates. Product prices are USD-only in Supabase, so all VND display amounts (including shipping/total) are derived. The currency toggle lives in `useUIStore` but no UI sets it yet.
-- **Product images are all empty arrays** (`images: []`) in placeholder data — `ProductCard` and `ProductGallery` render gradient/silhouette placeholders, not real `next/image` usage. When adding real images, switch to `next/image` and configure `next.config.ts` `images` domains.
+- **The currency toggle is live** in the navbar, mobile nav, and footer (`components/layout/currency-toggle.tsx`), writing to `useUIStore`. `useCart` converts via a fixed `USD_TO_VND` rate (`lib/constants.ts`), not live exchange rates. Product prices are USD-only in Supabase, so all VND display amounts (including shipping/total) are derived.
+- **Product images are wired and optimized — do not "fix" them back to placeholders.** `ProductCard`, `ProductGallery`, and `ProductPicture` render real assets. `lib/product-images.ts` maps source filenames to pre-generated AVIF/WebP variants in `public/images/product/optimized/` (widths `384`, `640`, `1200`), and `ProductPicture` emits a `<picture>` with `avif`/`webp` `<source>` elements plus a WebP fallback `<img>`. This **deliberately bypasses the `/_next/image` runtime endpoint**, which is broken on Cloudflare Workers. Only use plain `next/image` when the source is not in the optimized map (the component falls back automatically) — do not switch the optimized path back to `next/image`.
+- **The `craft-section.tsx` slides use `next/image` with `unoptimized`**, because the atelier PNGs (Vietnamese filenames) are not in the optimized map and their URLs are passed through `encodeURI`. The section renders **7 slides** while **8 atelier photos** exist in `public/images/product/` — one photo (`Nến Solenne giữa thế giới thủ công.png`) is intentionally unused by the carousel.
+- **`contact_messages` and `newsletter_subscribers` exist in production and both flows work.** Migration `supabase/migrations/0013_contact_newsletter_tables.sql` **has already been applied by hand — do NOT run or reapply it** (`scripts/schema-newsletter-contact.sql` is only a superseded pointer to it). Manual testing confirmed a contact submission landing in `contact_messages`, a subscription landing in `newsletter_subscribers`, the unique-email constraint, and the localized duplicate-subscription message. The two server actions still return `{ code: "persist_failed", ... }` instead of swallowing the insert error, so an outage now surfaces an honest bilingual error rather than a false confirmation. The live PostgREST spec is the place to confirm the tables exist — `node scripts/verify-contact-newsletter.mjs` only checks the migration file's static contents and cannot tell you whether it was run.
 - **`order_items` has an RLS insert policy that rejects authenticated users' inserts** (new row violates the policy; the policy appears misconfigured — anon inserts are plain-denied too). Order writes therefore go through the secret-key admin client in server actions. If you fix the policy (e.g. `WITH CHECK (auth.uid() = (select user_id from orders o where o.id = order_id))`), the current admin-client flow still works unchanged.
 - **Orders are stored in USD.** `useCart` may display VND, but `createOrder` recomputes and stores USD totals from `SHIPPING` USD thresholds; when payment is added, keep the DB in USD and convert only for display.
-- **No tests exist.** There is no test script, no test files, no testing library installed. Run `npx tsc --noEmit` for typechecking.
+- **There is no automated test framework.** There is no test script, no test files, and no testing library installed. What exists instead is a set of **static verification harnesses** (`scripts/verify-*.mjs`, 9 of them) that assert invariants over the SQL migrations, Zod schemas, and source code — see the Commands section above. Run them directly with `node`. For typechecking, run `npx tsc --noEmit`.
 - **`pnpm lint` runs `eslint` with no path** — it lints per the flat config's default file patterns. To lint a specific file: `npx eslint path/to/file.tsx`.
+- **Cloudflare deployment state is UNVERIFIED.** The repo is wired for OpenNext on Cloudflare (`wrangler.jsonc`, `open-next.config.ts`, `worker.js`, and the `build:worker` / `preview` / `deploy` / `upload` scripts), and `/_next/image` is known to be broken on Workers — which is why the optimized `<picture>` pipeline exists. However, **no deployment has been verified**. Do not describe the app as deployed, live, or healthy, and do not assume the current HEAD is the running version, until someone checks the Cloudflare dashboard or runs `wrangler deployments list`.
+- **`supabase/.temp/` is gitignored** (added this session). The Supabase CLI writes a `cli-latest` version marker there; it is local state, not source. Do not commit it.

@@ -17,7 +17,7 @@ export async function subscribeNewsletterAction(
     const errorMsg =
       validated.error.flatten().fieldErrors.email?.[0] ??
       "Please enter a valid email address.";
-    return { error: errorMsg };
+    return { code: "validation", error: errorMsg };
   }
 
   try {
@@ -27,15 +27,26 @@ export async function subscribeNewsletterAction(
     });
 
     if (error) {
-      // 23505 is PostgreSQL unique constraint violation code
+      // 23505 is PostgreSQL unique constraint violation code: the address is
+      // already on the list, which is a benign, idempotent outcome.
       if (error.code === "23505") {
         return {
           success: true,
+          code: "already_subscribed",
           message: "You are already subscribed to our newsletter.",
         };
       }
-      console.warn("Could not insert into newsletter_subscribers:", error.message);
-      console.info("[Newsletter Subscription Received]", validated.data.email);
+      // Any other failure means the address was NOT stored — do not claim
+      // the subscription succeeded.
+      console.error(
+        "Could not insert into newsletter_subscribers table:",
+        error.message
+      );
+      return {
+        code: "persist_failed",
+        error:
+          "We couldn't complete your subscription. Please try again in a moment.",
+      };
     }
 
     return {
@@ -45,8 +56,9 @@ export async function subscribeNewsletterAction(
   } catch (err) {
     console.error("Newsletter action error:", err);
     return {
-      success: true,
-      message: "Thank you for subscribing! Welcome to Solenne.",
+      code: "persist_failed",
+      error:
+        "We couldn't complete your subscription. Please try again in a moment.",
     };
   }
 }

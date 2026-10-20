@@ -1,41 +1,35 @@
 -- ===================================================
 -- Solenne: Newsletter & Contact Messages Tables
--- Run this in your Supabase SQL Editor if needed
+-- ===================================================
+-- SUPERSEDED POINTER — this file is intentionally NOT executable DDL. Do not
+-- run it.
+--
+-- The canonical migration supabase/migrations/0013_contact_newsletter_tables.sql
+-- HAS ALREADY BEEN APPLIED TO PRODUCTION (pasted into the Supabase SQL editor by
+-- hand). It stands up public.contact_messages and public.newsletter_subscribers
+-- with RLS enabled, grants restricted to the service_role, and a trailing
+-- self-verification block that RAISE EXCEPTIONs if the end state is wrong.
+--
+-- Do NOT reapply migration 0013 — and do not use either this file or 0013 as a
+-- verification step. Running them again against production is prohibited.
+-- scripts/verify-contact-newsletter.mjs only checks the migration file's static
+-- contents; it cannot tell whether the migration has been run, so a passing
+-- harness is not evidence about the live schema. To confirm the live surface,
+-- re-read the PostgREST OpenAPI spec (GET /rest/v1/).
+--
+-- The canonical migration file above is retained for historical and schema
+-- reference only.
+--
+-- Historical note: this file used to be the canonical DDL and granted broad
+-- INSERT access with WITH CHECK (true), which let any visitor holding the
+-- publishable key write straight into these tables. That DDL has been removed —
+-- this file is now a pointer only, kept for anyone who still has the old path
+-- bookmarked.
+--
+-- Future schema changes belong in a NEW, separately reviewed migration beginning
+-- with 0014 — authored, reviewed, and applied manually via the Supabase SQL
+-- editor only when explicitly authorized. There is no migration runner in this
+-- repo.
 -- ===================================================
 
--- 1. Contact Messages
-CREATE TABLE IF NOT EXISTS public.contact_messages (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT NOT NULL,
-  email TEXT NOT NULL,
-  subject TEXT,
-  message TEXT NOT NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
--- RLS for contact_messages
-ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
-
--- Allow anonymous and authenticated users to insert contact messages
-CREATE POLICY "Anyone can submit a contact message"
-  ON public.contact_messages
-  FOR INSERT
-  TO anon, authenticated
-  WITH CHECK (true);
-
--- 2. Newsletter Subscribers
-CREATE TABLE IF NOT EXISTS public.newsletter_subscribers (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  email TEXT UNIQUE NOT NULL,
-  subscribed_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
--- RLS for newsletter_subscribers
-ALTER TABLE public.newsletter_subscribers ENABLE ROW LEVEL SECURITY;
-
--- Allow anyone to subscribe
-CREATE POLICY "Anyone can subscribe to the newsletter"
-  ON public.newsletter_subscribers
-  FOR INSERT
-  TO anon, authenticated
-  WITH CHECK (true);
+\echo 'Superseded pointer — migration 0013 is already applied to production. This file is not executable DDL; do not run it or reapply 0013.'

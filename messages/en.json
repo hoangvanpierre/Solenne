@@ -83,9 +83,13 @@
     "description": "Subscribe for private allocations, early access to seasonal pourings, and quiet reflections on the art of living.",
     "placeholder": "Your email address",
     "button": "Subscribe",
+    "subscribing": "Subscribing...",
     "success": "Welcome to the circle of light ✨",
     "successDetail": "Your email has been welcomed into our private ledger. Watch your inbox for quiet chronicles and new creations.",
-    "error": "Unable to complete subscription. Please try again."
+    "error": "Unable to complete subscription. Please try again.",
+    "errorEmail": "Please enter a valid email address.",
+    "errorPersist": "Unable to complete subscription. Please try again in a moment.",
+    "successDuplicate": "You are already subscribed to our newsletter."
   },
   "cart": {
     "title": "Your Cart",
@@ -121,7 +125,10 @@
     "errorEmail": "Please enter a valid email address.",
     "errorMessage": "Please write a message.",
     "submit": "Send Message",
-    "submitting": "Transmitting..."
+    "submitting": "Transmitting...",
+    "errorServer": "We couldn't send your message. Please try again, or email us directly.",
+    "errorValidation": "Please correct the errors in the form.",
+    "errorUnexpected": "An unexpected error occurred. Please try again."
   },
   "about": {
     "badge": "Heritage & Atelier",

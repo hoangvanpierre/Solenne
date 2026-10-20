@@ -1,41 +1,26 @@
 -- ===================================================
 -- Solenne: Newsletter & Contact Messages Tables
--- Run this in your Supabase SQL Editor if needed
+-- ===================================================
+-- SUPERSEDED — the canonical DDL now lives in the numbered migration chain:
+--
+--   supabase/migrations/0013_contact_newsletter_tables.sql
+--
+-- Apply THAT file (via the Supabase SQL editor or `supabase db push`). It
+-- creates the same two relations with hardened grants — RLS enabled, writes
+-- restricted to `service_role`, reads restricted to `service_role` — and ends
+-- with a self-verification block that raises an exception if the end state is
+-- wrong. This file previously granted broad `INSERT` to `anon` / `authenticated`
+-- with `WITH CHECK (true)`, which allowed any visitor holding the publishable
+-- key to write directly into these tables.
+--
+-- Kept as a pointer for anyone who has the old path bookmarked. It is
+-- intentionally NOT executable DDL — do not run it directly.
+--
+-- To apply:
+--   1. Open the Supabase SQL Editor.
+--   2. Paste the full contents of 0013_contact_newsletter_tables.sql.
+--   3. Run it. It prints: '--- Solenne 0013 OK: ... ---'
+--   4. Confirm both relations appear in `GET /rest/v1/`.
 -- ===================================================
 
--- 1. Contact Messages
-CREATE TABLE IF NOT EXISTS public.contact_messages (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT NOT NULL,
-  email TEXT NOT NULL,
-  subject TEXT,
-  message TEXT NOT NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
--- RLS for contact_messages
-ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
-
--- Allow anonymous and authenticated users to insert contact messages
-CREATE POLICY "Anyone can submit a contact message"
-  ON public.contact_messages
-  FOR INSERT
-  TO anon, authenticated
-  WITH CHECK (true);
-
--- 2. Newsletter Subscribers
-CREATE TABLE IF NOT EXISTS public.newsletter_subscribers (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  email TEXT UNIQUE NOT NULL,
-  subscribed_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
--- RLS for newsletter_subscribers
-ALTER TABLE public.newsletter_subscribers ENABLE ROW LEVEL SECURITY;
-
--- Allow anyone to subscribe
-CREATE POLICY "Anyone can subscribe to the newsletter"
-  ON public.newsletter_subscribers
-  FOR INSERT
-  TO anon, authenticated
-  WITH CHECK (true);
+\echo 'Superseded: apply supabase/migrations/0013_contact_newsletter_tables.sql instead.'

@@ -30,13 +30,14 @@ export function Newsletter() {
       if (res.success) {
         setFeedback({
           type: "success",
-          message: t("success"),
+          message:
+            res.code === "already_subscribed" ? t("successDuplicate") : t("success"),
         });
         setEmail("");
       } else {
         setFeedback({
           type: "error",
-          message: t("error"),
+          message: res.code === "validation" ? t("errorEmail") : t("errorPersist"),
         });
       }
     } catch {

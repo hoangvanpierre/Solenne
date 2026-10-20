@@ -70,10 +70,14 @@ export function ContactForm() {
           }
           setErrors(fieldMap);
         }
-        setServerError(res.error ?? "Failed to send message. Please try again.");
+        setServerError(
+          res.code === "validation" || res.fieldErrors
+            ? t("errorValidation")
+            : t("errorServer")
+        );
       }
     } catch {
-      setServerError("An unexpected error occurred. Please try again.");
+      setServerError(t("errorUnexpected"));
     } finally {
       setIsSubmitting(false);
     }

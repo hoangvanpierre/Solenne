@@ -83,9 +83,13 @@
     "description": "Đăng ký để nhận những đợt rót nến theo mùa, tác phẩm giới hạn và những bức tản văn về nghệ thuật sống an yên.",
     "placeholder": "Địa chỉ email của quý khách",
     "button": "Đăng ký nhận tin",
+    "subscribing": "Đang đăng ký...",
     "success": "Chào mừng quý khách đến với vòng sáng Solenne ✨",
     "successDetail": "Email của quý vị đã được ghi vào sổ lưu niệm của Nhà hương. Hãy đón chờ những lá thư thơm ngát gửi đến hòm thư.",
-    "error": "Chưa thể hoàn tất đăng ký lúc này. Quý khách vui lòng thử lại."
+    "error": "Chưa thể hoàn tất đăng ký lúc này. Quý khách vui lòng thử lại.",
+    "errorEmail": "Xin vui lòng nhập địa chỉ email hợp lệ.",
+    "errorPersist": "Chưa thể hoàn tất đăng ký lúc này. Quý khách vui lòng thử lại sau giây lát.",
+    "successDuplicate": "Địa chỉ email của quý khách đã có trong danh sách nhận tin rồi ạ."
   },
   "cart": {
     "title": "Giỏ hàng của quý khách",
@@ -121,7 +125,10 @@
     "errorEmail": "Xin vui lòng nhập địa chỉ email hợp lệ.",
     "errorMessage": "Xin vui lòng gửi gắm đôi dòng thông điệp.",
     "submit": "Gửi lời nhắn",
-    "submitting": "Đang gửi đi..."
+    "submitting": "Đang gửi đi...",
+    "errorServer": "Chúng tôi không thể gửi tin nhắn của quý khách. Vui lòng thử lại, hoặc gửi trực tiếp qua email.",
+    "errorValidation": "Xin vui lòng kiểm tra lại các lỗi trong biểu mẫu.",
+    "errorUnexpected": "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại."
   },
   "about": {
     "badge": "Di sản & Chế tác",

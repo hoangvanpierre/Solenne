@@ -16,6 +16,7 @@ export async function submitContactAction(
   if (!validated.success) {
     const fieldErrors = validated.error.flatten().fieldErrors;
     return {
+      code: "validation",
       error: "Please correct the errors in the form.",
       fieldErrors: fieldErrors as Record<string, string[] | undefined>,
     };
@@ -31,15 +32,24 @@ export async function submitContactAction(
     });
 
     if (error) {
-      console.warn("Could not insert into contact_messages table:", error.message);
-      // Fallback: If table doesn't exist yet in Supabase, log details
-      console.info("[Contact Submission Received]", validated.data);
+      // Persistence failed. The inquiry is NOT stored, so the visitor must not
+      // be told it was received — report the failure instead of silently
+      // dropping the message.
+      console.error("Could not insert into contact_messages table:", error.message);
+      return {
+        code: "persist_failed",
+        error:
+          "We couldn't send your message. Please try again, or email us directly.",
+      };
     }
 
     return { success: true };
   } catch (err) {
     console.error("Contact action error:", err);
-    // Fallback gracefully so customer inquiries are acknowledged
-    return { success: true };
+    return {
+      code: "persist_failed",
+      error:
+        "We couldn't send your message. Please try again, or email us directly.",
+    };
   }
 }

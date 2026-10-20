@@ -17,8 +17,17 @@ export const contactSchema = z.object({
 
 export type ContactInput = z.infer<typeof contactSchema>;
 
+/**
+ * Machine-readable reason for a non-success outcome. The UI maps these onto
+ * localized copy (`contact.*` in messages/en.json + messages/vi.json) rather
+ * than rendering the English `error` string, so failure text stays bilingual.
+ */
+export type ContactErrorCode = "validation" | "persist_failed";
+
 export type ContactActionState = {
   success?: boolean;
+  /** English developer-facing detail (server logs). Not rendered directly. */
   error?: string;
+  code?: ContactErrorCode;
   fieldErrors?: Record<string, string[] | undefined>;
 };

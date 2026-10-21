@@ -6,10 +6,13 @@ import {
   requirePermission,
 } from "@/lib/authz";
 import { writeAuditLog } from "@/lib/audit";
+import { isValidUuid } from "@/lib/audit-utils";
 import { saveDefaultAddress } from "@/lib/addresses";
 import { SHIPPING } from "@/lib/constants";
 import type {
+  AdminOrderQueryResult,
   Order,
+  OrderFilterParams,
   OrderItem,
   ShippingAddress,
 } from "@/types";
@@ -212,6 +215,140 @@ export async function countAdminOrders(): Promise<number> {
   if (error) throw new Error(`Failed to count admin orders: ${error.message}`);
 
   return count ?? 0;
+}
+
+// ---------------------------------------------------------------------------
+// Management order list: server-side search, status filter and pagination.
+//
+// Everything the browser sends is untrusted. The page/limit values are clamped,
+// the status must be one of the six real OrderStatus values, and the search
+// term is bounded and stripped of PostgREST filter delimiters before it is
+// interpolated into the composite `.or()` clause (same hardening as the
+// customer directory in lib/admin-customers.ts).
+//
+// Search covers the identifiers an operator actually has at hand:
+//   - order number  (orders.order_number, case-insensitive substring)
+//   - order id      (exact match, only when the term is a full uuid)
+//   - customer email (orders.shipping_address->>email, case-insensitive)
+// The JSON path filter is supported by PostgREST on the live schema, so no
+// schema change is needed.
+// ---------------------------------------------------------------------------
+
+const ORDER_STATUSES: readonly string[] = [
+  "pending",
+  "paid",
+  "processing",
+  "shipped",
+  "delivered",
+  "cancelled",
+];
+
+const ORDERS_DEFAULT_PAGE_LIMIT = 20;
+const ORDERS_MAX_PAGE_LIMIT = 100;
+const ORDERS_MAX_SEARCH_LENGTH = 80;
+
+function clampPositiveInt(
+  value: number | string | undefined,
+  fallback: number,
+  max: number
+): number {
+  const parsed =
+    typeof value === "number" ? value : Number.parseInt(String(value ?? ""), 10);
+  if (!Number.isFinite(parsed)) return fallback;
+  const integer = Math.trunc(parsed);
+  if (integer < 1) return fallback;
+  return Math.min(integer, max);
+}
+
+/** Same contract as the customer-directory sanitizer, plus `*` (PostgREST alias for `%`). */
+function sanitizeOrderSearch(query: string): string {
+  return query
+    .slice(0, ORDERS_MAX_SEARCH_LENGTH)
+    .replace(/[,().*:"'\\%_]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Validates an untrusted status value; `undefined`/`all` means "no filter". */
+export function normalizeOrderStatusFilter(
+  value: string | undefined
+): string | undefined {
+  if (!value) return undefined;
+  const normalized = value.trim().toLowerCase();
+  if (!normalized || normalized === "all") return undefined;
+  return ORDER_STATUSES.includes(normalized) ? normalized : undefined;
+}
+
+/**
+ * Filtered, paginated order list for management.
+ *
+ * Enforces requirePermission("order.read") before touching the database and
+ * keeps using the user-scoped client so RLS still applies. Returns the exact
+ * filtered total from PostgREST's count, so the pagination range the UI prints
+ * is truthful for the active filters — not just for the rows on this page.
+ *
+ * Ordering is deterministic and newest-first (created_at desc, then id desc as
+ * a tie-breaker) so a page boundary can never shift between requests.
+ */
+export async function getAdminOrderList(
+  params: OrderFilterParams = {}
+): Promise<AdminOrderQueryResult> {
+  await requirePermission("order.read");
+
+  const page = clampPositiveInt(params.page, 1, 1_000_000);
+  const limit = clampPositiveInt(
+    params.limit,
+    ORDERS_DEFAULT_PAGE_LIMIT,
+    ORDERS_MAX_PAGE_LIMIT
+  );
+  const status = normalizeOrderStatusFilter(params.status);
+  const rawSearch =
+    typeof params.search === "string" ? params.search : "";
+  const search = sanitizeOrderSearch(rawSearch);
+
+  const supabase = await createClient();
+
+  let query = supabase.from("orders").select("*", { count: "exact" });
+
+  if (status) {
+    query = query.eq("status", status);
+  }
+
+  if (search) {
+    if (isValidUuid(search)) {
+      query = query.eq("id", search);
+    } else {
+      query = query.or(
+        `order_number.ilike.%${search}%,shipping_address->>email.ilike.%${search}%`
+      );
+    }
+  }
+
+  const from = (page - 1) * limit;
+  // One extra row is requested so `hasMore` is authoritative even if the exact
+  // count and the window ever disagree.
+  const to = from + limit;
+
+  const { data, error, count } = await query
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
+    .range(from, to);
+
+  if (error) {
+    throw new Error(`Failed to fetch admin order list: ${error.message}`);
+  }
+
+  const rows = ((data ?? []) as unknown as OrderRow[]).slice(0, limit);
+  const totalCount = count ?? rows.length;
+  const itemsByOrder = await fetchItems(rows.map((row) => row.id));
+
+  return {
+    orders: rows.map((row) => mapOrder(row, itemsByOrder.get(row.id) ?? [])),
+    totalCount,
+    page,
+    limit,
+    hasMore: from + rows.length < totalCount,
+  };
 }
 
 /**

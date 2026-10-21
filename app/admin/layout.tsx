@@ -14,13 +14,29 @@ import {
 import { signOutAction } from "@/app/actions/auth";
 import { CONTACT_EMAIL } from "@/lib/constants";
 import { MANAGEMENT_PERMISSIONS } from "@/lib/redirect";
+import { filterAdminNav } from "@/lib/admin-nav";
+import { getAdminShellIdentity } from "@/lib/admin-identity";
+import type { ActorContext, RoleName } from "@/types";
 import { Button } from "@/components/ui";
 import { RestrictedAccountNotice } from "@/components/account";
-import { AdminBrandLogo } from "@/components/admin";
+import { AdminShell } from "@/components/admin";
 
 // Server Component boundary for the management area. Lives outside the
 // (marketing) layout (no storefront Navbar/Footer/SmoothScroll) but inside
 // the root layout, so fonts and the AuthzProvider context are inherited.
+//
+// This file remains the authoritative gate for every /admin route. The shell
+// below is presentation only: it receives a navigation model that has already
+// been filtered by the actor's real permissions, and each route still performs
+// its own requirePermission() check on top of this one.
+
+const ROLE_LABELS: Record<RoleName, { en: string; vi: string }> = {
+  admin: { en: "Administrator", vi: "Quản trị viên" },
+  manager: { en: "Manager", vi: "Quản lý" },
+  staff: { en: "Staff", vi: "Nhân viên" },
+  customer: { en: "Customer", vi: "Khách hàng" },
+};
+
 export default async function AdminLayout({
   children,
 }: {
@@ -29,11 +45,12 @@ export default async function AdminLayout({
   const locale = await getLocale();
   const isVi = locale === "vi";
 
+  let actor: ActorContext | null = null;
   let noManagementAccess = false;
 
   try {
     await requireActiveActor();
-    await requireAnyPermission(MANAGEMENT_PERMISSIONS);
+    actor = await requireAnyPermission(MANAGEMENT_PERMISSIONS);
   } catch (error) {
     // 401: missing/ended session — same UX as the account surfaces.
     if (isUnauthenticatedAuthError(error)) redirect("/login?next=/admin");
@@ -125,25 +142,33 @@ export default async function AdminLayout({
     );
   }
 
+  // Unreachable in practice: every branch above either returns or throws.
+  // Fail closed rather than render management chrome without an actor.
+  if (!actor) {
+    throw new Error("Admin layout: authorization context unavailable.");
+  }
+
+  const identity = await getAdminShellIdentity();
+
+  const roleLabel = actor.role
+    ? isVi
+      ? ROLE_LABELS[actor.role].vi
+      : ROLE_LABELS[actor.role].en
+    : isVi
+      ? "Đội ngũ"
+      : "Team";
+
   return (
     <div className="flex-1 min-w-0 admin-scope">
-      <header className="border-b border-border bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex min-h-16 sm:min-h-20 max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-          <AdminBrandLogo isVi={isVi} />
-
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span>{isVi ? "Về tiệm" : "Return to boutique"}</span>
-          </Link>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <AdminShell
+        groups={filterAdminNav(actor.permissions)}
+        locale={locale}
+        roleLabel={roleLabel}
+        fullName={identity.fullName}
+        email={identity.email}
+      >
         {children}
-      </main>
+      </AdminShell>
     </div>
   );
 }

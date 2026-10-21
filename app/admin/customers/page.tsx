@@ -9,7 +9,7 @@ import {
   isUnauthenticatedAuthError,
 } from "@/lib/authz-ux";
 import { getAdminCustomers } from "@/lib/admin-customers";
-import { CustomerTable } from "@/components/admin";
+import { AdminBreadcrumb, AdminPageHeader, AdminStatePanel, CustomerTable } from "@/components/admin";
 import { RestrictedAccountNotice } from "@/components/account";
 import { Button } from "@/components/ui";
 import type { CustomerQueryResult } from "@/types";
@@ -95,31 +95,26 @@ export default async function AdminCustomersPage({
   if (forbiddenAccess) {
     return (
       <div className="py-8">
-        <div className="mx-auto max-w-2xl rounded-2xl border border-border p-10 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber/10">
-            <ShieldAlert className="h-6 w-6 text-amber" />
-          </div>
-
-          <h2 className="mt-5 text-xl font-normal text-foreground">
-            {isVi ? "Khu vực không khả dụng" : "Area unavailable"}
-          </h2>
-
-          <p className="mx-auto mt-3 max-w-lg text-sm font-normal leading-relaxed text-muted-foreground">
-            {isVi
-              ? "Quý khách không có quyền truy cập vào danh bạ khách hàng quản trị."
-              : "You do not have permission to view the management customer directory."}
-          </p>
-
-          <div className="mt-7 flex justify-center">
-            <Button asChild variant="outline" size="sm" className="font-normal text-xs">
-              <Link href="/admin" className="inline-flex items-center gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                <span>
-                  {isVi ? "Về Trung tâm quản trị" : "Return to Admin Hub"}
-                </span>
-              </Link>
-            </Button>
-          </div>
+        <div className="mx-auto max-w-2xl">
+          <AdminStatePanel
+            title={isVi ? "Khu vực không khả dụng" : "Area unavailable"}
+            description={
+              isVi
+                ? "Quý khách không có quyền truy cập vào danh bạ khách hàng quản trị."
+                : "You do not have permission to view the management customer directory."
+            }
+            icon={ShieldAlert}
+            actions={
+              <Button asChild variant="outline" size="sm" className="font-normal text-xs">
+                <Link href="/admin" className="inline-flex items-center gap-2">
+                  <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                  <span>
+                    {isVi ? "Về Trung tâm quản trị" : "Return to Admin Hub"}
+                  </span>
+                </Link>
+              </Button>
+            }
+          />
         </div>
       </div>
     );
@@ -128,67 +123,60 @@ export default async function AdminCustomersPage({
   if (loadFailed) {
     return (
       <div className="py-8">
-        <div className="mx-auto max-w-2xl rounded-2xl border border-border p-10 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
-            <ShieldAlert className="h-6 w-6 text-destructive" />
-          </div>
-
-          <h2 className="mt-5 text-xl font-normal text-foreground">
-            {isVi ? "Không thể tải dữ liệu" : "Unable to load customer directory"}
-          </h2>
-
-          <p className="mx-auto mt-3 max-w-lg text-sm font-normal leading-relaxed text-muted-foreground">
-            {isVi
-              ? "Đã xảy ra lỗi khi truy vấn danh sách khách hàng. Vui lòng thử lại sau."
-              : "An unexpected error occurred while loading customer records. Please try again later."}
-          </p>
-
-          <div className="mt-7 flex justify-center">
-            <Button asChild variant="outline" size="sm" className="font-normal text-xs">
-              <Link href="/admin" className="inline-flex items-center gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                <span>
-                  {isVi ? "Về Trung tâm quản trị" : "Return to Admin Hub"}
-                </span>
-              </Link>
-            </Button>
-          </div>
+        <div className="mx-auto max-w-2xl">
+          <AdminStatePanel
+            tone="danger"
+            title={
+              isVi ? "Không thể tải dữ liệu" : "Unable to load customer directory"
+            }
+            description={
+              isVi
+                ? "Đã xảy ra lỗi khi truy vấn danh sách khách hàng. Vui lòng thử lại sau."
+                : "An unexpected error occurred while loading customer records. Please try again later."
+            }
+            icon={ShieldAlert}
+            actions={
+              <Button asChild variant="outline" size="sm" className="font-normal text-xs">
+                <Link href="/admin/customers" className="inline-flex items-center gap-2">
+                  <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                  <span>{isVi ? "Thử lại" : "Try again"}</span>
+                </Link>
+              </Button>
+            }
+          />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="py-8 lg:py-12 space-y-8">
-      {/* Header and Back Link */}
-      <div className="space-y-4">
-        <nav aria-label="Breadcrumb">
-          <Link
-            href="/admin"
-            className="inline-flex items-center gap-1.5 text-[11px] font-normal uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            <span>{isVi ? "Trung tâm quản trị" : "Admin Hub"}</span>
-          </Link>
-        </nav>
+    <div className="space-y-6 py-4">
+      <AdminBreadcrumb label={isVi ? "Trung tâm quản trị" : "Admin Hub"} />
 
-        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber/30 bg-amber/10 text-amber text-[11px] tracking-wider uppercase font-normal mb-3">
-              <Users className="w-3.5 h-3.5" />
-              <span>{isVi ? "Danh bạ khách hàng" : "Customer Directory"}</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground">
-              {isVi ? "Quản lý khách hàng" : "Customers"}
-            </h1>
-            <p className="mt-1 text-sm font-normal text-muted-foreground">
-              {isVi
-                ? "Theo dõi hồ sơ thành viên, trạng thái tài khoản và tổng quan lịch sử mua hàng."
-                : "Monitor member profiles, account status, and purchase overview."}
-            </p>
+      <AdminPageHeader
+        eyebrow={
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber/30 bg-amber/10 px-3 py-1 text-[11px] uppercase tracking-[0.08em] text-foreground">
+            <Users className="h-3.5 w-3.5 text-amber-dark" aria-hidden="true" />
+            <span>{isVi ? "Danh bạ khách hàng" : "Customer Directory"}</span>
           </div>
-        </div>
-      </div>
+        }
+        title={isVi ? "Quản lý khách hàng" : "Customers"}
+        description={
+          isVi
+            ? "Theo dõi hồ sơ thành viên, trạng thái tài khoản và tổng quan lịch sử mua hàng."
+            : "Monitor member profiles, account status, and purchase overview."
+        }
+        meta={
+          <span className="inline-flex rounded-full border border-border bg-muted/40 px-3 py-0.5 text-xs font-normal tabular-nums text-muted-foreground">
+            {queryResult.totalCount}{" "}
+            {isVi
+              ? "khách hàng"
+              : queryResult.totalCount === 1
+                ? "customer"
+                : "customers"}
+          </span>
+        }
+      />
 
       {/* Interactive Customer Directory */}
       <CustomerTable

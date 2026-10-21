@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { AdminStatusBadge, type AdminStatusTone } from "./admin-status-badge";
 
 /**
  * UI-only display threshold for distinguishing low-stock items in the management view.
@@ -14,10 +14,10 @@ export function getStockStatus(stock: number): StockStatus {
   return "in_stock";
 }
 
-const STATUS_STYLES: Record<StockStatus, string> = {
-  in_stock: "border-sage/40 bg-sage/15 text-sage",
-  low_stock: "border-amber/40 bg-amber/15 text-amber",
-  out_of_stock: "border-destructive/40 bg-destructive/15 text-destructive",
+const STATUS_TONES: Record<StockStatus, AdminStatusTone> = {
+  in_stock: "positive",
+  low_stock: "attention",
+  out_of_stock: "danger",
 };
 
 const STATUS_LABELS_EN: Record<StockStatus, string> = {
@@ -50,25 +50,11 @@ export function StockStatusBadge({
   const labels = isVi ? STATUS_LABELS_VI : STATUS_LABELS_EN;
 
   return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-normal tracking-wide",
-        STATUS_STYLES[status],
-        className
-      )}
-    >
-      <span
-        className={cn(
-          "h-1.5 w-1.5 rounded-full",
-          status === "in_stock" && "bg-sage",
-          status === "low_stock" && "bg-amber",
-          status === "out_of_stock" && "bg-destructive"
-        )}
-        aria-hidden="true"
-      />
-      <span>
-        {showCount ? `${labels[status]} (${stock})` : labels[status]}
-      </span>
-    </span>
+    <AdminStatusBadge
+      label={showCount ? `${labels[status]} (${stock})` : labels[status]}
+      tone={STATUS_TONES[status]}
+      dot
+      className={className}
+    />
   );
 }

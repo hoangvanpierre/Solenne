@@ -19,17 +19,14 @@ const COLOR_MAP = {
   blush: {
     chip: "border-blush/40 bg-blush/10 text-blush",
     button: "hover:bg-blush/20 text-blush",
-    focus: "focus-visible:ring-blush",
   },
   amber: {
     chip: "border-amber/40 bg-amber/10 text-amber",
     button: "hover:bg-amber/20 text-amber",
-    focus: "focus-visible:ring-amber",
   },
   sage: {
     chip: "border-sage/40 bg-sage/10 text-sage",
     button: "hover:bg-sage/20 text-sage",
-    focus: "focus-visible:ring-sage",
   },
 };
 
@@ -211,7 +208,7 @@ export function ScentNotesInput({
               ? "Nhập nốt hương và nhấn Enter..."
               : "Type a note and press Enter...")
           }
-          className="flex h-9 w-full rounded-lg border border-border bg-transparent px-3 py-1 text-[13px] font-normal placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:border-transparent transition-colors"
+          className="flex h-9 w-full rounded-lg border border-border bg-transparent px-3 py-1 text-[13px] font-normal placeholder:text-muted-foreground transition-colors"
         />
         <button
           type="button"

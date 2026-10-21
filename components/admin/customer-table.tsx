@@ -5,8 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowRight,
-  ChevronLeft,
-  ChevronRight,
+  ChevronDown,
   Filter,
   RotateCcw,
   Search,
@@ -17,6 +16,8 @@ import {
 import type { CustomerSummary } from "@/types";
 import { formatPrice } from "@/lib/utils";
 import { CustomerStatusBadge } from "./customer-status-badge";
+import { AdminTableFrame } from "./admin-table-frame";
+import { AdminPagination } from "./admin-pagination";
 import { Button, Input } from "@/components/ui";
 
 export interface CustomerTableProps {
@@ -97,18 +98,6 @@ export function CustomerTable({
     router.push(pathname);
   };
 
-  const handlePreviousPage = () => {
-    if (page > 1) {
-      updateSearchParam({ page: String(page - 1) });
-    }
-  };
-
-  const handleNextPage = () => {
-    if (hasMore) {
-      updateSearchParam({ page: String(page + 1) });
-    }
-  };
-
   const formatDate = (isoString: string) => {
     try {
       const date = new Date(isoString);
@@ -121,9 +110,6 @@ export function CustomerTable({
       return isoString;
     }
   };
-
-  const startRecord = totalCount === 0 ? 0 : (page - 1) * limit + 1;
-  const endRecord = Math.min(page * limit, totalCount);
 
   return (
     <div className="space-y-6">
@@ -146,7 +132,7 @@ export function CustomerTable({
                     ? "Tìm theo tên khách hàng, số điện thoại hoặc ID..."
                     : "Search by customer name, phone, or UUID..."
                 }
-                className="pl-9.5 pr-4 h-10 text-[13px] rounded-xl bg-background border-border"
+                className="admin-quiet-field pl-9.5 pr-4 h-10 text-[13px] rounded-xl"
               />
             </div>
             <Button type="submit" size="sm" className="h-10 px-4 rounded-xl text-xs font-normal">
@@ -156,30 +142,43 @@ export function CustomerTable({
 
           {/* Status Filter and Reset */}
           <div className="flex flex-wrap items-center gap-2.5">
-            <div className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-1.5 shadow-2xs">
-              <Filter className="h-3.5 w-3.5 text-muted-foreground" />
+            <div className="inline-flex items-center gap-1.5">
+              <Filter
+                className="h-3.5 w-3.5 shrink-0 text-muted-foreground"
+                aria-hidden="true"
+              />
               <label
                 htmlFor="customer-status-filter"
                 className="text-xs font-normal text-muted-foreground whitespace-nowrap"
               >
                 {isVi ? "Trạng thái:" : "Status:"}
               </label>
-              <select
-                id="customer-status-filter"
-                value={currentStatus}
-                onChange={(e) => handleStatusChange(e.target.value)}
-                className="bg-transparent text-xs font-normal text-foreground outline-hidden cursor-pointer"
-              >
-                {STATUS_FILTER_OPTIONS.map((opt) => (
-                  <option
-                    key={opt.value}
-                    value={opt.value}
-                    className="bg-background text-foreground"
-                  >
-                    {isVi ? opt.labelVi : opt.labelEn}
-                  </option>
-                ))}
-              </select>
+
+              {/* No frame of its own: the control reads as part of the row.
+                  Its focus appearance (warm tint + darker chevron, no box) is
+                  defined next to `.admin-inline-select` in globals.css. */}
+              <span className="relative inline-flex items-center">
+                <select
+                  id="customer-status-filter"
+                  value={currentStatus}
+                  onChange={(e) => handleStatusChange(e.target.value)}
+                  className="admin-inline-select peer cursor-pointer appearance-none rounded-md bg-transparent py-1 pl-1 pr-5 text-xs font-normal text-foreground transition-colors hover:bg-muted/60 focus-visible:text-foreground"
+                >
+                  {STATUS_FILTER_OPTIONS.map((opt) => (
+                    <option
+                      key={opt.value}
+                      value={opt.value}
+                      className="bg-background text-foreground"
+                    >
+                      {isVi ? opt.labelVi : opt.labelEn}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown
+                  aria-hidden="true"
+                  className="pointer-events-none absolute right-1 h-3 w-3 text-muted-foreground transition-colors peer-focus-visible:text-foreground"
+                />
+              </span>
             </div>
 
             {hasActiveFilters && (
@@ -234,10 +233,11 @@ export function CustomerTable({
       ) : (
         <div className="space-y-4">
           {/* Desktop Table View */}
-          <div className="hidden md:block overflow-x-auto rounded-2xl border border-border bg-card/40 shadow-2xs">
-            <table className="w-full text-left text-sm">
-              <thead className="border-b border-border bg-muted/30 text-[11px] font-normal uppercase tracking-wider text-muted-foreground">
-                <tr>
+          <div className="hidden md:block">
+            <AdminTableFrame
+              caption={isVi ? "Danh bạ khách hàng" : "Customer directory"}
+              head={
+                <>
                   <th scope="col" className="py-3.5 px-6 font-normal">
                     {isVi ? "Khách hàng" : "Customer"}
                   </th>
@@ -256,8 +256,9 @@ export function CustomerTable({
                   <th scope="col" className="py-3.5 px-6 text-right font-normal">
                     <span className="sr-only">{isVi ? "Thao tác" : "Actions"}</span>
                   </th>
-                </tr>
-              </thead>
+                </>
+              }
+            >
               <tbody className="divide-y divide-border/60">
                 {customers.map((c) => {
                   const displayName =
@@ -350,7 +351,7 @@ export function CustomerTable({
                   );
                 })}
               </tbody>
-            </table>
+            </AdminTableFrame>
           </div>
 
           {/* Mobile Card View */}
@@ -449,53 +450,15 @@ export function CustomerTable({
           </div>
 
           {/* Bounded Pagination Controls */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
-            <div className="text-xs font-normal text-muted-foreground">
-              {isVi ? (
-                <>
-                  Hiển thị <span className="font-normal tabular-nums text-foreground">{startRecord}</span> đến{" "}
-                  <span className="font-normal tabular-nums text-foreground">{endRecord}</span> trên{" "}
-                  <span className="font-normal tabular-nums text-foreground">{totalCount}</span> khách hàng
-                </>
-              ) : (
-                <>
-                  Showing <span className="font-normal tabular-nums text-foreground">{startRecord}</span> to{" "}
-                  <span className="font-normal tabular-nums text-foreground">{endRecord}</span> of{" "}
-                  <span className="font-normal tabular-nums text-foreground">{totalCount}</span> customers
-                </>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2 self-end sm:self-auto">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handlePreviousPage}
-                disabled={page <= 1}
-                className="h-8 px-3 rounded-lg text-xs font-normal inline-flex items-center gap-1"
-              >
-                <ChevronLeft className="h-3.5 w-3.5" />
-                <span>{isVi ? "Trước" : "Previous"}</span>
-              </Button>
-
-              <span className="text-xs font-normal tabular-nums text-muted-foreground px-2">
-                {isVi ? `Trang ${page}` : `Page ${page}`}
-              </span>
-
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleNextPage}
-                disabled={!hasMore}
-                className="h-8 px-3 rounded-lg text-xs font-normal inline-flex items-center gap-1"
-              >
-                <span>{isVi ? "Sau" : "Next"}</span>
-                <ChevronRight className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-          </div>
+          <AdminPagination
+            page={page}
+            limit={limit}
+            totalCount={totalCount}
+            hasMore={hasMore}
+            locale={locale}
+            itemLabelEn="customers"
+            itemLabelVi="khách hàng"
+          />
         </div>
       )}
     </div>

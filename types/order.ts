@@ -30,6 +30,24 @@ export interface OrderItem {
   totalPrice: number;
 }
 
+/** URL-facing filter/pagination input for the management order list. */
+export interface OrderFilterParams {
+  page?: number | string;
+  limit?: number | string;
+  /** Exact order status, or "all"/undefined for every status. */
+  status?: string;
+  /** Order number, order id (uuid) or customer email fragment. */
+  search?: string;
+}
+
+export interface AdminOrderQueryResult {
+  orders: Order[];
+  totalCount: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+}
+
 export interface Order {
   id: string;
   orderNumber: string;

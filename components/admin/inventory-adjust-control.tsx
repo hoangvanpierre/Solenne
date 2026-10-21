@@ -387,7 +387,7 @@ export function InventoryAdjustControl({
                     onChange={(e) => handleDeltaInputChange(e.target.value)}
                     disabled={isPending}
                     placeholder="+10 or -5"
-                    className="w-full rounded-xl border border-border bg-background px-3 py-2 tabular-nums text-[13.5px] font-normal text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
+                    className="w-full rounded-xl border border-border bg-background px-3 py-2 tabular-nums text-[13.5px] font-normal text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
                   />
                   <div className="absolute inset-y-0 right-2 flex items-center gap-1">
                     <button
@@ -450,7 +450,7 @@ export function InventoryAdjustControl({
                       ? "Ví dụ: Nhập hàng lô mới PO-102, hư hỏng trong kho, kiểm kê bù trừ..."
                       : "e.g. Received shipment PO-102, damaged in warehouse, cycle count adjustment..."
                   }
-                  className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-[13px] font-normal text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
+                  className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-[13px] font-normal text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
                 />
               </div>
 

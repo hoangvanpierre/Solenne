@@ -410,10 +410,10 @@ export function OrderFulfillmentControl({
                       : "e.g. VN-POST-8392019, DHL-928172..."
                   }
                   className={cn(
-                    "w-full rounded-xl border bg-background px-3 py-2 text-[13px] tabular-nums font-normal text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 disabled:opacity-50",
+                    "w-full rounded-xl border bg-background px-3 py-2 text-[13px] tabular-nums font-normal text-foreground placeholder:text-muted-foreground disabled:opacity-50",
                     trackingError
-                      ? "border-destructive focus:border-destructive focus:ring-destructive"
-                      : "border-border focus:border-ring focus:ring-ring"
+                      ? "border-destructive"
+                      : "border-border"
                   )}
                 />
                 {trackingError && (
@@ -607,10 +607,10 @@ export function OrderFulfillmentControl({
                       : "e.g. Courier returned damaged parcel to atelier for inspection..."
                   }
                   className={cn(
-                    "w-full resize-none rounded-xl border bg-background px-3 py-2 text-[13px] font-normal text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 disabled:opacity-50",
+                    "w-full resize-none rounded-xl border bg-background px-3 py-2 text-[13px] font-normal text-foreground placeholder:text-muted-foreground disabled:opacity-50",
                     rollbackError
-                      ? "border-destructive focus:border-destructive focus:ring-destructive"
-                      : "border-border focus:border-ring focus:ring-ring"
+                      ? "border-destructive"
+                      : "border-border"
                   )}
                 />
                 {rollbackError && (

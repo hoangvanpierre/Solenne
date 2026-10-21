@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { cookies } from "next/headers";
-import { createClient } from "@/lib/supabase/server";
+import { getSessionClient, getVerifiedUser } from "@/lib/supabase/session";
 import type {
   AccountStatus,
   ActorContext,
@@ -62,10 +62,7 @@ function unauthenticated(): AuthError {
 
 /** Authenticated user id, or throws 401. Never returns a nullable user. */
 export async function requireUserId(): Promise<string> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getVerifiedUser();
 
   if (!user) throw unauthenticated();
 
@@ -90,14 +87,39 @@ async function resolveActorContext(): Promise<ActorContext | null> {
 
   if (!hasAuthCookies) return null;
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const supabase = await getSessionClient();
 
-  if (!user) return null;
+  // public.current_actor() is scoped to this request's bearer token, exactly
+  // like auth.getUser(); neither result feeds the other, so both requests are
+  // in flight at once instead of queueing two round trips. Supabase's query
+  // builder is a lazy thenable — it only dispatches when `then` is called —
+  // which is why the call below is wrapped in `.then()` rather than merely
+  // assigned: that starts the request now, without awaiting it.
+  //
+  // The session is still verified before the RPC result is used, and an
+  // errored or blank RPC falls back to the original sequential call below —
+  // that keeps the "token expired, getUser() refreshed it" path working with
+  // the new token instead of turning it into a failure. The fallback only runs
+  // on an anomaly, so the normal path costs one round trip instead of two.
+  const actorPromise = supabase.rpc("current_actor").then((result) => result);
 
-  const { data, error } = await supabase.rpc("current_actor");
+  const user = await getVerifiedUser();
+
+  if (!user) {
+    // No session: the in-flight lookup cannot authorize anything. Consume a
+    // possible transport rejection so it never surfaces as unhandled.
+    actorPromise.then(
+      () => undefined,
+      () => undefined
+    );
+    return null;
+  }
+
+  let { data, error } = await actorPromise;
+
+  if (error || !data) {
+    ({ data, error } = await supabase.rpc("current_actor"));
+  }
 
   if (error) {
     if (error.code === "PGRST202" || error.code === "42883") {

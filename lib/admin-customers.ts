@@ -293,6 +293,59 @@ export async function getAdminCustomers(
   };
 }
 
+export interface CustomerCountParams {
+  /** Restrict the count to one or more account statuses. Omit for all. */
+  status?: AccountStatus | AccountStatus[];
+}
+
+/**
+ * Exact count of storefront customers (profiles joined to the customer role).
+ *
+ * Same role isolation and fail-closed role resolution as getAdminCustomers,
+ * but without the per-row purchase-metrics aggregation — the management
+ * overview needs a number, not a page of records, so it asks the database for
+ * an exact COUNT instead of fetching rows and measuring them.
+ *
+ * Enforces requirePermission("customer.read"); RLS applies the same rule.
+ */
+export async function countAdminCustomers(
+  params: CustomerCountParams = {}
+): Promise<number> {
+  await requirePermission("customer.read");
+
+  const supabase = await createClient();
+
+  const customerRoleId = await resolveCustomerRoleId(supabase);
+  if (!customerRoleId) {
+    console.error("countAdminCustomers: Failed to resolve customer role ID (fail-closed)");
+    throw new Error("Failed to count customers: customer role unavailable");
+  }
+
+  let query = supabase
+    .from("profiles")
+    .select("id", { count: "exact", head: true })
+    .eq("role_id", customerRoleId);
+
+  const statuses = Array.isArray(params.status)
+    ? params.status
+    : params.status
+      ? [params.status]
+      : [];
+
+  if (statuses.length > 0) {
+    query = query.in("status", statuses);
+  }
+
+  const { count, error } = await query;
+
+  if (error) {
+    console.error("countAdminCustomers: Failed to count profiles:", error.message);
+    throw new Error("Failed to count customers");
+  }
+
+  return count ?? 0;
+}
+
 /**
  * Retrieves a single customer's profile and purchase metrics for detail view.
  * Fails closed if the ID does not belong to a customer role.

@@ -24,6 +24,9 @@ import { formatPrice } from "@/lib/utils";
 import { RestrictedAccountNotice } from "@/components/account";
 import { Button } from "@/components/ui";
 import {
+  AdminBreadcrumb,
+  AdminStatePanel,
+  AdminStatusBadge,
   ProductForm,
   StockStatusBadge,
   VariantManager,
@@ -126,31 +129,26 @@ export default async function AdminProductDetailPage({
   if (forbiddenAccess) {
     return (
       <div className="py-8">
-        <div className="mx-auto max-w-2xl rounded-2xl border border-border p-10 text-center space-y-4">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber/10">
-            <ShieldAlert className="h-6 w-6 text-amber" />
-          </div>
-
-          <h2 className="mt-5 text-2xl font-normal text-foreground">
-            {isVi ? "Khu vực không khả dụng" : "Access Restricted"}
-          </h2>
-
-          <p className="mx-auto max-w-lg text-sm leading-relaxed text-muted-foreground font-normal">
-            {isVi
-              ? "Quý khách không có quyền quản trị hoặc xem chi tiết sản phẩm này."
-              : "You do not have permission to view or manage this administrative product record."}
-          </p>
-
-          <div className="pt-4 flex justify-center">
-            <Button asChild variant="outline" className="font-normal text-xs">
-              <Link href="/admin/products" className="inline-flex items-center gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                <span>
-                  {isVi ? "Về Danh mục sản phẩm" : "Return to Products"}
-                </span>
-              </Link>
-            </Button>
-          </div>
+        <div className="mx-auto max-w-2xl">
+          <AdminStatePanel
+            title={isVi ? "Khu vực không khả dụng" : "Access Restricted"}
+            description={
+              isVi
+                ? "Quý khách không có quyền quản trị hoặc xem chi tiết sản phẩm này."
+                : "You do not have permission to view or manage this administrative product record."
+            }
+            icon={ShieldAlert}
+            actions={
+              <Button asChild variant="outline" className="font-normal text-xs">
+                <Link href="/admin/products" className="inline-flex items-center gap-2">
+                  <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                  <span>
+                    {isVi ? "Về Danh mục sản phẩm" : "Return to Products"}
+                  </span>
+                </Link>
+              </Button>
+            }
+          />
         </div>
       </div>
     );
@@ -158,40 +156,28 @@ export default async function AdminProductDetailPage({
 
   if (productNotFound || loadFailed || !product) {
     return (
-      <div className="py-8 space-y-6 max-w-2xl mx-auto">
-        <nav aria-label="Breadcrumb">
-          <Link
-            href="/admin/products"
-            className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground font-normal"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            <span>{isVi ? "Quay lại Sản phẩm" : "Back to Products"}</span>
-          </Link>
-        </nav>
+      <div className="mx-auto max-w-2xl space-y-6 py-8">
+        <AdminBreadcrumb
+          href="/admin/products"
+          label={isVi ? "Quay lại sản phẩm" : "Back to Products"}
+        />
 
-        <div className="rounded-2xl border border-border bg-card/40 p-10 text-center space-y-4">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted/40 text-muted-foreground">
-            <Layers className="h-6 w-6" />
-          </div>
-
-          <h2 className="mt-4 text-2xl font-normal text-foreground">
-            {isVi ? "Không tìm thấy sản phẩm" : "Product Not Found"}
-          </h2>
-
-          <p className="text-sm text-muted-foreground max-w-md mx-auto font-normal">
-            {isVi
+        <AdminStatePanel
+          icon={Layers}
+          title={isVi ? "Không tìm thấy sản phẩm" : "Product Not Found"}
+          description={
+            isVi
               ? "Sản phẩm yêu cầu không tồn tại trong hệ thống hoặc đã bị xóa."
-              : "The requested product does not exist in the administrative database or has been deleted."}
-          </p>
-
-          <div className="pt-4 flex justify-center">
+              : "The requested product does not exist in the administrative database or has been deleted."
+          }
+          actions={
             <Button asChild variant="outline" className="font-normal text-xs">
               <Link href="/admin/products">
                 {isVi ? "Về Danh mục sản phẩm" : "Return to Product Catalog"}
               </Link>
             </Button>
-          </div>
-        </div>
+          }
+        />
       </div>
     );
   }
@@ -213,24 +199,15 @@ export default async function AdminProductDetailPage({
   );
 
   return (
-    <div className="space-y-8 py-4">
-      {/* Header & Breadcrumb */}
-      <header className="space-y-4">
-        <nav aria-label="Breadcrumb">
-          <Link
-            href="/admin/products"
-            className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:rounded font-normal"
-            aria-label={
-              isVi ? "Quay lại danh sách sản phẩm" : "Back to products list"
-            }
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            <span>{isVi ? "Quay lại sản phẩm" : "Back to Products"}</span>
-          </Link>
-        </nav>
+    <div className="space-y-6 py-4">
+      <AdminBreadcrumb
+        href="/admin/products"
+        label={isVi ? "Quay lại sản phẩm" : "Back to Products"}
+      />
 
-        {/* Product Identity Banner */}
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between border-b border-border pb-6">
+      {/* Product Identity Banner */}
+      <header className="space-y-6">
+        <div className="flex flex-col gap-4 border-b border-border pb-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-4">
             {product.images && product.images.length > 0 && (
               <div className="relative h-16 w-12 flex-shrink-0 overflow-hidden rounded-xl border border-border/80 bg-muted shadow-sm">
@@ -257,24 +234,39 @@ export default async function AdminProductDetailPage({
               </span>
 
               {/* Status Badge */}
-              {product.isActive ? (
-                <span className="inline-flex items-center gap-1 rounded-full border border-sage/40 bg-sage/15 px-2.5 py-0.5 text-xs font-normal text-sage">
-                  <Eye className="h-3 w-3" />
-                  <span>{isVi ? "Đang mở bán" : "Active"}</span>
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/40 px-2.5 py-0.5 text-xs font-normal text-muted-foreground">
-                  <EyeOff className="h-3 w-3" />
-                  <span>{isVi ? "Tạm ẩn" : "Inactive"}</span>
-                </span>
-              )}
+              <AdminStatusBadge
+                tone={product.isActive ? "positive" : "neutral"}
+                label={
+                  <span className="inline-flex items-center gap-1">
+                    {product.isActive ? (
+                      <Eye className="h-3 w-3" aria-hidden="true" />
+                    ) : (
+                      <EyeOff className="h-3 w-3" aria-hidden="true" />
+                    )}
+                    <span>
+                      {product.isActive
+                        ? isVi
+                          ? "Đang mở bán"
+                          : "Active"
+                        : isVi
+                          ? "Tạm ẩn"
+                          : "Inactive"}
+                    </span>
+                  </span>
+                }
+              />
 
               {/* Featured Badge */}
               {product.isFeatured && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-amber/40 bg-amber/15 px-2.5 py-0.5 text-xs font-normal text-amber">
-                  <Sparkles className="h-3 w-3" />
-                  <span>{isVi ? "Nổi bật" : "Featured"}</span>
-                </span>
+                <AdminStatusBadge
+                  tone="attention"
+                  label={
+                    <span className="inline-flex items-center gap-1">
+                      <Sparkles className="h-3 w-3" aria-hidden="true" />
+                      <span>{isVi ? "Nổi bật" : "Featured"}</span>
+                    </span>
+                  }
+                />
               )}
             </div>
 
@@ -301,7 +293,7 @@ export default async function AdminProductDetailPage({
 
         {/* Quick Stats Overview */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="rounded-xl border border-border bg-card/40 p-3.5 space-y-1">
+          <div className="rounded-xl border border-border bg-card p-3.5 space-y-1">
             <span className="text-[10.5px] text-muted-foreground font-normal uppercase tracking-wider block">
               {isVi ? "Giá cơ bản" : "Base Price"}
             </span>
@@ -310,7 +302,7 @@ export default async function AdminProductDetailPage({
             </div>
           </div>
 
-          <div className="rounded-xl border border-border bg-card/40 p-3.5 space-y-1">
+          <div className="rounded-xl border border-border bg-card p-3.5 space-y-1">
             <span className="text-[10.5px] text-muted-foreground font-normal uppercase tracking-wider block">
               {isVi ? "Tổng số phiên bản" : "Total Variants"}
             </span>
@@ -319,7 +311,7 @@ export default async function AdminProductDetailPage({
             </div>
           </div>
 
-          <div className="rounded-xl border border-border bg-card/40 p-3.5 space-y-1">
+          <div className="rounded-xl border border-border bg-card p-3.5 space-y-1">
             <div className="flex items-center justify-between">
               <span className="text-[10.5px] text-muted-foreground font-normal uppercase tracking-wider block">
                 {isVi ? "Tổng tồn kho" : "Total Stock"}
@@ -331,7 +323,7 @@ export default async function AdminProductDetailPage({
             </div>
           </div>
 
-          <div className="rounded-xl border border-border bg-card/40 p-3.5 space-y-1">
+          <div className="rounded-xl border border-border bg-card p-3.5 space-y-1">
             <span className="text-[10.5px] text-muted-foreground font-normal uppercase tracking-wider block">
               {isVi ? "Ngày khởi tạo" : "Created On"}
             </span>
@@ -357,7 +349,7 @@ export default async function AdminProductDetailPage({
         {/* Right Column: Variant Manager & Inventory Workspace */}
         <div className="lg:col-span-5 space-y-6">
           {/* Variant Manager */}
-          <section className="rounded-2xl border border-border bg-card/40 p-6">
+          <section className="rounded-2xl border border-border bg-card p-6">
             <VariantManager
               productId={product.id}
               productName={product.name}

@@ -22,6 +22,9 @@ import { getAdminOrderById } from "@/lib/orders";
 import { formatPrice } from "@/lib/utils";
 import { OrderStatusBadge, RestrictedAccountNotice } from "@/components/account";
 import {
+  AdminBreadcrumb,
+  AdminPageHeader,
+  AdminStatePanel,
   OrderCancelControl,
   OrderFulfillmentControl,
 } from "@/components/admin";
@@ -95,34 +98,29 @@ export default async function AdminOrderDetailPage({
   if (forbiddenAccess) {
     return (
       <div className="py-8">
-        <div className="mx-auto max-w-2xl rounded-2xl border border-border p-10 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber/10">
-            <ShieldAlert className="h-6 w-6 text-amber" />
-          </div>
-
-          <h2 className="mt-5 text-2xl font-normal text-foreground">
-            {isVi ? "Khu vực không khả dụng" : "Area unavailable"}
-          </h2>
-
-          <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground font-normal">
-            {isVi
-              ? "Quý khách không có quyền truy cập vào thông tin đơn hàng này."
-              : "You do not have permission to view this order."}
-          </p>
-
-          <div className="mt-7 flex justify-center">
-            <Button asChild variant="outline" className="font-normal text-xs">
-              <Link
-                href="/admin/orders"
-                className="inline-flex items-center gap-2"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                <span>
-                  {isVi ? "Về danh sách đơn hàng" : "Back to Orders"}
-                </span>
-              </Link>
-            </Button>
-          </div>
+        <div className="mx-auto max-w-2xl">
+          <AdminStatePanel
+            title={isVi ? "Khu vực không khả dụng" : "Area unavailable"}
+            description={
+              isVi
+                ? "Quý khách không có quyền truy cập vào thông tin đơn hàng này."
+                : "You do not have permission to view this order."
+            }
+            icon={ShieldAlert}
+            actions={
+              <Button asChild variant="outline" className="font-normal text-xs">
+                <Link
+                  href="/admin/orders"
+                  className="inline-flex items-center gap-2"
+                >
+                  <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                  <span>
+                    {isVi ? "Về danh sách đơn hàng" : "Back to Orders"}
+                  </span>
+                </Link>
+              </Button>
+            }
+          />
         </div>
       </div>
     );
@@ -130,63 +128,63 @@ export default async function AdminOrderDetailPage({
 
   if (loadFailed) {
     return (
-      <div className="py-8 space-y-6">
-        <nav aria-label="Breadcrumb">
-          <Link
-            href="/admin/orders"
-            className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground font-normal"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            <span>{isVi ? "Danh sách đơn hàng" : "Orders"}</span>
-          </Link>
-        </nav>
+      <div className="space-y-6 py-8">
+        <AdminBreadcrumb
+          href="/admin/orders"
+          label={isVi ? "Danh sách đơn hàng" : "Orders"}
+        />
 
-        <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-8 text-center">
-          <p className="text-sm font-normal text-destructive">
-            {isVi
+        <AdminStatePanel
+          tone="danger"
+          title={isVi ? "Không thể tải đơn hàng" : "Unable to load order"}
+          description={
+            isVi
               ? "Không thể tải chi tiết đơn hàng lúc này. Vui lòng làm mới trang hoặc thử lại sau."
-              : "Unable to load order details at this time. Please refresh the page or try again later."}
-          </p>
-        </div>
+              : "Unable to load order details at this time. Please refresh the page or try again later."
+          }
+          icon={ShieldAlert}
+          actions={
+            <Button asChild variant="outline" className="font-normal text-xs">
+              <Link href="/admin/orders">
+                {isVi ? "Thử lại" : "Try again"}
+              </Link>
+            </Button>
+          }
+        />
       </div>
     );
   }
 
   if (orderNotFound || !order) {
     return (
-      <div className="py-8 space-y-6">
-        <nav aria-label="Breadcrumb">
-          <Link
-            href="/admin/orders"
-            className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground font-normal"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            <span>{isVi ? "Danh sách đơn hàng" : "Orders"}</span>
-          </Link>
-        </nav>
+      <div className="space-y-6 py-8">
+        <AdminBreadcrumb
+          href="/admin/orders"
+          label={isVi ? "Danh sách đơn hàng" : "Orders"}
+        />
 
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-border py-16 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted/40">
-            <PackageX className="h-6 w-6 text-muted-foreground" />
-          </div>
-          <h2 className="mt-4 text-xl font-normal text-foreground">
-            {isVi ? "Không tìm thấy đơn hàng" : "Order Not Found"}
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground max-w-md font-normal">
-            {isVi
+        <AdminStatePanel
+          icon={PackageX}
+          title={isVi ? "Không tìm thấy đơn hàng" : "Order Not Found"}
+          description={
+            isVi
               ? "Đơn hàng này không tồn tại hoặc quý khách không có quyền truy cập."
-              : "This order does not exist or you do not have permission to view it."}
-          </p>
-          <Button asChild variant="outline" className="mt-6 font-normal text-xs">
-            <Link
-              href="/admin/orders"
-              className="inline-flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              <span>{isVi ? "Về danh sách đơn hàng" : "Back to Orders"}</span>
-            </Link>
-          </Button>
-        </div>
+              : "This order does not exist or you do not have permission to view it."
+          }
+          actions={
+            <Button asChild variant="outline" className="font-normal text-xs">
+              <Link
+                href="/admin/orders"
+                className="inline-flex items-center gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                <span>
+                  {isVi ? "Về danh sách đơn hàng" : "Back to Orders"}
+                </span>
+              </Link>
+            </Button>
+          }
+        />
       </div>
     );
   }
@@ -199,58 +197,57 @@ export default async function AdminOrderDetailPage({
   const customerPhone = shipping?.phone?.trim() || null;
 
   return (
-    <div className="space-y-8 py-4">
-      {/* Header & Breadcrumbs */}
-      <header className="space-y-4">
-        <nav aria-label="Breadcrumb">
-          <Link
-            href="/admin/orders"
-            className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground font-normal"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            <span>{isVi ? "Danh sách đơn hàng" : "Back to Orders"}</span>
-          </Link>
-        </nav>
+    <div className="space-y-6 py-4">
+      <AdminBreadcrumb
+        href="/admin/orders"
+        label={isVi ? "Danh sách đơn hàng" : "Orders"}
+      />
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className="tabular-nums text-2xl md:text-3xl font-normal tracking-tight text-foreground">
-                {order.orderNumber}
-              </h1>
-              <OrderStatusBadge status={order.status} locale={locale} />
-            </div>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground tabular-nums font-normal">
-              <span>
-                {new Date(order.createdAt).toLocaleDateString(
-                  isVi ? "vi-VN" : "en-US",
-                  {
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  }
-                )}
-              </span>
-              <span>•</span>
-              <span>ID: {order.id}</span>
-              {order.trackingCode && (
-                <>
-                  <span>•</span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <Truck className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span>{isVi ? "Mã vận đơn: " : "Tracking: "}</span>
-                    <span className="tabular-nums font-normal text-foreground select-all">
-                      {order.trackingCode}
-                    </span>
-                  </span>
-                </>
-              )}
-            </div>
+      <AdminPageHeader
+        eyebrow={
+          <div className="flex flex-wrap items-center gap-3">
+            <OrderStatusBadge status={order.status} locale={locale} />
+            <span className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+              {isVi ? "Hồ sơ đơn hàng" : "Order record"}
+            </span>
           </div>
-
-          <div className="sm:text-right">
+        }
+        title={order.orderNumber}
+        meta={
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground tabular-nums font-normal">
+            <span>
+              {new Date(order.createdAt).toLocaleDateString(
+                isVi ? "vi-VN" : "en-US",
+                {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }
+              )}
+            </span>
+            <span aria-hidden="true">•</span>
+            <span>ID: {order.id}</span>
+            {order.trackingCode && (
+              <>
+                <span aria-hidden="true">•</span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Truck
+                    className="h-3.5 w-3.5 text-muted-foreground"
+                    aria-hidden="true"
+                  />
+                  <span>{isVi ? "Mã vận đơn: " : "Tracking: "}</span>
+                  <span className="tabular-nums font-normal text-foreground select-all">
+                    {order.trackingCode}
+                  </span>
+                </span>
+              </>
+            )}
+          </div>
+        }
+        actions={
+          <div>
             <div className="text-[11px] font-normal uppercase tracking-wider text-muted-foreground">
               {isVi ? "Tổng đơn hàng" : "Order Total"}
             </div>
@@ -258,15 +255,15 @@ export default async function AdminOrderDetailPage({
               {formatPrice(order.total)}
             </div>
           </div>
-        </div>
-      </header>
+        }
+      />
 
       {/* Main Order Content */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* Left 2 Columns: Items & Financials */}
         <div className="space-y-6 lg:col-span-2">
           {/* Order Items */}
-          <div className="rounded-2xl border border-border bg-card/40 p-6 space-y-4">
+          <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
             <div className="flex items-center gap-2 border-b border-border pb-4">
               <Package className="h-5 w-5 text-muted-foreground" />
               <h2 className="text-lg font-normal text-foreground">
@@ -311,7 +308,7 @@ export default async function AdminOrderDetailPage({
           </div>
 
           {/* Payment & Financial Summary */}
-          <div className="rounded-2xl border border-border bg-card/40 p-6 space-y-4">
+          <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
             <div className="flex items-center gap-2 border-b border-border pb-4">
               <Receipt className="h-5 w-5 text-muted-foreground" />
               <h2 className="text-lg font-normal text-foreground">
@@ -360,7 +357,7 @@ export default async function AdminOrderDetailPage({
 
           {/* Customer Notes (if present) */}
           {order.notes && (
-            <div className="rounded-2xl border border-border bg-card/40 p-6 space-y-3">
+            <div className="rounded-2xl border border-border bg-card p-6 space-y-3">
               <div className="flex items-center gap-2 border-b border-border pb-3">
                 <FileText className="h-5 w-5 text-muted-foreground" />
                 <h2 className="text-lg font-normal text-foreground">
@@ -398,7 +395,7 @@ export default async function AdminOrderDetailPage({
           />
 
           {/* Customer Card */}
-          <div className="rounded-2xl border border-border bg-card/40 p-6 space-y-4">
+          <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
             <div className="flex items-center gap-2 border-b border-border pb-4">
               <User className="h-5 w-5 text-muted-foreground" />
               <h2 className="text-lg font-normal text-foreground">
@@ -458,7 +455,7 @@ export default async function AdminOrderDetailPage({
           </div>
 
           {/* Shipping Address Card */}
-          <div className="rounded-2xl border border-border bg-card/40 p-6 space-y-4">
+          <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
             <div className="flex items-center gap-2 border-b border-border pb-4">
               <MapPin className="h-5 w-5 text-muted-foreground" />
               <h2 className="text-lg font-normal text-foreground">

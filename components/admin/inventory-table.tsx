@@ -23,6 +23,7 @@ import {
   StockStatus,
   StockStatusBadge,
 } from "./stock-status-badge";
+import { AdminTableFrame } from "./admin-table-frame";
 import { InventoryAdjustControl } from "./inventory-adjust-control";
 
 export interface InventoryTableProps {
@@ -284,7 +285,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
                   ? "Tìm kiếm theo tên sản phẩm, phiên bản hoặc SKU..."
                   : "Search by product name, variant, or SKU..."
               }
-              className="w-full rounded-xl border border-border bg-background pl-9 pr-9 py-2 text-[13px] font-normal text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              className="admin-quiet-field w-full rounded-xl pl-9 pr-9 py-2 text-[13px] font-normal text-foreground placeholder:text-muted-foreground"
             />
             {searchQuery && (
               <button
@@ -310,7 +311,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
                 onChange={(e) =>
                   setCategoryFilter(e.target.value as ScentCategory | "all")
                 }
-                className="rounded-xl border border-border bg-background px-3 py-2 text-xs font-normal text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                className="admin-quiet-field rounded-xl px-3 py-2 text-xs font-normal text-foreground"
                 aria-label={isVi ? "Lọc theo nhóm hương" : "Filter by category"}
               >
                 <option value="all">{isVi ? "Tất cả nhóm hương" : "All Categories"}</option>
@@ -331,7 +332,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
                 onChange={(e) =>
                   setStatusFilter(e.target.value as StockStatus | "all")
                 }
-                className="rounded-xl border border-border bg-background px-3 py-2 text-xs font-normal text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                className="admin-quiet-field rounded-xl px-3 py-2 text-xs font-normal text-foreground"
                 aria-label={isVi ? "Lọc theo trạng thái tồn kho" : "Filter by stock status"}
               >
                 <option value="all">{isVi ? "Tất cả trạng thái" : "All Stock"}</option>
@@ -348,7 +349,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="rounded-xl border border-border bg-background px-3 py-2 text-xs font-normal text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                className="admin-quiet-field rounded-xl px-3 py-2 text-xs font-normal text-foreground"
                 aria-label={isVi ? "Sắp xếp danh sách" : "Sort list"}
               >
                 <option value="default">{isVi ? "Mặc định (Mới nhất)" : "Default (Newest)"}</option>
@@ -432,10 +433,11 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
       ) : (
         <div className="space-y-4">
           {/* Desktop & Tablet Table */}
-          <div className="hidden md:block overflow-x-auto rounded-2xl border border-border bg-card/40">
-            <table className="w-full text-left text-sm border-collapse">
-              <thead>
-                <tr className="border-b border-border bg-muted/20 text-[11px] font-normal uppercase tracking-wider text-muted-foreground">
+          <div className="hidden md:block">
+            <AdminTableFrame
+              caption={isVi ? "Tồn kho phiên bản" : "Variant inventory"}
+              head={
+                <>
                   <th scope="col" className="py-3.5 px-6 font-normal">
                     {isVi ? "Tác phẩm & Phiên bản" : "Product & Variant"}
                   </th>
@@ -451,8 +453,9 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
                   <th scope="col" className="py-3.5 px-6 text-right font-normal">
                     {isVi ? "Thao tác" : "Actions"}
                   </th>
-                </tr>
-              </thead>
+                </>
+              }
+            >
               <tbody className="divide-y divide-border">
                 {filteredItems.map((item) => {
                   const categoryMeta =
@@ -546,7 +549,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
                   );
                 })}
               </tbody>
-            </table>
+            </AdminTableFrame>
           </div>
 
           {/* Mobile Card View */}

@@ -30,9 +30,15 @@ assert("lib/admin-products.ts exists", fs.existsSync(adminDataPath));
 assert("app/actions/products.ts exists", fs.existsSync(actionPath));
 assert("app/actions/product.ts exists", fs.existsSync(actionPluralPath));
 
-const valCode = fs.readFileSync(valPath, "utf8");
-const adminDataCode = fs.readFileSync(adminDataPath, "utf8");
-const actionCode = fs.readFileSync(actionPath, "utf8");
+// Read a source file and normalize CRLF -> LF so that line-ending-sensitive
+// assertions are stable across Windows and POSIX checkouts.
+function readSource(url) {
+  return fs.readFileSync(url, "utf8").replace(/\r\n/g, "\n");
+}
+
+const valCode = readSource(valPath);
+const adminDataCode = readSource(adminDataPath);
+const actionCode = readSource(actionPath);
 
 assert("exports createProductSchema", valCode.includes("export const createProductSchema"));
 assert("exports updateProductSchema", valCode.includes("export const updateProductSchema"));
@@ -133,10 +139,19 @@ assert(
   actionCode.includes("deactivate the product instead")
 );
 const deleteProductActionBody = actionCode.slice(actionCode.indexOf("export async function deleteProductAction"));
+// Locate the *delete* call site for a table. Using a regex makes the assertion
+// independent of line endings and of the indentation of the chained call.
+function deleteCallIndex(src, table) {
+  const match = new RegExp(`\\.from\\("${table}"\\)\\s*\\.delete\\(\\)`).exec(src);
+  return match ? match.index : -1;
+}
+const variantDeleteIdx = deleteCallIndex(deleteProductActionBody, "product_variants");
+const productDeleteIdx = deleteCallIndex(deleteProductActionBody, "products");
 assert(
   "deleteProductAction deletes variants before deleting product",
-  deleteProductActionBody.indexOf('.from("product_variants")\n      .delete()') <
-    deleteProductActionBody.indexOf('.from("products")\n    .delete()')
+  variantDeleteIdx !== -1 &&
+    productDeleteIdx !== -1 &&
+    variantDeleteIdx < productDeleteIdx
 );
 assert(
   "deleteVariantAction verifies order_items for variant_id",

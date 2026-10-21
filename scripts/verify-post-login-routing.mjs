@@ -363,11 +363,25 @@ const navbarSrc = fs.readFileSync(fileURLToPath(new URL("../components/layout/na
 const mobileNavSrc = fs.readFileSync(fileURLToPath(new URL("../components/layout/mobile-nav.tsx", import.meta.url)), "utf8");
 const redirectSrc = fs.readFileSync(fileURLToPath(new URL("../lib/redirect.ts", import.meta.url)), "utf8");
 
-// Middleware protects account, checkout, and admin routes
+// Middleware protects account, checkout, and admin routes.
+// The middleware resolves protection through the `isProtectedPath()` helper,
+// which is driven by `PROTECTED_ROUTE_SEGMENTS`. Accept either the helper
+// indirection or an inline segment check so the harness does not go stale
+// when the guard is refactored.
+const middlewareProtectsSegments =
+  middlewareSrc.includes('PROTECTED_ROUTE_SEGMENTS') &&
+  middlewareSrc.includes("isProtectedPath") &&
+  middlewareSrc.includes('"/admin"') &&
+  middlewareSrc.includes('"/account"') &&
+  middlewareSrc.includes('"/checkout"');
+const middlewareProtectsInline =
+  middlewareSrc.includes('request.nextUrl.pathname.startsWith("/admin")') &&
+  middlewareSrc.includes('request.nextUrl.pathname.startsWith("/account")') &&
+  middlewareSrc.includes('request.nextUrl.pathname.startsWith("/checkout")');
 record(
   "architecture",
   "middleware protects account, checkout, and admin routes for unauthenticated users",
-  middlewareSrc.includes('request.nextUrl.pathname.startsWith("/admin")') &&
+  (middlewareProtectsSegments || middlewareProtectsInline) &&
     middlewareSrc.includes('url.searchParams.set("next", originalTarget)'),
   "middleware unauthenticated protection missing /admin"
 );

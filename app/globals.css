@@ -568,6 +568,21 @@ a:visited {
   padding-bottom: 0.375rem;
 }
 
+/* The sidebar's sign-out control is a quiet text pill that shares a 224px row
+   with the role badge — the 36px action-button sizing above is right for page
+   content but turns it into the loudest element in the account card. This
+   exception is deliberately narrow: two elements plus two classes outranks the
+   rule above, so it wins on specificity (not on source order) and matches only
+   the logout button. The shared rule stays intact for every other rounded
+   control. */
+.admin-scope form button.admin-logout-button {
+  min-height: 1.5rem;
+  height: auto;
+  padding-top: 0.125rem;
+  padding-bottom: 0.125rem;
+  line-height: 1.35;
+}
+
 /* --- Admin Motion: route content entrance + chart bar reveal ---
    Both keyframe blocks declare only a `from` state. The implicit end state is
    therefore the element's own computed style, which is always the correct

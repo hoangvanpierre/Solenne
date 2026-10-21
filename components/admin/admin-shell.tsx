@@ -347,13 +347,15 @@ function ShellIdentity({
           {roleLabel}
         </span>
 
-        <form action={signOutAction}>
+        <form action={signOutAction} className="shrink-0">
           <button
             type="submit"
-            className="inline-flex min-h-6 items-center gap-1.5 rounded-full px-2 py-1 text-xs uppercase tracking-[0.04em] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70 focus-visible:ring-offset-2 focus-visible:ring-offset-card"
+            className="admin-logout-button inline-flex min-h-6 items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] uppercase tracking-[0.02em] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70 focus-visible:ring-offset-2 focus-visible:ring-offset-card"
           >
-            <LogOut className="h-3 w-3" aria-hidden="true" />
-            <span>{isVi ? "Đăng xuất" : "Sign out"}</span>
+            <LogOut className="h-3 w-3 shrink-0" aria-hidden="true" />
+            <span className="whitespace-nowrap">
+              {isVi ? "Đăng xuất" : "Sign out"}
+            </span>
           </button>
         </form>
       </div>

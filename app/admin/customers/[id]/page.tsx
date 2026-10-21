@@ -21,7 +21,13 @@ import {
 import { getAdminCustomerById } from "@/lib/admin-customers";
 import { getOrdersForUser } from "@/lib/orders";
 import { formatPrice } from "@/lib/utils";
-import { CustomerStatusBadge, CustomerStatusControl } from "@/components/admin";
+import {
+  AdminBreadcrumb,
+  AdminPageHeader,
+  AdminStatePanel,
+  CustomerStatusBadge,
+  CustomerStatusControl,
+} from "@/components/admin";
 import { OrderStatusBadge, RestrictedAccountNotice } from "@/components/account";
 import { Button } from "@/components/ui";
 import type { Order } from "@/types";
@@ -95,31 +101,26 @@ export default async function CustomerDetailPage({
   if (forbiddenAccess) {
     return (
       <div className="py-8">
-        <div className="mx-auto max-w-2xl rounded-2xl border border-border p-10 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber/10">
-            <ShieldAlert className="h-6 w-6 text-amber" />
-          </div>
-
-          <h2 className="mt-5 text-xl font-normal text-foreground">
-            {isVi ? "Khu vực không khả dụng" : "Area unavailable"}
-          </h2>
-
-          <p className="mx-auto mt-3 max-w-lg text-sm font-normal leading-relaxed text-muted-foreground">
-            {isVi
-              ? "Quý khách không có quyền xem thông tin chi tiết khách hàng."
-              : "You do not have permission to view customer details."}
-          </p>
-
-          <div className="mt-7 flex justify-center">
-            <Button asChild variant="outline" size="sm" className="font-normal text-xs">
-              <Link href="/admin/customers" className="inline-flex items-center gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                <span>
-                  {isVi ? "Về danh sách khách hàng" : "Back to Customers"}
-                </span>
-              </Link>
-            </Button>
-          </div>
+        <div className="mx-auto max-w-2xl">
+          <AdminStatePanel
+            title={isVi ? "Khu vực không khả dụng" : "Area unavailable"}
+            description={
+              isVi
+                ? "Quý khách không có quyền xem thông tin chi tiết khách hàng."
+                : "You do not have permission to view customer details."
+            }
+            icon={ShieldAlert}
+            actions={
+              <Button asChild variant="outline" size="sm" className="font-normal text-xs">
+                <Link href="/admin/customers" className="inline-flex items-center gap-2">
+                  <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                  <span>
+                    {isVi ? "Về danh sách khách hàng" : "Back to Customers"}
+                  </span>
+                </Link>
+              </Button>
+            }
+          />
         </div>
       </div>
     );
@@ -127,60 +128,58 @@ export default async function CustomerDetailPage({
 
   if (loadFailed) {
     return (
-      <div className="py-8 space-y-6">
-        <nav aria-label="Breadcrumb">
-          <Link
-            href="/admin/customers"
-            className="inline-flex items-center gap-1.5 text-[11px] font-normal uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            <span>{isVi ? "Danh sách khách hàng" : "Customers"}</span>
-          </Link>
-        </nav>
+      <div className="space-y-6 py-8">
+        <AdminBreadcrumb
+          href="/admin/customers"
+          label={isVi ? "Danh sách khách hàng" : "Customers"}
+        />
 
-        <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-8 text-center">
-          <p className="text-sm font-normal text-destructive">
-            {isVi
+        <AdminStatePanel
+          tone="danger"
+          title={isVi ? "Không thể tải hồ sơ" : "Unable to load profile"}
+          description={
+            isVi
               ? "Không thể tải hồ sơ khách hàng lúc này. Vui lòng thử lại sau."
-              : "Unable to load customer profile at this time. Please try again later."}
-          </p>
-        </div>
+              : "Unable to load customer profile at this time. Please try again later."
+          }
+          icon={ShieldAlert}
+          actions={
+            <Button asChild variant="outline" size="sm" className="font-normal text-xs">
+              <Link href="/admin/customers">
+                {isVi ? "Thử lại" : "Try again"}
+              </Link>
+            </Button>
+          }
+        />
       </div>
     );
   }
 
   if (!customer) {
     return (
-      <div className="py-8 space-y-6">
-        <nav aria-label="Breadcrumb">
-          <Link
-            href="/admin/customers"
-            className="inline-flex items-center gap-1.5 text-[11px] font-normal uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            <span>{isVi ? "Danh sách khách hàng" : "Back to Customers"}</span>
-          </Link>
-        </nav>
+      <div className="space-y-6 py-8">
+        <AdminBreadcrumb
+          href="/admin/customers"
+          label={isVi ? "Danh sách khách hàng" : "Customers"}
+        />
 
-        <div className="rounded-2xl border border-border p-12 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted/60 text-muted-foreground">
-            <UserX className="h-6 w-6" />
-          </div>
-          <h2 className="mt-4 text-xl font-normal text-foreground">
-            {isVi ? "Không tìm thấy khách hàng" : "Customer Not Found"}
-          </h2>
-          <p className="mt-1 text-sm font-normal text-muted-foreground max-w-md mx-auto">
-            {isVi
+        <AdminStatePanel
+          icon={UserX}
+          title={isVi ? "Không tìm thấy khách hàng" : "Customer Not Found"}
+          description={
+            isVi
               ? "Hồ sơ khách hàng này không tồn tại hoặc đã bị xóa."
-              : "This customer profile does not exist or has been removed."}
-          </p>
-          <Button asChild variant="outline" size="sm" className="mt-6 font-normal text-xs">
-            <Link href="/admin/customers" className="inline-flex items-center gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              <span>{isVi ? "Về danh sách khách hàng" : "Back to Customers"}</span>
-            </Link>
-          </Button>
-        </div>
+              : "This customer profile does not exist or has been removed."
+          }
+          actions={
+            <Button asChild variant="outline" size="sm" className="font-normal text-xs">
+              <Link href="/admin/customers" className="inline-flex items-center gap-2">
+                <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                <span>{isVi ? "Về danh sách khách hàng" : "Back to Customers"}</span>
+              </Link>
+            </Button>
+          }
+        />
       </div>
     );
   }
@@ -199,46 +198,40 @@ export default async function CustomerDetailPage({
   );
 
   return (
-    <div className="space-y-8 py-4">
-      {/* Header and Breadcrumbs */}
-      <header className="space-y-4">
-        <nav aria-label="Breadcrumb">
-          <Link
-            href="/admin/customers"
-            className="inline-flex items-center gap-1.5 text-[11px] font-normal uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            <span>{isVi ? "Danh sách khách hàng" : "Back to Customers"}</span>
-          </Link>
-        </nav>
+    <div className="space-y-6 py-4">
+      <AdminBreadcrumb
+        href="/admin/customers"
+        label={isVi ? "Danh sách khách hàng" : "Customers"}
+      />
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground">
-                {displayName}
-              </h1>
-              <CustomerStatusBadge status={customer.status} locale={locale} />
-            </div>
-
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-normal tabular-nums text-muted-foreground">
-              <span className="tabular-nums">ID: {customer.id}</span>
-              <span>•</span>
-              <span className="inline-flex items-center gap-1">
-                <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="tabular-nums">
-                  {isVi ? "Gia nhập: " : "Joined: "}
-                  {memberSince}
-                </span>
-              </span>
-            </div>
+      <AdminPageHeader
+        eyebrow={
+          <div className="flex flex-wrap items-center gap-3">
+            <CustomerStatusBadge status={customer.status} locale={locale} />
+            <span className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+              {isVi ? "Hồ sơ khách hàng" : "Customer record"}
+            </span>
           </div>
-        </div>
-      </header>
+        }
+        title={displayName}
+        meta={
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-normal tabular-nums text-muted-foreground">
+            <span className="tabular-nums">ID: {customer.id}</span>
+            <span aria-hidden="true">•</span>
+            <span className="inline-flex items-center gap-1">
+              <Calendar className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+              <span className="tabular-nums">
+                {isVi ? "Gia nhập: " : "Joined: "}
+                {memberSince}
+              </span>
+            </span>
+          </div>
+        }
+      />
 
       {/* Metrics Highlights */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="rounded-2xl border border-border bg-card/40 p-5 space-y-1.5">
+        <div className="rounded-2xl border border-border bg-card p-5 space-y-1.5">
           <div className="flex items-center gap-2 text-[10.5px] font-normal uppercase tracking-wider text-muted-foreground">
             <ShoppingBag className="h-4 w-4 text-amber" />
             <span>{isVi ? "Tổng số đơn hàng" : "Total Orders"}</span>
@@ -264,7 +257,7 @@ export default async function CustomerDetailPage({
           )}
         </div>
 
-        <div className="rounded-2xl border border-border bg-card/40 p-5 space-y-1.5">
+        <div className="rounded-2xl border border-border bg-card p-5 space-y-1.5">
           <div className="flex items-center gap-2 text-[10.5px] font-normal uppercase tracking-wider text-muted-foreground">
             <Package className="h-4 w-4 text-amber" />
             <span>{isVi ? "Tổng chi tiêu tích lũy" : "Lifetime Spend"}</span>
@@ -294,7 +287,7 @@ export default async function CustomerDetailPage({
         {/* Left Column: Account Profile Details */}
         <div className="space-y-6">
           {/* Contact & Identity Card */}
-          <div className="rounded-2xl border border-border bg-card/40 p-6 space-y-4">
+          <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
             <div className="flex items-center gap-2 border-b border-border pb-4">
               <User className="h-5 w-5 text-muted-foreground" />
               <h2 className="text-lg font-normal text-foreground">
@@ -355,7 +348,7 @@ export default async function CustomerDetailPage({
 
         {/* Right 2 Columns: Order History */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="rounded-2xl border border-border bg-card/40 p-6 space-y-5">
+          <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
             <div className="flex items-center justify-between border-b border-border pb-4">
               <div className="flex items-center gap-2">
                 <ShoppingBag className="h-5 w-5 text-muted-foreground" />

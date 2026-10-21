@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import type { Product, ScentCategory } from "@/types";
 import { formatPrice } from "@/lib/utils";
+import { AdminTableFrame } from "./admin-table-frame";
 import { Button } from "@/components/ui";
 
 export interface ProductTableProps {
@@ -307,7 +308,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                   ? "Tìm theo tên tác phẩm, slug hoặc SKU..."
                   : "Search by product name, slug, or SKU..."
               }
-              className="w-full rounded-xl border border-border bg-background pl-9 pr-9 py-2 text-[13px] font-normal text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+              className="admin-quiet-field w-full rounded-xl pl-9 pr-9 py-2 text-[13px] font-normal text-foreground placeholder:text-muted-foreground"
             />
             {searchQuery && (
               <button
@@ -333,7 +334,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                 onChange={(e) =>
                   setCategoryFilter(e.target.value as ScentCategory | "all")
                 }
-                className="rounded-xl border border-border bg-background px-3 py-2 text-xs font-normal text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                className="admin-quiet-field rounded-xl px-3 py-2 text-xs font-normal text-foreground"
                 aria-label={isVi ? "Lọc theo nhóm hương" : "Filter by category"}
               >
                 <option value="all">
@@ -354,7 +355,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-                className="rounded-xl border border-border bg-background px-3 py-2 text-xs font-normal text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                className="admin-quiet-field rounded-xl px-3 py-2 text-xs font-normal text-foreground"
                 aria-label={isVi ? "Lọc theo trạng thái" : "Filter by status"}
               >
                 <option value="all">
@@ -374,7 +375,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="rounded-xl border border-border bg-background px-3 py-2 text-xs font-normal text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
+                className="admin-quiet-field rounded-xl px-3 py-2 text-xs font-normal text-foreground"
                 aria-label={isVi ? "Sắp xếp danh sách" : "Sort list"}
               >
                 <option value="newest">
@@ -475,10 +476,11 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
       ) : (
         <div className="space-y-4">
           {/* Desktop & Tablet Table */}
-          <div className="hidden md:block overflow-x-auto rounded-2xl border border-border bg-card/40">
-            <table className="w-full text-left text-sm border-collapse">
-              <thead>
-                <tr className="border-b border-border bg-muted/20 text-[11px] font-normal uppercase tracking-wider text-muted-foreground">
+          <div className="hidden md:block">
+            <AdminTableFrame
+              caption={isVi ? "Danh mục sản phẩm" : "Product catalog"}
+              head={
+                <>
                   <th scope="col" className="py-3.5 px-6 font-normal">
                     {isVi ? "Tác phẩm" : "Product"}
                   </th>
@@ -503,8 +505,9 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                   >
                     {isVi ? "Thao tác" : "Actions"}
                   </th>
-                </tr>
-              </thead>
+                </>
+              }
+            >
               <tbody className="divide-y divide-border">
                 {filteredProducts.map((product) => {
                   const categoryMeta =
@@ -687,7 +690,7 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
                   );
                 })}
               </tbody>
-            </table>
+            </AdminTableFrame>
           </div>
 
           {/* Mobile Card View */}

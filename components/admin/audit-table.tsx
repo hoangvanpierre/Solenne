@@ -5,8 +5,6 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   ChevronDown,
-  ChevronLeft,
-  ChevronRight,
   ChevronUp,
   Clock,
   ExternalLink,
@@ -18,6 +16,12 @@ import {
 } from "lucide-react";
 import type { AuditDatePreset, AuditLog } from "@/types";
 import { formatAuditSummary, isValidUuid } from "@/lib/audit-utils";
+import {
+  AdminStatusBadge,
+  type AdminStatusTone,
+} from "./admin-status-badge";
+import { AdminTableFrame } from "./admin-table-frame";
+import { AdminPagination } from "./admin-pagination";
 import { Button } from "@/components/ui";
 
 export interface AuditTableProps {
@@ -137,20 +141,15 @@ const DATE_PRESET_OPTIONS: {
   { value: "30d", labelEn: "Last 30 Days", labelVi: "30 ngày qua" },
 ];
 
-function getActionBadgeStyle(action: string): string {
-  if (action.startsWith("order")) {
-    return "border-amber/40 bg-amber/15 text-amber";
-  }
-  if (action.startsWith("inventory")) {
-    return "border-blush/40 bg-blush/15 text-blush";
-  }
-  if (action.startsWith("product")) {
-    return "border-sage/40 bg-sage/15 text-sage";
-  }
-  if (action.startsWith("user")) {
-    return "border-primary/30 bg-primary/10 text-primary";
-  }
-  return "border-border bg-muted/40 text-muted-foreground";
+// Action families keep their own tone so an operator can scan the trail by
+// colour: orders read as attention, inventory as the blush accent, products as
+// healthy, identity changes as informational.
+function getActionTone(action: string): AdminStatusTone {
+  if (action.startsWith("order")) return "attention";
+  if (action.startsWith("inventory")) return "accent";
+  if (action.startsWith("product")) return "positive";
+  if (action.startsWith("user")) return "info";
+  return "neutral";
 }
 
 export function AuditTable({
@@ -217,18 +216,6 @@ export function AuditTable({
     router.push(pathname);
   };
 
-  const handlePreviousPage = () => {
-    if (page > 1) {
-      updateSearchParam({ page: String(page - 1) });
-    }
-  };
-
-  const handleNextPage = () => {
-    if (hasMore) {
-      updateSearchParam({ page: String(page + 1) });
-    }
-  };
-
   const toggleExpand = (id: string) => {
     setExpandedIds((prev) => {
       const next = new Set(prev);
@@ -273,7 +260,7 @@ export function AuditTable({
         return (
           <Link
             href={`/admin/orders/${encodeURIComponent(log.resourceId)}`}
-            className="inline-flex items-center gap-1 tabular-nums font-normal text-xs text-amber hover:underline transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber"
+            className="inline-flex items-center gap-1 tabular-nums font-normal text-xs text-amber hover:underline transition-colors"
             title={`View order details: ${log.resourceId}`}
           >
             <span>{label}</span>
@@ -304,7 +291,7 @@ export function AuditTable({
         return (
           <Link
             href={`/admin/products/${encodeURIComponent(log.resourceId)}`}
-            className="inline-flex items-center gap-1 font-normal text-xs text-sage hover:underline transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sage"
+            className="inline-flex items-center gap-1 font-normal text-xs text-sage hover:underline transition-colors"
             title={`View product: ${log.resourceId}`}
           >
             <span>{productName}</span>
@@ -335,7 +322,7 @@ export function AuditTable({
         return (
           <Link
             href={`/admin/products/${encodeURIComponent(rawProductId)}`}
-            className="inline-flex items-center gap-1 tabular-nums font-normal text-xs text-sage hover:underline transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sage"
+            className="inline-flex items-center gap-1 tabular-nums font-normal text-xs text-sage hover:underline transition-colors"
             title={`View parent product: ${rawProductId}`}
           >
             <span>{label}</span>
@@ -417,7 +404,7 @@ export function AuditTable({
                 id="audit-action-filter"
                 value={currentAction}
                 onChange={(e) => handleActionChange(e.target.value)}
-                className="rounded-xl border border-border bg-background px-3 py-2 text-xs font-normal text-foreground focus:border-amber focus:outline-none focus:ring-1 focus:ring-amber"
+                className="admin-quiet-field rounded-xl px-3 py-2 text-xs font-normal text-foreground"
               >
                 {ACTION_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -436,7 +423,7 @@ export function AuditTable({
                 id="audit-resource-filter"
                 value={currentResourceType}
                 onChange={(e) => handleResourceTypeChange(e.target.value)}
-                className="rounded-xl border border-border bg-background px-3 py-2 text-xs font-normal text-foreground focus:border-amber focus:outline-none focus:ring-1 focus:ring-amber"
+                className="admin-quiet-field rounded-xl px-3 py-2 text-xs font-normal text-foreground"
               >
                 {RESOURCE_TYPE_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -455,7 +442,7 @@ export function AuditTable({
                 id="audit-date-filter"
                 value={currentDatePreset}
                 onChange={(e) => handleDatePresetChange(e.target.value)}
-                className="rounded-xl border border-border bg-background px-3 py-2 text-xs font-normal text-foreground focus:border-amber focus:outline-none focus:ring-1 focus:ring-amber"
+                className="admin-quiet-field rounded-xl px-3 py-2 text-xs font-normal text-foreground"
               >
                 {DATE_PRESET_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -533,32 +520,33 @@ export function AuditTable({
       ) : (
         <>
           {/* Desktop Table View (lg and up) */}
-          <div className="hidden lg:block overflow-hidden rounded-2xl border border-border bg-card/40">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="border-b border-border bg-muted/20 text-[11px] font-normal text-muted-foreground uppercase tracking-wider">
-                  <tr>
-                    <th scope="col" className="px-5 py-3.5 font-normal">
-                      {isVi ? "Thời gian" : "Timestamp"}
-                    </th>
-                    <th scope="col" className="px-5 py-3.5 font-normal">
-                      {isVi ? "Hành động" : "Action"}
-                    </th>
-                    <th scope="col" className="px-5 py-3.5 font-normal">
-                      {isVi ? "Người thực hiện" : "Actor"}
-                    </th>
-                    <th scope="col" className="px-5 py-3.5 font-normal">
-                      {isVi ? "Đối tượng" : "Target"}
-                    </th>
-                    <th scope="col" className="px-5 py-3.5 font-normal">
-                      {isVi ? "Nội dung tóm tắt" : "Summary"}
-                    </th>
-                    <th scope="col" className="px-5 py-3.5 text-right font-normal">
-                      {isVi ? "Chi tiết" : "Details"}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border/60">
+          <div className="hidden lg:block">
+            <AdminTableFrame
+              caption={isVi ? "Nhật ký kiểm toán" : "Audit trail"}
+              head={
+                <>
+                  <th scope="col" className="px-5 py-3.5 font-normal">
+                    {isVi ? "Thời gian" : "Timestamp"}
+                  </th>
+                  <th scope="col" className="px-5 py-3.5 font-normal">
+                    {isVi ? "Hành động" : "Action"}
+                  </th>
+                  <th scope="col" className="px-5 py-3.5 font-normal">
+                    {isVi ? "Người thực hiện" : "Actor"}
+                  </th>
+                  <th scope="col" className="px-5 py-3.5 font-normal">
+                    {isVi ? "Đối tượng" : "Target"}
+                  </th>
+                  <th scope="col" className="px-5 py-3.5 font-normal">
+                    {isVi ? "Nội dung tóm tắt" : "Summary"}
+                  </th>
+                  <th scope="col" className="px-5 py-3.5 text-right font-normal">
+                    {isVi ? "Chi tiết" : "Details"}
+                  </th>
+                </>
+              }
+            >
+              <tbody className="divide-y divide-border/60">
                   {logs.map((log) => {
                     const isExpanded = expandedIds.has(log.id);
                     const metadataEntries = Object.entries(log.metadata);
@@ -582,13 +570,10 @@ export function AuditTable({
 
                         {/* Action Badge */}
                         <td className="px-5 py-4 whitespace-nowrap">
-                          <span
-                            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-normal ${getActionBadgeStyle(
-                              log.action
-                            )}`}
-                          >
-                            {log.action}
-                          </span>
+                          <AdminStatusBadge
+                            label={log.action}
+                            tone={getActionTone(log.action)}
+                          />
                         </td>
 
                         {/* Actor */}
@@ -667,8 +652,7 @@ export function AuditTable({
                     );
                   })}
                 </tbody>
-              </table>
-            </div>
+            </AdminTableFrame>
           </div>
 
           {/* Mobile Card Layout (below lg) */}
@@ -685,13 +669,10 @@ export function AuditTable({
                 >
                   {/* Top Bar: Action Badge & Timestamp */}
                   <div className="flex items-center justify-between gap-2">
-                    <span
-                      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-normal ${getActionBadgeStyle(
-                        log.action
-                      )}`}
-                    >
-                      {log.action}
-                    </span>
+                    <AdminStatusBadge
+                      label={log.action}
+                      tone={getActionTone(log.action)}
+                    />
                     <span
                       className="inline-flex items-center gap-1 tabular-nums font-normal text-xs text-muted-foreground"
                       title={log.createdAt}
@@ -786,43 +767,15 @@ export function AuditTable({
           </div>
 
           {/* Pagination Controls */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-            <span className="text-xs font-normal tabular-nums text-muted-foreground">
-              {isVi
-                ? `Đang xem trang ${page} (${limit} bản ghi/trang)`
-                : `Viewing page ${page} (${limit} per page)`}
-            </span>
-
-            <div className="inline-flex items-center gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handlePreviousPage}
-                disabled={page <= 1}
-                className="inline-flex items-center gap-1 text-xs font-normal"
-              >
-                <ChevronLeft className="h-3.5 w-3.5" />
-                <span>{isVi ? "Trang trước" : "Previous"}</span>
-              </Button>
-
-              <span className="px-2 text-xs font-normal tabular-nums text-foreground">
-                {page}
-              </span>
-
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleNextPage}
-                disabled={!hasMore}
-                className="inline-flex items-center gap-1 text-xs font-normal"
-              >
-                <span>{isVi ? "Trang sau" : "Next"}</span>
-                <ChevronRight className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-          </div>
+          <AdminPagination
+            page={page}
+            limit={limit}
+            totalCount={totalCount}
+            hasMore={hasMore}
+            locale={locale}
+            itemLabelEn="audit records"
+            itemLabelVi="bản ghi kiểm toán"
+          />
         </>
       )}
     </div>

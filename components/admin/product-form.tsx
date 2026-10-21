@@ -462,7 +462,7 @@ export function ProductForm({
                     setIsSlugManuallyEdited(true);
                   }}
                   placeholder="solenne-aura"
-                  className="flex h-11 w-full rounded-lg border border-border bg-transparent px-4 py-2 tabular-nums text-[13.5px] font-normal placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent disabled:opacity-50 transition-colors"
+                  className="flex h-11 w-full rounded-lg border border-border bg-transparent px-4 py-2 tabular-nums text-[13.5px] font-normal placeholder:text-muted-foreground focus-visible:outline-none disabled:opacity-50 transition-colors"
                   required
                   disabled={isPending}
                 />
@@ -508,7 +508,7 @@ export function ProductForm({
                     ? "Mô tả nguồn cảm hứng, tầng hương và không gian phù hợp để thưởng thức..."
                     : "Describe the artistic inspiration, atmospheric qualities, and sensory journey..."
                 }
-                className="flex w-full rounded-lg border border-border bg-transparent px-4 py-2.5 text-[13px] font-normal transition-colors duration-200 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex w-full rounded-lg border border-border bg-transparent px-4 py-2.5 text-[13px] font-normal transition-colors duration-200 placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={isPending}
               />
               {fieldErrors.description?.[0] && (
@@ -617,7 +617,7 @@ export function ProductForm({
                 checked={isActive}
                 onChange={(e) => setIsActive(e.target.checked)}
                 disabled={isPending}
-                className="mt-1 h-4 w-4 rounded border-border text-amber focus:ring-amber"
+                className="mt-1 h-4 w-4 rounded border-border text-amber"
               />
               <label htmlFor="is-active-toggle" className="cursor-pointer space-y-0.5">
                 <span className="text-sm font-normal text-foreground block">
@@ -639,7 +639,7 @@ export function ProductForm({
                 checked={isFeatured}
                 onChange={(e) => setIsFeatured(e.target.checked)}
                 disabled={isPending}
-                className="mt-1 h-4 w-4 rounded border-border text-amber focus:ring-amber"
+                className="mt-1 h-4 w-4 rounded border-border text-amber"
               />
               <label htmlFor="is-featured-toggle" className="cursor-pointer space-y-0.5">
                 <span className="text-sm font-normal text-foreground block">

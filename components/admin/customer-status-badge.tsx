@@ -1,11 +1,15 @@
 import type { AccountStatus } from "@/types";
-import { cn } from "@/lib/utils";
+import { AdminStatusBadge, type AdminStatusTone } from "./admin-status-badge";
 
-const STATUS_STYLES: Record<AccountStatus, string> = {
-  active: "border-sage/30 bg-sage/10 text-sage",
-  suspended: "border-amber/30 bg-amber/10 text-amber",
-  banned: "border-destructive/30 bg-destructive/10 text-destructive",
-  pending: "border-border bg-muted/60 text-muted-foreground",
+// Customer account state delegates to the shared status pill so the same
+// meaning ("this is healthy") reads identically here, in inventory and in the
+// audit trail. Labels stay local because they are account-specific copy.
+
+const STATUS_TONES: Record<AccountStatus, AdminStatusTone> = {
+  active: "positive",
+  suspended: "attention",
+  banned: "danger",
+  pending: "neutral",
 };
 
 const STATUS_LABELS_EN: Record<AccountStatus, string> = {
@@ -35,18 +39,13 @@ export function CustomerStatusBadge({
 }: CustomerStatusBadgeProps) {
   const isVi = locale === "vi";
   const labels = isVi ? STATUS_LABELS_VI : STATUS_LABELS_EN;
-  const style = STATUS_STYLES[status] ?? STATUS_STYLES.pending;
-  const label = labels[status] ?? status;
 
   return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-normal tracking-wider uppercase",
-        style,
-        className
-      )}
-    >
-      {label}
-    </span>
+    <AdminStatusBadge
+      label={labels[status] ?? status}
+      tone={STATUS_TONES[status] ?? "neutral"}
+      uppercase
+      className={className}
+    />
   );
 }

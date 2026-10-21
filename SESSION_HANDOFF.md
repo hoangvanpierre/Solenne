@@ -144,7 +144,7 @@ This handoff covers the work since the previous handoff document (dated October 
 ### 3.2 Customer email display + back-office typography
 - Commit `3bd8764 feat(admin): display customer email and upgrade back-office typography to Birthstone`.
 - Admin customer tables/detail now surface customer email.
-- Back-office typography migrated to the Birthstone family (note: the **storefront** was later migrated to Cactus Classical Serif in `cbc5dfa`).
+- **Historical — superseded.** The Birthstone back-office typography introduced in `3bd8764` was replaced by the Cactus Classical Serif migration (`cbc5dfa`, §3.3). Current code contains **no** `Birthstone` reference: `app/globals.css` sets `--font-sans` / `--font-serif` / `--font-mono` / `--font-script` to Cactus Classical Serif, and `.admin-scope` (the back-office scope) re-declares Cactus Classical Serif explicitly, so ordinary text in the back-office is Cactus too.
 
 ### 3.3 Typography, performance, and navigation overhaul
 - Commit `cbc5dfa feat: migrate to Cactus Classical Serif typography, optimize performance, and refine navigation` — merged via `9dcd333` (PR #1).
@@ -160,7 +160,7 @@ This handoff covers the work since the previous handoff document (dated October 
 
 This session queried the live Supabase project and confirmed a real gap that the previous documentation did not record:
 
-- The live PostgREST OpenAPI spec (`GET /rest/v1/` with the secret key) exposes exactly **11 relations** in its `definitions` block: `order_outbox_events`, `role_permissions`, `orders`, `audit_logs`, `order_items`, `products`, `roles`, `profiles`, `addresses`, `product_variants`, `permissions`.
+- *At the time of this audit (2026-10-20), before `0013` was applied,* the live PostgREST OpenAPI spec (`GET /rest/v1/` with the secret key) exposed exactly **11 relations** in its `definitions` block: `order_outbox_events`, `role_permissions`, `orders`, `audit_logs`, `order_items`, `products`, `roles`, `profiles`, `addresses`, `product_variants`, `permissions`.
 - **`contact_messages` and `newsletter_subscribers` were absent from that list** — i.e. they had never been created in the live project at the time of this audit. (They have since been created by applying `0013` — see the resolution note below.)
 - `app/actions/contact.ts` → `admin.from("contact_messages").insert(...)` and `app/actions/newsletter.ts` → `admin.from("newsletter_subscribers").insert(...)` both hit missing relations.
 
@@ -194,14 +194,14 @@ So the contact form and the newsletter signup reported *"Thank you for subscribi
 - [x] Migration `0012_reinstate_banned_customer_atomic.sql` authored, **applied to the live database**, and verified.
 - [x] `reinstateCustomer()` server-side helper + server action wired to the RPC.
 - [x] Customer email surfaced in the admin customer directory and detail view.
-- [x] Back-office typography upgraded to Birthstone.
+- [x] Back-office typography unified on Cactus Classical Serif (the earlier Birthstone pass in `3bd8764` was superseded by `cbc5dfa`).
 - [x] Storefront typography migrated to Cactus Classical Serif.
 - [x] Mobile product-detail overlap fixed.
 - [x] Atelier craft gallery imagery + sequential presentation added.
 - [x] Brand social media links updated.
-- [x] Migrations `0001`–`0012` confirmed **applied live** at the time (12 of 13; `0013` authored this session) — **`0013` has since been applied to production as well**, so all 13 are live.
+- [x] Migrations `0001`–`0012` confirmed **applied live** at the time of the audit; `0013` was authored in that session and **has since been applied to production**, so all 13 are live.
 - [x] **All 19 live RPCs** confirmed present with confirmed parameter types and required flags (read from the live PostgREST OpenAPI spec).
-- [x] **Live table inventory confirmed: 11 relations** — `contact_messages` and `newsletter_subscribers` confirmed **absent from the live database** at the time of this audit. Documented in §3.5 and added to `AGENTS.md`. (Both now exist — `0013` has been applied to production.)
+- [x] **Table inventory at the pre-`0013` audit: 11 relations** — `contact_messages` and `newsletter_subscribers` were absent from the live database *at that moment only*. **Historical observation, not current state:** `0013` has since been applied, so both relations now exist (§3.5, §7.4). No post-`0013` relation count has been read.
 - [x] **Contact/newsletter false-success bug fixed** — `submitContactAction` and `subscribeNewsletterAction` now return `{ code: "persist_failed", ... }` instead of `{ success: true }` when the insert fails; `23505` remains a benign success tagged `already_subscribed`.
 - [x] **DDL promoted to `supabase/migrations/0013_contact_newsletter_tables.sql`** — RLS on, no public policies, `service_role`-only writes, self-verifying `DO $$` block. `scripts/schema-newsletter-contact.sql` reduced to a superseded pointer.
 - [x] **Failure copy made bilingual** — `contact.errorServer` / `contact.errorValidation` / `contact.errorUnexpected` and `newsletter.errorEmail` / `newsletter.errorPersist` / `newsletter.successDuplicate` added to both `messages/en.json` and `messages/vi.json`, and both UI components now render the localized key instead of the English action string.
@@ -234,7 +234,7 @@ So the contact form and the newsletter signup reported *"Thank you for subscribi
 1. `lib/admin-customers.ts` — added `reinstateCustomer()`.
 2. `app/actions/customers.ts` — added the reinstatement server action.
 3. `lib/audit-utils.ts` — added the `customer.reinstated` action + bilingual formatter.
-4. `components/admin/*` — customer email column, Birthstone typography.
+4. `components/admin/*` — customer email column (the Birthstone typography from `3bd8764` was applied here, then superseded by the Cactus Classical Serif migration in `cbc5dfa`; `.admin-scope` is Cactus today).
 5. `app/globals.css` — Cactus Classical Serif font variables.
 6. `components/sections/craft-section.tsx` — sequential craft gallery carousel.
 7. `components/product/product-gallery.tsx`, `components/product/size-selector.tsx`, `components/ui/back-to-top.tsx` — mobile overlap fixes.
@@ -312,9 +312,9 @@ Verified against the **live PostgREST OpenAPI spec** (`GET /rest/v1/` with the s
 
 Both customer-moderation audit actions are present and populated — the moderation path is **exercised in production**, not merely defined. The same 8 distinct actions were previously reported over a 200-row window; a 1000-row window returns the identical distribution, so the audit table is not growing unboundedly.
 
-### 7.4 Live table inventory (11 relations)
+### 7.4 Table inventory — 11 relations (historical snapshot, pre-`0013`)
 
-Read from the `definitions` block of the live PostgREST OpenAPI spec:
+Read from the `definitions` block of the live PostgREST OpenAPI spec **during the pre-`0013` audit of 2026-10-20**. This is a **historical observation, not the current schema**: `0013` was applied to production afterwards, so two further relations now exist. The spec was **not** re-read after that, so no current relation count is asserted here.
 
 | Relation | Origin | Notes |
 | --- | --- | --- |
@@ -330,7 +330,7 @@ Read from the `definitions` block of the live PostgREST OpenAPI spec:
 | `role_permissions` | `0001` / `0002` | Role → permission matrix. |
 | `audit_logs` | `0001` | 71 rows / 8 distinct actions. |
 
-**Absent from the live schema:** `contact_messages` and `newsletter_subscribers` — see §3.5.
+**Not present at the time of this historical audit:** `contact_messages` and `newsletter_subscribers`. **Both exist now** — created by `0013`, which was applied to production by hand and smoke-tested (§3.5). The current live relation count has not been re-read, so no updated total is claimed here.
 
 ### 7.5 Product catalog
 
@@ -477,6 +477,6 @@ When the next session starts:
 - **Route protection is centralized, not inline.** `lib/supabase/middleware.ts` exports `PROTECTED_ROUTE_SEGMENTS` (`/admin`, `/account`, `/checkout`) and the `isProtectedPath(pathname)` helper, which matches by **path segment**, not by a broad string prefix. Post-login redirects are role-aware via `lib/redirect.ts`.
 - **The live database is the source of truth for RPC signatures, not the repo migrations.** There are **19 live RPCs**; the migrations only define a subset, and `rls_auto_enable` exists live but in no migration file. Read the live PostgREST OpenAPI spec when you need the true surface.
 - **All 9 `scripts/verify-*.mjs` harnesses pass.** They are not wired into `pnpm test` (there is no test script) — run them with `node` directly. Two of them (`verify-product-management`, `verify-post-login-routing`) were de-staled earlier; the newest, `verify-contact-newsletter`, was added with migration `0013`. Prefer whitespace-independent, behavior-focused assertions in any new harness.
-- **The contact/newsletter tables are absent from the live database** — migration `0013` exists in the repo but has **not been applied**. The two server actions now correctly report failure instead of returning `{ success: true }`, so the UI **shows an error until `0013` is applied**. **Do not describe contact or newsletter as functional** until `0013` is applied and both relations appear in `GET /rest/v1/`. See §3.5.
+- **The contact/newsletter tables EXIST in the live database.** Migration `0013_contact_newsletter_tables.sql` was applied to production by hand; both flows were smoke-tested — one contact submission stored in `contact_messages`, one subscription stored in `newsletter_subscribers`, and a duplicate signup rejected by the unique-email constraint and rendered as the localized `newsletter.successDuplicate` message. **Do not re-run `0013`.** The 11-relation inventory in §7.4 is a **historical pre-`0013` snapshot**, not the current schema.
 
 - **Trust `git log` over this handoff document.** If the two disagree, the git history is authoritative — this document was written from a verified snapshot and can itself go stale.

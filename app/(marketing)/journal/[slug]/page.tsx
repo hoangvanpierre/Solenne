@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -75,7 +76,20 @@ export default async function JournalPostPage({
           </p>
         </header>
 
-        <div className="mb-12 aspect-[16/9] rounded-2xl bg-muted" />
+        {post.image ? (
+          <div className="relative mb-12 aspect-[16/9] overflow-hidden rounded-2xl bg-muted">
+            <Image
+              src={post.image}
+              alt={title}
+              fill
+              sizes="(max-width: 639px) calc(100vw - 32px), (max-width: 1023px) calc(100vw - 48px), 704px"
+              className="object-cover"
+              unoptimized
+            />
+          </div>
+        ) : (
+          <div className="mb-12 aspect-[16/9] rounded-2xl bg-muted" />
+        )}
 
         <article className="space-y-6">
           {body.map((paragraph) => (

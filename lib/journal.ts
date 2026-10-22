@@ -12,11 +12,24 @@ export interface JournalPost {
   readTimeVi: string;
   tag: string;
   tagVi: string;
+  /**
+   * Article hero image — public path (URL-safe filename), cropped to 16:9.
+   * Recommended source: 1600 × 900. Omit to keep the muted placeholder.
+   */
+  image?: string;
+  /**
+   * Listing-card thumbnail — public path (URL-safe filename), cropped to 4:3.
+   * Recommended source: 1200 × 900. Omit to keep the muted placeholder.
+   * Independent of `image`: no cross-fallback between the two slots.
+   */
+  imageCard?: string;
 }
 
 export const JOURNAL_POSTS: JournalPost[] = [
   {
     slug: "the-art-of-scent-layering",
+    image: "/images/journal/the-art-of-scent-layering-hero.webp",
+    imageCard: "/images/journal/the-art-of-scent-layering-card.webp",
     title: "The Art of Scent Layering",
     titleVi: "Nghệ Thuật Phối Hương Đa Tầng",
     excerpt:
@@ -42,6 +55,8 @@ export const JOURNAL_POSTS: JournalPost[] = [
   },
   {
     slug: "inside-our-soy-wax",
+    image: "/images/journal/inside-our-soy-wax-hero.webp",
+    imageCard: "/images/journal/inside-our-soy-wax-card.webp",
     title: "Inside Our Soy Wax: Why It Matters",
     titleVi: "Bên Trong Lớp Sáp Đậu Nành Thuần Khiết",
     excerpt:
@@ -67,6 +82,8 @@ export const JOURNAL_POSTS: JournalPost[] = [
   },
   {
     slug: "an-evening-with-solenne",
+    image: "/images/journal/an-evening-with-solenne-hero.webp",
+    imageCard: "/images/journal/an-evening-with-solenne-card.webp",
     title: "An Evening with Solenne",
     titleVi: "Một Buổi Tối Bình Yên Cùng Solenne",
     excerpt:
@@ -92,6 +109,8 @@ export const JOURNAL_POSTS: JournalPost[] = [
   },
   {
     slug: "seasonal-scents-fall",
+    image: "/images/journal/seasonal-scents-fall-hero.webp",
+    imageCard: "/images/journal/seasonal-scents-fall-card.webp",
     title: "Scents for the Turning Season",
     titleVi: "Hương Sắc Cho Thời Khắc Chuyển Mùa",
     excerpt:

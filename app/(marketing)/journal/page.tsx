@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { getLocale } from "next-intl/server";
@@ -29,25 +30,42 @@ export default async function JournalPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-          {JOURNAL_POSTS.map((post) => (
-            <article key={post.slug} className="group">
-              <div className="mb-5 aspect-[4/3] rounded-2xl bg-muted" />
-              <p className="mb-2 text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground font-normal">
-                {isVi ? post.tagVi : post.tag} · {isVi ? post.readTimeVi : post.readTime}
-              </p>
-              <h2 className="font-serif text-lg sm:text-xl font-normal leading-[1.3] text-foreground underline-offset-4 group-hover:underline">
-                <Link href={`/journal/${post.slug}`}>
-                  {isVi ? post.titleVi : post.title}
-                </Link>
-              </h2>
-              <p className="mt-2 text-[13.5px] sm:text-[14px] text-muted-foreground leading-[1.65] font-normal line-clamp-3">
-                {isVi ? post.excerptVi : post.excerpt}
-              </p>
-              <p className="mt-3 text-[12.5px] text-muted-foreground/80 tabular-nums font-normal">
-                {isVi ? post.dateVi : post.date}
-              </p>
-            </article>
-          ))}
+          {JOURNAL_POSTS.map((post) => {
+            const title = isVi ? post.titleVi : post.title;
+
+            return (
+              <article key={post.slug} className="group">
+                {post.imageCard ? (
+                  <div className="relative mb-5 aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
+                    <Image
+                      src={post.imageCard}
+                      alt={title}
+                      fill
+                      sizes="(max-width: 767px) calc(100vw - 32px), (max-width: 1279px) calc(50vw - 40px), 592px"
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
+                ) : (
+                  <div className="mb-5 aspect-[4/3] rounded-2xl bg-muted" />
+                )}
+                <p className="mb-2 text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground font-normal">
+                  {isVi ? post.tagVi : post.tag} · {isVi ? post.readTimeVi : post.readTime}
+                </p>
+                <h2 className="font-serif text-lg sm:text-xl font-normal leading-[1.3] text-foreground underline-offset-4 group-hover:underline">
+                  <Link href={`/journal/${post.slug}`}>
+                    {title}
+                  </Link>
+                </h2>
+                <p className="mt-2 text-[13.5px] sm:text-[14px] text-muted-foreground leading-[1.65] font-normal line-clamp-3">
+                  {isVi ? post.excerptVi : post.excerpt}
+                </p>
+                <p className="mt-3 text-[12.5px] text-muted-foreground/80 tabular-nums font-normal">
+                  {isVi ? post.dateVi : post.date}
+                </p>
+              </article>
+            );
+          })}
         </div>
       </Container>
     </div>

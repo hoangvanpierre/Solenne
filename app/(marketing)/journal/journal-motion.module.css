@@ -1,0 +1,108 @@
+/*
+ * Journal editorial motion.
+ *
+ * Deliberately CSS-only: the markup is server-rendered and the animations are
+ * pure progressive enhancement. If CSS, JavaScript, or an observer ever fails,
+ * every heading, card, and image is still painted at its final state — nothing
+ * is hidden behind hydration.
+ *
+ * Only `opacity` and `transform` are animated, and every rule is opt-in to
+ * `prefers-reduced-motion: no-preference`. The global reduced-motion reset in
+ * `app/globals.css` remains a second safety net.
+ */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Page heading + intro: one restrained rise, no cascade. */
+  .enter {
+    animation: journal-enter 320ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  }
+
+  /* Listing cards: near-instant group appearance, 45ms apart. */
+  .card {
+    animation: journal-card-enter 280ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+    animation-delay: calc(var(--journal-card-index, 0) * 45ms);
+  }
+
+  /* Image reveal sits on the aspect-ratio wrapper so hover scale on the
+     <img> never competes with the entrance transform. */
+  .reveal {
+    animation: journal-image-reveal 360ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  }
+}
+
+@keyframes journal-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes journal-card-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes journal-image-reveal {
+  from {
+    opacity: 0;
+    transform: scale(1.02);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Hover title color, scoped to Journal cards.
+   Card titles sit directly on the page surface (#FAF7F2), where the brand
+   amber tokens miss WCAG AA for normal-size text:
+     --primary      #C4956A = 2.50:1
+     --amber-dark   #A67B52 = 3.52:1
+   This darker amber-brown keeps the same hue and measures 5.06:1 on #FAF7F2.
+   Ratio computed with the WCAG 2.1 relative-luminance formula. */
+.card {
+  --journal-title-hover: #8a6238;
+}
+
+@media (prefers-color-scheme: dark) {
+  /* On the dark page surface (#0A0A0A) #8a6238 drops to 3.66:1, so the dark
+     theme keeps the brand primary (#D4A87A), which measures 9.13:1. */
+  .card {
+    --journal-title-hover: var(--primary);
+  }
+}
+
+/* Hover affordances only on devices that can genuinely hover. Touch devices
+   never receive a sticky :hover state, and keyboard focus mirrors the effect
+   via :focus-within. */
+@media (hover: hover) and (pointer: fine) {
+  .card .cardTitle {
+    transition: color 200ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+  .card:hover .cardTitle,
+  .card:focus-within .cardTitle {
+    color: var(--journal-title-hover);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .card .cardImage {
+      transition: transform 200ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+
+    .card:hover .cardImage,
+    .card:focus-within .cardImage {
+      transform: scale(1.03);
+    }
+  }
+}

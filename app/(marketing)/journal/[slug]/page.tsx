@@ -5,6 +5,8 @@ import type { Metadata } from "next";
 import { getLocale } from "next-intl/server";
 import { Container } from "@/components/ui/container";
 import { JOURNAL_POSTS, getJournalPost } from "@/lib/journal";
+import { cn } from "@/lib/utils";
+import styles from "../journal-motion.module.css";
 
 interface JournalPostPageProps {
   params: Promise<{ slug: string }>;
@@ -64,7 +66,7 @@ export default async function JournalPostPage({
           <span className="text-foreground">{title}</span>
         </nav>
 
-        <header className="mb-12">
+        <header className={cn("mb-12", styles.enter)}>
           <p className="mb-3 text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground tabular-nums font-normal">
             {tag} · {readTime} · {date}
           </p>
@@ -77,7 +79,12 @@ export default async function JournalPostPage({
         </header>
 
         {post.image ? (
-          <div className="relative mb-12 aspect-[16/9] overflow-hidden rounded-2xl bg-muted">
+          <div
+            className={cn(
+              "relative mb-12 aspect-[16/9] overflow-hidden rounded-2xl bg-muted",
+              styles.reveal
+            )}
+          >
             <Image
               src={post.image}
               alt={title}

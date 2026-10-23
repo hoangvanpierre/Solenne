@@ -339,6 +339,14 @@ input::-ms-clear {
   border-radius: 2px;
 }
 
+/* --- Scent concierge composer ---
+   The composer is a pill whose wrapper already draws the focus state, so the
+   global outline above would add a second, square-ish rectangle inside it.
+   Scoped here (and unlayered, like the global rule) so it can win. */
+.assistant-composer :is(input, textarea):focus-visible {
+  outline: none;
+}
+
 /* --- Link Styles --- */
 a,
 a:visited {

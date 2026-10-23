@@ -173,5 +173,24 @@
     "viewAllOrders": "Xem tất cả đơn hàng ({count}) →",
     "editAddress": "Chỉnh sửa địa chỉ →",
     "manageProfile": "Quản lý hồ sơ cá nhân →"
+  },
+  "assistant": {
+    "launcher": "Mở trợ lý hương",
+    "close": "Đóng trợ lý",
+    "eyebrow": "Atelier Solenne",
+    "title": "Trợ lý hương",
+    "greeting": "Kính chào quý khách. Tôi có thể giúp quý khách tìm một hương thơm, giải thích các tầng hương, hoặc trả lời về cách chăm sóc nến và giao nhận.",
+    "suggestion1": "Giúp tôi chọn một ngọn nến",
+    "suggestion2": "Chăm sóc nến thế nào?",
+    "suggestion3": "Giao nhận và đổi trả",
+    "placeholder": "Hỏi về hương thơm, chăm sóc hay giao nhận…",
+    "send": "Gửi tin nhắn",
+    "you": "Quý khách",
+    "assistantName": "Solenne",
+    "typing": "Đang soạn hồi âm…",
+    "error": "Trợ lý tạm thời chưa thể phản hồi. Quý khách vui lòng thử lại hoặc viết thư qua trang Liên hệ.",
+    "disclaimer": "Chỉ tư vấn hương thơm và chính sách của Nhà hương.",
+    "rateLimit": "Quý khách đã gửi hơi nhiều tin nhắn — vui lòng chờ một lát rồi thử lại.",
+    "tooLong": "Cuộc trò chuyện đã khá dài. Quý khách vui lòng mở cuộc trò chuyện mới để tiếp tục."
   }
 }

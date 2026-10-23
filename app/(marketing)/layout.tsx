@@ -9,6 +9,7 @@ import { BackToTop } from "@/components/ui/back-to-top";
 // Dynamically import heavy UI overlays that aren't needed on first paint
 const MobileNav = dynamic(() => import("@/components/layout/mobile-nav").then(mod => mod.MobileNav), { ssr: false });
 const CartDrawer = dynamic(() => import("@/components/layout/cart-drawer").then(mod => mod.CartDrawer), { ssr: false });
+const ChatWidget = dynamic(() => import("@/components/assistant/chat-widget").then(mod => mod.ChatWidget), { ssr: false });
 
 export default function MarketingLayout({
   children,
@@ -23,6 +24,7 @@ export default function MarketingLayout({
       <main className="flex-1">{children}</main>
       <Footer />
       <BackToTop />
+      <ChatWidget />
     </SmoothScroll>
   );
 }

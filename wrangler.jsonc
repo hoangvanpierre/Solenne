@@ -17,6 +17,24 @@
 		"directory": ".open-next/assets",
 		"binding": "ASSETS"
 	},
+	"ai": {
+		// Workers AI — used by the customer chat assistant (app/api/chat/route.ts).
+		// No API key is required: the binding is injected by the Workers runtime.
+		"binding": "AI"
+	},
+	"ratelimits": [
+		{
+			// Per-IP throttle for the Scent Concierge (app/api/chat/route.ts).
+			// Cloudflare counts per location; `limit()` is keyed by CF-Connecting-IP.
+			"name": "CHAT_RATE_LIMITER",
+			// A positive integer, unique to this Cloudflare account.
+			"namespace_id": "7301",
+			"simple": {
+				"limit": 10,
+				"period": 60
+			}
+		}
+	],
 	"services": [
 		{
 			// Self-reference service binding, the service name must match the worker name

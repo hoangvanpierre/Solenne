@@ -173,5 +173,24 @@
     "viewAllOrders": "View all orders ({count}) →",
     "editAddress": "Edit delivery address →",
     "manageProfile": "Manage profile details →"
+  },
+  "assistant": {
+    "launcher": "Open the Scent Concierge",
+    "close": "Close the concierge",
+    "eyebrow": "Solenne Atelier",
+    "title": "Scent Concierge",
+    "greeting": "Good evening. I can help you find a scent, explain our notes, or answer questions about candle care and delivery.",
+    "suggestion1": "Help me choose a candle",
+    "suggestion2": "How do I care for my candle?",
+    "suggestion3": "Shipping and returns",
+    "placeholder": "Ask about scents, care or delivery…",
+    "send": "Send message",
+    "you": "You",
+    "assistantName": "Solenne",
+    "typing": "Composing a reply…",
+    "error": "The concierge is briefly unavailable. Please try again, or write to us through the Contact page.",
+    "disclaimer": "Scent guidance and store policies only.",
+    "rateLimit": "Too many messages just now — please wait a moment and try again.",
+    "tooLong": "This conversation has grown quite long. Please start a new chat to keep going."
   }
 }

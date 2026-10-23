@@ -57,7 +57,7 @@ export function Testimonials() {
   }, []);
 
   return (
-    <section className="py-24 lg:py-32 bg-[#F5F2EC]">
+    <section className="py-24 lg:py-32 bg-[#F5F2EC] dark:bg-card">
       <Container>
         <ScrollReveal>
           <div className="mx-auto max-w-4xl text-center">
@@ -106,7 +106,7 @@ export function Testimonials() {
                   className={`h-2 rounded-full transition-all duration-300 ${
                     idx === currentIndex
                       ? "w-8 bg-primary"
-                      : "w-2 bg-primary/20 hover:bg-primary/50"
+                      : "w-2 bg-primary/20 hover:bg-primary/50 dark:bg-primary/50 dark:hover:bg-primary/75"
                   }`}
                   aria-label={`Go to testimonial ${idx + 1}`}
                 />

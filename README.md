@@ -1,5 +1,11 @@
 # Solenne
 
+![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=next.js&logoColor=white)
+![React](https://img.shields.io/badge/React-19-149ECA?logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3FCF8E?logo=supabase&logoColor=white)
+![Cloudflare](https://img.shields.io/badge/Cloudflare-Workers-F38020?logo=cloudflare&logoColor=white)
+
 ### A full-stack commerce platform for an artisan candle brand
 
 Solenne is a full-stack e-commerce and store-operations platform built around an artisan candle brand. It combines a bilingual customer storefront, account and checkout flows, a role-aware administration dashboard, and an AI scent concierge.
@@ -46,6 +52,20 @@ The project is designed to demonstrate end-to-end product engineering: building 
 - Vercel AI SDK streaming APIs
 - OpenNext for Cloudflare
 - Cloudflare Workers and Wrangler
+
+---
+
+## Visual preview
+
+Selected product imagery used by the storefront catalogue:
+
+<p align="center">
+  <img src="public/images/product/optimized/solenne-midnight-garden-candle-glow-1200.webp" alt="Solenne Midnight Garden candle" width="31%" />
+  <img src="public/images/product/optimized/solenne-lavender-serenity-1200.webp" alt="Solenne Lavender Serenity candle" width="31%" />
+  <img src="public/images/product/optimized/solenne-vanilla-ember-1200.webp" alt="Solenne Vanilla Ember candle" width="31%" />
+</p>
+
+<sub>These are real catalogue assets, not UI screenshots. The repository does not yet contain captured Storefront, Admin Dashboard, or AI Assistant screens.</sub>
 
 ---
 
@@ -171,6 +191,24 @@ Examples include:
 
 The admin dashboard uses reusable page headers, KPI cards, tables, filters, pagination, status controls, and CSS-based chart visualizations to maintain a consistent management interface.
 
+### 6. Performance validation and measurement
+
+Performance work has focused on reducing avoidable work in both the storefront and the management experience:
+
+- Request-scoped session/client reuse and actor-context deduplication to avoid repeated Supabase Auth and authorization lookups during a server render.
+- Image variants generated in AVIF/WebP formats for responsive product delivery.
+- Explicit animation cleanup and visibility-aware activation for expensive visual sections.
+- Shared scrolling and UI primitives to avoid duplicated lifecycle work.
+
+**Benchmark status:** the repository does not currently include a configured Lighthouse, Playwright, or Web Vitals reporting pipeline. For that reason, this README does not claim a Lighthouse score or publish an unrepeatable before/after percentage.
+
+A reproducible benchmark should record the tested commit and environment, then report:
+- **Storefront:** LCP, INP, CLS, and TTFB from repeated mobile and desktop production runs (report the median, not the best run).
+- **Authenticated admin:** route response time and TTFB, reporting p50 and p95 across repeated requests; separate cold and warm runs.
+- **Conditions:** route, device/network profile, browser, cache state, sample count, and measurement date.
+
+This keeps future performance claims traceable to a specific build and test procedure.
+
 ---
 
 ## Security and data-handling model
@@ -281,6 +319,8 @@ pnpm preview
 
 A deployment command is also available through `pnpm deploy`. Production deployment and live service health must be verified in the target Cloudflare account; repository configuration alone does not prove that a particular commit is deployed.
 
+**Live demo:** Not linked yet. The repository contains Cloudflare deployment configuration, but no public production URL has been verified for this README. A working URL will be added only after the deployed application and its runtime bindings have been checked.
+
 ---
 
 ## Current scope and limitations
@@ -293,6 +333,18 @@ Solenne is an actively developed portfolio project. The following boundaries are
 - **Automated testing:** the repository has targeted static verification scripts, but does not currently define a full unit, integration, or end-to-end test suite.
 
 These limitations are stated explicitly so the implemented scope can be evaluated accurately.
+
+---
+
+## Author & contribution
+
+**Đặng Võ Hoàng Văn**  
+Data Science graduate, HUFLIT · Independent project author
+
+I built Solenne as an end-to-end engineering project, working across the customer storefront, server-side business workflows, PostgreSQL schema and authorization layer, administration tools, and AI assistant integration.
+
+- **GitHub:** [@hoangvanpierre](https://github.com/hoangvanpierre)
+- **Contact:** [dangvohoangvan@gmail.com](mailto:dangvohoangvan@gmail.com)
 
 ---
 

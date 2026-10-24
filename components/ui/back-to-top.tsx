@@ -10,15 +10,23 @@ import { getLenis } from "@/components/animations/smooth-scroll";
 export interface BackToTopProps {
   threshold?: number;
   className?: string;
+  /** Notifies the parent whenever scroll-driven visibility changes. */
+  onVisibilityChange?: (visible: boolean) => void;
 }
 
-export function BackToTop({ threshold = 350, className }: BackToTopProps) {
+/**
+ * Ring geometry. The SVG uses a 44-unit viewBox, so the progress ring scales
+ * with the button (`h-10` mobile, `h-11` desktop) without recomputing here.
+ */
+const RING_RADIUS = 19;
+const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+
+export function BackToTop({ threshold = 350, className, onVisibilityChange }: BackToTopProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const locale = useAppLocale();
   const isVi = locale === "vi";
-  const waxRef = useRef<HTMLDivElement>(null);
-  const emberRef = useRef<HTMLDivElement>(null);
+  const ringRef = useRef<SVGCircleElement>(null);
   const percentRef = useRef<HTMLSpanElement>(null);
   const progressRef = useRef(0);
 
@@ -39,13 +47,12 @@ export function BackToTop({ threshold = 350, className }: BackToTopProps) {
       progressRef.current = progress;
       setIsVisible((prev) => (prev !== visible ? visible : prev));
 
-      // Direct DOM updates for butter-smooth 60fps animations without React re-renders
-      if (waxRef.current) {
-        waxRef.current.style.height = `${progress}%`;
-      }
-      if (emberRef.current) {
-        const emberBottom = Math.min(Math.max(progress, 5), 95);
-        emberRef.current.style.bottom = `calc(${emberBottom}% - 4px)`;
+      // Direct DOM update so the ring tracks scrolling at 60fps without
+      // re-rendering React on every frame.
+      if (ringRef.current) {
+        ringRef.current.style.strokeDashoffset = `${
+          RING_CIRCUMFERENCE * (1 - progress / 100)
+        }`;
       }
       if (percentRef.current) {
         percentRef.current.textContent = `${progress}%`;
@@ -67,20 +74,20 @@ export function BackToTop({ threshold = 350, className }: BackToTopProps) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [threshold]);
 
-  // Synchronize initial DOM metrics upon capsule mount
+  // Notify parent of visibility changes.
   useEffect(() => {
-    if (isVisible) {
-      if (waxRef.current) {
-        waxRef.current.style.height = `${progressRef.current}%`;
-      }
-      if (emberRef.current) {
-        const emberBottom = Math.min(Math.max(progressRef.current, 5), 95);
-        emberRef.current.style.bottom = `calc(${emberBottom}% - 4px)`;
-      }
+    onVisibilityChange?.(isVisible);
+  }, [isVisible, onVisibilityChange]);
+
+  // The button remounts through AnimatePresence, so repaint the ring on mount.
+  useEffect(() => {
+    if (isVisible && ringRef.current) {
+      ringRef.current.style.strokeDashoffset = `${
+        RING_CIRCUMFERENCE * (1 - progressRef.current / 100)
+      }`;
     }
   }, [isVisible]);
 
-  // Synchronize tooltip percent text upon tooltip hover reveal
   useEffect(() => {
     if (isHovered && percentRef.current) {
       percentRef.current.textContent = `${progressRef.current}%`;
@@ -96,16 +103,17 @@ export function BackToTop({ threshold = 350, className }: BackToTopProps) {
     }
   };
 
+  const label = isVi ? "Về đầu trang" : "Return to top";
+
   return (
     <AnimatePresence>
       {isVisible && (
-        <div
-          className={cn(
-            "fixed z-40 flex items-center",
-            "bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] right-4",
-            "sm:bottom-8 sm:right-8",
-            className
-          )}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.85 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.85 }}
+          transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+          className={cn("relative flex items-center", className)}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
@@ -120,99 +128,72 @@ export function BackToTop({ threshold = 350, className }: BackToTopProps) {
                 className="absolute right-full mr-3 whitespace-nowrap px-3.5 py-1.5 rounded-full bg-cream/95 backdrop-blur-md border border-amber/35 shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_8px_25px_rgba(0,0,0,0.12)] text-warm-black pointer-events-none flex items-center gap-2 select-none"
               >
                 <span className="text-[10px] font-normal uppercase tracking-[0.2em] text-warm-black/90">
-                  {isVi ? "Về đầu trang" : "Return to Top"}
+                  {label}
                 </span>
                 <span className="w-1 h-1 rounded-full bg-amber/70" />
-                <span ref={percentRef} className="text-[10px] tabular-nums font-normal text-amber">
+                <span
+                  ref={percentRef}
+                  className="text-[10px] tabular-nums font-normal text-amber"
+                >
                   0%
                 </span>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Architectural Whisper Capsule with Beveled Crystal Finish */}
+          {/* Compact round button: scroll-progress ring around the arrow */}
           <motion.button
             type="button"
             onClick={scrollToTop}
-            initial={{ opacity: 0, y: 25, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            whileHover={{ y: -3, scale: 1.04 }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            whileHover={{ y: -2, scale: 1.05 }}
+            whileTap={{ scale: 0.94 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
             className={cn(
-              "relative flex flex-col items-center justify-between",
-              "w-9 sm:w-10 py-3 max-sm:max-h-28 sm:py-3.5 px-1 rounded-full",
-              "max-sm:[padding-bottom:calc(0.5rem+env(safe-area-inset-bottom,0px))]",
-              "bg-cream/90 backdrop-blur-md text-warm-black",
-              "border border-amber/35",
+              "group relative flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center",
+              "rounded-full border border-amber/35 bg-cream/90 backdrop-blur-md text-warm-black",
               "shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_10px_30px_rgba(0,0,0,0.1)]",
               "hover:border-amber hover:bg-cream hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_14px_40px_rgba(196,149,106,0.38)]",
-              "transition-all duration-300 group cursor-pointer select-none",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/50"
+              "transition-all duration-300 cursor-pointer select-none",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/50",
+              "focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             )}
-            aria-label={isVi ? "Về đầu trang" : "Return to top"}
-            title={isVi ? "Về đầu trang" : "Return to top"}
+            aria-label={label}
+            title={label}
           >
-            {/* Subtle Upward Arrow */}
-            <span className="flex items-center justify-center w-5 h-5 rounded-full text-warm-black/80 group-hover:text-amber transition-colors">
-              <ArrowUp
-                className="w-3.5 h-3.5 transition-transform duration-300 group-hover:-translate-y-0.5"
-                strokeWidth={2}
-              />
-            </span>
-
-            {/* Candle-wick architectural line with dynamic liquid wax fill & Ember Pip */}
-            <div
-              className="relative w-4 h-12 my-1 flex justify-center items-center"
+            {/* Circular scroll-progress ring */}
+            <svg
+              viewBox="0 0 44 44"
+              className="pointer-events-none absolute inset-0 h-full w-full -rotate-90"
               aria-hidden="true"
             >
-              {/* Background Track Line */}
-              <div className="absolute inset-y-0 w-[2px] bg-warm-black/15 rounded-full" />
-
-              {/* Rising Liquid Wax Bar */}
-              <div
-                ref={waxRef}
-                className="absolute bottom-0 w-[2px] bg-gradient-to-t from-amber/90 via-amber to-amber/80 rounded-full transition-all duration-150 ease-out"
-                style={{ height: "0%" }}
+              <circle
+                cx="22"
+                cy="22"
+                r={RING_RADIUS}
+                fill="none"
+                strokeWidth="1.5"
+                className="stroke-warm-black/15"
               />
+              <circle
+                ref={ringRef}
+                cx="22"
+                cy="22"
+                r={RING_RADIUS}
+                fill="none"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeDasharray={RING_CIRCUMFERENCE}
+                strokeDashoffset={RING_CIRCUMFERENCE}
+                className="stroke-amber transition-[stroke-dashoffset] duration-150 ease-out"
+              />
+            </svg>
 
-              {/* Glowing Ember Pip riding the wax crest */}
-              <motion.div
-                ref={emberRef}
-                className="absolute w-2 h-2 rounded-full bg-amber shadow-[0_0_8px_#C4956A] transition-all duration-150 ease-out flex items-center justify-center pointer-events-none"
-                style={{
-                  bottom: "calc(5% - 4px)",
-                }}
-                animate={
-                  isHovered
-                    ? {
-                        scale: [1, 1.35, 1],
-                        boxShadow: [
-                          "0 0 6px #C4956A",
-                          "0 0 14px #E6B87D, 0 0 20px rgba(196,149,106,0.6)",
-                          "0 0 6px #C4956A",
-                        ],
-                      }
-                    : { scale: 1 }
-                }
-                transition={{
-                  repeat: isHovered ? Infinity : 0,
-                  duration: 1.5,
-                  ease: "easeInOut",
-                }}
-              >
-                {/* Hot White/Cream Candle Core */}
-                <div className="w-1 h-1 rounded-full bg-cream shadow-sm" />
-              </motion.div>
-            </div>
-
-            {/* Minimalist vertical label */}
-            <span className="text-[9px] font-medium tracking-[0.2em] uppercase text-warm-black/75 group-hover:text-amber transition-colors">
-              Top
-            </span>
+            <ArrowUp
+              className="relative h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5"
+              strokeWidth={1.75}
+            />
           </motion.button>
-        </div>
+        </motion.div>
       )}
     </AnimatePresence>
   );

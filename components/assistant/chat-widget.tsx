@@ -24,6 +24,11 @@ class ChatRequestError extends Error {
   }
 }
 
+export interface ChatWidgetProps {
+  /** Called whenever the panel opens or closes. */
+  onOpenChange?: (open: boolean) => void;
+}
+
 /**
  * Customer-facing scent concierge.
  *
@@ -32,7 +37,7 @@ class ChatRequestError extends Error {
  * The panel deliberately hides itself on checkout, where a conversation would
  * compete with the order flow.
  */
-export function ChatWidget() {
+export function ChatWidget({ onOpenChange }: ChatWidgetProps) {
   const t = useTranslations("assistant");
   const locale = useAppLocale();
   const pathname = usePathname();
@@ -74,6 +79,11 @@ export function ChatWidget() {
   });
 
   const isBusy = status === "submitted" || status === "streaming";
+
+  // Notify parent when the panel opens or closes.
+  useEffect(() => {
+    onOpenChange?.(isOpen);
+  }, [isOpen, onOpenChange]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -139,9 +149,11 @@ export function ChatWidget() {
             aria-modal="false"
             aria-label={t("title")}
             className={cn(
-              "fixed z-50 flex flex-col overflow-hidden",
-              "left-3 right-3 bottom-[calc(5.25rem+env(safe-area-inset-bottom,0px))] max-h-[min(72vh,34rem)]",
-              "sm:left-auto sm:right-8 sm:bottom-24 sm:w-[23.5rem] sm:max-h-[min(75vh,36rem)]",
+              "absolute z-50 flex flex-col overflow-hidden",
+              // Anchored above the launcher, right edge aligned.
+              "right-0 bottom-[var(--dock-panel-anchor)]",
+              "w-[var(--dock-panel-width)] min-[480px]:w-[23.5rem]",
+              "max-h-[var(--dock-panel-max-height)]",
               "rounded-[1.75rem] border border-border bg-card/98 backdrop-blur-xl",
               "shadow-[0_28px_80px_-24px_rgba(26,26,26,0.5)]"
             )}
@@ -316,7 +328,7 @@ export function ChatWidget() {
         )}
       </AnimatePresence>
 
-      {/* Launcher — sits beside the back-to-top capsule, never on top of it. */}
+      {/* Launcher — the dock's corner anchor (app/(marketing)/layout.tsx). */}
       <motion.button
         type="button"
         onClick={() => setIsOpen((open) => !open)}
@@ -328,9 +340,7 @@ export function ChatWidget() {
         whileHover={{ y: -2, scale: 1.04 }}
         whileTap={{ scale: 0.95 }}
         className={cn(
-          "fixed z-50 flex h-12 w-12 items-center justify-center rounded-full sm:h-14 sm:w-14",
-          "bottom-[calc(1rem+env(safe-area-inset-bottom,0px))]",
-          "right-[calc(3.75rem+env(safe-area-inset-right,0px))] sm:right-[5.5rem]",
+          "flex h-[var(--dock-launcher-size)] w-[var(--dock-launcher-size)] items-center justify-center rounded-full",
           "border border-amber/40 bg-warm-black text-cream",
           "shadow-[0_14px_38px_-12px_rgba(26,26,26,0.55)]",
           "transition-colors duration-300 hover:border-amber hover:bg-amber hover:text-warm-black",

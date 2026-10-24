@@ -84,6 +84,74 @@
   }
 }
 
+/* --- Corner dock geometry ----------------------------------------------
+   Single source of truth for the bottom-right floating chrome: the scent
+   concierge launcher and the back-to-top button share one fixed vertical
+   column dock (app/(marketing)/layout.tsx -> components/layout/bottom-dock.tsx)
+   and read every offset from these values. The launcher sits above the
+   back-to-top button; the panel opens upward from the launcher.
+   No magic numbers in the JSX. */
+:root {
+  --dock-offset-x: calc(1rem + env(safe-area-inset-right, 0px));
+  --dock-offset-y: calc(1rem + env(safe-area-inset-bottom, 0px));
+  --dock-launcher-size: 3rem;
+  /* back-to-top button size (h-10 mobile) */
+  --dock-btt-size: 2.5rem;
+  /* gap between the launcher and back-to-top, and between the panel and
+     the launcher */
+  --dock-gap: 0.75rem;
+  --dock-panel-gap: 0.75rem;
+  /* narrow screens: the panel spans the viewport minus the same right offset
+     on both sides, so it never hangs off the launcher's corner */
+  --dock-panel-width: calc(
+    100vw - var(--dock-offset-x) - 1rem - env(safe-area-inset-left, 0px)
+  );
+  /* the panel is anchored above the launcher wrapper (position: relative) */
+  --dock-panel-anchor: calc(100% + var(--dock-panel-gap));
+  /* max-height subtracts the launcher, the panel gap, AND the full back-to-top
+     slot (button + gap) so the panel never covers the bottom button */
+  --dock-panel-max-height: min(
+    36rem,
+    calc(
+      100dvh - var(--dock-offset-y) - var(--dock-launcher-size) -
+        var(--dock-panel-gap) - var(--dock-btt-size) - var(--dock-gap) -
+        env(safe-area-inset-top, 0px) - 1rem
+    )
+  );
+}
+
+@media (min-width: 40rem) {
+  :root {
+    --dock-offset-x: calc(1.5rem + env(safe-area-inset-right, 0px));
+    --dock-offset-y: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+    --dock-launcher-size: 3.5rem;
+    /* back-to-top button size (sm:h-11 = 2.75rem) */
+    --dock-btt-size: 2.75rem;
+  }
+}
+
+/* --- Back-to-top slot animation ----------------------------------------
+   The slot wraps the back-to-top button and smoothly expands/collapses to
+   create the launcher glide effect.  When the chat panel is open the slot
+   is forced to its expanded size (via the --expanded modifier class) so the
+   launcher and panel never shift while the user is chatting. */
+.dock-btt-slot {
+  max-height: 0;
+  margin-top: 0;
+  transition: max-height 280ms ease-out, margin-top 280ms ease-out;
+}
+
+.dock-btt-slot--expanded {
+  max-height: calc(var(--dock-btt-size));
+  margin-top: var(--dock-gap);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dock-btt-slot {
+    transition: none;
+  }
+}
+
 /* --- Tailwind v4 Theme Configuration --- */
 @theme inline {
   /* Colors */

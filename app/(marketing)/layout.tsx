@@ -4,12 +4,11 @@ import dynamic from "next/dynamic";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { SmoothScroll } from "@/components/animations/smooth-scroll";
-import { BackToTop } from "@/components/ui/back-to-top";
+import { BottomDock } from "@/components/layout/bottom-dock";
 
 // Dynamically import heavy UI overlays that aren't needed on first paint
 const MobileNav = dynamic(() => import("@/components/layout/mobile-nav").then(mod => mod.MobileNav), { ssr: false });
 const CartDrawer = dynamic(() => import("@/components/layout/cart-drawer").then(mod => mod.CartDrawer), { ssr: false });
-const ChatWidget = dynamic(() => import("@/components/assistant/chat-widget").then(mod => mod.ChatWidget), { ssr: false });
 
 export default function MarketingLayout({
   children,
@@ -23,8 +22,12 @@ export default function MarketingLayout({
       <CartDrawer />
       <main className="flex-1">{children}</main>
       <Footer />
-      <BackToTop />
-      <ChatWidget />
+      {/*
+        Bottom-right dock: a vertical column. The chat launcher sits above the
+        back-to-top button, and the panel opens upward from the launcher.
+        Geometry lives in `--dock-*` (app/globals.css).
+      */}
+      <BottomDock />
     </SmoothScroll>
   );
 }

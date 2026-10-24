@@ -138,10 +138,11 @@ flowchart TD
     D --> G[Supabase Auth and PostgreSQL]
     E --> G
     G --> H[PostgreSQL RLS and authorization RPCs]
-    F --> I[Live catalogue and policy context]
-    I --> G
+    F --> G
+    G --> I[Catalogue and policy context]
     F --> J[Cloudflare rate limiter]
-    F --> K[Cloudflare Workers AI]
+    I --> K[Cloudflare Workers AI]
+    J --> K
 ```
 
 ### Request boundaries

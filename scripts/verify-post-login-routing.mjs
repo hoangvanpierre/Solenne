@@ -367,9 +367,14 @@ const redirectSrc = fs.readFileSync(fileURLToPath(new URL("../lib/redirect.ts", 
 record(
   "architecture",
   "middleware protects account, checkout, and admin routes for unauthenticated users",
-  middlewareSrc.includes('request.nextUrl.pathname.startsWith("/admin")') &&
+  middlewareSrc.includes(
+    'const PROTECTED_ROUTE_SEGMENTS = ["/admin", "/account", "/checkout"] as const;'
+  ) &&
+    middlewareSrc.includes("PROTECTED_ROUTE_SEGMENTS.some(") &&
+    middlewareSrc.includes("pathname === segment") &&
+    middlewareSrc.includes("pathname.startsWith(`${segment}/`)") &&
     middlewareSrc.includes('url.searchParams.set("next", originalTarget)'),
-  "middleware unauthenticated protection missing /admin"
+  "middleware protected-route segment guard or return destination is missing"
 );
 
 // Middleware delegates authenticated login/register to resolvePostLoginPath

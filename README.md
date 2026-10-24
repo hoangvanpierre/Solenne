@@ -10,44 +10,65 @@
 
 Solenne is a full-stack e-commerce and store-operations platform built around an artisan candle brand. It combines a bilingual customer storefront, account and checkout flows, a role-aware administration dashboard, and an AI scent concierge.
 
-The project is designed to demonstrate end-to-end product engineering: building customer-facing experiences while also handling the backend concerns behind them — data integrity, authorization, operational workflows, performance, and deployment architecture.
+The project demonstrates end-to-end product engineering: customer-facing experiences, server-side business workflows, relational data integrity, authorization, operational tooling, performance work, and edge deployment.
 
-> **Project status:** Core storefront, account, order-management, inventory, product-management, customer-management, audit, and AI-assistant features are implemented. Online payment processing is not yet integrated; orders currently enter a pending-payment state. See [Current scope and limitations](#current-scope-and-limitations).
+> **Project status:** The storefront, customer accounts, checkout/order creation, order management, inventory, product and customer management, audit history, and AI assistant are implemented. Online payment processing is not yet integrated; new orders remain in a pending-payment state. See [Current scope and limitations](#current-scope-and-limitations).
+
+## Engineering capabilities
+
+- **Full-stack application development:** Next.js App Router, React, TypeScript, Server Components, Server Actions, and PostgreSQL.
+- **Application and database security:** Supabase Auth, permission-based RBAC, PostgreSQL RLS, authorization RPCs, and audit logging.
+- **Business workflow engineering:** validated checkout, order lifecycle transitions, cancellation with inventory restoration, and controlled stock adjustments.
+- **AI integration:** streamed, bilingual product guidance grounded in the live catalogue and store-policy context, with bounded request usage.
+
+## Table of contents
+
+- [Platform capabilities](#platform-capabilities)
+- [Technology stack](#technology-stack)
+- [Visual preview](#visual-preview)
+- [Runtime architecture](#runtime-architecture)
+- [Application structure](#application-structure)
+- [Engineering highlights](#engineering-highlights)
+- [Security and data handling](#security-and-data-handling)
+- [Local development](#local-development)
+- [Verification](#verification)
+- [Deployment architecture](#deployment-architecture)
+- [Current scope and limitations](#current-scope-and-limitations)
+- [Author](#author)
 
 ---
 
-## What the platform includes
+## Platform capabilities
 
 | Area | Capabilities |
 | --- | --- |
 | **Storefront** | Product catalogue, product details, scent collections, product discovery, editorial pages, and responsive navigation |
 | **Customer account** | Authentication, profile and address management, order history, and account-specific views |
-| **Checkout & orders** | Validated checkout, server-side price calculation, order creation, order cancellation, and fulfillment status transitions |
+| **Checkout and orders** | Validated checkout, server-side price calculation, order creation, cancellation, and fulfillment status transitions |
 | **Administration** | Role-aware dashboard for orders, products, variants, inventory, customers, and audit history |
 | **AI concierge** | Streaming, bilingual scent and product guidance grounded in the live product catalogue and store policies |
 | **Localization** | Vietnamese and English interfaces, locale-aware content, and currency presentation in USD/VND |
-| **Experience & performance** | Responsive UI, optimized product imagery, carefully scoped animation, and request-level server data deduplication |
+| **Experience and performance** | Responsive UI, optimized product imagery, scoped animation, and request-level server data deduplication |
 
 ## Technology stack
 
 **Frontend**
 - Next.js 16 App Router and React 19
-- TypeScript
-- Tailwind CSS v4
+- TypeScript 5 and Tailwind CSS v4
 - Framer Motion and GSAP
 - Lenis for smooth scrolling
 - Zustand for client-side state
 - next-intl for Vietnamese/English localization
 
-**Backend & data**
+**Backend and data**
 - Supabase PostgreSQL
 - Supabase Auth and `@supabase/ssr`
 - PostgreSQL Row Level Security (RLS)
 - Role-Based Access Control (RBAC)
 - Server Actions and Route Handlers
-- Zod for input validation
+- Zod for application input validation
 
-**AI & infrastructure**
+**AI and infrastructure**
 - Cloudflare Workers AI
 - Vercel AI SDK streaming APIs
 - OpenNext for Cloudflare
@@ -57,56 +78,80 @@ The project is designed to demonstrate end-to-end product engineering: building 
 
 ## Visual preview
 
-Screenshots captured from the deployed Solenne storefront and administration interface. The live demo is available at [solenne.dangvohoangvan.workers.dev](https://solenne.dangvohoangvan.workers.dev/).
+Screenshots from the Solenne storefront and administration interface. The live demo is available at [solenne.dangvohoangvan.workers.dev](https://solenne.dangvohoangvan.workers.dev/).
 
 ### Storefront homepage
 
 <p align="center">
-  <img src="public/images/readme/store_front.png" />
+  <img
+    src="public/images/readme/store_front.png"
+    alt="Solenne storefront homepage showing the brand hero section and primary navigation"
+    width="100%"
+  />
 </p>
 
 ### Product detail — Midnight Garden
 
 <p align="center">
-  <img src="public/images/readme/product_detail.png" />
+  <img
+    src="public/images/readme/product_detail.png"
+    alt="Midnight Garden product page showing candle photography, product information, purchase options, and details"
+    width="100%"
+  />
 </p>
 
 ### Admin dashboard
 
 <p align="center">
-  <img src="public/images/readme/admin_dashboard.png" />
+  <img
+    src="public/images/readme/admin_dashboard.png"
+    alt="Solenne admin dashboard with operational overview, order metrics, inventory status, and customer information"
+    width="100%"
+  />
 </p>
 
 ### AI scent concierge
 
 <p align="center">
-  <img src="public/images/readme/ai-assistant.png" />
+  <img
+    src="public/images/readme/ai-assistant.png"
+    alt="Solenne storefront with the AI Scent Concierge chat panel open beside the product catalogue"
+    width="100%"
+  />
 </p>
 
 <sub>The administration screenshot is from an authenticated administrator session. The account identifier in the lower-left sidebar has been blurred before publishing.</sub>
 
 ---
 
-## Architecture at a glance
+## Runtime architecture
 
-The application uses the Next.js App Router as its full-stack boundary. Server Components retrieve data for pages, Server Actions handle validated mutations, and Route Handlers expose the streaming AI endpoint.
+The Next.js App Router is the application boundary. Server Components read data for pages, Server Actions handle validated business mutations, and the `POST /api/chat` Route Handler streams AI responses.
 
 ```mermaid
 flowchart TD
-    A[Customer or staff browser] --> B[Next.js App Router]
-    B --> C[Server Components]
-    B --> D[Server Actions]
-    B --> E[POST /api/chat]
-    C --> F[Supabase Auth and PostgreSQL]
-    D --> F
-    F --> G[RLS policies and authorization RPCs]
-    E --> H[Cloudflare Workers AI]
-    E --> I[Cloudflare rate limiter]
-    J[OpenNext adapter] --> K[Cloudflare Worker]
-    K --> B
+    A[Customer or staff browser] --> B[Cloudflare Worker / OpenNext runtime]
+    B --> C[Next.js App Router]
+    C --> D[Server Components]
+    C --> E[Server Actions]
+    C --> F["Route Handler: POST /api/chat"]
+    D --> G[Supabase Auth and PostgreSQL]
+    E --> G
+    G --> H[PostgreSQL RLS and authorization RPCs]
+    F --> I[Live catalogue and policy context]
+    I --> G
+    F --> J[Cloudflare rate limiter]
+    F --> K[Cloudflare Workers AI]
 ```
 
-### Main application areas
+### Request boundaries
+
+- **Page reads:** Server Components use server-side Supabase access and database policies to retrieve the data required by each page.
+- **Business mutations:** Server Actions validate input and enforce application authorization before invoking the relevant data operation or database RPC.
+- **AI conversations:** The chat Route Handler applies request limits, loads catalogue context, applies the Cloudflare rate limiter, and streams a response from Workers AI.
+- **Database enforcement:** RLS and database-side authorization checks provide a separate enforcement layer from the application UI.
+
+## Application structure
 
 ```text
 app/
@@ -128,18 +173,16 @@ lib/
 ├── assistant/         # Catalogue context and model-stream handling
 ├── supabase/          # Browser, server, middleware and session clients
 ├── authz.ts           # Server-side authorization primitives
-├── admin-*.ts          # Admin data-access modules
+├── admin-*.ts         # Admin data-access modules
 └── validations/       # Zod input schemas
 
 supabase/migrations/   # Versioned PostgreSQL schema, RBAC, RLS and RPC changes
-scripts/               # Static verification and operational scripts
+scripts/               # Targeted verification and operational scripts
 ```
 
 ---
 
 ## Engineering highlights
-
-These are the implementation areas that best represent the engineering work behind the product.
 
 ### 1. Permission-based administration with database enforcement
 
@@ -149,7 +192,7 @@ The admin dashboard is not protected only by hidden navigation links or client-s
 - Roles map to explicit permission keys such as `order.read`, `inventory.update`, and `staff.manage`.
 - Server-side guards in `lib/authz.ts` resolve the authenticated actor and enforce active-account status and required permissions.
 - PostgreSQL RLS policies independently scope access to private data.
-- Sensitive business operations use database functions with their own authorization and validation checks where appropriate.
+- Sensitive business operations use database functions with authorization and validation checks where appropriate.
 - Audit events record important administrative and operational actions.
 
 The database is the source of truth for role and permission assignments. Client-provided role names, user IDs, and UI visibility are not treated as authorization evidence.
@@ -167,24 +210,34 @@ Implemented workflows include:
 - Customer account-status management, including controlled reinstatement.
 - Audit logging for important administrative operations.
 
-Atomic database RPCs are used for critical state transitions so that authorization, validation, and related database changes can be handled at the database boundary. Application-level checks provide an additional layer before those operations are invoked.
+Critical state transitions use database RPCs so related authorization, validation, and database changes can be enforced at the database boundary. Application-level checks provide an additional layer before those operations are invoked.
 
 ### 3. A catalogue-grounded AI shopping assistant
 
 The **Solenne Scent Concierge** helps customers explore fragrance profiles, compare suitable candles, understand product details, and find store-policy information.
 
-Request flow:
+**Request flow**
 
 1. The chat widget sends the conversation to `POST /api/chat`.
-2. The Route Handler validates the incoming message history and applies input limits.
-3. The server loads the current product catalogue through the storefront data layer.
-4. Product details, variants, prices, stock information, scent notes, and policy context are assembled into the model instructions.
+2. The Route Handler checks that the request body is valid JSON and that `messages` is a non-empty array.
+3. It retains the latest 12 messages and enforces a combined text-input budget of 4,000 characters.
+4. The server loads the current product catalogue and assembles product details, variants, prices, stock information, scent notes, and policy context into the model instructions.
 5. Cloudflare Workers AI generates a streamed response through the Vercel AI SDK.
-6. A stream transform handles duplicated text deltas observed from the configured model/provider combination.
+6. A stream transform removes duplicate text deltas observed from the configured model/provider combination.
 
-The endpoint also applies practical guardrails: a bounded conversation window, an input-character limit, an output-token limit, and a Cloudflare per-IP rate limit.
+**Runtime limits**
 
-**Important scope boundary:** this is a catalogue-grounded conversational assistant, not a retrieval-augmented generation (RAG) system. It does not access customer accounts, look up or modify orders, accept payments, or execute purchases. Conversation history is held in client memory and is not persisted.
+| Setting | Current implementation |
+| --- | --- |
+| Model | `@cf/meta/llama-3.3-70b-instruct-fp8-fast` |
+| Conversation window | Latest 12 messages |
+| Text input budget | 4,000 characters |
+| Output limit | 400 tokens |
+| Rate limit | 10 requests per 60 seconds per client IP key |
+
+The IP-based rate limit is a coarse abuse-control measure: users behind the same public IP may share the limit, and Cloudflare applies the limit per location.
+
+**Scope boundary:** this is a catalogue-grounded conversational assistant, not a retrieval-augmented generation (RAG) system. The current endpoint performs basic request-shape checks and size limits; it does not apply a Zod schema to every incoming message. The assistant does not access customer accounts, look up or modify orders, accept payments, or execute purchases. Conversation history is held in client memory and is not persisted.
 
 ### 4. Request-level authentication and data-fetch optimization
 
@@ -196,40 +249,37 @@ This is request-scoped deduplication, not a long-lived cache of authentication o
 
 ### 5. Frontend performance and motion lifecycle
 
-The storefront uses visual motion as part of the brand experience, while keeping animation work bounded.
-
-Examples include:
+The storefront uses visual motion as part of the brand experience while keeping animation work bounded.
 
 - Explicit cleanup for GSAP animation and ticker lifecycles.
 - Shared Lenis access rather than creating unnecessary smooth-scroll instances.
 - Visibility-based activation for expensive visual sections.
 - Deferred or scoped animation for below-the-fold content.
-- Product-image generation in AVIF/WebP formats to reduce image payloads.
+- Product-image generation in AVIF/WebP formats for responsive delivery.
 - A coordinated floating dock so the chat panel and back-to-top control do not overlap.
 
 The admin dashboard uses reusable page headers, KPI cards, tables, filters, pagination, status controls, and CSS-based chart visualizations to maintain a consistent management interface.
 
-### 6. Performance validation and measurement
+### 6. Performance measurement discipline
 
 Performance work has focused on reducing avoidable work in both the storefront and the management experience:
 
-- Request-scoped session/client reuse and actor-context deduplication to avoid repeated Supabase Auth and authorization lookups during a server render.
-- Image variants generated in AVIF/WebP formats for responsive product delivery.
-- Explicit animation cleanup and visibility-aware activation for expensive visual sections.
+- Request-scoped session/client reuse and actor-context deduplication.
+- Responsive AVIF/WebP product-image variants.
+- Explicit animation cleanup and visibility-aware activation.
 - Shared scrolling and UI primitives to avoid duplicated lifecycle work.
 
-**Benchmark status:** the repository does not currently include a configured Lighthouse, Playwright, or Web Vitals reporting pipeline. For that reason, this README does not claim a Lighthouse score or publish an unrepeatable before/after percentage.
+**Benchmark status:** the repository does not currently include a configured Lighthouse, Playwright, or Web Vitals reporting pipeline. No Lighthouse score or before/after percentage is claimed here.
 
 A reproducible benchmark should record the tested commit and environment, then report:
-- **Storefront:** LCP, INP, CLS, and TTFB from repeated mobile and desktop production runs (report the median, not the best run).
+
+- **Storefront:** LCP, INP, CLS, and TTFB from repeated mobile and desktop production runs; report the median rather than the best run.
 - **Authenticated admin:** route response time and TTFB, reporting p50 and p95 across repeated requests; separate cold and warm runs.
 - **Conditions:** route, device/network profile, browser, cache state, sample count, and measurement date.
 
-This keeps future performance claims traceable to a specific build and test procedure.
-
 ---
 
-## Security and data-handling model
+## Security and data handling
 
 | Layer | Responsibility |
 | --- | --- |
@@ -242,7 +292,7 @@ This keeps future performance claims traceable to a specific build and test proc
 
 The public product catalogue is intentionally readable by storefront visitors, while catalogue writes are restricted to trusted server-side operations. Private customer and order data follows separate authorization and RLS rules.
 
-Database changes are versioned under `supabase/migrations/`. The migration guide in [supabase/README.md](supabase/README.md) documents the intended application order and operator-only bootstrap step.
+Database changes are versioned under `supabase/migrations/`. Read [supabase/README.md](supabase/README.md) before applying them. It documents the migration order and the operator-only administrator bootstrap step.
 
 ---
 
@@ -250,14 +300,16 @@ Database changes are versioned under `supabase/migrations/`. The migration guide
 
 ### Prerequisites
 
-- Node.js
-- pnpm
-- A Supabase project with the required schema and seed data
+- **Node.js 20.9 or newer** (the minimum supported by Next.js 16; see the [Next.js installation requirements](https://nextjs.org/docs/app/getting-started/installation)).
+- **pnpm 9 or newer**, compatible with the committed `pnpm-lock.yaml` lockfile format (`9.0`).
+- A Supabase project with the required schema and seed data.
+
+The repository does not pin an exact pnpm release in `package.json`; use a pnpm version that can read the committed lockfile without rewriting it.
 
 ### 1. Install dependencies
 
 ```bash
-pnpm install
+pnpm install --frozen-lockfile
 ```
 
 ### 2. Configure environment variables
@@ -274,9 +326,9 @@ Use your own Supabase project values. Keep secret keys in server-side environmen
 
 ### 3. Prepare the database
 
-Review [supabase/README.md](supabase/README.md) before applying migrations. The SQL files are ordered and include schema, RBAC, RLS, business RPCs, and contact/newsletter persistence.
+Review [supabase/README.md](supabase/README.md) before applying migrations. The SQL files cover the schema, RBAC, RLS, business RPCs, and contact/newsletter persistence.
 
-The bootstrap migration `0004_bootstrap_admin.sql` is an operator-only action, not a routine migration to apply blindly. Follow the database guide when creating the first administrator.
+The schema/security chain is applied in the documented order. `0004_bootstrap_admin.sql` is an operator-only, one-time action outside the routine migration chain; do not apply it blindly.
 
 ### 4. Run the application
 
@@ -286,13 +338,13 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-Cloudflare-specific functionality, including the Workers AI binding and rate limiter, requires the corresponding Wrangler/Workers environment. Use the OpenNext Cloudflare preview workflow when validating those runtime bindings.
+The local Next.js development server does not by itself provide Cloudflare runtime bindings. Cloudflare-specific functionality, including the Workers AI binding and rate limiter, must be validated through the OpenNext Cloudflare preview workflow.
 
 ---
 
-## Verification commands
+## Verification
 
-The repository includes static verification scripts for important architectural and business invariants. They are plain Node.js scripts rather than a configured Jest/Vitest test suite.
+The repository includes targeted Node.js verification scripts for business invariants, routing behavior, and source wiring. They are not a configured Jest/Vitest unit, integration, or end-to-end test suite.
 
 **Type checking and linting**
 
@@ -315,16 +367,28 @@ node scripts/verify-callback-redirect.mjs
 node scripts/verify-contact-newsletter.mjs
 ```
 
-Some database verification scripts require the environment variables and database state described in the Supabase guide. Check each script's header before running it; scripts that create disposable test data should only be run in an environment intended for that purpose.
+Some database verification scripts require the environment variables and database state described in the Supabase guide. Check each script's header before running it. In particular, `verify-rbac.mjs` is read-only by default; its `--full` mode creates disposable test accounts and an order before cleaning them up. Run data-writing checks only against an environment intended for testing.
 
 ---
 
 ## Deployment architecture
 
-The repository is configured for **OpenNext on Cloudflare Workers**:
+The application is built for **OpenNext on Cloudflare Workers**. The deployment path is separate from the runtime request flow shown above.
+
+```mermaid
+flowchart LR
+    A[Next.js application source] --> B["OpenNext Cloudflare build"]
+    B --> C[".open-next/worker.js and assets"]
+    C --> D[Cloudflare Worker]
+    E[wrangler.jsonc] --> D
+    F[worker.js wrapper] --> D
+    D --> G[Cloudflare static assets binding]
+```
+
+Repository configuration:
 
 - `open-next.config.ts` defines the OpenNext Cloudflare adapter configuration.
-- `wrangler.jsonc` declares the Worker, static assets, AI binding, rate limiter, and service binding.
+- `wrangler.jsonc` declares the Worker, static assets, Workers AI binding, rate limiter, and service binding.
 - `worker.js` wraps the generated OpenNext Worker and applies a response-header compatibility adjustment.
 - `package.json` provides build, preview, deploy, and upload scripts.
 
@@ -335,28 +399,26 @@ pnpm build:worker
 pnpm preview
 ```
 
-A deployment command is also available through `pnpm deploy`. Production deployment and live service health must be verified in the target Cloudflare account; repository configuration alone does not prove that a particular commit is deployed.
+A deployment command is also available through `pnpm deploy`. Production deployment requires the appropriate Cloudflare account configuration and authentication. Repository configuration alone does not prove that a particular commit is deployed.
 
-**Live demo:** [Open Solenne](https://solenne.dangvohoangvan.workers.dev/) — hosted on Cloudflare Workers.
-
-The project owner provided this public demo URL. The link is included for reviewers; live availability and the health of all runtime features have not been independently verified in this editing session.
+**Live demo:** [Open Solenne](https://solenne.dangvohoangvan.workers.dev/) — hosted on Cloudflare Workers. The demo URL is provided by the project owner; reviewers should verify current availability and runtime behavior when evaluating the project.
 
 ---
 
 ## Current scope and limitations
 
-Solenne is an actively developed portfolio project. The following boundaries are intentional to document:
+Solenne is an actively developed portfolio project. The following boundaries are documented intentionally:
 
 - **Payments:** Stripe dependencies are present, but payment-session creation, payment confirmation, webhook handling, and end-to-end payment reconciliation are not yet implemented. Orders currently remain in a pending-payment state.
 - **AI assistant:** provides product and policy guidance only; it cannot access personal account data or perform transactional actions.
 - **Content:** some editorial and marketing content is static.
-- **Automated testing:** the repository has targeted static verification scripts, but does not currently define a full unit, integration, or end-to-end test suite.
+- **Automated testing:** targeted verification scripts are available, but a full unit, integration, or end-to-end test suite is not configured.
 
 These limitations are stated explicitly so the implemented scope can be evaluated accurately.
 
 ---
 
-## Author & contribution
+## Author
 
 **Đặng Võ Hoàng Văn**  
 Data Science graduate, HUFLIT · Independent project author
@@ -365,16 +427,5 @@ I built Solenne as an end-to-end engineering project, working across the custome
 
 - **GitHub:** [@hoangvanpierre](https://github.com/hoangvanpierre)
 - **Contact:** [dangvohoangvan@gmail.com](mailto:dangvohoangvan@gmail.com)
-
----
-
-## What this project demonstrates
-
-- Full-stack development across a modern React framework, server-side application logic, and a relational database.
-- Practical authentication, RBAC, RLS, and least-privilege server-side data access.
-- Design of transactional workflows and database-backed business rules.
-- Integration of a streaming AI feature with live application data and bounded runtime usage.
-- Performance-aware rendering, request-scoped caching, and frontend animation lifecycle management.
-- Maintainable application structure through reusable components, validation schemas, migrations, and verification scripts.
 
 **Repository:** [github.com/hoangvanpierre/Solenne](https://github.com/hoangvanpierre/Solenne)

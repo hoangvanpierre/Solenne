@@ -1,0 +1,11 @@
+@media (prefers-reduced-motion: reduce), (scripting: none) {
+  .header :is(h1, h1 span) {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .intro {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

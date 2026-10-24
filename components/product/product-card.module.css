@@ -1,0 +1,411 @@
+/*
+ * Product card motion — scoped refinement pass for /products and the
+ * collection grids that share `ProductCard`.
+ *
+ * Motion language matches the rest of the storefront: the site-wide
+ * cubic-bezier(0.22, 1, 0.36, 1) easing, 20px fade-up entrances, and a
+ * short, restrained hover response. Everything here animates only
+ * `transform`, `opacity`, `filter` (short-lived), and colour/shadow, so the
+ * grid never reflows or shifts.
+ *
+ * Progressive enhancement / gating:
+ *   • Entrance, hover lift, zoom, underline, and pointer-only affordances are
+ *     disabled for `prefers-reduced-motion: reduce`; the final state is shown
+ *     immediately.
+ *   • Hover movement is restricted to `(hover: hover) and (pointer: fine)`.
+ *     Touch devices keep the wishlist button visible and never inherit a
+ *     sticky hover state.
+ *   • Without scripting the reveal wrappers fall back to their visible state.
+ */
+
+.reveal {
+  --product-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --product-delay: var(--product-stagger, 0ms);
+
+  opacity: 0;
+  transform: translate3d(0, 20px, 0);
+  transition:
+    opacity 750ms var(--product-ease),
+    transform 750ms var(--product-ease);
+  transition-delay: var(--product-delay);
+}
+
+/* Cards already above the fold (or marked priority) render in their final
+   state so the LCP image never waits on an entrance animation. */
+.reveal[data-animate="false"] {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+.reveal[data-revealed="true"] {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* ------------------------------------------------------------------ *
+ * Image frame
+ * ------------------------------------------------------------------ */
+
+.mediaReveal {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: scale(1.06);
+  filter: blur(6px);
+  transform-origin: 50% 55%;
+  transition:
+    opacity 780ms var(--product-ease),
+    transform 900ms var(--product-ease),
+    filter 780ms var(--product-ease);
+  transition-delay: calc(var(--product-delay) + 40ms);
+}
+
+.reveal[data-revealed="true"] .mediaReveal {
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
+}
+
+.reveal[data-animate="false"] .mediaReveal {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  transition: none;
+}
+
+.photo {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  filter: blur(5px);
+  transition:
+    opacity 520ms ease,
+    filter 520ms ease;
+}
+
+.photo[data-loaded="true"] {
+  opacity: 1;
+  filter: none;
+}
+
+/* The alternate photo stays hidden above the primary one until hover. */
+.photo.photoSecondary {
+  z-index: 1;
+  opacity: 0;
+}
+
+.photoImage {
+  transform: scale(1);
+  transition: transform 700ms var(--product-ease);
+}
+
+.skeleton {
+  transition: opacity 420ms ease;
+}
+
+.skeleton[data-hidden="true"] {
+  opacity: 0;
+  pointer-events: none;
+  animation-play-state: paused;
+}
+
+/* Don't animate the shimmer for cards the visitor cannot see yet. */
+.reveal[data-revealed="false"] .skeleton {
+  animation-play-state: paused;
+}
+
+.shade {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 46%;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    to top,
+    color-mix(in oklab, var(--color-warm-black) 30%, transparent),
+    transparent
+  );
+  transition: opacity 500ms var(--product-ease);
+}
+
+/* ------------------------------------------------------------------ *
+ * Card, title, metadata
+ * ------------------------------------------------------------------ */
+
+.card {
+  transition: transform 500ms var(--product-ease);
+}
+
+.frame {
+  box-shadow: 0 0 0 0 transparent;
+  transition: box-shadow 520ms var(--product-ease);
+}
+
+.title {
+  position: relative;
+  display: inline-block;
+}
+
+.title::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -0.14em;
+  left: 0;
+  height: 1px;
+  background-color: currentColor;
+  opacity: 0.55;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 420ms var(--product-ease);
+}
+
+.meta {
+  opacity: 0.8;
+  transition:
+    opacity 320ms var(--product-ease),
+    letter-spacing 420ms var(--product-ease);
+}
+
+.price {
+  opacity: 1;
+  transition:
+    opacity 320ms var(--product-ease),
+    letter-spacing 420ms var(--product-ease);
+}
+
+/* ------------------------------------------------------------------ *
+ * Badges
+ * ------------------------------------------------------------------ */
+
+.badge {
+  opacity: 0;
+  transform: translate3d(0, 4px, 0) scale(0.96);
+}
+
+.reveal[data-revealed="true"] .badge {
+  animation: product-badge-in 460ms var(--product-ease) both;
+  animation-delay: calc(
+    var(--product-delay) + 300ms + var(--badge-index, 0) * 70ms
+  );
+}
+
+@keyframes product-badge-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 4px, 0) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Wishlist button
+ * ------------------------------------------------------------------ */
+
+.wishlist {
+  opacity: 0;
+  transform: translate3d(4px, 0, 0) scale(0.92);
+  transition:
+    opacity 280ms var(--product-ease),
+    transform 280ms var(--product-ease),
+    background-color 240ms ease,
+    color 240ms ease;
+}
+
+/* Touch / hybrid devices: no hover means the action must always be reachable. */
+@media (hover: none), (pointer: coarse) {
+  .wishlist {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.wishlist:focus-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.pop {
+  animation: wishlist-pop 380ms var(--product-ease);
+}
+
+@keyframes wishlist-pop {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(0.82);
+  }
+  70% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Hover (fine pointers only) + keyboard focus parity
+ * ------------------------------------------------------------------ */
+
+@media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    transform: translate3d(0, -4px, 0);
+  }
+
+  .card:hover .frame {
+    box-shadow:
+      0 22px 44px -28px color-mix(in oklab, var(--color-primary) 45%, transparent),
+      0 10px 22px -18px color-mix(in oklab, var(--color-warm-black) 30%, transparent);
+  }
+
+  .card:hover .photoImage {
+    transform: scale(1.05);
+  }
+
+  .card:hover .shade,
+  .card:hover .photoSecondary[data-loaded="true"] {
+    opacity: 1;
+  }
+
+  .card:hover .title::after {
+    transform: scaleX(1);
+  }
+
+  .card:hover .meta {
+    opacity: 1;
+    letter-spacing: 0.085em;
+  }
+
+  .card:hover .price {
+    opacity: 0.95;
+    letter-spacing: 0.02em;
+  }
+
+  .card:hover .wishlist,
+  .card:focus-within .wishlist {
+    opacity: 1;
+    transform: none;
+  }
+
+  .wishlist:hover {
+    background-color: color-mix(in oklab, var(--color-card) 92%, transparent);
+    color: var(--color-destructive);
+  }
+}
+
+/* Keyboard: the same colour/shadow/underline feedback, no lift or zoom. */
+.card:focus-visible .frame {
+  box-shadow:
+    0 22px 44px -28px color-mix(in oklab, var(--color-primary) 45%, transparent),
+    0 10px 22px -18px color-mix(in oklab, var(--color-warm-black) 30%, transparent);
+}
+
+.card:focus-visible .title::after {
+  transform: scaleX(1);
+}
+
+.card:focus-visible .shade {
+  opacity: 1;
+}
+
+.card:focus-visible .meta,
+.card:focus-visible .price {
+  opacity: 1;
+}
+
+.card:focus-visible .wishlist {
+  opacity: 1;
+  transform: none;
+}
+
+/* ------------------------------------------------------------------ *
+ * Responsive row-aware stagger (delays reset every row)
+ * ------------------------------------------------------------------ */
+
+@media (min-width: 640px) {
+  .reveal {
+    --product-delay: var(--product-stagger-sm, 0ms);
+  }
+}
+
+@media (min-width: 1024px) {
+  .reveal {
+    --product-delay: var(--product-stagger-lg, 0ms);
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Reduced motion / no-script fallbacks
+ * ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .mediaReveal,
+  .photo,
+  .photoImage,
+  .badge,
+  .card,
+  .frame,
+  .shade,
+  .title::after,
+  .meta,
+  .price,
+  .wishlist {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .reveal,
+  .mediaReveal {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .photo {
+    opacity: 1 !important;
+    filter: none !important;
+  }
+
+  .photoSecondary {
+    opacity: 0 !important;
+  }
+
+  .badge {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* No lift, zoom, or pointer movement; simple opacity/colour feedback only. */
+  .card,
+  .photoImage,
+  .wishlist {
+    transform: none !important;
+  }
+}
+
+@media (scripting: none) {
+  .reveal,
+  .mediaReveal,
+  .badge {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .photo {
+    opacity: 1 !important;
+    filter: none !important;
+  }
+
+  .skeleton {
+    display: none !important;
+  }
+}

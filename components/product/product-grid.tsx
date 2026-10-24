@@ -32,7 +32,12 @@ export function ProductGrid({ products, columns = 4 }: ProductGridProps) {
   return (
     <div className={`grid grid-cols-1 gap-6 sm:gap-8 ${gridCols[columns]}`}>
       {products.map((product, i) => (
-        <ProductCard key={product.id} product={product} index={i} />
+        <ProductCard
+          key={product.id}
+          product={product}
+          index={i}
+          columns={columns}
+        />
       ))}
     </div>
   );

@@ -11,6 +11,7 @@ export interface ProductPictureProps {
   className?: string;
   fill?: boolean;
   style?: React.CSSProperties;
+  onLoad?: React.ReactEventHandler<HTMLImageElement>;
 }
 
 export function ProductPicture({
@@ -22,6 +23,7 @@ export function ProductPicture({
   className,
   fill = true,
   style,
+  onLoad,
 }: ProductPictureProps) {
   const optimized = getOptimizedProductImage(src);
 
@@ -37,6 +39,7 @@ export function ProductPicture({
           loading={isEager ? "eager" : "lazy"}
           fetchPriority={isEager ? "high" : "auto"}
           decoding={isEager ? "sync" : "async"}
+          onLoad={onLoad}
           style={{ ...(fill ? { height: "100%", width: "100%" } : undefined), ...style }}
           className={cn(fill && "absolute inset-0 h-full w-full object-cover", className)}
         />
@@ -55,6 +58,7 @@ export function ProductPicture({
       sizes={sizes}
       className={className}
       style={style}
+      onLoad={onLoad}
     />
   );
 }

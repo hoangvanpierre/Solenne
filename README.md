@@ -2,7 +2,7 @@
 
 ### A full-stack commerce platform for an artisan candle brand
 
-Solenne is a full-stack e-commerce and store-operations platform built around a fictional artisan candle maison. It combines a bilingual customer storefront, account and checkout flows, a role-aware administration dashboard, and an AI scent concierge.
+Solenne is a full-stack e-commerce and store-operations platform built around an artisan candle brand. It combines a bilingual customer storefront, account and checkout flows, a role-aware administration dashboard, and an AI scent concierge.
 
 The project is designed to demonstrate end-to-end product engineering: building customer-facing experiences while also handling the backend concerns behind them — data integrity, authorization, operational workflows, performance, and deployment architecture.
 

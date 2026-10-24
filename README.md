@@ -62,25 +62,25 @@ Screenshots captured from the deployed Solenne storefront and administration int
 ### Storefront homepage
 
 <p align="center">
-  <img src="public/images/readme/homepage.webp" alt="Solenne storefront homepage with the hero section and navigation" width="100%" />
+  <img src="public/images/readme/store_front.png" />
 </p>
 
 ### Product detail — Midnight Garden
 
 <p align="center">
-  <img src="public/images/readme/product-detail.webp" alt="Midnight Garden product detail page showing product photography, variant selection, price, stock, and product information" width="100%" />
+  <img src="public/images/readme/product_detail.png" />
 </p>
 
 ### Admin dashboard
 
 <p align="center">
-  <img src="public/images/readme/admin-dashboard.webp" alt="Solenne administration dashboard with order KPIs, order status distribution, stock overview, and customer summary" width="100%" />
+  <img src="public/images/readme/admin_dashboard.png" />
 </p>
 
 ### AI scent concierge
 
 <p align="center">
-  <img src="public/images/readme/ai-assistant.webp" alt="Solenne product listing with the Scent Concierge chat panel open" width="100%" />
+  <img src="public/images/readme/ai-assistant.png" />
 </p>
 
 <sub>The administration screenshot is from an authenticated administrator session. The account identifier in the lower-left sidebar has been blurred before publishing.</sub>

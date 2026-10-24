@@ -6,6 +6,8 @@
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3FCF8E?logo=supabase&logoColor=white)
 ![Cloudflare](https://img.shields.io/badge/Cloudflare-Workers-F38020?logo=cloudflare&logoColor=white)
 
+[🇬🇧 English](README.md) | [🇻🇳 Tiếng Việt](README.vi.md)
+
 ### A full-stack commerce platform for an artisan candle brand
 
 Solenne is a full-stack e-commerce and store-operations platform built around an artisan candle brand. It combines a bilingual customer storefront, account and checkout flows, a role-aware administration dashboard, and an AI scent concierge.

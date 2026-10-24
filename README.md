@@ -57,15 +57,33 @@ The project is designed to demonstrate end-to-end product engineering: building 
 
 ## Visual preview
 
-Selected product imagery used by the storefront catalogue:
+Screenshots captured from the deployed Solenne storefront and administration interface. The live demo is available at [solenne.dangvohoangvan.workers.dev](https://solenne.dangvohoangvan.workers.dev/).
+
+### Storefront homepage
 
 <p align="center">
-  <img src="public/images/product/optimized/solenne-midnight-garden-candle-glow-1200.webp" alt="Solenne Midnight Garden candle" width="31%" />
-  <img src="public/images/product/optimized/solenne-lavender-serenity-1200.webp" alt="Solenne Lavender Serenity candle" width="31%" />
-  <img src="public/images/product/optimized/solenne-vanilla-ember-1200.webp" alt="Solenne Vanilla Ember candle" width="31%" />
+  <img src="public/images/readme/homepage.webp" alt="Solenne storefront homepage with the hero section and navigation" width="100%" />
 </p>
 
-<sub>These are real catalogue assets, not UI screenshots. The repository does not yet contain captured Storefront, Admin Dashboard, or AI Assistant screens.</sub>
+### Product detail — Midnight Garden
+
+<p align="center">
+  <img src="public/images/readme/product-detail.webp" alt="Midnight Garden product detail page showing product photography, variant selection, price, stock, and product information" width="100%" />
+</p>
+
+### Admin dashboard
+
+<p align="center">
+  <img src="public/images/readme/admin-dashboard.webp" alt="Solenne administration dashboard with order KPIs, order status distribution, stock overview, and customer summary" width="100%" />
+</p>
+
+### AI scent concierge
+
+<p align="center">
+  <img src="public/images/readme/ai-assistant.webp" alt="Solenne product listing with the Scent Concierge chat panel open" width="100%" />
+</p>
+
+<sub>The administration screenshot is from an authenticated administrator session. The account identifier in the lower-left sidebar has been blurred before publishing.</sub>
 
 ---
 

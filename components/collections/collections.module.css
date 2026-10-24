@@ -1,0 +1,282 @@
+﻿/*
+ * Collections refinement â€” hover surface, motif drift, ambient heading glow.
+ *
+ * Deliberately CSS-first: the page, the header, and the cards are server-
+ * rendered, and every effect here is pure progressive enhancement. Only
+ * `opacity`, `transform`/`translate`, `border-color`, and `box-shadow` are
+ * animated, so nothing can shift layout (no CLS) and no effect blocks paint.
+ *
+ * Gating:
+ *   â€¢ Movement (lift, tilt, drift, breathing) lives inside
+ *     `prefers-reduced-motion: no-preference` â€” reduced motion keeps only the
+ *     instant colour/shadow feedback.
+ *   â€¢ Pointer-driven hover lives inside `(hover: hover) and (pointer: fine)`
+ *     so touch devices never inherit a sticky hover state. Keyboard focus
+ *     reaches the same affordances via `:focus-visible`.
+ *
+ * The cursor highlight is mixed toward `--color-card` rather than laid over
+ * the tint, so it *lightens* the surface in light mode and stays neutral in
+ * dark mode: the muted-foreground body copy keeps its contrast ratio.
+ */
+
+/* ------------------------------------------------------------------ *
+ * Header: soft ambient candlelight behind the page heading
+ * ------------------------------------------------------------------ */
+
+.intro {
+  position: relative;
+}
+
+/* Safety net: framer-motion writes the entrance as inline styles during SSR.
+   For reduced-motion visitors the final state must be on screen immediately,
+   even before hydration â€” so the pre-hydration markup is forced visible. */
+@media (prefers-reduced-motion: reduce) {
+  .intro :is(h1, h1 span, .introBody) {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .entry {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+.glow {
+  position: absolute;
+  left: -3rem;
+  top: -2.5rem;
+  width: min(32rem, 112%);
+  height: 15rem;
+  border-radius: 9999px;
+  pointer-events: none;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklab, var(--primary) 28%, transparent),
+    transparent 78%
+  );
+  filter: blur(44px);
+  opacity: 0.34;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .glow {
+    animation: collections-breathe 16s ease-in-out infinite;
+  }
+}
+
+@keyframes collections-breathe {
+  0%,
+  100% {
+    opacity: 0.26;
+    transform: scale(0.97);
+  }
+  50% {
+    opacity: 0.42;
+    transform: scale(1.04);
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Card surface
+ * ------------------------------------------------------------------ */
+
+.card {
+  /* Anchors the tint, motif, and sheen layers to the card itself. */
+  position: relative;
+  /* Family tint, set inline from `SCENT_CATEGORIES[].color`. */
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --mx: 50%;
+  --my: 50%;
+
+  --card-border-active: color-mix(
+    in oklab,
+    var(--card-tint) 42%,
+    var(--color-border)
+  );
+  --card-shadow: 0 0 0 0 transparent;
+  --card-shadow-active:
+    0 1px 1px color-mix(in oklab, var(--card-tint) 10%, transparent),
+    0 22px 44px -20px color-mix(in oklab, var(--card-tint) 55%, transparent),
+    0 10px 20px -16px color-mix(in oklab, var(--color-warm-black) 26%, transparent);
+
+  border-color: var(--color-border);
+  box-shadow: var(--card-shadow);
+  transition:
+    border-color 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    translate 400ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* The global `*:focus-visible` rule flattens corners to 2px; hand the card its
+   own radius back so the keyboard ring follows the rounded surface. */
+.card:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 3px;
+  border-radius: var(--radius-2xl);
+  --card-shadow: var(--card-shadow-active);
+  border-color: var(--card-border-active);
+}
+
+/* Existing tint wash, unchanged: 60% at rest, full strength on hover. */
+.tint {
+  position: absolute;
+  inset: 0;
+  opacity: 0.6;
+  transition: opacity 500ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Cursor-following sheen â€” variables are written by the card's pointermove
+   handler (rAF-throttled); without JS it simply stays centred at 50% / 50%. */
+.highlight {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  background: radial-gradient(
+    18rem circle at var(--mx) var(--my),
+    color-mix(in oklab, var(--card-tint) 14%, var(--color-card)) 0%,
+    transparent 68%
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * Per-family decorative motif
+ * ------------------------------------------------------------------ */
+
+.motifWrap {
+  position: absolute;
+  right: -2.5rem;
+  bottom: -3rem;
+  width: min(17rem, 58%);
+  aspect-ratio: 1 / 1;
+  color: var(--card-tint);
+  opacity: 0.12;
+  pointer-events: none;
+  transform: scale(1);
+  transform-origin: 74% 80%;
+  transition:
+    opacity 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.motifSvg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .motifSvg {
+    animation: collections-motif-drift 18s ease-in-out infinite;
+    animation-delay: var(--motif-delay, 0s);
+  }
+}
+
+@keyframes collections-motif-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(-6px, -10px, 0) rotate(1.2deg);
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * "Explore the â€¦ collection" affordance
+ * ------------------------------------------------------------------ */
+
+.linkRow {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.linkText {
+  position: relative;
+  display: inline-block;
+}
+
+.linkUnderline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.2em;
+  height: 1px;
+  background-color: currentColor;
+  opacity: 0.5;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.linkArrow {
+  flex-shrink: 0;
+  transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ------------------------------------------------------------------ *
+ * Hover (fine pointers only) + keyboard focus parity
+ * ------------------------------------------------------------------ */
+
+@media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    --card-shadow: var(--card-shadow-active);
+    border-color: var(--card-border-active);
+  }
+
+  .card:hover .tint {
+    opacity: 1;
+  }
+
+  .card:hover .highlight {
+    opacity: 1;
+  }
+
+  .card:hover .motifWrap {
+    opacity: 0.22;
+    transform: scale(1.05);
+  }
+
+  .card:hover .linkArrow {
+    transform: translateX(4px);
+  }
+
+  .card:hover .linkUnderline {
+    transform: scaleX(1);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .card:hover {
+      translate: 0 -5px;
+      transform: perspective(1000px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+    }
+  }
+}
+
+/* Keyboard: same colour/shadow + motif + underline feedback, no tilt. */
+.card:focus-visible .tint,
+.card:focus-within .tint {
+  opacity: 1;
+}
+
+.card:focus-visible .motifWrap,
+.card:focus-within .motifWrap {
+  opacity: 0.22;
+  transform: scale(1.05);
+}
+
+.card:focus-visible .linkArrow,
+.card:focus-within .linkArrow {
+  transform: translateX(4px);
+}
+
+.card:focus-visible .linkUnderline,
+.card:focus-within .linkUnderline {
+  transform: scaleX(1);
+}

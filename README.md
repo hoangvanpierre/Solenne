@@ -319,7 +319,9 @@ pnpm preview
 
 A deployment command is also available through `pnpm deploy`. Production deployment and live service health must be verified in the target Cloudflare account; repository configuration alone does not prove that a particular commit is deployed.
 
-**Live demo:** Not linked yet. The repository contains Cloudflare deployment configuration, but no public production URL has been verified for this README. A working URL will be added only after the deployed application and its runtime bindings have been checked.
+**Live demo:** [Open Solenne](https://solenne.dangvohoangvan.workers.dev/) — hosted on Cloudflare Workers.
+
+The project owner provided this public demo URL. The link is included for reviewers; live availability and the health of all runtime features have not been independently verified in this editing session.
 
 ---
 

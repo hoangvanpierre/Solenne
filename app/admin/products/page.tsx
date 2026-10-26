@@ -9,6 +9,7 @@ import {
   isUnauthenticatedAuthError,
 } from "@/lib/authz-ux";
 import { getAdminProducts } from "@/lib/admin-products";
+import { ADMIN_SEARCH_MAX_LENGTH } from "@/lib/search-utils";
 import { RestrictedAccountNotice } from "@/components/account";
 import { Button } from "@/components/ui";
 import {
@@ -23,9 +24,24 @@ export const metadata: Metadata = {
   title: "Products — Administration",
 };
 
-export default async function AdminProductsPage() {
+interface AdminProductsPageProps {
+  searchParams: Promise<{
+    q?: string;
+    /** Legacy alias, still honoured for existing bookmarks. */
+    search?: string;
+  }>;
+}
+
+export default async function AdminProductsPage({
+  searchParams,
+}: AdminProductsPageProps) {
   const locale = await getLocale();
   const isVi = locale === "vi";
+  const rawParams = await searchParams;
+  const rawSearch = rawParams.q ?? rawParams.search;
+  const initialSearch = (typeof rawSearch === "string" ? rawSearch : "")
+    .trim()
+    .slice(0, ADMIN_SEARCH_MAX_LENGTH);
 
   let products: Product[] = [];
   let canCreateProduct = false;
@@ -169,7 +185,11 @@ export default async function AdminProductsPage() {
       />
 
       {/* Interactive Product Table with Search, Filtering, and Sorting */}
-      <ProductTable products={products} locale={locale} />
+      <ProductTable
+        products={products}
+        locale={locale}
+        initialSearch={initialSearch}
+      />
     </div>
   );
 }

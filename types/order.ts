@@ -36,7 +36,7 @@ export interface OrderFilterParams {
   limit?: number | string;
   /** Exact order status, or "all"/undefined for every status. */
   status?: string;
-  /** Order number, order id (uuid) or customer email fragment. */
+  /** Order number, order id (uuid), customer email or customer name fragment. */
   search?: string;
 }
 

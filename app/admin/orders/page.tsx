@@ -13,8 +13,11 @@ import { formatPrice } from "@/lib/utils";
 import { OrderStatusBadge, RestrictedAccountNotice } from "@/components/account";
 import {
   AdminBreadcrumb,
+  AdminClearSearchButton,
   AdminPageHeader,
   AdminPagination,
+  AdminSearchProvider,
+  AdminSearchResults,
   AdminStatePanel,
   AdminTableFrame,
   OrderFilterBar,
@@ -31,6 +34,8 @@ interface AdminOrdersPageProps {
     page?: string;
     limit?: string;
     status?: string;
+    q?: string;
+    /** Legacy alias, still honoured for existing bookmarks. */
     search?: string;
   }>;
 }
@@ -50,7 +55,8 @@ export default async function AdminOrdersPage({
   const isVi = locale === "vi";
 
   const params = await searchParams;
-  const search = typeof params.search === "string" ? params.search.trim() : "";
+  const rawSearch = params.q ?? params.search;
+  const search = typeof rawSearch === "string" ? rawSearch.trim() : "";
   const status = normalizeOrderStatusFilter(params.status) ?? "all";
 
   let result: AdminOrderQueryResult = EMPTY_RESULT;
@@ -180,118 +186,224 @@ export default async function AdminOrdersPage({
         }
       />
 
-      <OrderFilterBar
-        initialSearch={search}
-        initialStatus={status}
-        locale={locale}
-      />
+      <AdminSearchProvider initialValue={search} minLength={2}>
+        <OrderFilterBar
+          initialStatus={status}
+          locale={locale}
+          resultCount={totalCount}
+        />
 
-      {totalCount === 0 ? (
-        <AdminStatePanel
-          icon={Package}
-          title={
-            hasActiveFilters
-              ? isVi
-                ? "Không có đơn hàng phù hợp"
-                : "No matching orders"
-              : isVi
-                ? "Chưa có đơn hàng nào"
-                : "No orders found"
-          }
-          description={
-            hasActiveFilters
-              ? isVi
-                ? "Không có đơn hàng nào khớp với từ khóa tìm kiếm hoặc trạng thái hiện tại."
-                : "No orders match the current search term or status filter."
-              : isVi
-                ? "Khi có đơn hàng mới phát sinh, thông tin sẽ hiển thị tại đây."
-                : "When new orders are placed, they will appear here."
-          }
-          actions={
-            hasActiveFilters ? (
-              <Button asChild variant="outline" className="font-normal text-xs">
-                <Link href="/admin/orders">
-                  {isVi ? "Xóa bộ lọc" : "Clear filters"}
-                </Link>
-              </Button>
-            ) : undefined
-          }
-        />
-      ) : requestedPageIsEmpty ? (
-        <AdminStatePanel
-          icon={Package}
-          title={
-            isVi ? "Trang này không có đơn hàng" : "This page has no orders"
-          }
-          description={
-            isVi
-              ? `Trang ${page} nằm ngoài phạm vi ${totalCount} đơn hàng hiện có.`
-              : `Page ${page} is beyond the ${totalCount} orders that currently match.`
-          }
-          actions={
-            <Button asChild variant="outline" className="font-normal text-xs">
-              <Link
-                href={
-                  hasActiveFilters
-                    ? `/admin/orders?${new URLSearchParams({
-                        ...(search ? { search } : {}),
-                        ...(status !== "all" ? { status } : {}),
-                      }).toString()}`
-                    : "/admin/orders"
-                }
-              >
-                {isVi ? "Về trang đầu" : "Back to first page"}
-              </Link>
-            </Button>
-          }
-        />
-      ) : (
-        <div className="space-y-4">
-          {/* Desktop table view — the seven columns only fit once the fixed
-              sidebar has been accounted for, so the card list covers the rest. */}
-          <div className="hidden xl:block">
-            <AdminTableFrame
-              caption={isVi ? "Danh sách đơn hàng" : "Order list"}
-              head={
-                <>
-                  <th scope="col" className="py-3.5 px-6 font-normal">
-                    {isVi ? "Đơn hàng" : "Order"}
-                  </th>
-                  <th scope="col" className="py-3.5 px-6 font-normal">
-                    {isVi ? "Ngày đặt" : "Date"}
-                  </th>
-                  <th scope="col" className="py-3.5 px-6 font-normal">
-                    {isVi ? "Khách hàng" : "Customer"}
-                  </th>
-                  <th scope="col" className="py-3.5 px-6 font-normal">
-                    {isVi ? "Tác phẩm" : "Items"}
-                  </th>
-                  <th scope="col" className="py-3.5 px-6 font-normal">
-                    {isVi ? "Trạng thái" : "Status"}
-                  </th>
-                  <th scope="col" className="py-3.5 px-6 text-right font-normal">
-                    {isVi ? "Tổng tiền" : "Total"}
-                  </th>
-                  <th scope="col" className="py-3.5 px-6 text-right font-normal">
-                    {isVi ? "Thao tác" : "Actions"}
-                  </th>
-                </>
+        <AdminSearchResults>
+          {totalCount === 0 ? (
+            <AdminStatePanel
+              icon={Package}
+              title={
+                hasActiveFilters
+                  ? isVi
+                    ? "Không có đơn hàng phù hợp"
+                    : "No matching orders"
+                  : isVi
+                    ? "Chưa có đơn hàng nào"
+                    : "No orders found"
               }
-            >
-              <tbody className="divide-y divide-border">
+              description={
+                hasActiveFilters
+                  ? isVi
+                    ? "Không có đơn hàng nào khớp với từ khóa tìm kiếm hoặc trạng thái hiện tại."
+                    : "No orders match the current search term or status filter."
+                  : isVi
+                    ? "Khi có đơn hàng mới phát sinh, thông tin sẽ hiển thị tại đây."
+                    : "When new orders are placed, they will appear here."
+              }
+              actions={
+                hasActiveFilters ? (
+                  <AdminClearSearchButton
+                    mode={search ? "search" : "all"}
+                    className="font-normal text-xs"
+                  />
+                ) : undefined
+              }
+            />
+          ) : requestedPageIsEmpty ? (
+            <AdminStatePanel
+              icon={Package}
+              title={
+                isVi ? "Trang này không có đơn hàng" : "This page has no orders"
+              }
+              description={
+                isVi
+                  ? `Trang ${page} nằm ngoài phạm vi ${totalCount} đơn hàng hiện có.`
+                  : `Page ${page} is beyond the ${totalCount} orders that currently match.`
+              }
+              actions={
+                <Button asChild variant="outline" className="font-normal text-xs">
+                  <Link
+                    href={
+                      hasActiveFilters
+                        ? `/admin/orders?${new URLSearchParams({
+                            ...(search ? { q: search } : {}),
+                            ...(status !== "all" ? { status } : {}),
+                          }).toString()}`
+                        : "/admin/orders"
+                    }
+                  >
+                    {isVi ? "Về trang đầu" : "Back to first page"}
+                  </Link>
+                </Button>
+              }
+            />
+          ) : (
+            <div className="space-y-4">
+              {/* Desktop table view — the seven columns only fit once the fixed
+                  sidebar has been accounted for, so the card list covers the rest. */}
+              <div className="hidden xl:block">
+                <AdminTableFrame
+                  caption={isVi ? "Danh sách đơn hàng" : "Order list"}
+                  head={
+                    <>
+                      <th scope="col" className="py-3.5 px-6 font-normal">
+                        {isVi ? "Đơn hàng" : "Order"}
+                      </th>
+                      <th scope="col" className="py-3.5 px-6 font-normal">
+                        {isVi ? "Ngày đặt" : "Date"}
+                      </th>
+                      <th scope="col" className="py-3.5 px-6 font-normal">
+                        {isVi ? "Khách hàng" : "Customer"}
+                      </th>
+                      <th scope="col" className="py-3.5 px-6 font-normal">
+                        {isVi ? "Tác phẩm" : "Items"}
+                      </th>
+                      <th scope="col" className="py-3.5 px-6 font-normal">
+                        {isVi ? "Trạng thái" : "Status"}
+                      </th>
+                      <th scope="col" className="py-3.5 px-6 text-right font-normal">
+                        {isVi ? "Tổng tiền" : "Total"}
+                      </th>
+                      <th scope="col" className="py-3.5 px-6 text-right font-normal">
+                        {isVi ? "Thao tác" : "Actions"}
+                      </th>
+                    </>
+                  }
+                >
+                  <tbody className="divide-y divide-border">
+                    {orders.map((order) => {
+                      const itemCount = order.items.reduce(
+                        (sum, i) => sum + i.quantity,
+                        0
+                      );
+                      const itemsSummary = order.items
+                        .map((i) =>
+                          i.variantName
+                            ? `${i.productName} (${i.variantName}) ×${i.quantity}`
+                            : `${i.productName} ×${i.quantity}`
+                        )
+                        .join(", ");
+
+                      const customerName =
+                        order.shippingAddress?.fullName?.trim() ||
+                        (isVi ? "Khách vãng lai" : "Guest / Unknown");
+
+                      const customerDetail =
+                        order.shippingAddress?.email?.trim() ||
+                        (order.userId ? `ID: ${order.userId.slice(0, 8)}…` : null);
+
+                      return (
+                        <tr
+                          key={order.id}
+                          className="transition-colors hover:bg-muted/30"
+                        >
+                          <td className="py-4 px-6 tabular-nums text-xs font-normal text-foreground whitespace-nowrap">
+                            <Link
+                              href={`/admin/orders/${order.id}`}
+                              className="inline-flex items-center rounded underline-offset-4 hover:text-amber hover:underline focus-visible:outline-none"
+                              title={
+                                isVi
+                                  ? `Quản lý đơn hàng ${order.orderNumber}`
+                                  : `Manage order ${order.orderNumber}`
+                              }
+                              aria-label={
+                                isVi
+                                  ? `Quản lý đơn hàng ${order.orderNumber}`
+                                  : `Manage order ${order.orderNumber}`
+                              }
+                            >
+                              {order.orderNumber}
+                            </Link>
+                          </td>
+                          <td className="py-4 px-6 text-xs text-muted-foreground whitespace-nowrap tabular-nums font-normal">
+                            {new Date(order.createdAt).toLocaleDateString(
+                              isVi ? "vi-VN" : "en-US",
+                              {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              }
+                            )}
+                          </td>
+                          <td className="py-4 px-6">
+                            <div className="font-normal text-foreground">
+                              {customerName}
+                            </div>
+                            {customerDetail && (
+                              <div className="text-xs text-muted-foreground truncate max-w-xs tabular-nums font-normal">
+                                {customerDetail}
+                              </div>
+                            )}
+                          </td>
+                          <td className="py-4 px-6">
+                            <div className="text-xs font-normal tabular-nums text-foreground">
+                              {itemCount}{" "}
+                              {isVi
+                                ? "tác phẩm"
+                                : itemCount === 1
+                                  ? "item"
+                                  : "items"}
+                            </div>
+                            {itemsSummary && (
+                              <div
+                                className="text-xs text-muted-foreground truncate max-w-xs font-normal"
+                                title={itemsSummary}
+                              >
+                                {itemsSummary}
+                              </div>
+                            )}
+                          </td>
+                          <td className="py-4 px-6 whitespace-nowrap">
+                            <OrderStatusBadge
+                              status={order.status}
+                              locale={locale}
+                            />
+                          </td>
+                          <td className="py-4 px-6 text-right font-normal tabular-nums text-foreground whitespace-nowrap">
+                            {formatPrice(order.total)}
+                          </td>
+                          <td className="py-4 px-6 text-right whitespace-nowrap">
+                            <Button
+                              asChild
+                              variant="outline"
+                              size="sm"
+                              className="inline-flex items-center gap-1.5 text-xs font-normal"
+                            >
+                              <Link href={`/admin/orders/${order.id}`}>
+                                <span>{isVi ? "Quản lý" : "Manage"}</span>
+                                <ArrowRight className="h-3 w-3" aria-hidden="true" />
+                              </Link>
+                            </Button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </AdminTableFrame>
+              </div>
+
+              {/* Mobile & tablet card view */}
+              <div className="xl:hidden space-y-3">
                 {orders.map((order) => {
                   const itemCount = order.items.reduce(
                     (sum, i) => sum + i.quantity,
                     0
                   );
-                  const itemsSummary = order.items
-                    .map((i) =>
-                      i.variantName
-                        ? `${i.productName} (${i.variantName}) ×${i.quantity}`
-                        : `${i.productName} ×${i.quantity}`
-                    )
-                    .join(", ");
-
                   const customerName =
                     order.shippingAddress?.fullName?.trim() ||
                     (isVi ? "Khách vãng lai" : "Guest / Unknown");
@@ -301,14 +413,14 @@ export default async function AdminOrdersPage({
                     (order.userId ? `ID: ${order.userId.slice(0, 8)}…` : null);
 
                   return (
-                    <tr
+                    <div
                       key={order.id}
-                      className="transition-colors hover:bg-muted/30"
+                      className="rounded-2xl border border-border bg-card p-4 space-y-3"
                     >
-                      <td className="py-4 px-6 tabular-nums text-xs font-normal text-foreground whitespace-nowrap">
+                      <div className="flex items-center justify-between gap-2">
                         <Link
                           href={`/admin/orders/${order.id}`}
-                          className="inline-flex items-center rounded underline-offset-4 hover:text-amber hover:underline focus-visible:outline-none"
+                          className="tabular-nums text-xs font-normal text-foreground hover:text-amber hover:underline underline-offset-4 focus-visible:outline-none rounded"
                           title={
                             isVi
                               ? `Quản lý đơn hàng ${order.orderNumber}`
@@ -322,179 +434,76 @@ export default async function AdminOrdersPage({
                         >
                           {order.orderNumber}
                         </Link>
-                      </td>
-                      <td className="py-4 px-6 text-xs text-muted-foreground whitespace-nowrap tabular-nums font-normal">
-                        {new Date(order.createdAt).toLocaleDateString(
-                          isVi ? "vi-VN" : "en-US",
-                          {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          }
-                        )}
-                      </td>
-                      <td className="py-4 px-6">
-                        <div className="font-normal text-foreground">
-                          {customerName}
-                        </div>
-                        {customerDetail && (
-                          <div className="text-xs text-muted-foreground truncate max-w-xs tabular-nums font-normal">
-                            {customerDetail}
-                          </div>
-                        )}
-                      </td>
-                      <td className="py-4 px-6">
-                        <div className="text-xs font-normal tabular-nums text-foreground">
-                          {itemCount}{" "}
-                          {isVi
-                            ? "tác phẩm"
-                            : itemCount === 1
-                              ? "item"
-                              : "items"}
-                        </div>
-                        {itemsSummary && (
-                          <div
-                            className="text-xs text-muted-foreground truncate max-w-xs font-normal"
-                            title={itemsSummary}
-                          >
-                            {itemsSummary}
-                          </div>
-                        )}
-                      </td>
-                      <td className="py-4 px-6 whitespace-nowrap">
                         <OrderStatusBadge
                           status={order.status}
                           locale={locale}
                         />
-                      </td>
-                      <td className="py-4 px-6 text-right font-normal tabular-nums text-foreground whitespace-nowrap">
-                        {formatPrice(order.total)}
-                      </td>
-                      <td className="py-4 px-6 text-right whitespace-nowrap">
+                      </div>
+
+                      <div className="border-t border-border/60 pt-2 text-xs space-y-1">
+                        <div className="font-normal text-foreground">
+                          {customerName}
+                        </div>
+                        {customerDetail && (
+                          <div className="text-muted-foreground truncate tabular-nums font-normal">
+                            {customerDetail}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex items-center justify-between border-t border-border/60 pt-2.5">
+                        <div>
+                          <div className="text-xs text-muted-foreground tabular-nums font-normal">
+                            {itemCount}{" "}
+                            {isVi
+                              ? "tác phẩm"
+                              : itemCount === 1
+                                ? "item"
+                                : "items"}{" "}
+                            ·{" "}
+                            {new Date(order.createdAt).toLocaleDateString(
+                              isVi ? "vi-VN" : "en-US",
+                              {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              }
+                            )}
+                          </div>
+                          <div className="font-normal tabular-nums text-foreground text-sm">
+                            {formatPrice(order.total)}
+                          </div>
+                        </div>
                         <Button
                           asChild
                           variant="outline"
                           size="sm"
-                          className="inline-flex items-center gap-1.5 text-xs font-normal"
+                          className="inline-flex items-center gap-1.5 text-xs font-normal h-8"
                         >
                           <Link href={`/admin/orders/${order.id}`}>
                             <span>{isVi ? "Quản lý" : "Manage"}</span>
                             <ArrowRight className="h-3 w-3" aria-hidden="true" />
                           </Link>
                         </Button>
-                      </td>
-                    </tr>
+                      </div>
+                    </div>
                   );
                 })}
-              </tbody>
-            </AdminTableFrame>
-          </div>
+              </div>
 
-          {/* Mobile & tablet card view */}
-          <div className="xl:hidden space-y-3">
-            {orders.map((order) => {
-              const itemCount = order.items.reduce(
-                (sum, i) => sum + i.quantity,
-                0
-              );
-              const customerName =
-                order.shippingAddress?.fullName?.trim() ||
-                (isVi ? "Khách vãng lai" : "Guest / Unknown");
-
-              const customerDetail =
-                order.shippingAddress?.email?.trim() ||
-                (order.userId ? `ID: ${order.userId.slice(0, 8)}…` : null);
-
-              return (
-                <div
-                  key={order.id}
-                  className="rounded-2xl border border-border bg-card p-4 space-y-3"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <Link
-                      href={`/admin/orders/${order.id}`}
-                      className="tabular-nums text-xs font-normal text-foreground hover:text-amber hover:underline underline-offset-4 focus-visible:outline-none rounded"
-                      title={
-                        isVi
-                          ? `Quản lý đơn hàng ${order.orderNumber}`
-                          : `Manage order ${order.orderNumber}`
-                      }
-                      aria-label={
-                        isVi
-                          ? `Quản lý đơn hàng ${order.orderNumber}`
-                          : `Manage order ${order.orderNumber}`
-                      }
-                    >
-                      {order.orderNumber}
-                    </Link>
-                    <OrderStatusBadge
-                      status={order.status}
-                      locale={locale}
-                    />
-                  </div>
-
-                  <div className="border-t border-border/60 pt-2 text-xs space-y-1">
-                    <div className="font-normal text-foreground">
-                      {customerName}
-                    </div>
-                    {customerDetail && (
-                      <div className="text-muted-foreground truncate tabular-nums font-normal">
-                        {customerDetail}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex items-center justify-between border-t border-border/60 pt-2.5">
-                    <div>
-                      <div className="text-xs text-muted-foreground tabular-nums font-normal">
-                        {itemCount}{" "}
-                        {isVi
-                          ? "tác phẩm"
-                          : itemCount === 1
-                            ? "item"
-                            : "items"}{" "}
-                        ·{" "}
-                        {new Date(order.createdAt).toLocaleDateString(
-                          isVi ? "vi-VN" : "en-US",
-                          {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          }
-                        )}
-                      </div>
-                      <div className="font-normal tabular-nums text-foreground text-sm">
-                        {formatPrice(order.total)}
-                      </div>
-                    </div>
-                    <Button
-                      asChild
-                      variant="outline"
-                      size="sm"
-                      className="inline-flex items-center gap-1.5 text-xs font-normal h-8"
-                    >
-                      <Link href={`/admin/orders/${order.id}`}>
-                        <span>{isVi ? "Quản lý" : "Manage"}</span>
-                        <ArrowRight className="h-3 w-3" aria-hidden="true" />
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <AdminPagination
-            page={page}
-            limit={limit}
-            totalCount={totalCount}
-            hasMore={hasMore}
-            locale={locale}
-            itemLabelEn="orders"
-            itemLabelVi="đơn hàng"
-          />
-        </div>
-      )}
+              <AdminPagination
+                page={page}
+                limit={limit}
+                totalCount={totalCount}
+                hasMore={hasMore}
+                locale={locale}
+                itemLabelEn="orders"
+                itemLabelVi="đơn hàng"
+              />
+            </div>
+          )}
+        </AdminSearchResults>
+      </AdminSearchProvider>
     </div>
   );
 }

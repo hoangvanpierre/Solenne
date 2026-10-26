@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requirePermission } from "@/lib/authz";
 import { isValidUuid } from "@/lib/audit-utils";
+import { escapeLikePattern } from "@/lib/search-utils";
 import type {
   AccountStatus,
   CustomerFilterParams,
@@ -24,7 +25,8 @@ import type {
 //           and metrics are returned as null (never fabricated 0).
 //   - F-04: Removed default shipping address query and exposure (data minimization).
 //   - F-05: Enforces MAX_SEARCH_LENGTH (80) and strips PostgREST filter delimiters,
-//           operator tokens, and wildcard characters.
+//           operator tokens and quotes; LIKE wildcards are escaped so they match
+//           literally.
 // ---------------------------------------------------------------------------
 
 let cachedCustomerRoleId: string | null = null;
@@ -144,12 +146,13 @@ async function resolveCustomerRoleId(
 /**
  * Sanitizes untrusted search inputs to prevent PostgREST syntax injection
  * and grammar breakage in composite `.or()` filter clauses.
- * Enforces length bound and strips filter delimiters, operator chars, quotes,
- * and SQL wildcards.
+ * Enforces the length bound and strips filter delimiters, operator chars and
+ * quotes. SQL wildcards are kept here and escaped by `escapeLikePattern` when
+ * the ILIKE pattern is built, so they match literally.
  */
 function sanitizeSearchQuery(query: string): string {
   const bounded = query.slice(0, MAX_SEARCH_LENGTH);
-  return bounded.replace(/[,().:"'\\%_]/g, " ").replace(/\s+/g, " ").trim();
+  return bounded.replace(/[,().*:"']/g, " ").replace(/\s+/g, " ").trim();
 }
 
 /**
@@ -205,8 +208,9 @@ export async function getAdminCustomers(
       } else {
         const cleanSearch = sanitizeSearchQuery(rawSearch);
         if (cleanSearch.length > 0) {
+          const pattern = `%${escapeLikePattern(cleanSearch)}%`;
           query = query.or(
-            `full_name.ilike.%${cleanSearch}%,phone.ilike.%${cleanSearch}%`
+            `full_name.ilike.${pattern},phone.ilike.${pattern}`
           );
         }
       }

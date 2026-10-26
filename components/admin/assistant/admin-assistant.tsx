@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Sparkles, Square, Trash2, X } from "lucide-react";
@@ -15,6 +16,19 @@ import { DefaultChatTransport } from "ai";
 import { useLockedBody } from "@/hooks/use-locked-body";
 import type { PermissionKey } from "@/types";
 import type { AdminAssistantContextHint } from "@/lib/admin-assistant/prompt";
+import {
+  ADMIN_ASSISTANT_DRAFT_EVENT,
+  type AdminAssistantDraftRequestDetail,
+} from "@/lib/admin-assistant/drawer-events";
+import {
+  buildDraftIntentPrompt,
+  DRAFT_INTENTS,
+  DRAFT_LANGUAGES,
+  type DraftIntentId,
+  type DraftLanguage,
+} from "@/lib/admin-assistant/drafting";
+import { cn } from "@/lib/utils";
+import type { AssistantProposal } from "@/lib/admin-assistant/proposals";
 import { AdminAssistantMessage } from "./admin-assistant-message";
 
 // ---------------------------------------------------------------------------
@@ -22,6 +36,20 @@ import { AdminAssistantMessage } from "./admin-assistant-message";
 //
 // Loaded lazily from components/admin/admin-shell.tsx (dynamic import), so the
 // storefront and the rest of the admin bundle never pay for @ai-sdk/react.
+//
+// PORTAL: the launcher lives in the sticky <header>, and that header carries
+// `backdrop-blur-xl`. A backdrop-filter element becomes the containing block
+// for `position: fixed` descendants, so a drawer rendered in place would be
+// clipped to the 64px header. The backdrop + panel are therefore portalled to
+// <body>, which keeps `fixed inset-0` relative to the viewport. `ssr: false`
+// on the dynamic import means this only ever renders in the browser, so
+// `document` is available at render time.
+//
+// The portal wrapper also carries `admin-scope`: that class is set on the
+// element inside app/admin/layout.tsx, and portalling leaves its subtree. It
+// only supplies typography (Cactus serif, 13px base), table tabular-nums,
+// control heights and the warm admin focus treatment — colours and dark mode
+// come from :root CSS variables, which the portal inherits from <body>.
 //
 // SECURITY: this component is presentation only. It receives the actor's
 // permission set to decide which suggestion chips make sense, but the server
@@ -112,12 +140,19 @@ export interface AdminAssistantProps {
 
 export function AdminAssistant({ locale, permissions }: AdminAssistantProps) {
   const isVi = locale === "vi";
+  const assistantLocale: DraftLanguage = isVi ? "vi" : "en";
   const pathname = usePathname();
   const prefersReducedMotion = useReducedMotion();
 
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const [failure, setFailure] = useState<FailureKind>("error");
+
+  // Set when the order page's "Draft a reply" button asks for a draft. It adds
+  // the intent chips + language switch, and it never sends anything by itself.
+  const [draftRequest, setDraftRequest] =
+    useState<AdminAssistantDraftRequestDetail | null>(null);
+  const [draftLanguage, setDraftLanguage] = useState<DraftLanguage>("en");
 
   const launcherRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -127,6 +162,15 @@ export function AdminAssistant({ locale, permissions }: AdminAssistantProps) {
   const wasOpenedRef = useRef(false);
 
   useLockedBody(isOpen);
+
+  // A navigation while the drawer is open should leave it closed. Adjusting
+  // state during render (rather than in an effect) avoids a cascading render;
+  // same pattern as the mobile drawer in components/admin/admin-shell.tsx.
+  const [lastPathname, setLastPathname] = useState(pathname);
+  if (lastPathname !== pathname) {
+    setLastPathname(pathname);
+    if (isOpen) setIsOpen(false);
+  }
 
   const context = useMemo(() => deriveContext(pathname), [pathname]);
   const contextLabel = pageLabel(pathname, isVi);
@@ -175,6 +219,27 @@ export function AdminAssistant({ locale, permissions }: AdminAssistantProps) {
 
     window.addEventListener("keydown", handleShortcut);
     return () => window.removeEventListener("keydown", handleShortcut);
+  }, []);
+
+  // The order page's "Draft a reply" button dispatches this event instead of
+  // reaching into the drawer. Only the order number and the default language
+  // travel; the draft itself is still grounded in getOrderDetail.
+  useEffect(() => {
+    const handleDraftRequest = (event: Event) => {
+      const detail = (event as CustomEvent<AdminAssistantDraftRequestDetail>)
+        .detail;
+      if (!detail || typeof detail.orderNumber !== "string") return;
+      if (!detail.orderNumber) return;
+
+      const language: DraftLanguage = detail.language === "vi" ? "vi" : "en";
+      setDraftRequest({ orderNumber: detail.orderNumber, language });
+      setDraftLanguage(language);
+      setIsOpen(true);
+    };
+
+    window.addEventListener(ADMIN_ASSISTANT_DRAFT_EVENT, handleDraftRequest);
+    return () =>
+      window.removeEventListener(ADMIN_ASSISTANT_DRAFT_EVENT, handleDraftRequest);
   }, []);
 
   // Focus management + focus trap + Escape.
@@ -255,6 +320,53 @@ export function AdminAssistant({ locale, permissions }: AdminAssistantProps) {
     [context, isBusy, locale, sendMessage]
   );
 
+  const submitDraftIntent = (id: DraftIntentId) => {
+    if (!draftRequest) return;
+
+    submit(
+      buildDraftIntentPrompt(id, {
+        orderNumber: draftRequest.orderNumber,
+        language: draftLanguage,
+        locale: assistantLocale,
+      })
+    );
+  };
+
+  /**
+   * A stale or blocked proposal is replaced by asking the assistant for the same
+   * target again. The new card is a fresh read of current state; nothing is
+   * executed, and the operator still confirms it explicitly.
+   */
+  const refreshProposal = (proposal: AssistantProposal) => {
+    const reason = proposal.params.reason?.trim();
+
+    if (proposal.type === "cancel_order") {
+      submit(
+        isVi
+          ? `Tạo lại đề xuất hủy đơn ${proposal.targetRef}${reason ? ` với lý do "${reason}"` : ""}. Đọc trạng thái hiện tại trước.`
+          : `Prepare a fresh cancellation proposal for order ${proposal.targetRef}${reason ? ` with the reason "${reason}"` : ""}. Read the current state first.`
+      );
+      return;
+    }
+
+    if (proposal.type === "fulfillment_transition") {
+      const to = proposal.params.toStatus ?? "processing";
+      submit(
+        isVi
+          ? `Tạo lại đề xuất chuyển đơn ${proposal.targetRef} sang ${to}. Đọc trạng thái hiện tại trước.`
+          : `Prepare a fresh proposal to move order ${proposal.targetRef} to ${to}. Read the current state first.`
+      );
+      return;
+    }
+
+    const delta = proposal.params.delta ?? 0;
+    submit(
+      isVi
+        ? `Tạo lại đề xuất điều chỉnh tồn kho cho ${proposal.targetLabel} với mức ${delta > 0 ? `+${delta}` : delta}${reason ? ` và lý do "${reason}"` : ""}. Đọc tồn kho hiện tại trước.`
+        : `Prepare a fresh stock proposal for ${proposal.targetLabel} with a delta of ${delta > 0 ? `+${delta}` : delta}${reason ? ` and the reason "${reason}"` : ""}. Read the current stock first.`
+    );
+  };
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     submit(input);
@@ -279,6 +391,7 @@ export function AdminAssistant({ locale, permissions }: AdminAssistantProps) {
 
   const suggestions = useMemo<Suggestion[]>(() => {
     const list: Suggestion[] = [];
+    const canSeeInventory = permissions.includes("inventory.read");
 
     if (permissions.includes("order.read")) {
       if (context.entity?.type === "order") {
@@ -291,12 +404,19 @@ export function AdminAssistant({ locale, permissions }: AdminAssistantProps) {
         });
       }
 
+      // Only name a tool the actor actually has: asking for listLowStock
+      // without inventory.read makes the model apologise for a capability it
+      // was never given.
       list.push({
         id: "daily-brief",
         label: isVi ? "Tóm tắt hôm nay" : "Daily brief",
         prompt: isVi
-          ? "Cho tôi tóm tắt vận hành hôm nay: gọi getOrderSummary với range today, listOrders với status pending, và listLowStock."
-          : "Give me today's operations brief: call getOrderSummary with range today, listOrders with status pending, and listLowStock.",
+          ? canSeeInventory
+            ? "Cho tôi tóm tắt vận hành hôm nay: gọi getOrderSummary với range today, listOrders với status pending, và listLowStock."
+            : "Cho tôi tóm tắt vận hành hôm nay: gọi getOrderSummary với range today và listOrders với status pending."
+          : canSeeInventory
+            ? "Give me today's operations brief: call getOrderSummary with range today, listOrders with status pending, and listLowStock."
+            : "Give me today's operations brief: call getOrderSummary with range today and listOrders with status pending.",
       });
 
       list.push({
@@ -382,240 +502,315 @@ export function AdminAssistant({ locale, permissions }: AdminAssistantProps) {
         <Sparkles className="h-4 w-4" aria-hidden="true" />
       </button>
 
-      <AnimatePresence>
-        {isOpen ? (
-          <div className="fixed inset-0 z-[75]">
-            <motion.button
-              type="button"
-              aria-label={isVi ? "Đóng trợ lý" : "Close assistant"}
-              onClick={() => setIsOpen(false)}
-              data-focus-plain
-              className="absolute inset-0 h-full w-full cursor-default bg-black/45 backdrop-blur-[1px]"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: prefersReducedMotion ? 0 : 0.18 }}
-            />
+      {createPortal(
+        <AnimatePresence>
+          {isOpen ? (
+            <div className="admin-scope fixed inset-0 z-[75]">
+              <motion.button
+                type="button"
+                aria-label={isVi ? "Đóng trợ lý" : "Close assistant"}
+                onClick={() => setIsOpen(false)}
+                data-focus-plain
+                className="absolute inset-0 h-full w-full cursor-default bg-black/45 backdrop-blur-[1px]"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: prefersReducedMotion ? 0 : 0.18 }}
+              />
 
-            <motion.div
-              id="admin-assistant-panel"
-              ref={panelRef}
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="admin-assistant-title"
-              tabIndex={-1}
-              className="absolute inset-y-0 right-0 flex w-full flex-col border-l border-border bg-card shadow-[-24px_0_80px_-32px_rgba(26,26,26,0.55)] outline-none sm:w-[420px]"
-              initial={
-                prefersReducedMotion ? { opacity: 0 } : { x: "100%" }
-              }
-              animate={prefersReducedMotion ? { opacity: 1 } : { x: 0 }}
-              exit={prefersReducedMotion ? { opacity: 0 } : { x: "100%" }}
-              transition={{
-                duration: prefersReducedMotion ? 0 : 0.26,
-                ease: [0.16, 1, 0.3, 1],
-              }}
-            >
-              <header className="flex items-start justify-between gap-3 border-b border-border px-4 py-3.5">
-                <div className="min-w-0">
-                  <p className="mb-1 flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                    <span className="h-1 w-1 rounded-full bg-amber" aria-hidden />
-                    {isVi ? "Solenne · Vận hành" : "Solenne · Operations"}
-                  </p>
-                  <h2
-                    id="admin-assistant-title"
-                    className="truncate font-serif text-lg font-normal text-foreground"
-                  >
-                    {isVi ? "Trợ lý quản trị" : "Admin assistant"}
-                  </h2>
-                </div>
-
-                <div className="flex shrink-0 items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={clearConversation}
-                    disabled={!hasConversation}
-                    aria-label={
-                      isVi ? "Xóa cuộc trò chuyện" : "Clear conversation"
-                    }
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70 disabled:opacity-40"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-                  </button>
-
-                  <button
-                    ref={closeRef}
-                    type="button"
-                    onClick={() => setIsOpen(false)}
-                    aria-label={isVi ? "Đóng trợ lý" : "Close assistant"}
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70"
-                  >
-                    <X className="h-3.5 w-3.5" aria-hidden="true" />
-                  </button>
-                </div>
-              </header>
-
-              <div className="flex items-center gap-2 border-b border-border/70 px-4 py-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground">
-                  <span className="h-1.5 w-1.5 rounded-full bg-sage" aria-hidden />
-                  {contextLabel}
-                </span>
-                {context.entity ? (
-                  <span className="truncate rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground">
-                    {context.entity.type} ·{" "}
-                    {context.entity.ref.length > 10
-                      ? `${context.entity.ref.slice(0, 8)}…`
-                      : context.entity.ref}
-                  </span>
-                ) : null}
-              </div>
-
-              <div
-                ref={scrollRef}
-                role="log"
-                aria-live="polite"
-                aria-relevant="additions text"
-                className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4"
+              <motion.div
+                id="admin-assistant-panel"
+                ref={panelRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="admin-assistant-title"
+                tabIndex={-1}
+                className="absolute inset-y-0 right-0 flex w-full flex-col border-l border-border bg-card shadow-[-24px_0_80px_-32px_rgba(26,26,26,0.55)] outline-none sm:w-[420px]"
+                initial={
+                  prefersReducedMotion ? { opacity: 0 } : { x: "100%" }
+                }
+                animate={prefersReducedMotion ? { opacity: 1 } : { x: 0 }}
+                exit={prefersReducedMotion ? { opacity: 0 } : { x: "100%" }}
+                transition={{
+                  duration: prefersReducedMotion ? 0 : 0.26,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
               >
-                {messages.length === 0 ? (
-                  <div className="space-y-4">
-                    <p className="text-[13px] leading-relaxed text-muted-foreground">
-                      {isVi
-                        ? "Tôi đọc được đơn hàng, tồn kho và khách hàng để trả lời câu hỏi vận hành. Giai đoạn này tôi chỉ đọc — không thể hủy đơn, đổi trạng thái hay chỉnh tồn kho."
-                        : "I can read orders, stock and customer records to answer operations questions. This phase is read-only — I cannot cancel orders, change statuses or adjust stock."}
+                <header className="flex items-start justify-between gap-3 border-b border-border px-4 py-3.5">
+                  <div className="min-w-0">
+                    <p className="mb-1 flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                      <span className="h-1 w-1 rounded-full bg-amber" aria-hidden />
+                      {isVi ? "Solenne · Vận hành" : "Solenne · Operations"}
                     </p>
-
-                    {suggestions.length > 0 ? (
-                      <div className="flex flex-wrap gap-2">
-                        {suggestions.map((suggestion) => (
-                          <button
-                            key={suggestion.id}
-                            type="button"
-                            onClick={() => submit(suggestion.prompt)}
-                            className="rounded-full border border-border px-3 py-1.5 text-[11.5px] text-foreground transition-colors hover:border-amber/60 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70"
-                          >
-                            {suggestion.label}
-                          </button>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-[12px] text-muted-foreground">
-                        {isVi
-                          ? "Vai trò của bạn chưa có quyền đọc dữ liệu vận hành."
-                          : "Your role does not have any operational data permissions yet."}
-                      </p>
-                    )}
+                    <h2
+                      id="admin-assistant-title"
+                      className="truncate font-serif text-lg font-normal text-foreground"
+                    >
+                      {isVi ? "Trợ lý quản trị" : "Admin assistant"}
+                    </h2>
                   </div>
-                ) : (
-                  messages.map((message, index) => (
-                    <AdminAssistantMessage
-                      key={message.id || `${message.role}-${index}`}
-                      message={message}
-                      locale={locale}
-                      isStreaming={
-                        isBusy && index === messages.length - 1
-                      }
-                    />
-                  ))
-                )}
 
-                {status === "submitted" ? (
-                  <div className="flex items-center gap-1.5 text-[12px] text-muted-foreground">
-                    <span className="sr-only">
-                      {isVi ? "Trợ lý đang trả lời" : "Assistant is replying"}
-                    </span>
-                    {[0, 1, 2].map((dot) => (
-                      <motion.span
-                        key={dot}
-                        aria-hidden="true"
-                        className="h-1.5 w-1.5 rounded-full bg-muted-foreground/60"
-                        animate={
-                          prefersReducedMotion
-                            ? undefined
-                            : { opacity: [0.25, 1, 0.25] }
-                        }
-                        transition={
-                          prefersReducedMotion
-                            ? undefined
-                            : {
-                                duration: 1.2,
-                                repeat: Infinity,
-                                delay: dot * 0.16,
-                              }
-                        }
-                      />
-                    ))}
-                  </div>
-                ) : null}
-              </div>
-
-              {showFailure ? (
-                <div
-                  role="alert"
-                  className="border-t border-destructive/30 bg-destructive/5 px-4 py-2 text-[12px] leading-snug text-destructive"
-                >
-                  {failureMessage}
-                </div>
-              ) : null}
-
-              <form
-                onSubmit={handleSubmit}
-                className="border-t border-border px-3 py-3"
-              >
-                <label htmlFor="admin-assistant-input" className="sr-only">
-                  {isVi ? "Câu hỏi cho trợ lý" : "Question for the assistant"}
-                </label>
-
-                <div className="flex items-end gap-2">
-                  <textarea
-                    id="admin-assistant-input"
-                    ref={inputRef}
-                    value={input}
-                    onChange={(event) => setInput(event.target.value)}
-                    onKeyDown={handleComposerKeyDown}
-                    rows={1}
-                    maxLength={2000}
-                    placeholder={
-                      isVi
-                        ? "Hỏi về đơn hàng, tồn kho, khách hàng…"
-                        : "Ask about orders, stock or customers…"
-                    }
-                    className="max-h-32 min-h-[38px] flex-1 resize-none rounded-xl border border-border bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60"
-                  />
-
-                  {isBusy ? (
+                  <div className="flex shrink-0 items-center gap-1">
                     <button
                       type="button"
-                      onClick={() => stop()}
-                      aria-label={isVi ? "Dừng trả lời" : "Stop response"}
-                      className="inline-flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-xl border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70"
+                      onClick={clearConversation}
+                      disabled={!hasConversation}
+                      aria-label={
+                        isVi ? "Xóa cuộc trò chuyện" : "Clear conversation"
+                      }
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70 disabled:opacity-40"
                     >
-                      <Square className="h-3.5 w-3.5" aria-hidden="true" />
+                      <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                     </button>
-                  ) : (
+
                     <button
-                      type="submit"
-                      disabled={input.trim().length === 0}
-                      aria-label={isVi ? "Gửi câu hỏi" : "Send message"}
-                      className="inline-flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-xl bg-foreground text-background transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70 focus-visible:ring-offset-2 focus-visible:ring-offset-card disabled:opacity-40"
+                      ref={closeRef}
+                      type="button"
+                      onClick={() => setIsOpen(false)}
+                      aria-label={isVi ? "Đóng trợ lý" : "Close assistant"}
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70"
                     >
-                      <Sparkles className="h-4 w-4" aria-hidden="true" />
+                      <X className="h-3.5 w-3.5" aria-hidden="true" />
                     </button>
-                  )}
+                  </div>
+                </header>
+
+                <div className="flex items-center gap-2 border-b border-border/70 px-4 py-2">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground">
+                    <span className="h-1.5 w-1.5 rounded-full bg-sage" aria-hidden />
+                    {contextLabel}
+                  </span>
+                  {context.entity ? (
+                    <span className="truncate rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground">
+                      {context.entity.type} ·{" "}
+                      {context.entity.ref.length > 10
+                        ? `${context.entity.ref.slice(0, 8)}…`
+                        : context.entity.ref}
+                    </span>
+                  ) : null}
                 </div>
 
-                <div className="mt-2 flex items-center justify-between gap-2 text-[10.5px] text-muted-foreground">
-                  <span>
-                    {isVi
-                      ? "Chỉ đọc · không thể thay đổi dữ liệu"
-                      : "Read-only · cannot change data"}
-                  </span>
-                  <span className="hidden sm:inline">Ctrl/Cmd + J</span>
+                <div
+                  ref={scrollRef}
+                  role="log"
+                  aria-live="polite"
+                  aria-relevant="additions text"
+                  className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4"
+                >
+                  {messages.length === 0 ? (
+                    <div className="space-y-4">
+                      <p className="text-[13px] leading-relaxed text-muted-foreground">
+                        {isVi
+                          ? "Tôi đọc được đơn hàng, tồn kho và khách hàng để trả lời câu hỏi vận hành. Tôi chỉ đề xuất thay đổi — bạn xem lại và xác nhận, thao tác thật chạy qua màn hình quản trị."
+                          : "I can read orders, stock and customer records to answer operations questions. I only propose changes — you review and confirm, and the real action runs through the admin control."}
+                      </p>
+
+                      {suggestions.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {suggestions.map((suggestion) => (
+                            <button
+                              key={suggestion.id}
+                              type="button"
+                              onClick={() => submit(suggestion.prompt)}
+                              className="rounded-full border border-border px-3 py-1.5 text-[11.5px] text-foreground transition-colors hover:border-amber/60 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70"
+                            >
+                              {suggestion.label}
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-[12px] text-muted-foreground">
+                          {isVi
+                            ? "Vai trò của bạn chưa có quyền đọc dữ liệu vận hành."
+                            : "Your role does not have any operational data permissions yet."}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    messages.map((message, index) => (
+                      <AdminAssistantMessage
+                        key={message.id || `${message.role}-${index}`}
+                        message={message}
+                        locale={locale}
+                        isStreaming={
+                          isBusy && index === messages.length - 1
+                        }
+                        onRefreshProposal={refreshProposal}
+                      />
+                    ))
+                  )}
+
+                  {status === "submitted" ? (
+                    <div className="flex items-center gap-1.5 text-[12px] text-muted-foreground">
+                      <span className="sr-only">
+                        {isVi ? "Trợ lý đang trả lời" : "Assistant is replying"}
+                      </span>
+                      {[0, 1, 2].map((dot) => (
+                        <motion.span
+                          key={dot}
+                          aria-hidden="true"
+                          className="h-1.5 w-1.5 rounded-full bg-muted-foreground/60"
+                          animate={
+                            prefersReducedMotion
+                              ? undefined
+                              : { opacity: [0.25, 1, 0.25] }
+                          }
+                          transition={
+                            prefersReducedMotion
+                              ? undefined
+                              : {
+                                  duration: 1.2,
+                                  repeat: Infinity,
+                                  delay: dot * 0.16,
+                                }
+                          }
+                        />
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
-              </form>
-            </motion.div>
-          </div>
-        ) : null}
-      </AnimatePresence>
+
+                {draftRequest ? (
+                  <div className="border-t border-border bg-muted/30 px-4 py-2.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                          {isVi ? "Soạn thư trả lời" : "Draft a reply"}
+                        </p>
+                        <p className="truncate text-[12px] text-foreground">
+                          {draftRequest.orderNumber}
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setDraftRequest(null)}
+                        aria-label={
+                          isVi
+                            ? "Đóng chế độ soạn thư"
+                            : "Close drafting mode"
+                        }
+                        className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70"
+                      >
+                        <X className="h-3 w-3" aria-hidden="true" />
+                      </button>
+                    </div>
+
+                    <div
+                      role="group"
+                      aria-label={isVi ? "Ngôn ngữ thư" : "Reply language"}
+                      className="mt-2 flex items-center gap-1"
+                    >
+                      {DRAFT_LANGUAGES.map((code) => (
+                        <button
+                          key={code}
+                          type="button"
+                          onClick={() => setDraftLanguage(code)}
+                          aria-pressed={draftLanguage === code}
+                          className={cn(
+                            "rounded-full border px-2.5 py-0.5 text-[11px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70",
+                            draftLanguage === code
+                              ? "border-foreground bg-foreground text-background"
+                              : "border-border text-muted-foreground hover:bg-muted hover:text-foreground"
+                          )}
+                        >
+                          {code === "vi" ? "Tiếng Việt" : "English"}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {DRAFT_INTENTS.map((intent) => (
+                        <button
+                          key={intent.id}
+                          type="button"
+                          onClick={() => submitDraftIntent(intent.id)}
+                          disabled={isBusy}
+                          className="rounded-full border border-border bg-card px-2.5 py-1 text-[11px] text-foreground transition-colors hover:border-amber/60 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70 disabled:opacity-40"
+                        >
+                          {isVi ? intent.label.vi : intent.label.en}
+                        </button>
+                      ))}
+                    </div>
+
+                    <p className="mt-1.5 text-[10px] leading-snug text-muted-foreground">
+                      {isVi
+                        ? "Bản nháp chỉ để xem lại — không có gì được gửi đi."
+                        : "A draft only — nothing is sent."}
+                    </p>
+                  </div>
+                ) : null}
+
+                {showFailure ? (
+                  <div
+                    role="alert"
+                    className="border-t border-destructive/30 bg-destructive/5 px-4 py-2 text-[12px] leading-snug text-destructive"
+                  >
+                    {failureMessage}
+                  </div>
+                ) : null}
+
+                <form
+                  onSubmit={handleSubmit}
+                  className="border-t border-border px-3 py-3"
+                >
+                  <label htmlFor="admin-assistant-input" className="sr-only">
+                    {isVi ? "Câu hỏi cho trợ lý" : "Question for the assistant"}
+                  </label>
+
+                  <div className="flex items-end gap-2">
+                    <textarea
+                      id="admin-assistant-input"
+                      ref={inputRef}
+                      value={input}
+                      onChange={(event) => setInput(event.target.value)}
+                      onKeyDown={handleComposerKeyDown}
+                      rows={1}
+                      maxLength={2000}
+                      placeholder={
+                        isVi
+                          ? "Hỏi về đơn hàng, tồn kho, khách hàng — hoặc yêu cầu một thay đổi…"
+                          : "Ask about orders, stock or customers — or request a change…"
+                      }
+                      className="max-h-32 min-h-[38px] flex-1 resize-none rounded-xl border border-border bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60"
+                    />
+
+                    {isBusy ? (
+                      <button
+                        type="button"
+                        onClick={() => stop()}
+                        aria-label={isVi ? "Dừng trả lời" : "Stop response"}
+                        className="inline-flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-xl border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70"
+                      >
+                        <Square className="h-3.5 w-3.5" aria-hidden="true" />
+                      </button>
+                    ) : (
+                      <button
+                        type="submit"
+                        disabled={input.trim().length === 0}
+                        aria-label={isVi ? "Gửi câu hỏi" : "Send message"}
+                        className="inline-flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-xl bg-foreground text-background transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70 focus-visible:ring-offset-2 focus-visible:ring-offset-card disabled:opacity-40"
+                      >
+                        <Sparkles className="h-4 w-4" aria-hidden="true" />
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="mt-2 flex items-center justify-between gap-2 text-[10.5px] text-muted-foreground">
+                    <span>
+                      {isVi
+                        ? "Chỉ đề xuất · bạn xác nhận mọi thay đổi"
+                        : "Proposals only · you confirm every change"}
+                    </span>
+                    <span className="hidden sm:inline">Ctrl/Cmd + J</span>
+                  </div>
+                </form>
+              </motion.div>
+            </div>
+          ) : null}
+        </AnimatePresence>,
+        document.body
+      )}
     </>
   );
 }

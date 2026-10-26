@@ -1,11 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useId, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import type { UIMessage } from "ai";
-import { Check, ChevronDown, Copy, Loader2 } from "lucide-react";
+import {
+  AlertTriangle,
+  Ban,
+  Check,
+  ChevronDown,
+  Copy,
+  Loader2,
+  Mail,
+  PackageCheck,
+  RefreshCw,
+  SlidersHorizontal,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TOOL_CATALOGUE, type AdminAssistantToolName } from "@/lib/admin-assistant/access";
 import { buildDataUsedTables } from "@/lib/admin-assistant/presentation";
+import {
+  isProposalStale,
+  proposalAgeMs,
+  type AssistantProposal,
+} from "@/lib/admin-assistant/proposals";
+import {
+  buildMailtoUrl,
+  findPlaceholders,
+} from "@/lib/admin-assistant/drafting";
+import { cancelOrderAction, transitionOrderStatusAction } from "@/app/actions/orders";
+import { adjustInventoryAction } from "@/app/actions/inventory";
 
 // ---------------------------------------------------------------------------
 // One chat turn in the admin assistant drawer.
@@ -36,6 +59,11 @@ export interface AdminAssistantMessageProps {
   message: UIMessage;
   locale: string;
   isStreaming: boolean;
+  /**
+   * Ask the assistant for a fresh proposal for the same target. Wired to the
+   * drawer's composer so a stale card can be replaced without leaving the chat.
+   */
+  onRefreshProposal?: (proposal: AssistantProposal) => void;
 }
 
 function toolPartsOf(message: UIMessage): ToolPartLike[] {
@@ -68,6 +96,16 @@ function toolLabel(name: string, isVi: boolean): string {
     getProductStock: { en: "Product stock", vi: "Tồn kho sản phẩm" },
     findCustomer: { en: "Customer search", vi: "Tìm khách hàng" },
     getDashboardMetrics: { en: "Dashboard metrics", vi: "Chỉ số tổng quan" },
+    draftCustomerEmail: { en: "Draft reply", vi: "Bản nháp thư" },
+    proposeCancelOrder: { en: "Cancel proposal", vi: "Đề xuất hủy đơn" },
+    proposeFulfillmentTransition: {
+      en: "Fulfillment proposal",
+      vi: "Đề xuất chuyển trạng thái",
+    },
+    proposeInventoryAdjustment: {
+      en: "Stock proposal",
+      vi: "Đề xuất điều chỉnh tồn kho",
+    },
   };
   const label = labels[name as AdminAssistantToolName];
   return label ? (isVi ? label.vi : label.en) : entry.label;
@@ -197,10 +235,726 @@ function DataUsedTables({
   );
 }
 
+interface DraftValue {
+  language: string;
+  subject: string;
+  body: string;
+}
+
+function draftValueOf(part: ToolPartLike): DraftValue | null {
+  if (part.state !== "output-available") return null;
+  const output = part.output;
+  if (!output || typeof output !== "object") return null;
+
+  const record = output as Record<string, unknown>;
+  if (typeof record.subject !== "string" || typeof record.body !== "string") {
+    return null;
+  }
+
+  return {
+    language: typeof record.language === "string" ? record.language : "en",
+    subject: record.subject,
+    body: record.body,
+  };
+}
+
+function CopyButton({
+  value,
+  label,
+  isVi,
+}: {
+  value: string;
+  label: string;
+  isVi: boolean;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    if (!value) return;
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      // Clipboard permission denied — the text stays selectable on screen.
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      aria-label={label}
+      className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60"
+    >
+      {copied ? (
+        <Check className="h-3 w-3" aria-hidden="true" />
+      ) : (
+        <Copy className="h-3 w-3" aria-hidden="true" />
+      )}
+      {copied ? (isVi ? "Đã chép" : "Copied") : label}
+    </button>
+  );
+}
+
+/**
+ * A customer reply the assistant wrote. Editable in place, copyable field by
+ * field, and openable in the operator's own mail client. Nothing here sends or
+ * saves: the mailto link is a plain anchor and the draft lives only in this
+ * component's state.
+ */
+function DraftCard({ draft, isVi }: { draft: DraftValue; isVi: boolean }) {
+  const fieldId = useId();
+  const [subject, setSubject] = useState(draft.subject);
+  const [body, setBody] = useState(draft.body);
+
+  const mailto = buildMailtoUrl({ subject, body });
+  const placeholders = findPlaceholders(`${subject}\n${body}`);
+  const languageLabel =
+    draft.language === "vi"
+      ? isVi
+        ? "Tiếng Việt"
+        : "Vietnamese"
+      : isVi
+        ? "Tiếng Anh"
+        : "English";
+
+  return (
+    <div className="rounded-xl border border-border bg-card p-3">
+      <div className="mb-2 flex flex-wrap items-center gap-1.5">
+        <Mail className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+        <span className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+          {isVi ? "Bản nháp thư" : "Draft reply"}
+        </span>
+        <span className="rounded-full border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground">
+          {languageLabel}
+        </span>
+      </div>
+
+      <label
+        htmlFor={`${fieldId}-subject`}
+        className="block text-[10px] uppercase tracking-[0.08em] text-muted-foreground"
+      >
+        {isVi ? "Tiêu đề" : "Subject"}
+      </label>
+      <input
+        id={`${fieldId}-subject`}
+        value={subject}
+        onChange={(event) => setSubject(event.target.value)}
+        className="mt-1 w-full rounded-md border border-border bg-background px-2 py-1.5 text-[12.5px] text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40"
+      />
+
+      <label
+        htmlFor={`${fieldId}-body`}
+        className="mt-2 block text-[10px] uppercase tracking-[0.08em] text-muted-foreground"
+      >
+        {isVi ? "Nội dung" : "Body"}
+      </label>
+      <textarea
+        id={`${fieldId}-body`}
+        value={body}
+        onChange={(event) => setBody(event.target.value)}
+        rows={9}
+        className="mt-1 w-full resize-y rounded-md border border-border bg-background px-2 py-1.5 text-[12.5px] leading-relaxed text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40"
+      />
+
+      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+        <CopyButton
+          value={subject}
+          label={isVi ? "Chép tiêu đề" : "Copy subject"}
+          isVi={isVi}
+        />
+        <CopyButton
+          value={body}
+          label={isVi ? "Chép nội dung" : "Copy body"}
+          isVi={isVi}
+        />
+        <a
+          href={mailto.href}
+          className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60"
+        >
+          <Mail className="h-3 w-3" aria-hidden="true" />
+          {isVi ? "Mở ứng dụng thư" : "Open in mail app"}
+        </a>
+      </div>
+
+      {mailto.truncated ? (
+        <p className="mt-2 text-[10.5px] leading-snug text-amber-700 dark:text-amber-400">
+          {isVi
+            ? `Nội dung quá dài cho liên kết thư nên đã được rút gọn (giữ ${mailto.keptCharacters}/${mailto.originalCharacters} ký tự). Hãy dùng nút chép để giữ đầy đủ.`
+            : `The body was too long for a mail link, so it was shortened (kept ${mailto.keptCharacters} of ${mailto.originalCharacters} characters). Use the copy button to keep all of it.`}
+        </p>
+      ) : null}
+
+      {placeholders.length > 0 ? (
+        <p className="mt-2 text-[10.5px] leading-snug text-amber-700 dark:text-amber-400">
+          {isVi ? "Cần điền trước khi gửi: " : "Fill in before sending: "}
+          <span className="font-medium">{placeholders.join(", ")}</span>
+        </p>
+      ) : null}
+
+      <p className="mt-2 text-[10px] leading-snug text-muted-foreground">
+        {isVi
+          ? "Đây chỉ là bản nháp. Solenne không gửi hay lưu thư từ khung này."
+          : "This is only a draft. Solenne never sends or saves email from this drawer."}
+      </p>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Phase 3 — proposal card.
+//
+// The assistant can only PROPOSE. This card shows exactly what would change and
+// then hands the confirmation to the existing server action, so the same zod
+// schema, permission check, atomic RPC and audit row run as in the admin UI.
+// Two explicit steps (review → confirm) make the destructive action deliberate;
+// a proposal older than five minutes, or one whose target changed, is disabled
+// and must be refreshed.
+// ---------------------------------------------------------------------------
+
+const PROPOSAL_TYPE_VALUES = [
+  "cancel_order",
+  "fulfillment_transition",
+  "inventory_adjustment",
+] as const;
+
+/**
+ * The union of the three existing server-action results. The card reads only
+ * the fields it displays; every action still returns its own richer shape.
+ */
+interface ActionOutcome {
+  success?: boolean;
+  error?: string;
+  orderNumber?: string;
+  previousStatus?: string;
+  newStatus?: string;
+  trackingCode?: string | null;
+  previousStock?: number;
+  newStock?: number;
+}
+
+function proposalValueOf(part: ToolPartLike): AssistantProposal | null {
+  if (part.state !== "output-available") return null;
+  const output = part.output;
+  if (!output || typeof output !== "object") return null;
+
+  const record = output as Record<string, unknown>;
+
+  if (record.kind !== "proposal") return null;
+  if (
+    typeof record.type !== "string" ||
+    !(PROPOSAL_TYPE_VALUES as readonly string[]).includes(record.type)
+  ) {
+    return null;
+  }
+  if (typeof record.createdAt !== "string") return null;
+  if (!record.params || typeof record.params !== "object") return null;
+
+  return output as AssistantProposal;
+}
+
+/** The real actions map a changed target to one of these messages. */
+function isStateChangedError(message: string): boolean {
+  return /already been cancelled|fulfillment status|already in|not permitted|below zero|insufficient stock|not found|no longer exist/i.test(
+    message
+  );
+}
+
+function proposalAgeLabel(
+  createdAt: string,
+  now: number,
+  isVi: boolean
+): string {
+  const ms = proposalAgeMs(createdAt, new Date(now));
+  if (!Number.isFinite(ms)) return isVi ? "không rõ thời điểm" : "unknown age";
+
+  const minutes = Math.floor(ms / 60000);
+  if (minutes < 1) return isVi ? "vừa xong" : "just now";
+  if (minutes === 1) return isVi ? "1 phút trước" : "1 min ago";
+  return isVi ? `${minutes} phút trước` : `${minutes} min ago`;
+}
+
+function proposalTypeLabel(type: AssistantProposal["type"], isVi: boolean) {
+  if (type === "cancel_order") {
+    return isVi ? "Đề xuất hủy đơn" : "Cancellation proposal";
+  }
+  if (type === "fulfillment_transition") {
+    return isVi ? "Đề xuất chuyển trạng thái" : "Fulfillment proposal";
+  }
+  return isVi ? "Đề xuất điều chỉnh tồn kho" : "Stock proposal";
+}
+
+function signedDelta(delta: number): string {
+  return delta > 0 ? `+${delta}` : `${delta}`;
+}
+
+function ProposalCard({
+  proposal,
+  isVi,
+  onRefresh,
+}: {
+  proposal: AssistantProposal;
+  isVi: boolean;
+  onRefresh: () => void;
+}) {
+  const router = useRouter();
+  const titleId = useId();
+  const [step, setStep] = useState<"review" | "confirm">("review");
+  const [reason, setReason] = useState(proposal.params.reason ?? "");
+  const [trackingCode, setTrackingCode] = useState("");
+  const [delta, setDelta] = useState(String(proposal.params.delta ?? ""));
+  const [now, setNow] = useState(() => Date.now());
+  const [forcedStale, setForcedStale] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  const reasonRef = useRef<HTMLTextAreaElement>(null);
+  const trackingRef = useRef<HTMLInputElement>(null);
+  const deltaRef = useRef<HTMLInputElement>(null);
+  const confirmRef = useRef<HTMLButtonElement>(null);
+
+  const isRollback =
+    proposal.type === "fulfillment_transition" &&
+    proposal.params.fromStatus === "shipped" &&
+    proposal.params.toStatus === "processing";
+  const needsReason =
+    proposal.type === "inventory_adjustment" || isRollback;
+  const needsTracking =
+    proposal.type === "fulfillment_transition" &&
+    proposal.params.toStatus === "shipped";
+
+  const blocked = proposal.status === "blocked";
+  const stale = forcedStale || isProposalStale(proposal.createdAt, new Date(now));
+
+  // Age + staleness ticker. Fifteen seconds is enough for a five-minute limit.
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 15_000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  // Move focus into the confirmation step so keyboard and screen-reader users
+  // land on the first thing they must fill in.
+  useEffect(() => {
+    if (step !== "confirm") return;
+    const first =
+      (proposal.type === "inventory_adjustment" ? deltaRef.current : null) ??
+      (needsTracking ? trackingRef.current : null) ??
+      (needsReason ? reasonRef.current : null) ??
+      confirmRef.current;
+    first?.focus();
+  }, [step, needsReason, needsTracking, proposal.type]);
+
+  const trimmedReason = reason.trim();
+  const trimmedTracking = trackingCode.trim();
+  const deltaNumber = Number(delta);
+
+  let fieldError: string | null = null;
+
+  if (needsReason) {
+    const max = proposal.type === "inventory_adjustment" ? 255 : 500;
+    if (trimmedReason.length < 3) {
+      fieldError = isVi
+        ? "Lý do cần ít nhất 3 ký tự."
+        : "A reason of at least 3 characters is required.";
+    } else if (trimmedReason.length > max) {
+      fieldError = isVi
+        ? `Lý do không được vượt quá ${max} ký tự.`
+        : `The reason cannot exceed ${max} characters.`;
+    }
+  }
+
+  if (!fieldError && needsTracking) {
+    if (trimmedTracking.length < 3 || trimmedTracking.length > 100) {
+      fieldError = isVi
+        ? "Mã vận đơn cần 3–100 ký tự."
+        : "A tracking code of 3–100 characters is required.";
+    }
+  }
+
+  if (!fieldError && proposal.type === "inventory_adjustment") {
+    if (!Number.isInteger(deltaNumber) || deltaNumber === 0) {
+      fieldError = isVi
+        ? "Mức điều chỉnh phải là số nguyên khác 0."
+        : "The adjustment must be a non-zero whole number.";
+    }
+  }
+
+  const canConfirm =
+    !blocked && !stale && !done && !pending && fieldError === null;
+
+  /**
+   * The confirmation message quotes what the ACTION returned, not what the
+   * proposal predicted. Stock can move between review and confirm, and the
+   * atomic RPC's own numbers are the only ones worth showing.
+   */
+  const describeSuccess = (result: ActionOutcome): string => {
+    if (proposal.type === "cancel_order") {
+      const ref = result.orderNumber ?? proposal.targetRef;
+      return isVi
+        ? `Đã hủy đơn ${ref}. Tồn kho đã được hoàn lại.`
+        : `Order ${ref} cancelled. Inventory has been restored.`;
+    }
+    if (proposal.type === "fulfillment_transition") {
+      const to = result.newStatus ?? proposal.params.toStatus ?? "";
+      return isVi
+        ? `Đã chuyển đơn ${proposal.targetRef} sang ${to}.`
+        : `Order ${proposal.targetRef} moved to ${to}.`;
+    }
+    const newStock = result.newStock ?? proposal.params.newStock;
+    return isVi
+      ? `Đã điều chỉnh tồn kho${typeof newStock === "number" ? ` thành ${newStock}` : ""}.`
+      : `Stock adjusted${typeof newStock === "number" ? ` to ${newStock}` : ""}.`;
+  };
+
+  const confirm = () => {
+    if (!canConfirm || !proposal.targetId) return;
+
+    setError(null);
+
+    startTransition(async () => {
+      let result: ActionOutcome | null = null;
+
+      if (proposal.type === "cancel_order") {
+        result = await cancelOrderAction(
+          proposal.targetId as string,
+          trimmedReason || undefined
+        );
+      } else if (proposal.type === "fulfillment_transition") {
+        if (!proposal.params.toStatus) return;
+        result = await transitionOrderStatusAction(
+          proposal.targetId as string,
+          proposal.params.toStatus,
+          needsTracking ? trimmedTracking : undefined,
+          trimmedReason || undefined
+        );
+      } else {
+        result = await adjustInventoryAction({
+          variantId: proposal.targetId as string,
+          delta: deltaNumber,
+          reason: trimmedReason,
+        });
+      }
+
+      if (!result || !result.success) {
+        const message =
+          result?.error ??
+          (isVi ? "Thao tác không thành công." : "The action did not succeed.");
+        setError(message);
+        // A changed target (already cancelled, already in status, stock moved)
+        // invalidates the proposal: mark it stale instead of letting the
+        // operator retry a card that no longer matches reality, and refresh the
+        // underlying admin page so it shows the same truth.
+        if (isStateChangedError(message)) {
+          setForcedStale(true);
+          router.refresh();
+        }
+        return;
+      }
+
+      setDone(describeSuccess(result));
+      router.refresh();
+    });
+  };
+
+  const rows: [string, string][] = [];
+
+  if (proposal.type === "cancel_order") {
+    rows.push([
+      isVi ? "Đơn" : "Order",
+      proposal.params.orderNumber ?? proposal.targetRef,
+    ]);
+    rows.push([
+      isVi ? "Trạng thái" : "Status",
+      proposal.params.fromStatus ?? "—",
+    ]);
+    rows.push([
+      isVi ? "Lý do" : "Reason",
+      proposal.params.reason || (isVi ? "không có" : "none"),
+    ]);
+  } else if (proposal.type === "fulfillment_transition") {
+    rows.push([
+      isVi ? "Đơn" : "Order",
+      proposal.params.orderNumber ?? proposal.targetRef,
+    ]);
+    rows.push([isVi ? "Từ" : "From", proposal.params.fromStatus ?? "—"]);
+    rows.push([isVi ? "Sang" : "To", proposal.params.toStatus ?? "—"]);
+  } else {
+    rows.push([isVi ? "Phiên bản" : "Variant", proposal.targetLabel]);
+    rows.push([
+      isVi ? "Tồn hiện tại" : "Current stock",
+      typeof proposal.params.previousStock === "number"
+        ? String(proposal.params.previousStock)
+        : "—",
+    ]);
+    rows.push([
+      isVi ? "Tồn sau" : "Resulting stock",
+      typeof proposal.params.newStock === "number"
+        ? String(proposal.params.newStock)
+        : "—",
+    ]);
+    rows.push([
+      isVi ? "Thay đổi" : "Delta",
+      typeof proposal.params.delta === "number"
+        ? signedDelta(proposal.params.delta)
+        : "—",
+    ]);
+    rows.push([
+      isVi ? "Lý do" : "Reason",
+      proposal.params.reason || (isVi ? "chưa có" : "not set"),
+    ]);
+  }
+
+  const Icon =
+    proposal.type === "cancel_order"
+      ? Ban
+      : proposal.type === "fulfillment_transition"
+        ? PackageCheck
+        : SlidersHorizontal;
+
+  return (
+    <section
+      aria-labelledby={titleId}
+      className={cn(
+        "rounded-xl border bg-card p-3",
+        blocked || stale ? "border-amber/60" : "border-border"
+      )}
+    >
+      <div className="mb-2 flex flex-wrap items-center gap-1.5">
+        <Icon className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+        <span
+          id={titleId}
+          className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground"
+        >
+          {proposalTypeLabel(proposal.type, isVi)}
+        </span>
+        <span
+          className={cn(
+            "rounded-full border px-1.5 py-0.5 text-[10px]",
+            blocked
+              ? "border-destructive/40 text-destructive"
+              : "border-sage/60 text-foreground"
+          )}
+        >
+          {blocked
+            ? isVi
+              ? "Bị chặn"
+              : "Blocked"
+            : isVi
+              ? "Sẵn sàng"
+              : "Ready"}
+        </span>
+        <span className="ml-auto text-[10px] text-muted-foreground">
+          {proposalAgeLabel(proposal.createdAt, now, isVi)}
+        </span>
+      </div>
+
+      <p className="text-[12.5px] leading-relaxed text-foreground">
+        {proposal.humanSummary}
+      </p>
+
+      <dl className="mt-2 space-y-1 text-[11px] leading-snug">
+        {rows.map(([label, value]) => (
+          <div key={label} className="flex justify-between gap-2">
+            <dt className="text-muted-foreground">{label}</dt>
+            <dd className="break-words text-right text-foreground">{value}</dd>
+          </div>
+        ))}
+      </dl>
+
+      {proposal.warnings.length > 0 ? (
+        <ul className="mt-2 space-y-0.5 text-[10.5px] leading-snug text-amber-700 dark:text-amber-400">
+          {proposal.warnings.map((warning) => (
+            <li key={warning}>{warning}</li>
+          ))}
+        </ul>
+      ) : null}
+
+      {blocked ? (
+        <div role="alert" className="mt-2 space-y-0.5 text-[10.5px] leading-snug text-destructive">
+          {proposal.blockers.map((blocker) => (
+            <p key={blocker}>{blocker}</p>
+          ))}
+        </div>
+      ) : null}
+
+      {stale ? (
+        <p
+          role="alert"
+          className="mt-2 text-[10.5px] leading-snug text-amber-700 dark:text-amber-400"
+        >
+          {isVi
+            ? "Đề xuất này đã cũ hoặc dữ liệu đã thay đổi. Hãy tạo lại đề xuất trước khi xác nhận."
+            : "This proposal is old or the target has changed. Prepare a fresh one before confirming."}
+        </p>
+      ) : null}
+
+      {done ? (
+        <p
+          role="status"
+          aria-live="polite"
+          className="mt-2 text-[11px] leading-snug text-sage"
+        >
+          {done}
+        </p>
+      ) : null}
+
+      {error ? (
+        <p role="alert" className="mt-2 text-[10.5px] leading-snug text-destructive">
+          {error}
+        </p>
+      ) : null}
+
+      {step === "review" ? (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {!blocked && !stale && !done ? (
+            <button
+              type="button"
+              onClick={() => setStep("confirm")}
+              className="rounded-md border border-border bg-foreground px-2.5 py-1 text-[11px] text-background transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60 focus-visible:ring-offset-2 focus-visible:ring-offset-card"
+            >
+              {isVi ? "Xem lại và xác nhận" : "Review and confirm"}
+            </button>
+          ) : null}
+
+          {blocked || stale ? (
+            <button
+              type="button"
+              onClick={onRefresh}
+              className="inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-[11px] text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60"
+            >
+              <RefreshCw className="h-3 w-3" aria-hidden="true" />
+              {stale
+                ? isVi
+                  ? "Tạo lại đề xuất"
+                  : "Prepare a fresh proposal"
+                : isVi
+                  ? "Kiểm tra lại trạng thái"
+                  : "Re-check state"}
+            </button>
+          ) : null}
+        </div>
+      ) : (
+        <div className="mt-2 space-y-2">
+          {proposal.type === "inventory_adjustment" ? (
+            <div>
+              <label
+                htmlFor={`${titleId}-delta`}
+                className="block text-[10px] uppercase tracking-[0.08em] text-muted-foreground"
+              >
+                {isVi ? "Mức điều chỉnh" : "Adjustment"}
+              </label>
+              <input
+                id={`${titleId}-delta`}
+                ref={deltaRef}
+                type="number"
+                step={1}
+                value={delta}
+                onChange={(event) => setDelta(event.target.value)}
+                className="mt-1 w-full rounded-md border border-border bg-background px-2 py-1.5 text-[12.5px] text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40"
+              />
+            </div>
+          ) : null}
+
+          {needsTracking ? (
+            <div>
+              <label
+                htmlFor={`${titleId}-tracking`}
+                className="block text-[10px] uppercase tracking-[0.08em] text-muted-foreground"
+              >
+                {isVi ? "Mã vận đơn" : "Tracking code"}
+              </label>
+              <input
+                id={`${titleId}-tracking`}
+                ref={trackingRef}
+                value={trackingCode}
+                onChange={(event) => setTrackingCode(event.target.value)}
+                maxLength={100}
+                className="mt-1 w-full rounded-md border border-border bg-background px-2 py-1.5 text-[12.5px] text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40"
+              />
+            </div>
+          ) : null}
+
+          {needsReason || proposal.type === "cancel_order" ? (
+            <div>
+              <label
+                htmlFor={`${titleId}-reason`}
+                className="block text-[10px] uppercase tracking-[0.08em] text-muted-foreground"
+              >
+                {needsReason
+                  ? isVi
+                    ? "Lý do (bắt buộc)"
+                    : "Reason (required)"
+                  : isVi
+                    ? "Lý do (không bắt buộc)"
+                    : "Reason (optional)"}
+              </label>
+              <textarea
+                id={`${titleId}-reason`}
+                ref={reasonRef}
+                value={reason}
+                onChange={(event) => setReason(event.target.value)}
+                rows={2}
+                maxLength={proposal.type === "inventory_adjustment" ? 255 : 500}
+                className="mt-1 w-full resize-y rounded-md border border-border bg-background px-2 py-1.5 text-[12.5px] leading-relaxed text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40"
+              />
+            </div>
+          ) : null}
+
+          {fieldError ? (
+            <p role="alert" className="text-[10.5px] leading-snug text-destructive">
+              {fieldError}
+            </p>
+          ) : null}
+
+          <p className="text-[10px] leading-snug text-amber-700 dark:text-amber-400">
+            {isVi
+              ? "Xác nhận sẽ thay đổi dữ liệu thật. Màn hình quản trị sẽ kiểm tra lại quyền và trạng thái."
+              : "Confirming changes real data. The admin control re-checks permission and state."}
+          </p>
+
+          <div className="flex flex-wrap gap-1.5">
+            <button
+              type="button"
+              onClick={() => setStep("review")}
+              disabled={pending}
+              className="rounded-md border border-border px-2.5 py-1 text-[11px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60 disabled:opacity-40"
+            >
+              {isVi ? "Quay lại" : "Back"}
+            </button>
+            <button
+              ref={confirmRef}
+              type="button"
+              onClick={confirm}
+              disabled={!canConfirm}
+              className="inline-flex items-center gap-1 rounded-md border border-destructive/50 bg-destructive px-2.5 py-1 text-[11px] text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/70 focus-visible:ring-offset-2 focus-visible:ring-offset-card disabled:opacity-40"
+            >
+              {pending ? (
+                <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
+              ) : (
+                <AlertTriangle className="h-3 w-3" aria-hidden="true" />
+              )}
+              {isVi ? "Xác nhận thay đổi" : "Confirm change"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <p className="mt-2 text-[10px] leading-snug text-muted-foreground">
+        {isVi
+          ? "Trợ lý chỉ đề xuất. Bạn xác nhận; thao tác thật chạy qua màn hình quản trị."
+          : "The assistant only proposes. You confirm; the real action runs through the admin control."}
+      </p>
+    </section>
+  );
+}
+
 export function AdminAssistantMessage({
   message,
   locale,
   isStreaming,
+  onRefreshProposal,
 }: AdminAssistantMessageProps) {
   const isVi = locale === "vi";
   const [copied, setCopied] = useState(false);
@@ -213,6 +967,22 @@ export function AdminAssistantMessage({
   );
   const running = toolParts.filter(
     (part) => part.state !== "output-available" && part.state !== "output-error"
+  );
+
+  // Drafts render as editable cards; a FAILED draft call stays in the data list
+  // so the operator can see that it errored.
+  const drafts = completed
+    .map(draftValueOf)
+    .filter((draft): draft is DraftValue => draft !== null);
+
+  // Proposals render as confirmation cards and never as a "Data used" row: the
+  // card IS the result, and a row count of zero would only add noise.
+  const proposals = completed
+    .map(proposalValueOf)
+    .filter((proposal): proposal is AssistantProposal => proposal !== null);
+
+  const dataParts = completed.filter(
+    (part) => draftValueOf(part) === null && proposalValueOf(part) === null
   );
 
   const isUser = message.role === "user";
@@ -286,7 +1056,20 @@ export function AdminAssistantMessage({
         </p>
       ) : null}
 
-      {completed.length > 0 ? (
+      {drafts.map((draft, index) => (
+        <DraftCard key={index} draft={draft} isVi={isVi} />
+      ))}
+
+      {proposals.map((proposal, index) => (
+        <ProposalCard
+          key={`${proposal.type}-${proposal.targetRef}-${index}`}
+          proposal={proposal}
+          isVi={isVi}
+          onRefresh={() => onRefreshProposal?.(proposal)}
+        />
+      ))}
+
+      {dataParts.length > 0 ? (
         <div className="rounded-xl border border-border/70 bg-muted/30">
           <button
             type="button"
@@ -302,13 +1085,13 @@ export function AdminAssistantMessage({
               aria-hidden="true"
             />
             {isVi
-              ? `Dữ liệu đã dùng (${completed.length})`
-              : `Data used (${completed.length})`}
+              ? `Dữ liệu đã dùng (${dataParts.length})`
+              : `Data used (${dataParts.length})`}
           </button>
 
           {open ? (
             <ul className="space-y-1.5 border-t border-border/60 px-2.5 py-2">
-              {completed.map((part, index) => {
+              {dataParts.map((part, index) => {
                 const name = toolNameOf(part);
                 const rows = rowCountOf(part.output);
                 const failed = part.state === "output-error";

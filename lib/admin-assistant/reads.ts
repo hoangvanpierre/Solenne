@@ -7,6 +7,7 @@ import {
   getOrderMetrics,
 } from "@/lib/admin-metrics";
 import { getAdminInventory } from "@/lib/inventory";
+import type { AdminInventoryItem } from "@/lib/inventory";
 import { getAdminOrderList } from "@/lib/orders";
 import {
   getStockStatus,
@@ -20,6 +21,10 @@ import {
   type AssistantOrderRange,
   type AssistantOrderStatus,
 } from "./schemas";
+import type {
+  ProposalOrderState,
+  ProposalVariantState,
+} from "./proposals";
 
 // ---------------------------------------------------------------------------
 // Solenne admin assistant — read-only data helpers.
@@ -685,4 +690,133 @@ export async function assistantDashboardMetrics(
   }
 
   return { orders, customers, inventory, omitted };
+}
+
+// ---------------------------------------------------------------------------
+// Phase 3 — proposal state.
+//
+// These two helpers load ONLY what a proposal needs to decide whether the real
+// action would succeed. They are still reads:
+//   * user-scoped client, RLS applies,
+//   * explicit column list (no order notes, no payment ids),
+//   * one target, bounded result.
+//
+// The proposal builders (lib/admin-assistant/proposals.ts) are pure; this file
+// is the only place they get data from.
+// ---------------------------------------------------------------------------
+
+interface ProposalOrderRow {
+  id: string;
+  order_number: string;
+  status: string;
+  tracking_code: string | null;
+  updated_at: string;
+}
+
+/**
+ * Current state of one order by its public order number, plus the number of
+ * units a cancellation would return to stock.
+ *
+ * `notes` is deliberately absent from the SELECT: order notes are free text
+ * written by a customer, i.e. the most likely carrier of a prompt injection,
+ * and a proposal never needs them.
+ */
+export async function assistantOrderProposalState(
+  orderNumber: string
+): Promise<ProposalOrderState | null> {
+  await requirePermission("order.read");
+
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("orders")
+    .select("id, order_number, status, tracking_code, updated_at")
+    .eq("order_number", orderNumber)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to load order state: ${error.message}`);
+  }
+
+  if (!data) return null;
+
+  const row = data as unknown as ProposalOrderRow;
+
+  const { data: itemData, error: itemError } = await supabase
+    .from("order_items")
+    .select("quantity")
+    .eq("order_id", row.id);
+
+  if (itemError) {
+    throw new Error(`Failed to load order units: ${itemError.message}`);
+  }
+
+  const unitsCount = (
+    (itemData ?? []) as unknown as { quantity: number | string }[]
+  ).reduce((total, item) => total + toNumber(item.quantity), 0);
+
+  return {
+    orderId: row.id,
+    orderNumber: row.order_number,
+    status: row.status as OrderStatus,
+    trackingCode: row.tracking_code,
+    unitsCount,
+    updatedAt: row.updated_at,
+  };
+}
+
+export interface AssistantVariantProposalState {
+  match: ProposalVariantState | null;
+  /** Up to five candidates when the reference was ambiguous. */
+  matches: ProposalVariantState[];
+}
+
+function toProposalVariant(item: AdminInventoryItem): ProposalVariantState {
+  return {
+    variantId: item.id,
+    productName: item.productName,
+    variantName: item.name,
+    sku: item.sku ?? null,
+    stock: item.stockQuantity,
+  };
+}
+
+/**
+ * Resolve a variant reference to exactly one variant.
+ *
+ * Exact matches win in this order: variant uuid, SKU, variant name. Otherwise a
+ * case-insensitive substring search over product name, variant name and SKU is
+ * used, and only a UNIQUE hit is accepted — an ambiguous reference returns the
+ * candidates so the proposal can be blocked instead of guessing.
+ */
+export async function assistantVariantProposalState(
+  reference: string
+): Promise<AssistantVariantProposalState> {
+  await requirePermission("inventory.read");
+
+  const items = await getAdminInventory();
+  const variants = items.map(toProposalVariant);
+  const needle = reference.trim().toLowerCase();
+
+  const exact =
+    variants.find((variant) => variant.variantId.toLowerCase() === needle) ??
+    variants.find(
+      (variant) => (variant.sku ?? "").toLowerCase() === needle
+    ) ??
+    variants.find(
+      (variant) => variant.variantName.toLowerCase() === needle
+    );
+
+  if (exact) return { match: exact, matches: [exact] };
+
+  const matches = variants.filter((variant) =>
+    [variant.productName, variant.variantName, variant.sku ?? ""]
+      .join(" ")
+      .toLowerCase()
+      .includes(needle)
+  );
+
+  if (matches.length === 1) return { match: matches[0], matches };
+
+  return { match: null, matches: matches.slice(0, 5) };
 }

@@ -2,6 +2,8 @@ export { OrderCancelControl } from "./order-cancel-control";
 export type { OrderCancelControlProps } from "./order-cancel-control";
 export { OrderFulfillmentControl } from "./order-fulfillment-control";
 export type { OrderFulfillmentControlProps } from "./order-fulfillment-control";
+export { OrderDraftReplyButton } from "./order-draft-reply-button";
+export type { OrderDraftReplyButtonProps } from "./order-draft-reply-button";
 export {
   StockStatusBadge,
   getStockStatus,

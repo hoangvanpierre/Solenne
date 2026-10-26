@@ -6,21 +6,23 @@ import {
   streamText,
   type StreamTextTransform,
   type ToolSet,
-  type UIMessage,
 } from "ai";
-import { createWorkersAI } from "workers-ai-provider";
-import { z } from "zod";
 import { AuthError, requireAnyPermission } from "@/lib/authz";
 import { MANAGEMENT_PERMISSIONS } from "@/lib/redirect";
+import {
+  requestSchema,
+  textLengthOf,
+  toSafeHistory,
+} from "@/lib/admin-assistant/request";
 import {
   ADMIN_ASSISTANT_MAX_HISTORY_MESSAGES,
   ADMIN_ASSISTANT_MAX_INPUT_CHARACTERS,
   ADMIN_ASSISTANT_MAX_OUTPUT_TOKENS,
   ADMIN_ASSISTANT_MAX_STEPS,
-  ADMIN_ASSISTANT_MODEL_ID,
   collapseDuplicateTextDeltas,
 } from "@/lib/admin-assistant/model";
 import { buildAdminAssistantSystemPrompt } from "@/lib/admin-assistant/prompt";
+import { createAdminAssistantModel } from "@/lib/admin-assistant/ai-binding";
 import {
   createAdminAssistantTools,
   promptToolSummaries,
@@ -45,49 +47,6 @@ import type { AssistantLocale } from "@/lib/assistant/context";
 // The body's `context` is a HINT for the prompt only. Authorization never reads
 // it; tools derive everything from the verified session and the database.
 // ---------------------------------------------------------------------------
-
-const messagePartSchema = z
-  .object({
-    type: z.string().max(40),
-    text: z.string().max(4000).optional(),
-  })
-  .passthrough();
-
-const uiMessageSchema = z
-  .object({
-    id: z.string().max(120).optional(),
-    role: z.enum(["system", "user", "assistant"]),
-    parts: z.array(messagePartSchema).max(80),
-  })
-  .passthrough();
-
-const contextSchema = z
-  .object({
-    path: z.string().trim().min(1).max(300),
-    entity: z
-      .object({
-        type: z.enum(["order", "product", "customer"]),
-        ref: z
-          .string()
-          .trim()
-          .min(1)
-          .max(120)
-          .regex(/^[A-Za-z0-9-]+$/, "Unsupported entity reference."),
-      })
-      .strict()
-      .optional(),
-  })
-  .strict();
-
-const requestSchema = z
-  .object({
-    // Up to 50 are accepted so an older browser tab is not rejected outright;
-    // only the last 12 are ever sent upstream.
-    messages: z.array(uiMessageSchema).min(1).max(50),
-    context: contextSchema.optional(),
-    locale: z.enum(["en", "vi"]).optional(),
-  })
-  .strict();
 
 function jsonError(
   code: string,
@@ -120,43 +79,6 @@ function isSameOrigin(request: Request): boolean {
   } catch {
     return false;
   }
-}
-
-function textLengthOf(message: z.infer<typeof uiMessageSchema>): number {
-  return message.parts.reduce(
-    (total, part) =>
-      part.type === "text" && typeof part.text === "string"
-        ? total + part.text.length
-        : total,
-    0
-  );
-}
-
-/**
- * Keep only parts that convert cleanly into model messages: text and COMPLETED
- * tool calls. An interrupted tool call (no output) would make
- * convertToModelMessages() throw, which should be a client-side retry, not a
- * 500 on the next turn.
- */
-function toSafeHistory(
-  messages: z.infer<typeof uiMessageSchema>[]
-): UIMessage[] {
-  return messages
-    .map((message) => {
-      const parts = message.parts.filter((part) => {
-        if (part.type === "text") return true;
-
-        if (part.type === "dynamic-tool" || part.type.startsWith("tool-")) {
-          const state = (part as { state?: string }).state;
-          return state === "output-available" || state === "output-error";
-        }
-
-        return false;
-      });
-
-      return { ...message, parts } as unknown as UIMessage;
-    })
-    .filter((message) => message.parts.length > 0);
 }
 
 async function resolveLocale(requested: unknown): Promise<AssistantLocale> {
@@ -231,8 +153,10 @@ export async function POST(request: Request) {
       }
     }
 
-    // 4. Tools for THIS actor, plus a prompt that only advertises them.
-    const tools = createAdminAssistantTools(actor);
+    // 4. Tools for THIS actor, plus a prompt that only advertises them. The
+    //    locale is passed so proposal cards (humanSummary / warnings) arrive in
+    //    the operator's language instead of being translated in the browser.
+    const tools = createAdminAssistantTools(actor, locale);
     const system = buildAdminAssistantSystemPrompt({
       locale,
       role: actor.role,
@@ -241,19 +165,25 @@ export async function POST(request: Request) {
       context: parsed.data.context,
     });
 
-    const workersai = createWorkersAI({ binding: env.AI });
+    // Workers AI rejects the follow-up request when the previous assistant turn
+    // carried more than one tool call ("This model only supports single
+    // tool-calls at once!"), so the binding forces one call per step; the same
+    // helper repairs the doubled tool-call arguments.
+    const model = createAdminAssistantModel(env.AI);
     const modelMessages = await convertToModelMessages(toSafeHistory(history));
 
     const result = streamText({
-      model: workersai(ADMIN_ASSISTANT_MODEL_ID),
+      model,
       system,
       messages: modelMessages,
       tools,
       toolChoice: "auto",
       stopWhen: stepCountIs(ADMIN_ASSISTANT_MAX_STEPS),
       maxOutputTokens: ADMIN_ASSISTANT_MAX_OUTPUT_TOKENS,
-      // Text-delta duplication only: tool-call, tool-result and step chunks are
-      // forwarded untouched by this transform.
+      // Collapses the doubled `text-delta` chunks this model emits (every token
+      // arrives twice per SSE frame). Tool-call arguments are doubled too, but
+      // they are repaired in the model middleware because the AI SDK has
+      // already assembled them by the time this transform runs.
       experimental_transform:
         collapseDuplicateTextDeltas() as unknown as StreamTextTransform<ToolSet>,
       onError: ({ error }) => {

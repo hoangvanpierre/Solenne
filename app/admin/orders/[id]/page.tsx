@@ -5,6 +5,7 @@ import { getLocale } from "next-intl/server";
 import {
   ArrowLeft,
   FileText,
+  Mail,
   MapPin,
   Package,
   PackageX,
@@ -26,6 +27,7 @@ import {
   AdminPageHeader,
   AdminStatePanel,
   OrderCancelControl,
+  OrderDraftReplyButton,
   OrderFulfillmentControl,
 } from "@/components/admin";
 import { Button } from "@/components/ui";
@@ -393,6 +395,26 @@ export default async function AdminOrderDetailPage({
               0
             )}
           />
+
+          {/* Customer reply draft — opens the assistant with this order */}
+          <div className="rounded-2xl border border-border bg-card p-6 space-y-3">
+            <div className="flex items-center gap-2">
+              <Mail className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+              <h2 className="text-lg font-normal text-foreground">
+                {isVi ? "Thư cho khách" : "Customer Reply"}
+              </h2>
+            </div>
+            <p className="text-xs font-normal leading-relaxed text-muted-foreground">
+              {isVi
+                ? "Trợ lý soạn bản nháp dựa trên đơn này và chính sách của Solenne. Bạn xem lại, sửa rồi tự gửi — không có gì được gửi tự động."
+                : "The assistant drafts from this order and Solenne's policy. You review, edit and send it yourself — nothing is sent automatically."}
+            </p>
+            <OrderDraftReplyButton
+              orderNumber={order.orderNumber}
+              country={shipping?.country ?? shipping?.countryCode ?? "Vietnam"}
+              locale={locale}
+            />
+          </div>
 
           {/* Customer Card */}
           <div className="rounded-2xl border border-border bg-card p-6 space-y-4">

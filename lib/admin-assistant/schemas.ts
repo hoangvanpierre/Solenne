@@ -141,6 +141,104 @@ export const findCustomerInputSchema = z
 
 export const getDashboardMetricsInputSchema = z.object({}).strict();
 
+// ---------------------------------------------------------------------------
+// Phase 2 — drafting. Still a strict, bounded object: the model supplies text
+// only. There is no recipient, no send flag and no customer id, so the tool has
+// nothing to act on. `to`/`send`/`cc` are rejected outright.
+// ---------------------------------------------------------------------------
+
+export const DRAFT_LANGUAGE_VALUES = ["vi", "en"] as const;
+
+export type AssistantDraftLanguage = (typeof DRAFT_LANGUAGE_VALUES)[number];
+
+export const DRAFT_SUBJECT_MAX_LENGTH = 140;
+export const DRAFT_BODY_MAX_LENGTH = 2000;
+
+/** Control characters except tab and newline: never valid in an email draft. */
+const DRAFT_CONTROL_CHARACTERS = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;
+
+export const draftCustomerEmailInputSchema = z
+  .object({
+    language: z.enum(DRAFT_LANGUAGE_VALUES),
+    subject: z
+      .string()
+      .trim()
+      .min(1)
+      .max(DRAFT_SUBJECT_MAX_LENGTH)
+      .refine((value) => !DRAFT_CONTROL_CHARACTERS.test(value), {
+        message: "Subject contains control characters.",
+      }),
+    body: z
+      .string()
+      .trim()
+      .min(1)
+      .max(DRAFT_BODY_MAX_LENGTH)
+      .refine((value) => !DRAFT_CONTROL_CHARACTERS.test(value), {
+        message: "Body contains control characters.",
+      }),
+  })
+  .strict();
+
+// ---------------------------------------------------------------------------
+// Phase 3 — action proposals. These schemas describe WHAT the operator wants to
+// change, never a command to execute it. The proposal tools only read current
+// state and return a card; confirmation goes through the existing admin server
+// action, which runs its own zod schema, permission check and atomic RPC.
+// ---------------------------------------------------------------------------
+
+export const FULFILLMENT_TARGET_VALUES = [
+  "processing",
+  "shipped",
+  "delivered",
+] as const;
+
+export type AssistantFulfillmentTarget =
+  (typeof FULFILLMENT_TARGET_VALUES)[number];
+
+/** Only the three targets `update_order_status` (0007) accepts. */
+export const fulfillmentTargetSchema = z.enum(FULFILLMENT_TARGET_VALUES);
+
+export const CANCEL_REASON_MAX_LENGTH = 500;
+export const ADJUST_REASON_MIN_LENGTH = 3;
+export const ADJUST_REASON_MAX_LENGTH = 255;
+
+export const proposeCancelOrderInputSchema = z
+  .object({
+    orderNumber: orderNumberSchema,
+    // 0006 treats the reason as optional. An empty string means "no reason".
+    reason: z
+      .string()
+      .trim()
+      .max(CANCEL_REASON_MAX_LENGTH)
+      .refine((value) => value.length === 0 || value.length >= 3, {
+        message: "A cancellation reason must be at least 3 characters.",
+      })
+      .optional(),
+  })
+  .strict();
+
+export const proposeFulfillmentTransitionInputSchema = z
+  .object({
+    orderNumber: orderNumberSchema,
+    toStatus: fulfillmentTargetSchema,
+  })
+  .strict();
+
+export const proposeInventoryAdjustmentInputSchema = z
+  .object({
+    variantRef: searchQuerySchema,
+    delta: z
+      .number()
+      .int("Delta must be an integer.")
+      .refine((value) => value !== 0, "Adjustment delta cannot be zero."),
+    reason: z
+      .string()
+      .trim()
+      .min(ADJUST_REASON_MIN_LENGTH)
+      .max(ADJUST_REASON_MAX_LENGTH),
+  })
+  .strict();
+
 /**
  * Inclusive lower bound for a summary window. "today" is the UTC start of the
  * current day (the same convention the audit viewer uses); the rolling windows

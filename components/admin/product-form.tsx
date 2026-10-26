@@ -26,6 +26,7 @@ import type { CreateVariantInput } from "@/lib/validations/product";
 import { slugify } from "@/lib/utils";
 import { Button, Input } from "@/components/ui";
 import { ScentNotesInput } from "./scent-notes-input";
+import { ProductCopyAssistant } from "./product-copy-assistant";
 import type { Product, ScentCategory } from "@/types";
 
 export interface ProductFormProps {
@@ -95,6 +96,11 @@ export function ProductForm({
   const canCreate = can("product.create");
   const canUpdate = can("product.update");
   const canDelete = can("product.delete");
+
+  // Copy help is editing help: it appears only for an operator who may already
+  // create (create mode) or update (edit mode) products. It is presentation
+  // only — app/actions/product-copy.ts re-checks the permission server-side.
+  const canEditCopy = mode === "create" ? canCreate : canUpdate;
 
   // Metadata form state
   const [name, setName] = useState(product?.name ?? "");
@@ -516,6 +522,24 @@ export function ProductForm({
                   {fieldErrors.description[0]}
                 </p>
               )}
+
+              {canEditCopy ? (
+                <ProductCopyAssistant
+                  target="description"
+                  mode={mode}
+                  locale={locale}
+                  productName={name}
+                  category={category}
+                  currentText={description}
+                  notes={{
+                    top: scentTop,
+                    heart: scentHeart,
+                    base: scentBase,
+                  }}
+                  disabled={isPending}
+                  onApplyText={setDescription}
+                />
+              ) : null}
             </div>
           </div>
         </section>
@@ -722,6 +746,27 @@ export function ProductForm({
               }
               error={fieldErrors.scentBase?.[0]}
             />
+
+            {canEditCopy ? (
+              <ProductCopyAssistant
+                target="scentNotes"
+                mode={mode}
+                locale={locale}
+                productName={name}
+                category={category}
+                notes={{
+                  top: scentTop,
+                  heart: scentHeart,
+                  base: scentBase,
+                }}
+                disabled={isPending}
+                onApplyNotes={(next) => {
+                  setScentTop(next.top);
+                  setScentHeart(next.heart);
+                  setScentBase(next.base);
+                }}
+              />
+            ) : null}
           </div>
         </section>
 

@@ -56,6 +56,14 @@ export const DATA_USED_ROW_CAPS: Record<AdminAssistantToolName, number> = {
   getProductStock: 10,
   findCustomer: 10,
   getDashboardMetrics: 5,
+  // Drafting returns text, not rows. The drawer renders a Draft card instead of
+  // a "Data used" table, so the cap is zero and buildDataUsedTables returns [].
+  draftCustomerEmail: 0,
+  // Proposals return one card, not a table. The drawer renders a Proposal card,
+  // so these are zero too and buildDataUsedTables falls through to [].
+  proposeCancelOrder: 0,
+  proposeFulfillmentTransition: 0,
+  proposeInventoryAdjustment: 0,
 };
 
 function isRec(value: unknown): value is Rec {

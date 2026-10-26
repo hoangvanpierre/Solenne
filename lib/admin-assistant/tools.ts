@@ -15,6 +15,10 @@ import {
   getProductStockInputSchema,
   listLowStockInputSchema,
   listOrdersInputSchema,
+  draftCustomerEmailInputSchema,
+  proposeCancelOrderInputSchema,
+  proposeFulfillmentTransitionInputSchema,
+  proposeInventoryAdjustmentInputSchema,
 } from "./schemas";
 import {
   assistantDashboardMetrics,
@@ -23,9 +27,18 @@ import {
   assistantListOrders,
   assistantLowStock,
   assistantOrderDetail,
+  assistantOrderProposalState,
   assistantOrderSummary,
   assistantProductStock,
+  assistantVariantProposalState,
 } from "./reads";
+import {
+  buildCancelProposal,
+  buildFulfillmentProposal,
+  buildInventoryProposal,
+  type AssistantProposal,
+  type ProposalLocale,
+} from "./proposals";
 import { recordAssistantToolUse } from "./audit";
 
 // ---------------------------------------------------------------------------
@@ -58,7 +71,13 @@ async function runTool<TResult>(
   actor: ActorContext,
   args: Record<string, unknown>,
   execute: () => Promise<TResult>,
-  rowCount: (result: TResult) => number
+  rowCount: (result: TResult) => number,
+  /**
+   * Optional replacement for the audited arguments. Proposal tools use it to
+   * record the resolved target, outcome and blocker codes instead of echoing
+   * the model's raw input a second time. It never changes authorization.
+   */
+  auditArgs?: (result: TResult) => Record<string, unknown>
 ): Promise<TResult> {
   // Defence in depth: the tool list was filtered, but execute() is the real
   // gate. A model that invents a tool name cannot reach a denied helper.
@@ -80,7 +99,7 @@ async function runTool<TResult>(
     await recordAssistantToolUse({
       actor,
       tool: name,
-      args,
+      args: auditArgs ? auditArgs(result) : args,
       rowCount: rowCount(result),
       ok: true,
     });
@@ -100,11 +119,29 @@ async function runTool<TResult>(
 }
 
 /**
+ * Audit arguments for a proposal: which action, which target, whether it was
+ * ready or blocked, and the blocker codes. Never the free-text reason, which is
+ * bounded by sanitizeArguments() but still operator prose.
+ */
+function proposalAuditArgs(proposal: AssistantProposal): Record<string, unknown> {
+  return {
+    proposalType: proposal.type,
+    targetRef: proposal.targetRef,
+    targetId: proposal.targetId,
+    status: proposal.status,
+    blockerCodes: proposal.blockerCodes,
+  };
+}
+
+/**
  * Build the tool set for one request. Returns only the tools this actor may
  * use; an actor with no readable domain (not reachable through /admin) gets an
  * empty set.
  */
-export function createAdminAssistantTools(actor: ActorContext): ToolSet {
+export function createAdminAssistantTools(
+  actor: ActorContext,
+  locale: ProposalLocale = "en"
+): ToolSet {
   const permissions = actor.permissions;
   const tools: ToolSet = {};
 
@@ -243,6 +280,114 @@ export function createAdminAssistantTools(actor: ActorContext): ToolSet {
           input,
           () => assistantDashboardMetrics(permissions),
           () => 1
+        ),
+    });
+  }
+
+  // Phase 2 — drafting. UI-only and side-effect free: execute() echoes the
+  // validated text so the drawer can render it. No database call, no mail
+  // client, no storage. The audit row written by runTool records the tool name,
+  // the language and the (truncated) subject — not the whole body.
+  if (canUseTool("draftCustomerEmail", permissions)) {
+    tools.draftCustomerEmail = tool({
+      description: `${TOOL_CATALOGUE.draftCustomerEmail.description} Write in the operator's requested language; when they do not say, use Vietnamese if the shipping country is Vietnam, otherwise English. Keep the voice gentle, refined and concise: 3 to 6 sentences, no exclamation marks, no emoji, no marketing hyperbole, no medical or safety claims, and sign as "Solenne".`,
+      inputSchema: draftCustomerEmailInputSchema,
+      execute: async (input) =>
+        runTool(
+          "draftCustomerEmail",
+          actor,
+          // The audit trail records that a draft was produced and in which
+          // language — never the prose, which may quote customer data.
+          {
+            language: input.language,
+            subject: input.subject,
+            bodyLength: input.body.length,
+          },
+          async () => ({ ...input }),
+          () => 0
+        ),
+    });
+  }
+
+  // Phase 3 — action proposals. Each one reads the target's current state,
+  // runs the SAME precondition rules as the real action, and returns a card.
+  // Nothing here writes: the drawer's confirmation calls the existing server
+  // action, which re-validates and invokes the atomic RPC.
+  if (canUseTool("proposeCancelOrder", permissions)) {
+    tools.proposeCancelOrder = tool({
+      description: `${TOOL_CATALOGUE.proposeCancelOrder.description} Use the exact order number. A reason is optional; pass the operator's own words when they give one.`,
+      inputSchema: proposeCancelOrderInputSchema,
+      execute: async (input) =>
+        runTool(
+          "proposeCancelOrder",
+          actor,
+          input,
+          async () => {
+            const state = await assistantOrderProposalState(input.orderNumber);
+            return buildCancelProposal({
+              state,
+              orderNumber: input.orderNumber,
+              reason: input.reason,
+              permissions,
+              locale,
+            });
+          },
+          () => 0,
+          proposalAuditArgs
+        ),
+    });
+  }
+
+  if (canUseTool("proposeFulfillmentTransition", permissions)) {
+    tools.proposeFulfillmentTransition = tool({
+      description: `${TOOL_CATALOGUE.proposeFulfillmentTransition.description} Use the exact order number and one of the three targets: processing, shipped or delivered. Never propose "paid" or "cancelled".`,
+      inputSchema: proposeFulfillmentTransitionInputSchema,
+      execute: async (input) =>
+        runTool(
+          "proposeFulfillmentTransition",
+          actor,
+          input,
+          async () => {
+            const state = await assistantOrderProposalState(input.orderNumber);
+            return buildFulfillmentProposal({
+              state,
+              orderNumber: input.orderNumber,
+              toStatus: input.toStatus,
+              permissions,
+              locale,
+            });
+          },
+          () => 0,
+          proposalAuditArgs
+        ),
+    });
+  }
+
+  if (canUseTool("proposeInventoryAdjustment", permissions)) {
+    tools.proposeInventoryAdjustment = tool({
+      description: `${TOOL_CATALOGUE.proposeInventoryAdjustment.description} Use the exact SKU or the variant name. The delta is a non-zero integer (positive receives stock, negative removes it) and the reason is 3–255 characters.`,
+      inputSchema: proposeInventoryAdjustmentInputSchema,
+      execute: async (input) =>
+        runTool(
+          "proposeInventoryAdjustment",
+          actor,
+          input,
+          async () => {
+            const { match, matches } = await assistantVariantProposalState(
+              input.variantRef
+            );
+            return buildInventoryProposal({
+              variant: match,
+              candidates: matches,
+              variantRef: input.variantRef,
+              delta: input.delta,
+              reason: input.reason,
+              permissions,
+              locale,
+            });
+          },
+          () => 0,
+          proposalAuditArgs
         ),
     });
   }

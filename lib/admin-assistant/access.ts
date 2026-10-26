@@ -29,10 +29,54 @@ export const ADMIN_ASSISTANT_TOOL_NAMES = [
   "getProductStock",
   "findCustomer",
   "getDashboardMetrics",
+  "draftCustomerEmail",
+  "proposeCancelOrder",
+  "proposeFulfillmentTransition",
+  "proposeInventoryAdjustment",
 ] as const;
 
 export type AdminAssistantToolName =
   (typeof ADMIN_ASSISTANT_TOOL_NAMES)[number];
+
+/**
+ * The one tool that produces text instead of reading rows. It is UI-only: its
+ * execute() echoes its validated input, so it can never send, schedule or save
+ * an email. Listed separately so the harness can prove it performs no query.
+ */
+export const DRAFT_TOOL_NAME = "draftCustomerEmail" as const;
+
+/**
+ * Phase 3 — proposal tools. They read the target's current state and return a
+ * card; they never write. The drawer's confirmation calls the existing admin
+ * server action, so validation, RBAC, the atomic RPC and audit logging all stay
+ * exactly where they already are.
+ *
+ * Listed separately so READ_TOOL_NAMES, the page-gate parity map and the "read
+ * verb only" checks can exclude them explicitly.
+ */
+export const PROPOSAL_TOOL_NAMES = [
+  "proposeCancelOrder",
+  "proposeFulfillmentTransition",
+  "proposeInventoryAdjustment",
+] as const;
+
+export type ProposalToolName = (typeof PROPOSAL_TOOL_NAMES)[number];
+
+const PROPOSAL_TOOL_SET: ReadonlySet<string> = new Set(PROPOSAL_TOOL_NAMES);
+
+/** True for the three proposal tools; used by the harness and presentation. */
+export function isProposalTool(name: string): boolean {
+  return PROPOSAL_TOOL_SET.has(name);
+}
+
+/** Tools that read the database. Every one of these has a page gate. */
+export const READ_TOOL_NAMES = ADMIN_ASSISTANT_TOOL_NAMES.filter(
+  (name) => name !== DRAFT_TOOL_NAME && !isProposalTool(name)
+) as readonly Exclude<
+  AdminAssistantToolName,
+  typeof DRAFT_TOOL_NAME | ProposalToolName
+>[];
+
 
 export interface ToolAccessRule {
   /** Every one of these permissions is required. */
@@ -63,6 +107,17 @@ export const TOOL_ACCESS: Record<AdminAssistantToolName, ToolAccessRule> = {
   findCustomer: { all: ["customer.read"] },
   getDashboardMetrics: {
     any: ["order.read", "inventory.read", "customer.read"],
+  },
+  // Drafting is part of the order workflow: only an operator who can already
+  // read orders may ask the assistant to draft a customer reply for one.
+  draftCustomerEmail: { all: ["order.read"] },
+  // Proposals pair the READ gate of the data they inspect with the WRITE gate
+  // the real action enforces, so a role can never be shown a proposal it could
+  // not confirm. The RPC re-checks the same permission inside the transaction.
+  proposeCancelOrder: { all: ["order.read", "order.cancel"] },
+  proposeFulfillmentTransition: { all: ["order.read", "order.update"] },
+  proposeInventoryAdjustment: {
+    all: ["inventory.read", "inventory.update"],
   },
 };
 
@@ -145,6 +200,38 @@ export const TOOL_CATALOGUE: Record<
     access: TOOL_ACCESS.getDashboardMetrics,
     rowCap: 5,
   },
+  draftCustomerEmail: {
+    name: "draftCustomerEmail",
+    description:
+      "Hand the operator a ready-to-review customer email. Provide the reply language (vi or en), a short subject and the body. This tool only returns the text you wrote to the drawer: it never sends, schedules or saves an email, and it reads no customer record. Base every fact on an earlier tool result or Solenne's policy, and put a visible placeholder such as [tracking number] or [ETA] where a fact is missing.",
+    label: "Draft reply",
+    access: TOOL_ACCESS.draftCustomerEmail,
+    rowCap: 0,
+  },
+  proposeCancelOrder: {
+    name: "proposeCancelOrder",
+    description:
+      "Prepare a cancellation PROPOSAL for one order: it reports the current status, the units a cancellation would return to stock and any blocker. It never cancels anything. The operator reviews the card and confirms; the existing cancellation action then re-checks permission and runs the atomic RPC.",
+    label: "Cancel proposal",
+    access: TOOL_ACCESS.proposeCancelOrder,
+    rowCap: 0,
+  },
+  proposeFulfillmentTransition: {
+    name: "proposeFulfillmentTransition",
+    description:
+      "Prepare a fulfillment PROPOSAL for one order: processing, shipped (a tracking code is required at confirmation) or delivered, or a shipped → processing rollback (a reason is required). It never changes the status itself; the operator confirms with the existing fulfillment control.",
+    label: "Fulfillment proposal",
+    access: TOOL_ACCESS.proposeFulfillmentTransition,
+    rowCap: 0,
+  },
+  proposeInventoryAdjustment: {
+    name: "proposeInventoryAdjustment",
+    description:
+      "Prepare a stock adjustment PROPOSAL for one variant: a non-zero integer delta and a written reason. It reports the current and resulting stock and any blocker. It never changes stock itself; the operator confirms with the existing inventory control.",
+    label: "Stock proposal",
+    access: TOOL_ACCESS.proposeInventoryAdjustment,
+    rowCap: 0,
+  },
 };
 
 export function canUseTool(
@@ -182,9 +269,21 @@ export function selectToolNames(
  *
  * `getDashboardMetrics` is the one OR-gate: app/admin/page.tsx renders each
  * metric group only when the actor holds that group's permission.
+ *
+ * `draftCustomerEmail` is deliberately absent: it reads nothing, so it has no
+ * page gate to mirror. Its own gate (order.read) equals the order page gate and
+ * is asserted separately by the harness.
+ *
+ * The three proposal tools are absent too. They mirror the SAME pages as the
+ * read tools (orders / inventory) but add the write permission, and the real
+ * action re-checks it; a page-gate parity row would imply the page itself
+ * performs the change, which it does not.
  */
 export const PAGE_GATE_PARITY: Record<
-  Exclude<AdminAssistantToolName, "getDashboardMetrics">,
+  Exclude<
+    AdminAssistantToolName,
+    "getDashboardMetrics" | typeof DRAFT_TOOL_NAME | ProposalToolName
+  >,
   { page: string; gate: ToolAccessRule; fields: string }
 > = {
   getOrderSummary: {

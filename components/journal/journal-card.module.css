@@ -1,0 +1,338 @@
+/*
+ * Journal listing card motion.
+ *
+ * Scoped to /journal only. The article page keeps the original shared
+ * `.enter` / `.reveal` rules from `journal-motion.module.css`, so this file
+ * never changes /journal/[slug].
+ *
+ * Motion language is the storefront's: cubic-bezier(0.22, 1, 0.36, 1), a
+ * restrained fade-up, and a slow image settle. Only transform and opacity are
+ * animated during the entrance; `filter` is used only for the short image
+ * blur-up. The aspect-ratio frame reserves all image space, so nothing shifts.
+ *
+ * Gating:
+ *   - Entrance / parallax / zoom / blur-up are disabled for reduced motion.
+ *   - Hover movement is limited to fine pointers; touch gets the final card.
+ *   - Without scripting every card renders in its final state.
+ */
+
+.card {
+  --journal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --journal-delay: 0ms;
+  --journal-title-hover: #8a6238;
+
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition:
+    opacity 700ms var(--journal-ease),
+    transform 700ms var(--journal-ease);
+  transition-delay: var(--journal-delay);
+}
+
+.card[data-revealed="true"] {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* The link wraps the complete card, so one click / one focus stop reaches the
+   article. Hand the rounded surface its own focus ring back. */
+.link {
+  display: block;
+  border-radius: 1.25rem;
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 4px;
+  border-radius: 1.25rem;
+}
+
+/* ------------------------------------------------------------------ *
+ * Image frame, reveal, loading and parallax
+ * ------------------------------------------------------------------ */
+
+.frame {
+  --journal-parallax-y: 0px;
+}
+
+/* Slightly taller than its frame so the ±4% translate never exposes an edge. */
+.parallax {
+  position: absolute;
+  inset: -4% 0;
+  transform: translate3d(0, var(--journal-parallax-y), 0);
+}
+
+.mediaReveal {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: scale(1.08);
+  transform-origin: 50% 55%;
+  transition:
+    opacity 900ms ease,
+    transform 1000ms var(--journal-ease);
+  transition-delay: calc(var(--journal-delay) + 60ms);
+}
+
+.card[data-revealed="true"] .mediaReveal {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.photo {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  filter: blur(6px);
+  transition:
+    opacity 560ms ease,
+    filter 560ms ease;
+}
+
+.photo[data-loaded="true"] {
+  opacity: 1;
+  filter: none;
+}
+
+.photoImage {
+  transform: scale(1);
+  transition: transform 700ms var(--journal-ease);
+}
+
+.skeleton {
+  transition: opacity 420ms ease;
+}
+
+.skeleton[data-hidden="true"] {
+  opacity: 0;
+  pointer-events: none;
+  animation-play-state: paused;
+}
+
+/* Don't animate the shimmer for a card the visitor cannot see yet. */
+.card[data-revealed="false"] .skeleton {
+  animation-play-state: paused;
+}
+
+.shade {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 46%;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    to top,
+    color-mix(in oklab, var(--color-warm-black) 30%, transparent),
+    transparent
+  );
+  transition: opacity 500ms var(--journal-ease);
+}
+
+/* ------------------------------------------------------------------ *
+ * Copy: label -> title -> excerpt -> date, 60ms apart
+ * ------------------------------------------------------------------ */
+
+.meta,
+.title,
+.excerpt,
+.date {
+  opacity: 0;
+  transform: translate3d(0, 12px, 0);
+}
+
+/* Entrance delays are per-property so hover colour / letter-spacing feedback
+   still starts immediately. */
+.meta {
+  --journal-copy-delay: 220ms;
+  letter-spacing: 0.14em;
+  transition:
+    opacity 520ms var(--journal-ease)
+      calc(var(--journal-delay) + var(--journal-copy-delay)),
+    transform 520ms var(--journal-ease)
+      calc(var(--journal-delay) + var(--journal-copy-delay)),
+    letter-spacing 420ms var(--journal-ease) 0ms;
+}
+
+.title {
+  --journal-copy-delay: 280ms;
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  transition:
+    opacity 520ms var(--journal-ease)
+      calc(var(--journal-delay) + var(--journal-copy-delay)),
+    transform 520ms var(--journal-ease)
+      calc(var(--journal-delay) + var(--journal-copy-delay)),
+    color 220ms var(--journal-ease) 0ms;
+}
+
+.excerpt {
+  --journal-copy-delay: 340ms;
+  transition:
+    opacity 520ms var(--journal-ease)
+      calc(var(--journal-delay) + var(--journal-copy-delay)),
+    transform 520ms var(--journal-ease)
+      calc(var(--journal-delay) + var(--journal-copy-delay));
+}
+
+.date {
+  --journal-copy-delay: 400ms;
+  transition:
+    opacity 520ms var(--journal-ease)
+      calc(var(--journal-delay) + var(--journal-copy-delay)),
+    transform 520ms var(--journal-ease)
+      calc(var(--journal-delay) + var(--journal-copy-delay));
+}
+
+.card[data-revealed="true"] :is(.meta, .title, .excerpt, .date) {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.title::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -0.14em;
+  left: 0;
+  height: 1px;
+  background-color: currentColor;
+  opacity: 0.55;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 420ms var(--journal-ease);
+}
+
+/* ------------------------------------------------------------------ *
+ * Hover (fine pointers only) + keyboard focus parity
+ * ------------------------------------------------------------------ */
+
+@media (hover: hover) and (pointer: fine) {
+  .card:hover .photoImage {
+    transform: scale(1.04);
+  }
+
+  .card:hover .shade {
+    opacity: 1;
+  }
+
+  .card:hover .title::after {
+    transform: scaleX(1);
+  }
+
+  .card:hover .title {
+    color: var(--journal-title-hover);
+  }
+
+  .card:hover .meta {
+    opacity: 1;
+    letter-spacing: 0.17em;
+  }
+}
+
+/* Keyboard gets the same colour / underline / label feedback, but no zoom or
+   pointer-only movement. */
+.link:focus-visible .shade {
+  opacity: 1;
+}
+
+.link:focus-visible .title {
+  color: var(--journal-title-hover);
+}
+
+.link:focus-visible .title::after {
+  transform: scaleX(1);
+}
+
+.link:focus-visible .meta {
+  opacity: 1;
+  letter-spacing: 0.17em;
+}
+
+@media (prefers-color-scheme: dark) {
+  /* #8a6238 drops below AA on the dark page surface; brand primary is legible. */
+  .card {
+    --journal-title-hover: var(--primary);
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Row-aware stagger: only the second column is delayed, so the delay resets
+ * at the start of every row instead of accumulating down the page.
+ * ------------------------------------------------------------------ */
+
+@media (min-width: 768px) {
+  .card {
+    --journal-delay: var(--journal-stagger, 0ms);
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Reduced motion / no-script fallbacks
+ * ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .mediaReveal,
+  .photo,
+  .photoImage,
+  .parallax,
+  .meta,
+  .title,
+  .excerpt,
+  .date,
+  .shade,
+  .title::after,
+  .skeleton {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .card,
+  .mediaReveal,
+  .meta,
+  .title,
+  .excerpt,
+  .date {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .photo,
+  .photoImage,
+  .parallax {
+    transform: none !important;
+  }
+
+  .photo {
+    opacity: 1 !important;
+    filter: none !important;
+  }
+
+  /* No shimmer, no zoom. The muted frame holds the space while the image
+     paints, and the gradient / underline still appear as instant state
+     feedback on hover or focus. */
+  .skeleton {
+    animation: none !important;
+  }
+}
+
+@media (scripting: none) {
+  .card,
+  .mediaReveal,
+  .photo,
+  .meta,
+  .title,
+  .excerpt,
+  .date {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .skeleton {
+    display: none !important;
+  }
+}

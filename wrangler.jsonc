@@ -33,6 +33,18 @@
 				"limit": 10,
 				"period": 60
 			}
+		},
+		{
+			// Per-USER throttle for the admin assistant
+			// (app/api/admin-assistant/route.ts — separate from the public
+			// storefront concierge, and requires a management session).
+			"name": "ADMIN_ASSISTANT_LIMITER",
+			// A positive integer, unique to this Cloudflare account.
+			"namespace_id": "7302",
+			"simple": {
+				"limit": 20,
+				"period": 60
+			}
 		}
 	],
 	"services": [

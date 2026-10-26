@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight, LogOut, Menu, X } from "lucide-react";
@@ -10,8 +11,16 @@ import { signOutAction } from "@/app/actions/auth";
 import { useLockedBody } from "@/hooks/use-locked-body";
 import { findAdminNavItem, type AdminNavGroup } from "@/lib/admin-nav";
 import { cn } from "@/lib/utils";
+import type { PermissionKey } from "@/types";
 import { AdminBrandLogo } from "./admin-brand-logo";
 import { AdminSidebarNav } from "./admin-sidebar-nav";
+
+// The assistant pulls in @ai-sdk/react and the transport, so it is split out
+// of the admin shell chunk and only fetched when the operator opens it.
+const AdminAssistant = dynamic(
+  () => import("./assistant").then((mod) => mod.AdminAssistant),
+  { ssr: false }
+);
 
 // Responsive chrome for every management route.
 //
@@ -40,6 +49,8 @@ export interface AdminShellProps {
   locale: string;
   /** Human-readable role from the trusted actor context. */
   roleLabel: string;
+  /** The actor's real permission set — used only to shape assistant chips. */
+  permissions: PermissionKey[];
   fullName: string | null;
   email: string | null;
   children: React.ReactNode;
@@ -49,6 +60,7 @@ export function AdminShell({
   groups,
   locale,
   roleLabel,
+  permissions,
   fullName,
   email,
   children,
@@ -251,6 +263,8 @@ export function AdminShell({
               <span className="hidden items-center rounded-full border border-border px-2.5 py-1 text-xs uppercase tracking-[0.06em] text-muted-foreground sm:inline-flex">
                 {roleLabel}
               </span>
+
+              <AdminAssistant locale={locale} permissions={permissions} />
 
               <LocaleToggle />
 

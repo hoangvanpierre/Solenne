@@ -29,6 +29,7 @@ export const AUDIT_ACTIONS = [
   "user.role_changed",
   "customer.status_changed",
   "customer.reinstated",
+  "assistant.tool_used",
 ] as const;
 
 export const AUDIT_ACTION_CATEGORIES = [
@@ -267,6 +268,21 @@ export function formatAuditSummary(
       return `Customer account reinstated from banned to active${
         reason ? ` (Reason: ${reason})` : ""
       }`;
+    }
+
+    case "assistant.tool_used": {
+      const tool = metadata.tool ? String(metadata.tool) : "unknown tool";
+      const rows =
+        metadata.rowCount != null ? Number(metadata.rowCount) : null;
+      const failed = metadata.ok === false;
+      if (isVi) {
+        return failed
+          ? `Trợ lý gọi ${tool} nhưng thất bại`
+          : `Trợ lý gọi ${tool}${rows !== null ? ` (${rows} dòng)` : ""}`;
+      }
+      return failed
+        ? `Assistant called ${tool} but it failed`
+        : `Assistant called ${tool}${rows !== null ? ` (${rows} row${rows === 1 ? "" : "s"})` : ""}`;
     }
 
     default: {

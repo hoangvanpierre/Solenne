@@ -164,6 +164,7 @@ export default async function AdminLayout({
         groups={filterAdminNav(actor.permissions)}
         locale={locale}
         roleLabel={roleLabel}
+        permissions={actor.permissions}
         fullName={identity.fullName}
         email={identity.email}
       >

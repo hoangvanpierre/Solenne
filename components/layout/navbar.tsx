@@ -12,6 +12,7 @@ import { useAppLocale } from "@/hooks/use-locale";
 import { useAuthz } from "@/hooks/use-authz";
 import { useSamePageReload } from "@/hooks/use-same-page-reload";
 import { NAV_LINKS } from "@/lib/constants";
+import { prefetchSearchIndex } from "@/lib/search-index-client";
 import { CurrencyToggle } from "@/components/layout/currency-toggle";
 import { LocaleToggle } from "@/components/layout/locale-toggle";
 import { BrandLogo } from "@/components/layout/brand-logo";
@@ -26,6 +27,8 @@ export function Navbar() {
   const items = useCartStore((s) => s.items);
   const openCart = useCartStore((s) => s.openCart);
   const toggleMobileNav = useUIStore((s) => s.toggleMobileNav);
+  const openSearch = useUIStore((s) => s.openSearch);
+  const isSearchOpen = useUIStore((s) => s.isSearchOpen);
   const locale = useAppLocale();
   // A click on the link for the page we are already on reloads it at the top;
   // every other link keeps Next's normal client-side navigation.
@@ -101,6 +104,12 @@ export function Navbar() {
         <div className="flex items-center gap-3 sm:gap-4 shrink-0 ml-6">
           <IconButton
             aria-label={locale === "vi" ? "Tìm kiếm" : "Search"}
+            aria-haspopup="dialog"
+            aria-expanded={isSearchOpen}
+            aria-keyshortcuts="/ Control+K Meta+K"
+            onClick={openSearch}
+            onPointerEnter={prefetchSearchIndex}
+            onFocus={prefetchSearchIndex}
             className={cn(!solid && "text-cream hover:bg-white/10")}
           >
             <Search className="h-5 w-5" />

@@ -9,6 +9,7 @@ import { DefaultChatTransport } from "ai";
 import { useTranslations } from "next-intl";
 import { useAppLocale } from "@/hooks/use-locale";
 import { cn } from "@/lib/utils";
+import { useUIStore } from "@/stores/ui-store";
 
 /** Why the last request failed, so the panel can pick the right copy. */
 type FailureKind = "rate_limit" | "too_long" | "error";
@@ -46,6 +47,10 @@ export function ChatWidget({ onOpenChange }: ChatWidgetProps) {
   const [failure, setFailure] = useState<FailureKind>("error");
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const assistantRequest = useUIStore((state) => state.assistantRequest);
+  const clearAssistantRequest = useUIStore(
+    (state) => state.clearAssistantRequest,
+  );
 
   const transport = useMemo(
     () =>
@@ -79,6 +84,22 @@ export function ChatWidget({ onOpenChange }: ChatWidgetProps) {
   });
 
   const isBusy = status === "submitted" || status === "streaming";
+
+  // The search palette's no-results action hands the query over here. It only
+  // opens the panel and fills the composer; sending remains the visitor's call.
+  // The handoff is applied on the next frame so the external store update and
+  // the panel's local reveal do not cascade inside the effect body.
+  useEffect(() => {
+    if (!assistantRequest) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      setIsOpen(true);
+      setInput(assistantRequest.prefill);
+      clearAssistantRequest();
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [assistantRequest, clearAssistantRequest]);
 
   // Notify parent when the panel opens or closes.
   useEffect(() => {

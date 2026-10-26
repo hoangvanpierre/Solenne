@@ -10,8 +10,6 @@ import {
   ExternalLink,
   Package,
   RotateCcw,
-  Search,
-  X,
 } from "lucide-react";
 import type { AdminInventoryItem } from "@/lib/inventory";
 import type { ScentCategory } from "@/types";
@@ -24,11 +22,20 @@ import {
   StockStatusBadge,
 } from "./stock-status-badge";
 import { AdminTableFrame } from "./admin-table-frame";
+import { AdminStatePanel } from "./admin-state-panel";
+import { AdminSearchInput, AdminClearSearchButton } from "./admin-search-input";
+import {
+  AdminSearchProvider,
+  AdminSearchResults,
+  useAdminSearch,
+} from "./admin-search-provider";
 import { InventoryAdjustControl } from "./inventory-adjust-control";
 
 export interface InventoryTableProps {
   items: AdminInventoryItem[];
   locale?: string;
+  /** Term rendered by the server before the URL is available. */
+  initialSearch?: string;
 }
 
 type SortOption = "default" | "stock-asc" | "stock-desc" | "name-asc";
@@ -59,14 +66,26 @@ const CATEGORY_MAP: Record<
   },
 };
 
-export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
+export function InventoryTable({
+  items,
+  locale = "en",
+  initialSearch = "",
+}: InventoryTableProps) {
+  return (
+    <AdminSearchProvider initialValue={initialSearch} minLength={1}>
+      <InventoryTableContent items={items} locale={locale} />
+    </AdminSearchProvider>
+  );
+}
+
+function InventoryTableContent({ items, locale = "en" }: InventoryTableProps) {
   const isVi = locale === "vi";
+  const { term, resetAll } = useAdminSearch();
 
   // Immediate optimistic overrides keyed by variant ID
   const [stockOverrides, setStockOverrides] = useState<Record<string, number>>({});
 
-  // Filters & Search
-  const [searchQuery, setSearchQuery] = useState("");
+  // Local filters & sort. The search term is URL-backed.
   const [categoryFilter, setCategoryFilter] = useState<ScentCategory | "all">("all");
   const [statusFilter, setStatusFilter] = useState<StockStatus | "all">("all");
   const [sortBy, setSortBy] = useState<SortOption>("default");
@@ -101,7 +120,7 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
     });
 
     // Search query: matches product name, variant name, or SKU
-    const query = searchQuery.trim().toLowerCase();
+    const query = term.toLowerCase();
     if (query) {
       result = result.filter(
         (item) =>
@@ -133,19 +152,19 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
     }
 
     return result;
-  }, [items, stockOverrides, searchQuery, categoryFilter, statusFilter, sortBy]);
+  }, [items, stockOverrides, term, categoryFilter, statusFilter, sortBy]);
 
   const hasActiveFilters =
-    searchQuery.trim().length > 0 ||
+    term.trim().length > 0 ||
     categoryFilter !== "all" ||
     statusFilter !== "all" ||
     sortBy !== "default";
 
   const handleResetFilters = () => {
-    setSearchQuery("");
     setCategoryFilter("all");
     setStatusFilter("all");
     setSortBy("default");
+    resetAll();
   };
 
   const handleVariantAdjusted = (variantId: string, newStock: number) => {
@@ -274,30 +293,21 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
       <div className="rounded-2xl border border-border bg-card/40 p-4 space-y-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           {/* Search Input */}
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={
-                isVi
-                  ? "Tìm kiếm theo tên sản phẩm, phiên bản hoặc SKU..."
-                  : "Search by product name, variant, or SKU..."
-              }
-              className="admin-quiet-field w-full rounded-xl pl-9 pr-9 py-2 text-[13px] font-normal text-foreground placeholder:text-muted-foreground"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5"
-                aria-label={isVi ? "Xóa tìm kiếm" : "Clear search"}
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            )}
-          </div>
+          <AdminSearchInput
+            label={
+              isVi
+                ? "Tìm kiếm tồn kho theo tên sản phẩm, phiên bản hoặc SKU"
+                : "Search inventory by product name, variant, or SKU"
+            }
+            placeholder={
+              isVi
+                ? "Tìm kiếm theo tên sản phẩm, phiên bản hoặc SKU..."
+                : "Search by product name, variant, or SKU..."
+            }
+            resultCount={filteredItems.length}
+            showSubmitButton={false}
+            className="max-w-md"
+          />
 
           {/* Quick Filter Controls: Category, Status, Sort */}
           <div className="flex flex-wrap items-center gap-2">
@@ -392,244 +402,239 @@ export function InventoryTable({ items, locale = "en" }: InventoryTableProps) {
       </div>
 
       {/* Main Content Area */}
-      {filteredItems.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-border py-16 text-center bg-card/20">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted/40">
-            <Package className="h-6 w-6 text-muted-foreground" />
-          </div>
-          <h3 className="mt-4 text-lg font-normal text-foreground">
-            {metrics.total === 0
-              ? isVi
-                ? "Chưa có dữ liệu tồn kho"
-                : "No inventory items found"
-              : isVi
-                ? "Không tìm thấy phiên bản phù hợp"
-                : "No matching variants"}
-          </h3>
-          <p className="mt-1 text-[13.5px] leading-[1.6] font-normal text-muted-foreground max-w-sm">
-            {metrics.total === 0
-              ? isVi
-                ? "Chưa có phiên bản sản phẩm nào trong hệ thống."
-                : "There are currently no product variants in the catalog."
-              : isVi
-                ? "Không có tác phẩm nào thỏa mãn các điều kiện lọc và tìm kiếm đã chọn."
-                : "Try adjusting your search terms or filters to find what you're looking for."}
-          </p>
-          {hasActiveFilters && (
-            <div className="mt-5">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleResetFilters}
-                className="inline-flex items-center gap-1.5 text-xs font-normal"
+      <AdminSearchResults>
+        {filteredItems.length === 0 ? (
+          <AdminStatePanel
+            icon={Package}
+            title={
+              metrics.total === 0
+                ? isVi
+                  ? "Chưa có dữ liệu tồn kho"
+                  : "No inventory items found"
+                : isVi
+                  ? "Không tìm thấy phiên bản phù hợp"
+                  : "No matching variants"
+            }
+            description={
+              metrics.total === 0
+                ? isVi
+                  ? "Chưa có phiên bản sản phẩm nào trong hệ thống."
+                  : "There are currently no product variants in the catalog."
+                : isVi
+                  ? "Không có tác phẩm nào thỏa mãn các điều kiện lọc và tìm kiếm đã chọn."
+                  : "Try adjusting your search terms or filters to find what you're looking for."
+            }
+            actions={
+              hasActiveFilters ? (
+                <AdminClearSearchButton
+                  mode={term ? "search" : "all"}
+                  onResetAll={handleResetFilters}
+                  className="text-xs font-normal"
+                />
+              ) : undefined
+            }
+          />
+        ) : (
+          <div className="space-y-4">
+            {/* Desktop & Tablet Table */}
+            <div className="hidden md:block">
+              <AdminTableFrame
+                caption={isVi ? "Tồn kho phiên bản" : "Variant inventory"}
+                head={
+                  <>
+                    <th scope="col" className="py-3.5 px-6 font-normal">
+                      {isVi ? "Tác phẩm & Phiên bản" : "Product & Variant"}
+                    </th>
+                    <th scope="col" className="py-3.5 px-4 font-normal">
+                      {isVi ? "Nhóm hương" : "Category"}
+                    </th>
+                    <th scope="col" className="py-3.5 px-4 font-normal">
+                      {isVi ? "Đơn giá" : "Price"}
+                    </th>
+                    <th scope="col" className="py-3.5 px-6 font-normal">
+                      {isVi ? "Tồn kho" : "Stock Quantity"}
+                    </th>
+                    <th scope="col" className="py-3.5 px-6 text-right font-normal">
+                      {isVi ? "Thao tác" : "Actions"}
+                    </th>
+                  </>
+                }
               >
-                <RotateCcw className="h-3.5 w-3.5" />
-                <span>{isVi ? "Xóa bộ lọc" : "Clear filters"}</span>
-              </Button>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {/* Desktop & Tablet Table */}
-          <div className="hidden md:block">
-            <AdminTableFrame
-              caption={isVi ? "Tồn kho phiên bản" : "Variant inventory"}
-              head={
-                <>
-                  <th scope="col" className="py-3.5 px-6 font-normal">
-                    {isVi ? "Tác phẩm & Phiên bản" : "Product & Variant"}
-                  </th>
-                  <th scope="col" className="py-3.5 px-4 font-normal">
-                    {isVi ? "Nhóm hương" : "Category"}
-                  </th>
-                  <th scope="col" className="py-3.5 px-4 font-normal">
-                    {isVi ? "Đơn giá" : "Price"}
-                  </th>
-                  <th scope="col" className="py-3.5 px-6 font-normal">
-                    {isVi ? "Tồn kho" : "Stock Quantity"}
-                  </th>
-                  <th scope="col" className="py-3.5 px-6 text-right font-normal">
-                    {isVi ? "Thao tác" : "Actions"}
-                  </th>
-                </>
-              }
-            >
-              <tbody className="divide-y divide-border">
-                {filteredItems.map((item) => {
-                  const categoryMeta =
-                    CATEGORY_MAP[item.category] ?? CATEGORY_MAP.floral;
-                  return (
-                    <tr
-                      key={item.id}
-                      className="transition-colors hover:bg-muted/30"
-                    >
-                      {/* Product & Variant */}
-                      <td className="py-4 px-6">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-normal text-[13.5px] text-foreground">
-                              {item.productName}
-                            </span>
-                            {item.productSlug && (
-                              <Link
-                                href={`/products/${item.productSlug}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-muted-foreground hover:text-foreground inline-flex items-center"
-                                title={isVi ? "Xem trang sản phẩm" : "View product page"}
-                              >
-                                <ExternalLink className="h-3 w-3" />
-                              </Link>
-                            )}
-                            {!item.isProductActive && (
-                              <span className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground font-normal">
-                                {isVi ? "Ẩn" : "Draft"}
+                <tbody className="divide-y divide-border">
+                  {filteredItems.map((item) => {
+                    const categoryMeta =
+                      CATEGORY_MAP[item.category] ?? CATEGORY_MAP.floral;
+                    return (
+                      <tr
+                        key={item.id}
+                        className="transition-colors hover:bg-muted/30"
+                      >
+                        {/* Product & Variant */}
+                        <td className="py-4 px-6">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-normal text-[13.5px] text-foreground">
+                                {item.productName}
                               </span>
-                            )}
-                          </div>
+                              {item.productSlug && (
+                                <Link
+                                  href={`/products/${item.productSlug}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-muted-foreground hover:text-foreground inline-flex items-center"
+                                  title={isVi ? "Xem trang sản phẩm" : "View product page"}
+                                >
+                                  <ExternalLink className="h-3 w-3" />
+                                </Link>
+                              )}
+                              {!item.isProductActive && (
+                                <span className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground font-normal">
+                                  {isVi ? "Ẩn" : "Draft"}
+                                </span>
+                              )}
+                            </div>
 
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <span className="font-normal text-foreground/90">
-                              {item.name}
-                            </span>
-                            {item.size && <span>· {item.size}</span>}
-                            {item.sku && (
-                              <span className="tabular-nums font-normal text-xs text-muted-foreground bg-muted/40 px-1.5 py-0.5 rounded">
-                                {item.sku}
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <span className="font-normal text-foreground/90">
+                                {item.name}
                               </span>
-                            )}
+                              {item.size && <span>· {item.size}</span>}
+                              {item.sku && (
+                                <span className="tabular-nums font-normal text-xs text-muted-foreground bg-muted/40 px-1.5 py-0.5 rounded">
+                                  {item.sku}
+                                </span>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </td>
+                        </td>
 
-                      {/* Category */}
-                      <td className="py-4 px-4 whitespace-nowrap">
-                        <span
-                          className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-normal ${categoryMeta.className}`}
-                        >
-                          {isVi ? categoryMeta.labelVi : categoryMeta.labelEn}
-                        </span>
-                      </td>
-
-                      {/* Price */}
-                      <td className="py-4 px-4 tabular-nums text-[13px] font-normal text-foreground whitespace-nowrap">
-                        {formatPrice(item.price)}
-                      </td>
-
-                      {/* Stock Quantity & Badge */}
-                      <td className="py-4 px-6 whitespace-nowrap">
-                        <div className="flex items-center gap-3">
-                          <span className="tabular-nums text-[13.5px] font-normal text-foreground min-w-[2.5rem]">
-                            {item.stockQuantity}
+                        {/* Category */}
+                        <td className="py-4 px-4 whitespace-nowrap">
+                          <span
+                            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-normal ${categoryMeta.className}`}
+                          >
+                            {isVi ? categoryMeta.labelVi : categoryMeta.labelEn}
                           </span>
-                          <StockStatusBadge
-                            stock={item.stockQuantity}
+                        </td>
+
+                        {/* Price */}
+                        <td className="py-4 px-4 tabular-nums text-[13px] font-normal text-foreground whitespace-nowrap">
+                          {formatPrice(item.price)}
+                        </td>
+
+                        {/* Stock Quantity & Badge */}
+                        <td className="py-4 px-6 whitespace-nowrap">
+                          <div className="flex items-center gap-3">
+                            <span className="tabular-nums text-[13.5px] font-normal text-foreground min-w-[2.5rem]">
+                              {item.stockQuantity}
+                            </span>
+                            <StockStatusBadge
+                              stock={item.stockQuantity}
+                              locale={locale}
+                            />
+                          </div>
+                        </td>
+
+                        {/* Actions */}
+                        <td className="py-4 px-6 text-right whitespace-nowrap">
+                          <InventoryAdjustControl
+                            variantId={item.id}
+                            variantName={item.name}
+                            productName={item.productName}
+                            sku={item.sku}
+                            currentStock={item.stockQuantity}
                             locale={locale}
+                            onAdjusted={(newStock) =>
+                              handleVariantAdjusted(item.id, newStock)
+                            }
                           />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </AdminTableFrame>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-3">
+              {filteredItems.map((item) => {
+                const categoryMeta =
+                  CATEGORY_MAP[item.category] ?? CATEGORY_MAP.floral;
+                return (
+                  <div
+                    key={item.id}
+                    className="rounded-2xl border border-border bg-card/40 p-4 space-y-3"
+                  >
+                    {/* Card Header: Product name & Category */}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-1.5">
+                          <h4 className="font-normal text-sm text-foreground">
+                            {item.productName}
+                          </h4>
+                          {!item.isProductActive && (
+                            <span className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground font-normal">
+                              {isVi ? "Ẩn" : "Draft"}
+                            </span>
+                          )}
                         </div>
-                      </td>
-
-                      {/* Actions */}
-                      <td className="py-4 px-6 text-right whitespace-nowrap">
-                        <InventoryAdjustControl
-                          variantId={item.id}
-                          variantName={item.name}
-                          productName={item.productName}
-                          sku={item.sku}
-                          currentStock={item.stockQuantity}
-                          locale={locale}
-                          onAdjusted={(newStock) =>
-                            handleVariantAdjusted(item.id, newStock)
-                          }
-                        />
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </AdminTableFrame>
-          </div>
-
-          {/* Mobile Card View */}
-          <div className="md:hidden space-y-3">
-            {filteredItems.map((item) => {
-              const categoryMeta =
-                CATEGORY_MAP[item.category] ?? CATEGORY_MAP.floral;
-              return (
-                <div
-                  key={item.id}
-                  className="rounded-2xl border border-border bg-card/40 p-4 space-y-3"
-                >
-                  {/* Card Header: Product name & Category */}
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="space-y-0.5">
-                      <div className="flex items-center gap-1.5">
-                        <h4 className="font-normal text-sm text-foreground">
-                          {item.productName}
-                        </h4>
-                        {!item.isProductActive && (
-                          <span className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground font-normal">
-                            {isVi ? "Ẩn" : "Draft"}
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <span className="font-normal text-foreground/90">
+                            {item.name}
                           </span>
-                        )}
+                          {item.size && <span>· {item.size}</span>}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <span className="font-normal text-foreground/90">
-                          {item.name}
-                        </span>
-                        {item.size && <span>· {item.size}</span>}
-                      </div>
-                    </div>
 
-                    <span
-                      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-normal shrink-0 ${categoryMeta.className}`}
-                    >
-                      {isVi ? categoryMeta.labelVi : categoryMeta.labelEn}
-                    </span>
-                  </div>
-
-                  {/* SKU and Price */}
-                  <div className="flex items-center justify-between text-xs border-t border-border/50 pt-2">
-                    <div className="tabular-nums font-normal text-muted-foreground">
-                      {item.sku ? item.sku : "—"}
-                    </div>
-                    <div className="tabular-nums font-normal text-xs text-foreground">
-                      {formatPrice(item.price)}
-                    </div>
-                  </div>
-
-                  {/* Stock and Adjustment */}
-                  <div className="flex items-center justify-between border-t border-border/50 pt-3">
-                    <div className="flex items-center gap-2">
-                      <span className="tabular-nums text-sm font-normal text-foreground">
-                        {item.stockQuantity}
+                      <span
+                        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-normal shrink-0 ${categoryMeta.className}`}
+                      >
+                        {isVi ? categoryMeta.labelVi : categoryMeta.labelEn}
                       </span>
-                      <StockStatusBadge
-                        stock={item.stockQuantity}
+                    </div>
+
+                    {/* SKU and Price */}
+                    <div className="flex items-center justify-between text-xs border-t border-border/50 pt-2">
+                      <div className="tabular-nums font-normal text-muted-foreground">
+                        {item.sku ? item.sku : "—"}
+                      </div>
+                      <div className="tabular-nums font-normal text-xs text-foreground">
+                        {formatPrice(item.price)}
+                      </div>
+                    </div>
+
+                    {/* Stock and Adjustment */}
+                    <div className="flex items-center justify-between border-t border-border/50 pt-3">
+                      <div className="flex items-center gap-2">
+                        <span className="tabular-nums text-sm font-normal text-foreground">
+                          {item.stockQuantity}
+                        </span>
+                        <StockStatusBadge
+                          stock={item.stockQuantity}
+                          locale={locale}
+                        />
+                      </div>
+
+                      <InventoryAdjustControl
+                        variantId={item.id}
+                        variantName={item.name}
+                        productName={item.productName}
+                        sku={item.sku}
+                        currentStock={item.stockQuantity}
                         locale={locale}
+                        onAdjusted={(newStock) =>
+                          handleVariantAdjusted(item.id, newStock)
+                        }
                       />
                     </div>
-
-                    <InventoryAdjustControl
-                      variantId={item.id}
-                      variantName={item.name}
-                      productName={item.productName}
-                      sku={item.sku}
-                      currentStock={item.stockQuantity}
-                      locale={locale}
-                      onAdjusted={(newStock) =>
-                        handleVariantAdjusted(item.id, newStock)
-                      }
-                    />
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </AdminSearchResults>
     </div>
   );
 }

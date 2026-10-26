@@ -57,6 +57,23 @@ export type { AdminPaginationProps } from "./admin-pagination";
 export { AdminBreadcrumb } from "./admin-breadcrumb";
 export type { AdminBreadcrumbProps } from "./admin-breadcrumb";
 export {
+  AdminSearchProvider,
+  AdminSearchResults,
+  useAdminSearch,
+} from "./admin-search-provider";
+export type {
+  AdminSearchProviderProps,
+  AdminSearchResultsProps,
+} from "./admin-search-provider";
+export {
+  AdminSearchInput,
+  AdminClearSearchButton,
+} from "./admin-search-input";
+export type {
+  AdminSearchInputProps,
+  AdminClearSearchButtonProps,
+} from "./admin-search-input";
+export {
   OrderFilterBar,
   ORDER_STATUS_FILTER_OPTIONS,
 } from "./order-filter-bar";

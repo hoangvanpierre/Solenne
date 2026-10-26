@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { escapeLikePattern } from "@/lib/search-utils";
 import {
   requireOwnership,
   requireOwnershipOrPermission,
@@ -227,11 +228,13 @@ export async function countAdminOrders(): Promise<number> {
 // customer directory in lib/admin-customers.ts).
 //
 // Search covers the identifiers an operator actually has at hand:
-//   - order number  (orders.order_number, case-insensitive substring)
-//   - order id      (exact match, only when the term is a full uuid)
-//   - customer email (orders.shipping_address->>email, case-insensitive)
-// The JSON path filter is supported by PostgREST on the live schema, so no
-// schema change is needed.
+//   - order number    (orders.order_number, case-insensitive substring)
+//   - order id        (exact match, only when the term is a full uuid)
+//   - customer email  (orders.shipping_address->>email, case-insensitive)
+//   - customer name   (orders.shipping_address->>fullName, case-insensitive)
+// The JSON path filters are supported by PostgREST on the live schema, so no
+// schema change is needed. The name already belongs to the same order row the
+// operator can see, so including it does not widen access.
 // ---------------------------------------------------------------------------
 
 const ORDER_STATUSES: readonly string[] = [
@@ -260,11 +263,15 @@ function clampPositiveInt(
   return Math.min(integer, max);
 }
 
-/** Same contract as the customer-directory sanitizer, plus `*` (PostgREST alias for `%`). */
+/**
+ * Strip PostgREST filter syntax from untrusted text while leaving literal
+ * wildcard characters intact. `escapeLikePattern` escapes `%`, `_` and `\`
+ * afterwards, so a search for "50%" matches that text instead of every row.
+ */
 function sanitizeOrderSearch(query: string): string {
   return query
     .slice(0, ORDERS_MAX_SEARCH_LENGTH)
-    .replace(/[,().*:"'\\%_]/g, " ")
+    .replace(/[,().*:"']/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -318,8 +325,13 @@ export async function getAdminOrderList(
     if (isValidUuid(search)) {
       query = query.eq("id", search);
     } else {
+      const pattern = `%${escapeLikePattern(search)}%`;
       query = query.or(
-        `order_number.ilike.%${search}%,shipping_address->>email.ilike.%${search}%`
+        [
+          `order_number.ilike.${pattern}`,
+          `shipping_address->>email.ilike.${pattern}`,
+          `shipping_address->>fullName.ilike.${pattern}`,
+        ].join(",")
       );
     }
   }

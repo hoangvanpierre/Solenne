@@ -9,9 +9,10 @@ export interface ScentMotifProps {
 /**
  * Per-family line motif painted behind a collection card's copy.
  *
- * Purely decorative: `currentColor` comes from the card's own family tint, the
- * wrapper owns the low opacity and hover brightening (collections.module.css),
- * and the whole thing is hidden from assistive technology by its parent.
+ * Purely decorative: `currentColor` comes from the card's tonal `--motif-color`;
+ * the wrapper owns the resting opacity, hover brightening, stroke width, and
+ * text-safe fade (collections.module.css). The whole thing is hidden from
+ * assistive technology by its parent and never receives pointer events.
  */
 export function ScentMotif({ id }: ScentMotifProps) {
   return (
@@ -19,7 +20,6 @@ export function ScentMotif({ id }: ScentMotifProps) {
       viewBox="0 0 200 200"
       fill="none"
       stroke="currentColor"
-      strokeWidth={1.15}
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
@@ -28,21 +28,22 @@ export function ScentMotif({ id }: ScentMotifProps) {
     >
       {id === "floral" && (
         <>
-          <g transform="translate(100 94)">
+          <g transform="translate(124 94)">
             {PETAL_ANGLES.map((angle) => (
               <ellipse
                 key={angle}
+                className={styles.motifFill}
                 rx={16}
                 ry={29}
                 cy={-36}
                 transform={`rotate(${angle})`}
               />
             ))}
-            <circle r={8} />
+            <circle className={styles.motifFill} r={8} />
           </g>
-          <path d="M100 132c0 20 7 32 18 42" />
-          <path d="M104 152c-11-3-20 1-26 10" />
-          <path d="M100 166c9-5 17-4 23 2" />
+          <path d="M124 132c0 20 7 32 18 42" />
+          <path d="M128 152c-11-3-20 1-26 10" />
+          <path d="M124 166c9-5 17-4 23 2" />
         </>
       )}
 
@@ -60,18 +61,30 @@ export function ScentMotif({ id }: ScentMotifProps) {
 
       {id === "fresh" && (
         <>
-          <path d="M-10 120c22-14 44-14 66 0s44 14 66 0 44-14 66 0 44 14 66 0" />
-          <path d="M-10 144c22-14 44-14 66 0s44 14 66 0 44-14 66 0 44 14 66 0" />
-          <path d="M-10 168c22-14 44-14 66 0s44 14 66 0 44-14 66 0 44 14 66 0" />
-          <path d="M128 38c0 0 16 19 16 29a16 16 0 0 1-32 0c0-10 16-29 16-29z" />
-          <path d="M82 66c0 0 9 11 9 17a9 9 0 0 1-18 0c0-6 9-17 9-17z" />
+          <path d="M24 124c14-9 27-9 41 0s27 9 41 0 27-9 41 0 27 9 41 0" />
+          <path d="M24 148c14-9 27-9 41 0s27 9 41 0 27-9 41 0 27 9 41 0" />
+          <path d="M24 172c14-9 27-9 41 0s27 9 41 0 27-9 41 0 27 9 41 0" />
+          <path
+            className={styles.motifFill}
+            d="M128 38c0 0 16 19 16 29a16 16 0 0 1-32 0c0-10 16-29 16-29z"
+          />
+          <path
+            className={styles.motifFill}
+            d="M82 66c0 0 9 11 9 17a9 9 0 0 1-18 0c0-6 9-17 9-17z"
+          />
         </>
       )}
 
       {id === "warm" && (
         <>
-          <path d="M100 28c21 27 37 44 37 69a37 37 0 0 1-74 0c0-15 8-28 19-39 2 11 7 18 12 22-2-19 2-34 6-52z" />
-          <path d="M100 94c9 12 16 20 16 30a16 16 0 0 1-32 0c0-9 7-18 16-30z" />
+          <path
+            className={styles.motifFill}
+            d="M100 28c21 27 37 44 37 69a37 37 0 0 1-74 0c0-15 8-28 19-39 2 11 7 18 12 22-2-19 2-34 6-52z"
+          />
+          <path
+            className={styles.motifFill}
+            d="M100 94c9 12 16 20 16 30a16 16 0 0 1-32 0c0-9 7-18 16-30z"
+          />
           <circle cx="100" cy="118" r="62" opacity="0.45" />
         </>
       )}

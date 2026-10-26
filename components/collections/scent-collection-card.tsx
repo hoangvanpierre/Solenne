@@ -117,6 +117,7 @@ export function ScentCollectionCard({
       <Link
         ref={cardRef}
         href={`/collections/${category.id}`}
+        data-scent={category.id}
         onPointerMove={handlePointerMove}
         onPointerLeave={resetPointer}
         onBlur={resetPointer}

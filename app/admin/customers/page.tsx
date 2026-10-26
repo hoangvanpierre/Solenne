@@ -9,7 +9,7 @@ import {
   isUnauthenticatedAuthError,
 } from "@/lib/authz-ux";
 import { getAdminCustomers } from "@/lib/admin-customers";
-import { AdminBreadcrumb, AdminPageHeader, AdminStatePanel, CustomerTable } from "@/components/admin";
+import { AdminBreadcrumb, AdminPageHeader, AdminStatePanel, AdminSearchProvider, CustomerTable } from "@/components/admin";
 import { RestrictedAccountNotice } from "@/components/account";
 import { Button } from "@/components/ui";
 import type { CustomerQueryResult } from "@/types";
@@ -22,6 +22,8 @@ interface AdminCustomersPageProps {
   searchParams: Promise<{
     page?: string;
     limit?: string;
+    q?: string;
+    /** Legacy alias, still honoured for existing bookmarks. */
     search?: string;
     status?: string;
   }>;
@@ -50,7 +52,8 @@ export default async function AdminCustomersPage({
   const rawParams = await searchParams;
   const page = rawParams.page ? parseInt(rawParams.page, 10) : 1;
   const limit = rawParams.limit ? parseInt(rawParams.limit, 10) : 25;
-  const search = rawParams.search;
+  const rawSearch = rawParams.q ?? rawParams.search;
+  const search = typeof rawSearch === "string" ? rawSearch : undefined;
   const status = rawParams.status;
 
   try {
@@ -179,19 +182,21 @@ export default async function AdminCustomersPage({
       />
 
       {/* Interactive Customer Directory */}
-      <CustomerTable
-        customers={queryResult.customers}
-        totalCount={queryResult.totalCount}
-        page={queryResult.page}
-        limit={queryResult.limit}
-        hasMore={queryResult.hasMore}
-        canReadOrders={canReadOrders}
-        locale={locale}
-        initialFilters={{
-          search,
-          status,
-        }}
-      />
+      <AdminSearchProvider initialValue={search} minLength={2}>
+        <CustomerTable
+          customers={queryResult.customers}
+          totalCount={queryResult.totalCount}
+          page={queryResult.page}
+          limit={queryResult.limit}
+          hasMore={queryResult.hasMore}
+          canReadOrders={canReadOrders}
+          locale={locale}
+          initialFilters={{
+            search,
+            status,
+          }}
+        />
+      </AdminSearchProvider>
     </div>
   );
 }

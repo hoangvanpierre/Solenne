@@ -415,6 +415,15 @@ input::-ms-clear {
   outline: none;
 }
 
+/* --- Search palette focus ---
+   The palette's controls draw their own rounded focus rings. Suppress the
+   global 2px square outline (and its 2px corner override) only inside the
+   palette, the same pattern the admin scope uses. */
+.search-command-palette :is(a, button, input, [role="option"]):focus-visible {
+  outline: none;
+  border-radius: revert-layer;
+}
+
 /* --- Link Styles --- */
 a,
 a:visited {

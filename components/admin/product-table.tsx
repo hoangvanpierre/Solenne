@@ -11,18 +11,25 @@ import {
   EyeOff,
   Layers,
   RotateCcw,
-  Search,
   Sparkles,
-  X,
 } from "lucide-react";
 import type { Product, ScentCategory } from "@/types";
 import { formatPrice } from "@/lib/utils";
 import { AdminTableFrame } from "./admin-table-frame";
+import { AdminStatePanel } from "./admin-state-panel";
+import { AdminSearchInput, AdminClearSearchButton } from "./admin-search-input";
+import {
+  AdminSearchProvider,
+  AdminSearchResults,
+  useAdminSearch,
+} from "./admin-search-provider";
 import { Button } from "@/components/ui";
 
 export interface ProductTableProps {
   products: Product[];
   locale?: string;
+  /** Term rendered by the server before the URL is available. */
+  initialSearch?: string;
 }
 
 type SortOption =
@@ -62,11 +69,24 @@ const CATEGORY_MAP: Record<
   },
 };
 
-export function ProductTable({ products, locale = "en" }: ProductTableProps) {
-  const isVi = locale === "vi";
+export function ProductTable({
+  products,
+  locale = "en",
+  initialSearch = "",
+}: ProductTableProps) {
+  return (
+    <AdminSearchProvider initialValue={initialSearch} minLength={1}>
+      <ProductTableContent products={products} locale={locale} />
+    </AdminSearchProvider>
+  );
+}
 
-  // Filter & Search states
-  const [searchQuery, setSearchQuery] = useState("");
+function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
+  const isVi = locale === "vi";
+  const { term, resetAll } = useAdminSearch();
+
+  // Local filter & sort states. The search term lives in the URL so it is
+  // shareable and survives a reload; category/status/sort stay in the browser.
   const [categoryFilter, setCategoryFilter] = useState<ScentCategory | "all">("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
@@ -105,8 +125,8 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
   const filteredProducts = useMemo(() => {
     let result = [...products];
 
-    // 1. Search Query: matches product name, slug, or any variant SKU
-    const query = searchQuery.trim().toLowerCase();
+    // 1. Search Query: matches product name, slug, tagline, or any variant SKU
+    const query = term.toLowerCase();
     if (query) {
       result = result.filter((product) => {
         const matchesName = product.name.toLowerCase().includes(query);
@@ -173,19 +193,19 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
     }
 
     return result;
-  }, [products, searchQuery, categoryFilter, statusFilter, sortBy]);
+  }, [products, term, categoryFilter, statusFilter, sortBy]);
 
   const hasActiveFilters =
-    searchQuery.trim().length > 0 ||
+    term.trim().length > 0 ||
     categoryFilter !== "all" ||
     statusFilter !== "all" ||
     sortBy !== "newest";
 
   const handleResetFilters = () => {
-    setSearchQuery("");
     setCategoryFilter("all");
     setStatusFilter("all");
     setSortBy("newest");
+    resetAll();
   };
 
   return (
@@ -297,30 +317,21 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
       <div className="rounded-2xl border border-border bg-card/40 p-4 space-y-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           {/* Search Input */}
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={
-                isVi
-                  ? "Tìm theo tên tác phẩm, slug hoặc SKU..."
-                  : "Search by product name, slug, or SKU..."
-              }
-              className="admin-quiet-field w-full rounded-xl pl-9 pr-9 py-2 text-[13px] font-normal text-foreground placeholder:text-muted-foreground"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5"
-                aria-label={isVi ? "Xóa tìm kiếm" : "Clear search"}
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            )}
-          </div>
+          <AdminSearchInput
+            label={
+              isVi
+                ? "Tìm kiếm sản phẩm theo tên, slug hoặc SKU"
+                : "Search products by name, slug, or SKU"
+            }
+            placeholder={
+              isVi
+                ? "Tìm theo tên tác phẩm, slug hoặc SKU..."
+                : "Search by product name, slug, or SKU..."
+            }
+            resultCount={filteredProducts.length}
+            showSubmitButton={false}
+            className="max-w-md"
+          />
 
           {/* Quick Filter Controls */}
           <div className="flex flex-wrap items-center gap-2">
@@ -435,402 +446,397 @@ export function ProductTable({ products, locale = "en" }: ProductTableProps) {
       </div>
 
       {/* Main Content Area */}
-      {filteredProducts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-border py-16 text-center bg-card/20">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted/40">
-            <Layers className="h-6 w-6 text-muted-foreground" />
-          </div>
-          <h3 className="mt-4 text-lg font-normal text-foreground">
-            {metrics.total === 0
-              ? isVi
-                ? "Chưa có sản phẩm nào"
-                : "No products in catalog"
-              : isVi
-                ? "Không tìm thấy tác phẩm phù hợp"
-                : "No matching products found"}
-          </h3>
-          <p className="mt-1 text-[13.5px] leading-[1.6] font-normal text-muted-foreground max-w-sm">
-            {metrics.total === 0
-              ? isVi
-                ? "Chưa có tác phẩm nến nào trong danh mục quản trị."
-                : "There are currently no products recorded in the system."
-              : isVi
-                ? "Không có tác phẩm nào thỏa mãn điều kiện lọc và từ khóa tìm kiếm đã chọn."
-                : "Try adjusting your search terms or filters to find what you're looking for."}
-          </p>
-          {hasActiveFilters && (
-            <div className="mt-5">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleResetFilters}
-                className="inline-flex items-center gap-1.5 text-xs font-normal"
-              >
-                <RotateCcw className="h-3.5 w-3.5" />
-                <span>{isVi ? "Xóa bộ lọc" : "Clear filters"}</span>
-              </Button>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {/* Desktop & Tablet Table */}
-          <div className="hidden md:block">
-            <AdminTableFrame
-              caption={isVi ? "Danh mục sản phẩm" : "Product catalog"}
-              head={
-                <>
-                  <th scope="col" className="py-3.5 px-6 font-normal">
-                    {isVi ? "Tác phẩm" : "Product"}
-                  </th>
-                  <th scope="col" className="py-3.5 px-4 font-normal">
-                    {isVi ? "Nhóm hương" : "Category"}
-                  </th>
-                  <th scope="col" className="py-3.5 px-4 font-normal">
-                    {isVi ? "Phiên bản" : "Variants"}
-                  </th>
-                  <th scope="col" className="py-3.5 px-4 font-normal">
-                    {isVi ? "Giá cơ bản" : "Base Price"}
-                  </th>
-                  <th scope="col" className="py-3.5 px-6 font-normal">
-                    {isVi ? "Tổng tồn kho" : "Total Stock"}
-                  </th>
-                  <th scope="col" className="py-3.5 px-4 font-normal">
-                    {isVi ? "Ngày tạo" : "Created"}
-                  </th>
-                  <th
-                    scope="col"
-                    className="py-3.5 px-6 text-right font-normal"
-                  >
-                    {isVi ? "Thao tác" : "Actions"}
-                  </th>
-                </>
-              }
-            >
-              <tbody className="divide-y divide-border">
-                {filteredProducts.map((product) => {
-                  const categoryMeta =
-                    CATEGORY_MAP[product.category] ?? CATEGORY_MAP.floral;
-                  const variantCount = product.variants?.length ?? 0;
-                  const totalStock = (product.variants ?? []).reduce(
-                    (sum, v) => sum + v.stockQuantity,
-                    0
-                  );
-                  const sizes = (product.variants ?? [])
-                    .map((v) => v.size)
-                    .filter(Boolean)
-                    .join(", ");
-
-                  const formattedDate = new Date(
-                    product.createdAt
-                  ).toLocaleDateString(isVi ? "vi-VN" : "en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  });
-
-                  return (
-                    <tr
-                      key={product.id}
-                      className="transition-colors hover:bg-muted/30"
+      <AdminSearchResults>
+        {filteredProducts.length === 0 ? (
+          <AdminStatePanel
+            icon={Layers}
+            title={
+              metrics.total === 0
+                ? isVi
+                  ? "Chưa có sản phẩm nào"
+                  : "No products in catalog"
+                : isVi
+                  ? "Không tìm thấy tác phẩm phù hợp"
+                  : "No matching products found"
+            }
+            description={
+              metrics.total === 0
+                ? isVi
+                  ? "Chưa có tác phẩm nến nào trong danh mục quản trị."
+                  : "There are currently no products recorded in the system."
+                : isVi
+                  ? "Không có tác phẩm nào thỏa mãn điều kiện lọc và từ khóa tìm kiếm đã chọn."
+                  : "Try adjusting your search terms or filters to find what you're looking for."
+            }
+            actions={
+              hasActiveFilters ? (
+                <AdminClearSearchButton
+                  mode={term ? "search" : "all"}
+                  onResetAll={handleResetFilters}
+                  className="text-xs font-normal"
+                />
+              ) : undefined
+            }
+          />
+        ) : (
+          <div className="space-y-4">
+            {/* Desktop & Tablet Table */}
+            <div className="hidden md:block">
+              <AdminTableFrame
+                caption={isVi ? "Danh mục sản phẩm" : "Product catalog"}
+                head={
+                  <>
+                    <th scope="col" className="py-3.5 px-6 font-normal">
+                      {isVi ? "Tác phẩm" : "Product"}
+                    </th>
+                    <th scope="col" className="py-3.5 px-4 font-normal">
+                      {isVi ? "Nhóm hương" : "Category"}
+                    </th>
+                    <th scope="col" className="py-3.5 px-4 font-normal">
+                      {isVi ? "Phiên bản" : "Variants"}
+                    </th>
+                    <th scope="col" className="py-3.5 px-4 font-normal">
+                      {isVi ? "Giá cơ bản" : "Base Price"}
+                    </th>
+                    <th scope="col" className="py-3.5 px-6 font-normal">
+                      {isVi ? "Tổng tồn kho" : "Total Stock"}
+                    </th>
+                    <th scope="col" className="py-3.5 px-4 font-normal">
+                      {isVi ? "Ngày tạo" : "Created"}
+                    </th>
+                    <th
+                      scope="col"
+                      className="py-3.5 px-6 text-right font-normal"
                     >
-                      {/* Product Name, Slug, Status */}
-                      <td className="py-4 px-6">
-                        <div className="flex items-center gap-3">
-                          <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg border border-border/60 bg-muted">
-                            {product.images && product.images.length > 0 ? (
-                              <Image
-                                src={product.images[0]}
-                                alt={product.name}
-                                fill
-                                sizes="40px"
-                                className="object-cover"
-                              />
-                            ) : (
-                              <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground/40 tabular-nums">
-                                —
+                      {isVi ? "Thao tác" : "Actions"}
+                    </th>
+                  </>
+                }
+              >
+                <tbody className="divide-y divide-border">
+                  {filteredProducts.map((product) => {
+                    const categoryMeta =
+                      CATEGORY_MAP[product.category] ?? CATEGORY_MAP.floral;
+                    const variantCount = product.variants?.length ?? 0;
+                    const totalStock = (product.variants ?? []).reduce(
+                      (sum, v) => sum + v.stockQuantity,
+                      0
+                    );
+                    const sizes = (product.variants ?? [])
+                      .map((v) => v.size)
+                      .filter(Boolean)
+                      .join(", ");
+
+                    const formattedDate = new Date(
+                      product.createdAt
+                    ).toLocaleDateString(isVi ? "vi-VN" : "en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    });
+
+                    return (
+                      <tr
+                        key={product.id}
+                        className="transition-colors hover:bg-muted/30"
+                      >
+                        {/* Product Name, Slug, Status */}
+                        <td className="py-4 px-6">
+                          <div className="flex items-center gap-3">
+                            <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg border border-border/60 bg-muted">
+                              {product.images && product.images.length > 0 ? (
+                                <Image
+                                  src={product.images[0]}
+                                  alt={product.name}
+                                  fill
+                                  sizes="40px"
+                                  className="object-cover"
+                                />
+                              ) : (
+                                <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground/40 tabular-nums">
+                                  —
+                                </div>
+                              )}
+                            </div>
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-normal text-foreground text-[13.5px]">
+                                  {product.name}
+                                </span>
+
+                              {/* Storefront Link */}
+                              <Link
+                                href={`/products/${product.slug}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-muted-foreground hover:text-foreground inline-flex items-center"
+                                title={
+                                  isVi
+                                    ? "Xem trang tác phẩm trên cửa hàng"
+                                    : "View product on storefront"
+                                }
+                              >
+                                <ExternalLink className="h-3 w-3" />
+                              </Link>
+
+                              {/* Status Badge */}
+                              {product.isActive ? (
+                                <span className="inline-flex items-center rounded-md border border-sage/40 bg-sage/10 px-1.5 py-0.5 text-[11px] font-normal text-sage">
+                                  {isVi ? "Mở bán" : "Active"}
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center rounded-md border border-border bg-muted/60 px-1.5 py-0.5 text-[11px] font-normal text-muted-foreground">
+                                  {isVi ? "Tạm ẩn" : "Draft"}
+                                </span>
+                              )}
+
+                              {/* Featured Badge */}
+                              {product.isFeatured && (
+                                <span className="inline-flex items-center gap-0.5 rounded-md border border-amber/40 bg-amber/10 px-1.5 py-0.5 text-[11px] font-normal text-amber">
+                                  <Sparkles className="h-2.5 w-2.5" />
+                                  <span>{isVi ? "Nổi bật" : "Featured"}</span>
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="text-xs text-muted-foreground tabular-nums font-normal">
+                              /{product.slug}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+
+                        {/* Category */}
+                        <td className="py-4 px-4 whitespace-nowrap">
+                          <span
+                            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-normal ${categoryMeta.className}`}
+                          >
+                            {isVi ? categoryMeta.labelVi : categoryMeta.labelEn}
+                          </span>
+                        </td>
+
+                        {/* Variants */}
+                        <td className="py-4 px-4 whitespace-nowrap">
+                          <div className="text-xs">
+                            <span className="font-normal tabular-nums text-foreground">
+                              {variantCount}{" "}
+                              {isVi
+                                ? "phiên bản"
+                                : variantCount === 1
+                                  ? "variant"
+                                  : "variants"}
+                            </span>
+                            {sizes && (
+                              <div className="text-xs text-muted-foreground truncate max-w-[12rem]">
+                                {sizes}
                               </div>
                             )}
                           </div>
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <span className="font-normal text-foreground text-[13.5px]">
-                                {product.name}
-                              </span>
+                        </td>
 
-                            {/* Storefront Link */}
+                        {/* Base Price */}
+                        <td className="py-4 px-4 tabular-nums text-[13px] font-normal text-foreground whitespace-nowrap">
+                          <div>{formatPrice(product.basePrice)}</div>
+                          {product.compareAtPrice && (
+                            <div className="text-xs text-muted-foreground line-through">
+                              {formatPrice(product.compareAtPrice)}
+                            </div>
+                          )}
+                        </td>
+
+                        {/* Total Stock */}
+                        <td className="py-4 px-6 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`tabular-nums text-[13.5px] font-normal ${
+                                totalStock === 0
+                                  ? "text-destructive"
+                                  : totalStock <= 10
+                                    ? "text-amber"
+                                    : "text-foreground"
+                              }`}
+                            >
+                              {totalStock}
+                            </span>
                             <Link
-                              href={`/products/${product.slug}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-muted-foreground hover:text-foreground inline-flex items-center"
+                              href="/admin/inventory"
+                              className="text-muted-foreground hover:text-amber inline-flex items-center p-1 rounded hover:bg-muted/40 transition-colors"
                               title={
                                 isVi
-                                  ? "Xem trang tác phẩm trên cửa hàng"
-                                  : "View product on storefront"
+                                  ? "Xem trong quản lý tồn kho"
+                                  : "View in inventory management"
                               }
                             >
-                              <ExternalLink className="h-3 w-3" />
+                              <Boxes className="h-3.5 w-3.5" />
                             </Link>
-
-                            {/* Status Badge */}
-                            {product.isActive ? (
-                              <span className="inline-flex items-center rounded-md border border-sage/40 bg-sage/10 px-1.5 py-0.5 text-[11px] font-normal text-sage">
-                                {isVi ? "Mở bán" : "Active"}
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center rounded-md border border-border bg-muted/60 px-1.5 py-0.5 text-[11px] font-normal text-muted-foreground">
-                                {isVi ? "Tạm ẩn" : "Draft"}
-                              </span>
-                            )}
-
-                            {/* Featured Badge */}
-                            {product.isFeatured && (
-                              <span className="inline-flex items-center gap-0.5 rounded-md border border-amber/40 bg-amber/10 px-1.5 py-0.5 text-[11px] font-normal text-amber">
-                                <Sparkles className="h-2.5 w-2.5" />
-                                <span>{isVi ? "Nổi bật" : "Featured"}</span>
-                              </span>
-                            )}
                           </div>
+                        </td>
 
-                          <div className="text-xs text-muted-foreground tabular-nums font-normal">
-                            /{product.slug}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
+                        {/* Created Date */}
+                        <td className="py-4 px-4 text-xs font-normal tabular-nums text-muted-foreground whitespace-nowrap">
+                          {formattedDate}
+                        </td>
 
-                      {/* Category */}
-                      <td className="py-4 px-4 whitespace-nowrap">
-                        <span
-                          className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-normal ${categoryMeta.className}`}
-                        >
-                          {isVi ? categoryMeta.labelVi : categoryMeta.labelEn}
-                        </span>
-                      </td>
+                        {/* Actions */}
+                        <td className="py-4 px-6 text-right whitespace-nowrap">
+                          <Button
+                            asChild
+                            variant="outline"
+                            size="sm"
+                            className="inline-flex items-center gap-1.5 text-xs font-normal"
+                          >
+                            <Link href={`/admin/products/${product.id}`}>
+                              <span>{isVi ? "Chi tiết" : "Manage"}</span>
+                              <ArrowRight className="h-3 w-3" />
+                            </Link>
+                          </Button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </AdminTableFrame>
+            </div>
 
-                      {/* Variants */}
-                      <td className="py-4 px-4 whitespace-nowrap">
-                        <div className="text-xs">
-                          <span className="font-normal tabular-nums text-foreground">
-                            {variantCount}{" "}
-                            {isVi
-                              ? "phiên bản"
-                              : variantCount === 1
-                                ? "variant"
-                                : "variants"}
-                          </span>
-                          {sizes && (
-                            <div className="text-xs text-muted-foreground truncate max-w-[12rem]">
-                              {sizes}
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-3">
+              {filteredProducts.map((product) => {
+                const categoryMeta =
+                  CATEGORY_MAP[product.category] ?? CATEGORY_MAP.floral;
+                const variantCount = product.variants?.length ?? 0;
+                const totalStock = (product.variants ?? []).reduce(
+                  (sum, v) => sum + v.stockQuantity,
+                  0
+                );
+
+                return (
+                  <div
+                    key={product.id}
+                    className="rounded-2xl border border-border bg-card/40 p-4 space-y-3"
+                  >
+                    {/* Card Header: Product name & Badges */}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg border border-border/60 bg-muted">
+                          {product.images && product.images.length > 0 ? (
+                            <Image
+                              src={product.images[0]}
+                              alt={product.name}
+                              fill
+                              sizes="48px"
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground/40 tabular-nums">
+                              —
                             </div>
                           )}
                         </div>
-                      </td>
-
-                      {/* Base Price */}
-                      <td className="py-4 px-4 tabular-nums text-[13px] font-normal text-foreground whitespace-nowrap">
-                        <div>{formatPrice(product.basePrice)}</div>
-                        {product.compareAtPrice && (
-                          <div className="text-xs text-muted-foreground line-through">
-                            {formatPrice(product.compareAtPrice)}
-                          </div>
-                        )}
-                      </td>
-
-                      {/* Total Stock */}
-                      <td className="py-4 px-6 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`tabular-nums text-[13.5px] font-normal ${
-                              totalStock === 0
-                                ? "text-destructive"
-                                : totalStock <= 10
-                                  ? "text-amber"
-                                  : "text-foreground"
-                            }`}
-                          >
-                            {totalStock}
-                          </span>
-                          <Link
-                            href="/admin/inventory"
-                            className="text-muted-foreground hover:text-amber inline-flex items-center p-1 rounded hover:bg-muted/40 transition-colors"
-                            title={
-                              isVi
-                                ? "Xem trong quản lý tồn kho"
-                                : "View in inventory management"
-                            }
-                          >
-                            <Boxes className="h-3.5 w-3.5" />
-                          </Link>
+                        <div className="space-y-0.5 min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <h4 className="font-normal text-sm text-foreground truncate">
+                              {product.name}
+                            </h4>
+                          {product.isActive ? (
+                            <span className="rounded-md border border-sage/40 bg-sage/10 px-1.5 py-0.5 text-[11px] text-sage font-normal">
+                              {isVi ? "Mở bán" : "Active"}
+                            </span>
+                          ) : (
+                            <span className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground font-normal">
+                              {isVi ? "Tạm ẩn" : "Draft"}
+                            </span>
+                          )}
+                          {product.isFeatured && (
+                            <span className="rounded-md border border-amber/40 bg-amber/10 px-1.5 py-0.5 text-[11px] text-amber font-normal inline-flex items-center gap-0.5">
+                              <Sparkles className="h-2.5 w-2.5" />
+                              <span>{isVi ? "Nổi bật" : "Featured"}</span>
+                            </span>
+                          )}
                         </div>
-                      </td>
+                        <div className="tabular-nums font-normal text-xs text-muted-foreground">
+                          /{product.slug}
+                        </div>
+                      </div>
+                    </div>
 
-                      {/* Created Date */}
-                      <td className="py-4 px-4 text-xs font-normal tabular-nums text-muted-foreground whitespace-nowrap">
-                        {formattedDate}
-                      </td>
+                    <span
+                      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-normal shrink-0 ${categoryMeta.className}`}
+                    >
+                        {isVi ? categoryMeta.labelVi : categoryMeta.labelEn}
+                      </span>
+                    </div>
 
-                      {/* Actions */}
-                      <td className="py-4 px-6 text-right whitespace-nowrap">
+                    {/* Pricing and Variants count */}
+                    <div className="flex items-center justify-between text-xs border-t border-border/50 pt-2">
+                      <div className="text-muted-foreground tabular-nums font-normal">
+                        {variantCount}{" "}
+                        {isVi
+                          ? "phiên bản"
+                          : variantCount === 1
+                            ? "variant"
+                            : "variants"}
+                      </div>
+                      <div className="tabular-nums font-normal text-xs text-foreground">
+                        {formatPrice(product.basePrice)}
+                      </div>
+                    </div>
+
+                    {/* Stock and Link */}
+                    <div className="flex items-center justify-between border-t border-border/50 pt-2 text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">
+                          {isVi ? "Tồn kho:" : "Stock:"}
+                        </span>
+                        <span
+                          className={`tabular-nums font-normal text-sm ${
+                            totalStock === 0
+                              ? "text-destructive"
+                              : totalStock <= 10
+                                ? "text-amber"
+                                : "text-foreground"
+                          }`}
+                        >
+                          {totalStock}
+                        </span>
+                        <Link
+                          href="/admin/inventory"
+                          className="text-muted-foreground hover:text-amber text-xs underline underline-offset-2 ml-1"
+                        >
+                          {isVi ? "Kho hàng" : "Inventory"}
+                        </Link>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/products/${product.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-muted-foreground hover:text-foreground p-1"
+                          title={isVi ? "Xem trang sản phẩm" : "View live product"}
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" />
+                        </Link>
+
                         <Button
                           asChild
                           variant="outline"
                           size="sm"
-                          className="inline-flex items-center gap-1.5 text-xs font-normal"
+                          className="inline-flex items-center gap-1 text-xs py-1 h-7 font-normal"
                         >
                           <Link href={`/admin/products/${product.id}`}>
                             <span>{isVi ? "Chi tiết" : "Manage"}</span>
                             <ArrowRight className="h-3 w-3" />
                           </Link>
                         </Button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </AdminTableFrame>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-
-          {/* Mobile Card View */}
-          <div className="md:hidden space-y-3">
-            {filteredProducts.map((product) => {
-              const categoryMeta =
-                CATEGORY_MAP[product.category] ?? CATEGORY_MAP.floral;
-              const variantCount = product.variants?.length ?? 0;
-              const totalStock = (product.variants ?? []).reduce(
-                (sum, v) => sum + v.stockQuantity,
-                0
-              );
-
-              return (
-                <div
-                  key={product.id}
-                  className="rounded-2xl border border-border bg-card/40 p-4 space-y-3"
-                >
-                  {/* Card Header: Product name & Badges */}
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3 flex-1 min-w-0">
-                      <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg border border-border/60 bg-muted">
-                        {product.images && product.images.length > 0 ? (
-                          <Image
-                            src={product.images[0]}
-                            alt={product.name}
-                            fill
-                            sizes="48px"
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground/40 tabular-nums">
-                            —
-                          </div>
-                        )}
-                      </div>
-                      <div className="space-y-0.5 min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <h4 className="font-normal text-sm text-foreground truncate">
-                            {product.name}
-                          </h4>
-                        {product.isActive ? (
-                          <span className="rounded-md border border-sage/40 bg-sage/10 px-1.5 py-0.5 text-[11px] text-sage font-normal">
-                            {isVi ? "Mở bán" : "Active"}
-                          </span>
-                        ) : (
-                          <span className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground font-normal">
-                            {isVi ? "Tạm ẩn" : "Draft"}
-                          </span>
-                        )}
-                        {product.isFeatured && (
-                          <span className="rounded-md border border-amber/40 bg-amber/10 px-1.5 py-0.5 text-[11px] text-amber font-normal inline-flex items-center gap-0.5">
-                            <Sparkles className="h-2.5 w-2.5" />
-                            <span>{isVi ? "Nổi bật" : "Featured"}</span>
-                          </span>
-                        )}
-                      </div>
-                      <div className="tabular-nums font-normal text-xs text-muted-foreground">
-                        /{product.slug}
-                      </div>
-                    </div>
-                  </div>
-
-                  <span
-                    className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-normal shrink-0 ${categoryMeta.className}`}
-                  >
-                      {isVi ? categoryMeta.labelVi : categoryMeta.labelEn}
-                    </span>
-                  </div>
-
-                  {/* Pricing and Variants count */}
-                  <div className="flex items-center justify-between text-xs border-t border-border/50 pt-2">
-                    <div className="text-muted-foreground tabular-nums font-normal">
-                      {variantCount}{" "}
-                      {isVi
-                        ? "phiên bản"
-                        : variantCount === 1
-                          ? "variant"
-                          : "variants"}
-                    </div>
-                    <div className="tabular-nums font-normal text-xs text-foreground">
-                      {formatPrice(product.basePrice)}
-                    </div>
-                  </div>
-
-                  {/* Stock and Link */}
-                  <div className="flex items-center justify-between border-t border-border/50 pt-2 text-xs">
-                    <div className="flex items-center gap-2">
-                      <span className="text-muted-foreground">
-                        {isVi ? "Tồn kho:" : "Stock:"}
-                      </span>
-                      <span
-                        className={`tabular-nums font-normal text-sm ${
-                          totalStock === 0
-                            ? "text-destructive"
-                            : totalStock <= 10
-                              ? "text-amber"
-                              : "text-foreground"
-                        }`}
-                      >
-                        {totalStock}
-                      </span>
-                      <Link
-                        href="/admin/inventory"
-                        className="text-muted-foreground hover:text-amber text-xs underline underline-offset-2 ml-1"
-                      >
-                        {isVi ? "Kho hàng" : "Inventory"}
-                      </Link>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Link
-                        href={`/products/${product.slug}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-muted-foreground hover:text-foreground p-1"
-                        title={isVi ? "Xem trang sản phẩm" : "View live product"}
-                      >
-                        <ExternalLink className="h-3.5 w-3.5" />
-                      </Link>
-
-                      <Button
-                        asChild
-                        variant="outline"
-                        size="sm"
-                        className="inline-flex items-center gap-1 text-xs py-1 h-7 font-normal"
-                      >
-                        <Link href={`/admin/products/${product.id}`}>
-                          <span>{isVi ? "Chi tiết" : "Manage"}</span>
-                          <ArrowRight className="h-3 w-3" />
-                        </Link>
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+        )}
+      </AdminSearchResults>
     </div>
   );
 }

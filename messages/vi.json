@@ -174,6 +174,38 @@
     "editAddress": "Chỉnh sửa địa chỉ →",
     "manageProfile": "Quản lý hồ sơ cá nhân →"
   },
+  "adminSearch": {
+    "search": "Tìm kiếm",
+    "searching": "Đang tìm kiếm…",
+    "clear": "Xóa tìm kiếm",
+    "clearFilters": "Xóa bộ lọc",
+    "resultsCount": "{count, plural, =0 {Không có kết quả} other {# kết quả}}",
+    "minLength": "Nhập ít nhất {count} ký tự để tìm kiếm."
+  },
+  "search": {
+    "title": "Tìm kiếm Solenne",
+    "placeholder": "Tìm nến, bộ sưu tập, nốt hương…",
+    "close": "Đóng tìm kiếm",
+    "shortcutHint": "Ctrl K",
+    "shortcutHintMac": "⌘ K",
+    "loading": "Đang chuẩn bị danh mục tìm kiếm…",
+    "error": "Tìm kiếm tạm thời chưa sẵn sàng. Quý khách vui lòng thử lại.",
+    "retry": "Thử lại",
+    "browseFamilies": "Dạo theo họ hương",
+    "suggestions": "Gợi ý",
+    "recentSearches": "Tìm kiếm gần đây",
+    "clearRecent": "Xóa",
+    "products": "Tác phẩm",
+    "collections": "Bộ sưu tập",
+    "resultsCount": "{count, plural, =0 {Không có kết quả} other {# kết quả}}",
+    "noResultsTitle": "Không tìm thấy tác phẩm cho “{query}”",
+    "noResultsDescription": "Hãy thử một họ hương, một nốt hương hoặc cách viết khác.",
+    "askAssistant": "Hỏi trợ lý Solenne",
+    "ariaResults": "Kết quả tìm kiếm",
+    "recentSearchAria": "Tìm kiếm {query}",
+    "familyAria": "Dạo bộ sưu tập {family}",
+    "selectHint": "Enter để mở · Esc để đóng"
+  },
   "assistant": {
     "launcher": "Mở trợ lý hương",
     "close": "Đóng trợ lý",

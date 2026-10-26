@@ -9,6 +9,7 @@ import {
   isUnauthenticatedAuthError,
 } from "@/lib/authz-ux";
 import { AdminInventoryItem, getAdminInventory } from "@/lib/inventory";
+import { ADMIN_SEARCH_MAX_LENGTH } from "@/lib/search-utils";
 import { RestrictedAccountNotice } from "@/components/account";
 import { Button } from "@/components/ui";
 import {
@@ -22,9 +23,24 @@ export const metadata: Metadata = {
   title: "Inventory — Administration",
 };
 
-export default async function AdminInventoryPage() {
+interface AdminInventoryPageProps {
+  searchParams: Promise<{
+    q?: string;
+    /** Legacy alias, still honoured for existing bookmarks. */
+    search?: string;
+  }>;
+}
+
+export default async function AdminInventoryPage({
+  searchParams,
+}: AdminInventoryPageProps) {
   const locale = await getLocale();
   const isVi = locale === "vi";
+  const rawParams = await searchParams;
+  const rawSearch = rawParams.q ?? rawParams.search;
+  const initialSearch = (typeof rawSearch === "string" ? rawSearch : "")
+    .trim()
+    .slice(0, ADMIN_SEARCH_MAX_LENGTH);
 
   let items: AdminInventoryItem[] = [];
   let accountRestricted = false;
@@ -146,7 +162,11 @@ export default async function AdminInventoryPage() {
       />
 
       {/* Interactive Inventory Table with KPIs, Filtering, and Adjust Controls */}
-      <InventoryTable items={items} locale={locale} />
+      <InventoryTable
+        items={items}
+        locale={locale}
+        initialSearch={initialSearch}
+      />
     </div>
   );
 }

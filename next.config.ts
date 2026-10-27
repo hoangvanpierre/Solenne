@@ -14,5 +14,11 @@ const nextConfig: NextConfig = {
 
 export default withNextIntl(nextConfig);
 
-
-import('@opennextjs/cloudflare').then(m => m.initOpenNextCloudflareForDev());
+// Only `next dev` needs the Cloudflare platform proxy (it backs
+// `getCloudflareContext()` locally). `next build` and `next typegen` also load
+// this config, and running the proxy there made production builds depend on a
+// Cloudflare login or `CLOUDFLARE_API_TOKEN` — which hermetic CI must not have.
+// See docs/quality/production-readiness.md.
+if (process.env.NODE_ENV === "development") {
+  import("@opennextjs/cloudflare").then((m) => m.initOpenNextCloudflareForDev());
+}

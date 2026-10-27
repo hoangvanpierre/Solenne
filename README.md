@@ -303,7 +303,7 @@ Database changes are versioned under `supabase/migrations/`. Read [supabase/READ
 
 ### Prerequisites
 
-- **Node.js 20.9 or newer** (the minimum supported by Next.js 16; see the [Next.js installation requirements](https://nextjs.org/docs/app/getting-started/installation)).
+- **Node.js 22.18 or newer** (required by the unit suite, which executes `.ts` files through Node's native type stripping). **Node.js 24.x is recommended and is the version CI tests**; the repository is developed on 24.x. Next.js 16 itself only requires 20.9, so 22.18+ is this repository's own floor. See the [Next.js installation requirements](https://nextjs.org/docs/app/getting-started/installation).
 - **pnpm 9 or newer**, compatible with the committed `pnpm-lock.yaml` lockfile format (`9.0`).
 - A Supabase project with the required schema and seed data.
 
@@ -347,30 +347,48 @@ The local Next.js development server does not by itself provide Cloudflare runti
 
 ## Verification
 
-The repository includes targeted Node.js verification scripts for business invariants, routing behavior, and source wiring. They are not a configured Jest/Vitest unit, integration, or end-to-end test suite.
+Every pull request against `main` runs a required GitHub Actions quality gate
+(type checking, linting, unit tests, static verification harnesses, the
+production Next.js build, and the database-free public-shell browser tests). The
+full description — what each check proves, what is not covered, and how to run
+browser tests against an isolated environment — lives in
+[docs/quality/production-readiness.md](docs/quality/production-readiness.md).
 
-**Type checking and linting**
+**Type checking, linting and tests**
 
 ```bash
 pnpm exec tsc --noEmit
 pnpm lint
+pnpm test              # unit tests + approved verification harnesses
 ```
 
-**Targeted verification**
+The unit suite (`pnpm test:unit`) runs `tests/unit/**/*.test.ts` with the Node.js
+built-in test runner — no test framework dependency. `pnpm test:verify` runs only
+the deterministic static harnesses (see `scripts/run-verify.mjs`); every other
+harness needs external infrastructure and stays out of the default gate.
+
+**Database-aware harnesses (manual only)**
 
 ```bash
-node scripts/verify-rbac.mjs
-node scripts/verify-cancel-order.mjs
-node scripts/verify-fulfillment-transitions.mjs
-node scripts/verify-inventory-adjustment.mjs
-node scripts/verify-customer-status.mjs
-node scripts/verify-product-management.mjs
-node scripts/verify-post-login-routing.mjs
-node scripts/verify-callback-redirect.mjs
-node scripts/verify-contact-newsletter.mjs
+node scripts/verify-rbac.mjs         # requires .env.local and a dedicated test project
+node scripts/verify-dock-layout.mjs  # requires Puppeteer + a running dev server
 ```
 
-Some database verification scripts require the environment variables and database state described in the Supabase guide. Check each script's header before running it. In particular, `verify-rbac.mjs` is read-only by default; its `--full` mode creates disposable test accounts and an order before cleaning them up. Run data-writing checks only against an environment intended for testing.
+`verify-rbac.mjs` is read-only by default; its `--full` mode creates disposable
+test accounts and an order before cleaning them up. Never run data-writing
+checks against production.
+
+**End-to-end (never production)**
+
+```bash
+pnpm exec playwright install chromium        # once per machine
+SOLENNE_E2E_BASE_URL=https://<staging-host> pnpm test:e2e
+```
+
+The five database-free public-shell journeys (`/about`, `/journal`, a post,
+`/login`, a 404) also run in PR CI against a local server whose Supabase URL
+points at a closed port. Catalogue, account, checkout and admin journeys still
+need a seeded staging project and are not run in CI.
 
 ---
 
@@ -398,9 +416,14 @@ Repository configuration:
 Useful commands:
 
 ```bash
-pnpm build:worker
+pnpm build:worker   # build only: no Cloudflare account or token required
 pnpm preview
 ```
+
+`pnpm build:worker` currently stops while bundling the server because esbuild
+resolves the app's `sharp` dependency; see
+[docs/quality/production-readiness.md](docs/quality/production-readiness.md) §1
+for the exact error. Deployment configuration is otherwise unchanged.
 
 A deployment command is also available through `pnpm deploy`. Production deployment requires the appropriate Cloudflare account configuration and authentication. Repository configuration alone does not prove that a particular commit is deployed.
 
@@ -415,7 +438,7 @@ Solenne is an actively developed portfolio project. The following boundaries are
 - **Payments:** Stripe dependencies are present, but payment-session creation, payment confirmation, webhook handling, and end-to-end payment reconciliation are not yet implemented. Orders currently remain in a pending-payment state.
 - **AI assistant:** provides product and policy guidance only; it cannot access personal account data or perform transactional actions.
 - **Content:** some editorial and marketing content is static.
-- **Automated testing:** targeted verification scripts are available, but a full unit, integration, or end-to-end test suite is not configured.
+- **Automated testing:** unit tests, static verification harnesses, and a CI quality gate run on every pull request. Integration tests and database-backed browser tests still require a dedicated staging environment and are listed as remaining work in the quality documentation.
 
 These limitations are stated explicitly so the implemented scope can be evaluated accurately.
 

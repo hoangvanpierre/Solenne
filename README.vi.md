@@ -303,7 +303,7 @@ Các thay đổi database được version hóa trong `supabase/migrations/`. H�
 
 ### Yêu cầu môi trường
 
-- **Node.js 20.9 trở lên** (phiên bản tối thiểu được Next.js 16 hỗ trợ; xem [yêu cầu cài đặt Next.js](https://nextjs.org/docs/app/getting-started/installation)).
+- **Node.js 22.18 trở lên** (bắt buộc cho bộ unit test, vì test chạy trực tiếp file `.ts` bằng cơ chế type stripping có sẵn của Node). **Node.js 24.x là phiên bản được khuyến nghị và được CI kiểm thử**; repository đang phát triển trên 24.x. Bản thân Next.js 16 chỉ yêu cầu 20.9, nên 22.18+ là mức tối thiểu riêng của repository này. Xem [yêu cầu cài đặt Next.js](https://nextjs.org/docs/app/getting-started/installation).
 - **pnpm 9 trở lên**, tương thích với định dạng lockfile `9.0` trong `pnpm-lock.yaml`.
 - Một Supabase project đã có schema và seed data cần thiết.
 
@@ -347,30 +347,49 @@ Next.js development server chạy local không tự cung cấp các binding củ
 
 ## Kiểm tra và xác minh
 
-Repository có các script Node.js để xác minh có mục tiêu đối với bất biến nghiệp vụ, hành vi routing và kết nối giữa các phần mã nguồn. Đây không phải bộ unit test, integration test hoặc end-to-end test được cấu hình bằng Jest/Vitest.
+Mỗi pull request vào `main` đều chạy một quality gate bắt buộc trên GitHub
+Actions (kiểm tra kiểu, lint, unit test, các script xác minh tĩnh, bản build
+production của Next.js và các browser test public-shell không cần database). Mô
+tả đầy đủ — từng bước kiểm tra chứng minh điều gì, phần nào chưa
+được bao phủ, và cách chạy browser test trên môi trường tách biệt — nằm trong
+[docs/quality/production-readiness.md](docs/quality/production-readiness.md).
 
-**Kiểm tra kiểu dữ liệu và lint**
+**Kiểm tra kiểu dữ liệu, lint và test**
 
 ```bash
 pnpm exec tsc --noEmit
 pnpm lint
+pnpm test              # unit test + các script xác minh đã được phê duyệt
 ```
 
-**Các script xác minh theo từng phạm vi**
+Bộ unit test (`pnpm test:unit`) chạy `tests/unit/**/*.test.ts` bằng test runner
+có sẵn của Node.js — không thêm dependency test framework. `pnpm test:verify`
+chỉ chạy các script xác minh tĩnh mang tính tất định (xem
+`scripts/run-verify.mjs`); các script cần hạ tầng bên ngoài được tách khỏi gate
+mặc định.
+
+**Các script cần database (chỉ chạy thủ công)**
 
 ```bash
-node scripts/verify-rbac.mjs
-node scripts/verify-cancel-order.mjs
-node scripts/verify-fulfillment-transitions.mjs
-node scripts/verify-inventory-adjustment.mjs
-node scripts/verify-customer-status.mjs
-node scripts/verify-product-management.mjs
-node scripts/verify-post-login-routing.mjs
-node scripts/verify-callback-redirect.mjs
-node scripts/verify-contact-newsletter.mjs
+node scripts/verify-rbac.mjs         # cần .env.local và project kiểm thử riêng
+node scripts/verify-dock-layout.mjs  # cần Puppeteer + dev server đang chạy
 ```
 
-Một số script xác minh database yêu cầu các biến môi trường và trạng thái database được mô tả trong hướng dẫn Supabase. Hãy kiểm tra phần đầu của từng script trước khi chạy. Đặc biệt, `verify-rbac.mjs` mặc định chỉ đọc dữ liệu; chế độ `--full` sẽ tạo tài khoản kiểm thử và một đơn hàng dùng tạm, sau đó dọn dẹp chúng. Chỉ chạy các bước kiểm thử có ghi dữ liệu trên môi trường được chuẩn bị dành riêng cho mục đích kiểm thử.
+`verify-rbac.mjs` mặc định chỉ đọc dữ liệu; chế độ `--full` tạo tài khoản kiểm
+thử và một đơn hàng dùng tạm rồi dọn dẹp. Không bao giờ chạy các bước kiểm thử có
+ghi dữ liệu trên production.
+
+**End-to-end (không bao giờ dùng production)**
+
+```bash
+pnpm exec playwright install chromium        # một lần cho mỗi máy
+SOLENNE_E2E_BASE_URL=https://<staging-host> pnpm test:e2e
+```
+
+Năm hành trình public-shell không cần database (`/about`, `/journal`, một bài
+viết, `/login`, một trang 404) cũng chạy trong CI của pull request với server
+local trỏ Supabase về một cổng đã đóng. Các hành trình catalogue, tài khoản,
+checkout và admin vẫn cần một staging project có seed data và chưa chạy trong CI.
 
 ---
 
@@ -398,9 +417,14 @@ Các file cấu hình quan trọng:
 Các lệnh thường dùng:
 
 ```bash
-pnpm build:worker
+pnpm build:worker   # chỉ build: không cần tài khoản hay token Cloudflare
 pnpm preview
 ```
+
+Hiện `pnpm build:worker` dừng ở bước bundle server vì esbuild phân giải package
+`sharp` của ứng dụng; xem
+[docs/quality/production-readiness.md](docs/quality/production-readiness.md) §1
+để biết lỗi chính xác. Cấu hình triển khai không thay đổi.
 
 Dự án cũng có lệnh triển khai thông qua `pnpm deploy`. Việc deploy production yêu cầu cấu hình tài khoản Cloudflare và xác thực phù hợp. Chỉ riêng cấu hình trong repository không chứng minh một commit cụ thể đã được triển khai.
 
@@ -415,7 +439,7 @@ Solenne là dự án portfolio đang tiếp tục được phát triển. Các g
 - **Thanh toán:** Các dependency của Stripe đã có trong dự án, nhưng việc tạo payment session, xác nhận thanh toán, xử lý webhook và đối soát thanh toán đầu-cuối chưa được triển khai. Đơn hàng hiện ở trạng thái chờ thanh toán.
 - **Trợ lý AI:** Chỉ tư vấn sản phẩm và chính sách; không thể truy cập dữ liệu tài khoản cá nhân hoặc thực hiện các thao tác giao dịch.
 - **Nội dung:** Một phần nội dung biên tập và marketing đang được khai báo tĩnh.
-- **Kiểm thử tự động:** Có các script xác minh theo từng phạm vi, nhưng chưa cấu hình đầy đủ unit test, integration test hoặc end-to-end test suite.
+- **Kiểm thử tự động:** đã có bộ unit test, các script xác minh tĩnh và quality gate CI chạy cho mọi pull request. Integration test và browser test cần database vẫn yêu cầu một môi trường staging riêng, được ghi nhận là phần việc còn lại trong tài liệu chất lượng.
 
 Các giới hạn này được công bố minh bạch để người xem có thể đánh giá đúng phần chức năng đã thực sự hoàn thiện.
 

@@ -1,0 +1,207 @@
+# =============================================================================
+# Solenne - required quality gate
+# =============================================================================
+# Runs on every pull request against `main`, every push to `main`, and on
+# demand. No production secret is referenced anywhere in this workflow: all
+# five jobs run against a clean checkout with no Supabase or Cloudflare
+# credentials, so they can never touch production data.
+#
+# Jobs (each is an independent required check):
+#   Typecheck       pnpm exec tsc --noEmit
+#   Lint            pnpm lint
+#   Tests           unit tests + deterministic verification harnesses
+#   Build           production Next.js build (`pnpm build`)
+#   E2E             the five database-free `public shell` Playwright tests
+#
+# Environment-dependent checks are deliberately absent. `verify-rbac.mjs`
+# (needs `.env.local` and the live project) and `verify-dock-layout.mjs`
+# (needs Puppeteer and a dev server) are documented in
+# docs/quality/production-readiness.md and run locally, never here.
+#
+# Staging-dependent E2E journeys (catalogue, account, checkout, admin) are NOT
+# covered by the E2E job below and are not claimed to be.
+# =============================================================================
+
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Least privilege: these jobs only read the repository.
+permissions:
+  contents: read
+
+# A newer push to the same PR cancels the outdated run. Pushes to `main` are
+# never cancelled, so every commit that lands on `main` is verified.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # Installs pnpm (version read from `packageManager` in package.json) and
+      # Node 24. `install: false` keeps dependency installation explicit below
+      # so a lockfile mismatch fails in its own named step.
+      - name: Set up pnpm and Node
+        uses: pnpm/setup@v3
+        with:
+          runtime: node@24
+          cache: true
+          install: false
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      # Next 16 generates route types (`LayoutProps`, `PageProps`, ...) during
+      # `next dev`/`next build` only, and `next-env.d.ts` is not committed. A
+      # bare `tsc --noEmit` on a fresh checkout therefore cannot resolve those
+      # globals, so the type check runs `next typegen` first (the script does
+      # it, so local and CI are identical).
+      - name: Typecheck
+        run: pnpm typecheck
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up pnpm and Node
+        uses: pnpm/setup@v3
+        with:
+          runtime: node@24
+          cache: true
+          install: false
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up pnpm and Node
+        uses: pnpm/setup@v3
+        with:
+          runtime: node@24
+          cache: true
+          install: false
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Unit tests
+        run: pnpm test:unit
+
+      # Only the harnesses approved in scripts/run-verify.mjs. They are static
+      # source/SQL assertions; the two that can probe a database skip their
+      # probe because no `.env.local` exists here.
+      - name: Verification harnesses
+        run: pnpm test:verify
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up pnpm and Node
+        uses: pnpm/setup@v3
+        with:
+          runtime: node@24
+          cache: true
+          install: false
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      # `pnpm build` regenerates the deterministic AVIF/WebP variants and then
+      # runs `next build`. Every route is dynamic, so the build needs no
+      # Supabase credentials.
+      #
+      # The Cloudflare Worker build (`pnpm build:worker`) is deliberately NOT
+      # the gate yet: on the current toolchain it fails while bundling the
+      # server, because `sharp` (an app devDependency and one of Next's own
+      # optional dependencies) is resolvable from the project root and esbuild
+      # cannot bundle its native `.node` binary. See
+      # docs/quality/production-readiness.md §1 - the failure is reproducible
+      # and is not caused by a missing credential or binding.
+      - name: Production build
+        run: pnpm build
+
+  e2e:
+    name: E2E (public shell)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Playwright starts `next dev` on this port itself (see
+      # playwright.config.ts). `localhost` for the browser, loopback literal
+      # for the readiness probe.
+      SOLENNE_E2E_BASE_URL: http://localhost:3100
+      SOLENNE_E2E_START_SERVER: "1"
+      # Deliberately broken, non-secret Supabase configuration: every project
+      # URL points at a closed local port, so a database-backed route fails
+      # fast instead of reaching a real project. These are placeholders, not
+      # credentials, and they exist only for this job.
+      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:9
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: e2e-not-a-real-key
+      SUPABASE_SECRET_KEY: e2e-not-a-real-key
+      SUPABASE_JWKS_URL: http://127.0.0.1:9/.well-known/jwks.json
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up pnpm and Node
+        uses: pnpm/setup@v3
+        with:
+          runtime: node@24
+          cache: true
+          install: false
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      # System libraries for a headless Chromium on ubuntu-latest.
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      # Only tests/e2e/public-shell.spec.ts exists today: five database-free
+      # public journeys. A failing test fails this job - there is no
+      # `continue-on-error` and no `|| true`.
+      - name: Public shell E2E
+        run: pnpm test:e2e

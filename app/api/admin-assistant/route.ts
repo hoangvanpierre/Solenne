@@ -28,6 +28,11 @@ import {
   promptToolSummaries,
 } from "@/lib/admin-assistant/tools";
 import type { AssistantLocale } from "@/lib/assistant/context";
+import {
+  classifyError,
+  logRequest,
+  startRequest,
+} from "@/lib/observability/log";
 
 // ---------------------------------------------------------------------------
 // Solenne admin assistant — POST /api/admin-assistant
@@ -92,6 +97,8 @@ async function resolveLocale(requested: unknown): Promise<AssistantLocale> {
 }
 
 export async function POST(request: Request) {
+  const log = startRequest("/api/admin-assistant", request);
+
   if (!isSameOrigin(request)) {
     return jsonError("cross_origin", 403);
   }
@@ -108,7 +115,13 @@ export async function POST(request: Request) {
       );
     }
 
-    console.error("[admin-assistant] authorization failed", error);
+    logRequest(log, "error", {
+      event: "admin_assistant.authorization_failed",
+      operation: "authorize",
+      status: 500,
+      outcome: "failed",
+      ...classifyError(error),
+    });
     return jsonError("unavailable", 500);
   }
 
@@ -149,6 +162,13 @@ export async function POST(request: Request) {
         key: `admin-assistant:${actor.userId}`,
       });
       if (!success) {
+        logRequest(log, "warn", {
+          event: "admin_assistant.rate_limited",
+          status: 429,
+          outcome: "blocked",
+          actorId: actor.userId,
+          actorRole: actor.role,
+        });
         return jsonError("rate_limited", 429, { "Retry-After": "60" });
       }
     }
@@ -187,7 +207,15 @@ export async function POST(request: Request) {
       experimental_transform:
         collapseDuplicateTextDeltas() as unknown as StreamTextTransform<ToolSet>,
       onError: ({ error }) => {
-        console.error("[admin-assistant] stream error", error);
+        logRequest(log, "error", {
+          event: "admin_assistant.stream_failed",
+          operation: "stream",
+          status: 500,
+          outcome: "failed",
+          actorId: actor.userId,
+          actorRole: actor.role,
+          ...classifyError(error),
+        });
       },
     });
 
@@ -195,7 +223,14 @@ export async function POST(request: Request) {
       onError: () => "The assistant is unavailable right now.",
     });
   } catch (error) {
-    console.error("[admin-assistant] request failed", error);
+    logRequest(log, "error", {
+      event: "admin_assistant.request_failed",
+      status: 500,
+      outcome: "failed",
+      actorId: actor.userId,
+      actorRole: actor.role,
+      ...classifyError(error),
+    });
     return jsonError("unavailable", 500);
   }
 }

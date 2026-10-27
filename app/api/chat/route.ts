@@ -8,6 +8,11 @@ import {
 import { createWorkersAI } from "workers-ai-provider";
 import { buildSystemPrompt, type AssistantLocale } from "@/lib/assistant/context";
 import { collapseDuplicateTextDeltas } from "@/lib/assistant/model";
+import {
+  classifyError,
+  logRequest,
+  startRequest,
+} from "@/lib/observability/log";
 
 /**
  * Workers AI model id â€” verified in the Cloudflare Workers AI catalogue:
@@ -70,6 +75,7 @@ async function resolveLocale(requested: unknown): Promise<AssistantLocale> {
 }
 
 export async function POST(request: Request) {
+  const log = startRequest("/api/chat", request);
   let payload: unknown;
 
   try {
@@ -96,6 +102,11 @@ export async function POST(request: Request) {
     0
   );
   if (inputCharacters > MAX_INPUT_CHARACTERS) {
+    logRequest(log, "warn", {
+      event: "chat.conversation_too_long",
+      status: 413,
+      outcome: "blocked",
+    });
     return conversationTooLong();
   }
 
@@ -112,7 +123,14 @@ export async function POST(request: Request) {
     const limiter = env.CHAT_RATE_LIMITER;
     if (limiter) {
       const { success } = await limiter.limit({ key: `chat:${clientIp}` });
-      if (!success) return tooManyRequests();
+      if (!success) {
+        logRequest(log, "warn", {
+          event: "chat.rate_limited",
+          status: 429,
+          outcome: "blocked",
+        });
+        return tooManyRequests();
+      }
     }
 
     const workersai = createWorkersAI({ binding: env.AI });
@@ -129,7 +147,12 @@ export async function POST(request: Request) {
 
     return result.toUIMessageStreamResponse();
   } catch (error) {
-    console.error("[assistant] chat request failed", error);
+    logRequest(log, "error", {
+      event: "chat.request_failed",
+      status: 500,
+      outcome: "failed",
+      ...classifyError(error),
+    });
     return Response.json(
       { error: "The assistant is unavailable right now." },
       { status: 500 }

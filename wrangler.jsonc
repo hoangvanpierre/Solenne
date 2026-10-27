@@ -9,6 +9,30 @@
 	],
 	"workers_dev": true,
 	"preview_urls": true,
+	// Cloudflare-native observability (Workers Logs + traces). No third-party
+	// service and no extra binding: the platform is the log sink, and the JSON
+	// lines emitted by lib/observability/log.ts are queryable in the dashboard.
+	//
+	// Query strings are redacted because some routes carry search terms; logs
+	// are sampled at 100% (low traffic), traces at 10% to keep trace volume
+	// (and therefore cost) bounded while still giving a usable p50/p95 sample.
+	"observability": {
+		"enabled": true,
+		"head_sampling_rate": 1,
+		"redact_query_string": true,
+		"logs": {
+			"enabled": true,
+			"invocation_logs": true,
+			"head_sampling_rate": 1
+		},
+		"traces": {
+			"enabled": true,
+			"head_sampling_rate": 0.1
+		}
+	},
+	// Upload source maps so Worker stack traces resolve to the original
+	// TypeScript files instead of minified bundle offsets.
+	"upload_source_maps": true,
 	"vars": {
 		"NEXT_PUBLIC_SUPABASE_URL": "https://zxwawiuxcesuoaqczybk.supabase.co",
 		"NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_7c4tlY1DVbf2BqDv5Dk5xQ_3O4KKBqp"

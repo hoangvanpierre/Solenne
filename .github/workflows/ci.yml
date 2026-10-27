@@ -1,0 +1,148 @@
+# =============================================================================
+# Solenne - required quality gate
+# =============================================================================
+# Runs on every pull request against `main`, every push to `main`, and on
+# demand. No production secret is referenced anywhere in this workflow: all
+# four jobs run against a clean checkout with no Supabase or Cloudflare
+# credentials, so they can never touch production data.
+#
+# Jobs (each is an independent required check):
+#   Typecheck       pnpm exec tsc --noEmit
+#   Lint            pnpm lint
+#   Tests           unit tests + deterministic verification harnesses
+#   Build           production Next.js build (`pnpm build`)
+#
+# Environment-dependent checks are deliberately absent. `verify-rbac.mjs`
+# (needs `.env.local` and the live project) and `verify-dock-layout.mjs`
+# (needs Puppeteer and a dev server) are documented in
+# docs/quality/production-readiness.md and run locally, never here.
+# =============================================================================
+
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Least privilege: these jobs only read the repository.
+permissions:
+  contents: read
+
+# A newer push to the same PR cancels the outdated run. Pushes to `main` are
+# never cancelled, so every commit that lands on `main` is verified.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # Installs pnpm (version read from `packageManager` in package.json) and
+      # Node 24. `install: false` keeps dependency installation explicit below
+      # so a lockfile mismatch fails in its own named step.
+      - name: Set up pnpm and Node
+        uses: pnpm/setup@v3
+        with:
+          runtime: node@24
+          cache: true
+          install: false
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm exec tsc --noEmit
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up pnpm and Node
+        uses: pnpm/setup@v3
+        with:
+          runtime: node@24
+          cache: true
+          install: false
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up pnpm and Node
+        uses: pnpm/setup@v3
+        with:
+          runtime: node@24
+          cache: true
+          install: false
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Unit tests
+        run: pnpm test:unit
+
+      # Only the harnesses approved in scripts/run-verify.mjs. They are static
+      # source/SQL assertions; the two that can probe a database skip their
+      # probe because no `.env.local` exists here.
+      - name: Verification harnesses
+        run: pnpm test:verify
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up pnpm and Node
+        uses: pnpm/setup@v3
+        with:
+          runtime: node@24
+          cache: true
+          install: false
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      # `pnpm build` regenerates the deterministic AVIF/WebP product variants
+      # and then runs `next build`. Every route is dynamic, so the build needs
+      # no Supabase credentials. The Cloudflare worker build (`pnpm
+      # build:worker`) is intentionally not required here: it needs the
+      # OpenNext/Workers toolchain and is verified separately before a deploy.
+      - name: Production build
+        run: pnpm build

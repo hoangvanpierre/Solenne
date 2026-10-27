@@ -3,7 +3,7 @@
 # =============================================================================
 # Runs on every pull request against `main`, every push to `main`, and on
 # demand. No production secret is referenced anywhere in this workflow: all
-# four jobs run against a clean checkout with no Supabase or Cloudflare
+# five jobs run against a clean checkout with no Supabase or Cloudflare
 # credentials, so they can never touch production data.
 #
 # Jobs (each is an independent required check):
@@ -11,11 +11,15 @@
 #   Lint            pnpm lint
 #   Tests           unit tests + deterministic verification harnesses
 #   Build           production Next.js build (`pnpm build`)
+#   E2E             the five database-free `public shell` Playwright tests
 #
 # Environment-dependent checks are deliberately absent. `verify-rbac.mjs`
 # (needs `.env.local` and the live project) and `verify-dock-layout.mjs`
 # (needs Puppeteer and a dev server) are documented in
 # docs/quality/production-readiness.md and run locally, never here.
+#
+# Staging-dependent E2E journeys (catalogue, account, checkout, admin) are NOT
+# covered by the E2E job below and are not claimed to be.
 # =============================================================================
 
 name: CI
@@ -139,10 +143,60 @@ jobs:
       - name: Install dependencies (frozen lockfile)
         run: pnpm install --frozen-lockfile
 
-      # `pnpm build` regenerates the deterministic AVIF/WebP product variants
-      # and then runs `next build`. Every route is dynamic, so the build needs
-      # no Supabase credentials. The Cloudflare worker build (`pnpm
-      # build:worker`) is intentionally not required here: it needs the
-      # OpenNext/Workers toolchain and is verified separately before a deploy.
+      # `pnpm build` regenerates the deterministic AVIF/WebP variants and then
+      # runs `next build`. Every route is dynamic, so the build needs no
+      # Supabase credentials.
+      #
+      # The Cloudflare Worker build (`pnpm build:worker`) is deliberately NOT
+      # the gate yet: on the current toolchain it fails while bundling the
+      # server, because `sharp` (an app devDependency and one of Next's own
+      # optional dependencies) is resolvable from the project root and esbuild
+      # cannot bundle its native `.node` binary. See
+      # docs/quality/production-readiness.md §1 - the failure is reproducible
+      # and is not caused by a missing credential or binding.
       - name: Production build
         run: pnpm build
+
+  e2e:
+    name: E2E (public shell)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Playwright starts `next dev` on this port itself (see
+      # playwright.config.ts). `localhost` for the browser, loopback literal
+      # for the readiness probe.
+      SOLENNE_E2E_BASE_URL: http://localhost:3100
+      SOLENNE_E2E_START_SERVER: "1"
+      # Deliberately broken, non-secret Supabase configuration: every project
+      # URL points at a closed local port, so a database-backed route fails
+      # fast instead of reaching a real project. These are placeholders, not
+      # credentials, and they exist only for this job.
+      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:9
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: e2e-not-a-real-key
+      SUPABASE_SECRET_KEY: e2e-not-a-real-key
+      SUPABASE_JWKS_URL: http://127.0.0.1:9/.well-known/jwks.json
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up pnpm and Node
+        uses: pnpm/setup@v3
+        with:
+          runtime: node@24
+          cache: true
+          install: false
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      # System libraries for a headless Chromium on ubuntu-latest.
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      # Only tests/e2e/public-shell.spec.ts exists today: five database-free
+      # public journeys. A failing test fails this job - there is no
+      # `continue-on-error` and no `|| true`.
+      - name: Public shell E2E
+        run: pnpm test:e2e

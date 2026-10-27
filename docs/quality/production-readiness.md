@@ -29,12 +29,12 @@ Workflow: [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml)
 | --- | --- | --- |
 | `permissions` | `contents: read` | Least privilege; no job writes to the repository, packages or issues. |
 | `concurrency` | `ci-<workflow>-<ref>` | A new push to the same PR cancels the outdated run. Pushes to `main` are **not** cancelled, so every commit landing on `main` is verified. |
-| `timeout-minutes` | 15 (typecheck, lint), 20 (tests), 25 (build) | Bounded spend and fast feedback on a hung step. |
+| `timeout-minutes` | 15 (typecheck, lint), 20 (tests, e2e), 25 (build) | Bounded spend and fast feedback on a hung step. |
 | Caching | `pnpm/setup@v3` with `cache: true` | Caches the pnpm store keyed by `pnpm-lock.yaml`. |
-| Node | `node@24` | Matches local development (`v24.19.0`) and Next.js 16's supported range. |
+| Node | `node@24` | The recommended and CI-tested runtime. Node.js **22.18+** is the documented minimum (native TypeScript type stripping); see §2. |
 | pnpm | read from `packageManager` (`pnpm@11.24.0`) | Installer and lockfile version always agree. |
 | Install | `pnpm install --frozen-lockfile` | Fails instead of silently rewriting the lockfile. |
-| Secrets | **None** | No Supabase, Cloudflare or AI credential is referenced anywhere in the workflow. |
+| Secrets | **None** | No Supabase, Cloudflare or AI credential is referenced anywhere in the workflow. The E2E job pins Supabase at a closed local port with placeholder values. |
 
 ### Jobs (each one is an independent required check)
 
@@ -44,32 +44,92 @@ Workflow: [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml)
 | `Lint` | `pnpm lint` | ESLint (flat config, `eslint-config-next`) reported an error. |
 | `Tests` | `pnpm test:unit` then `pnpm test:verify` | A behavior regression in the unit suite, or a business invariant in a harness. |
 | `Build` | `pnpm build` | The production Next.js build (including the deterministic image pipeline) failed. |
+| `E2E (public shell)` | `pnpm test:e2e` | One of the five database-free public-shell journeys broke. |
 
 Each job installs dependencies in its own named step, so a failure is
 attributable to installation, type checking, linting, tests or build — not to an
 opaque aggregate.
 
-### Why `pnpm build` and not `pnpm build:worker`
+### What `pnpm build:worker` does now, and why it is not a CI check yet
 
-`pnpm build` regenerates the optimized AVIF/WebP product variants and runs
-`next build`. It was verified to succeed with **empty Supabase environment
-variables**: every route in this app is dynamic (`ƒ` in the route table), so no
-route is prerendered against a database at build time. The build does download
-the Cactus Classical Serif font through `next/font/google`, so it needs outbound
-network access — that is existing application behaviour, not something CI adds.
+`pnpm build:worker` is now just `opennextjs-cloudflare build`. OpenNext invokes
+the package's own `build` script internally, so a single run executes:
 
-`pnpm build:worker` (OpenNext + Wrangler) additionally needs the Cloudflare
-toolchain and a Workers account context. It is deliberately **not** a required
-PR check; run `pnpm preview` locally before a deploy and treat worker-build
-verification as a deployment-time step. Deployment state is not verified by CI.
+1. `pnpm build` → `node scripts/generate-optimized-images.mjs && next build`
+   (the deterministic AVIF/WebP pipeline **once**, then the Next.js build
+   **once**);
+2. OpenNext bundling into `.open-next/` (Worker + static assets).
+
+The script used to be
+`node scripts/generate-optimized-images.mjs && opennextjs-cloudflare build`,
+which generated the images twice and compiled the app twice. That duplication is
+gone; `pnpm build` is unchanged and is still the plain Next.js build used by this
+gate and by `next start`.
+
+The Worker build is nevertheless **not** the CI Build job today, because it does
+not currently complete on this toolchain (`@opennextjs/cloudflare` 1.20.6,
+`@opennextjs/aws` 4.1.4, Next 16.3.3). While bundling the server, OpenNext runs
+esbuild over the traced Next.js server and esbuild resolves `sharp` — the app's
+own devDependency (used by `scripts/generate-optimized-images.mjs`) and one of
+Next's optional dependencies — from the project root:
+
+```
+⚙️ Bundling the OpenNext server...
+X [ERROR] No loader is configured for ".node" files:
+  node_modules/.pnpm/@img/sharp-win32-x64@0.35.4/.../sharp-win32-x64-0.35.4.node
+X [ERROR] Could not resolve require("../src/build/Release/sharp-*-*.node")
+```
+
+This is **not** a credential, binding or environment-variable problem: the
+failure happens after `next build` succeeds, no Cloudflare account is involved,
+and nothing is uploaded. It reproduces with `.env.local` removed.
+
+Verified behaviour of the rest of the pipeline: with `sharp` temporarily moved
+out of Node's resolution paths (the `.pnpm` store entries and the two `sharp`
+links) and the already-built `.next` reused
+(`opennextjs-cloudflare build --skipNextBuild`), OpenNext completes normally:
+
+```
+Worker saved in `.open-next/worker.js` 🚀
+OpenNext build complete.
+```
+
+So the pipeline (OpenNext bundling → `.open-next/worker.js` + assets) works and
+needs no Cloudflare authentication; only the `sharp` resolution blocks a plain
+`pnpm build:worker`. Until that is resolved (upstream fix, or the image
+generator's `sharp` moved out of the root dependency set), the Build gate stays
+on `pnpm build` and the Worker build stays a pre-deploy, manual step.
+
+The Worker build also requires POSIX symlink support: on a Windows machine
+without Developer Mode, OpenNext fails earlier with
+`EPERM: operation not permitted, symlink ...`, because pnpm dependency links are
+recreated inside `.open-next/`. Linux CI runners do not have that problem;
+OpenNext itself prints `WARN OpenNext is not fully compatible with Windows`.
+
+`pnpm deploy` / `pnpm upload` need an authenticated Cloudflare account and
+remain a manual, out-of-band step. Deployment state is not verified by CI.
+
+### Why the E2E job is limited to the public shell
+
+The five `tests/e2e/public-shell.spec.ts` tests only touch `/about`,
+`/journal`, a `/journal/[slug]` post, `/login` and a 404. Each of those renders
+with Supabase unreachable, so the job points every Supabase variable at
+`http://127.0.0.1:9` (a closed port) with placeholder keys and starts a local
+`next dev` on port 3100. That configuration was verified locally: `/products`
+returns HTTP 500 (`fetch failed`) instead of production catalogue data.
+
+Catalogue, product detail, login/logout, account, checkout and admin journeys
+all need a seeded staging project. **They are not run in CI and are not
+claimed to be covered by these five tests.**
 
 ### What CI deliberately does not do
 
 - No production credentials, no production database, no test users or orders.
+- No staging-dependent E2E journeys (catalogue, account, checkout, admin).
 - No `verify-rbac.mjs` (it requires `.env.local` and the live project; `--full`
   writes disposable accounts and an order).
 - No `verify-dock-layout.mjs` (requires Puppeteer and a running dev server).
-- No E2E run (needs an isolated staging environment; see §5).
+- No deploy or upload to Cloudflare; no Cloudflare credential is used anywhere.
 - No `continue-on-error`, no `|| true`, no skipped check presented as passing.
 
 ---
@@ -83,13 +143,18 @@ pnpm exec tsc --noEmit      # or: pnpm typecheck
 pnpm lint
 pnpm test:unit              # node:test, tests/unit/**
 pnpm test:verify            # approved static harnesses, via scripts/run-verify.mjs
-pnpm build                  # production build (+ image generation)
+pnpm build                  # production Next.js build (+ image generation)
+pnpm build:worker           # Cloudflare Worker artefact (see §1: currently blocked by sharp)
 ```
 
 `pnpm test` runs `test:unit` then `test:verify`.
 
-Node.js **20.11+** is required for the unit command (`--disable-warning`);
-CI uses Node 24, which is the supported and tested version.
+Node.js **22.18+** is the minimum. The unit suite executes `tests/unit/**/*.test.ts`
+directly through Node's native TypeScript type stripping, which is enabled by
+default from 22.18 (and is still experimental in that line). Node.js **24.x** is
+the recommended and CI-tested runtime (`node@24` in the workflow); the repo is
+developed on `v24.19.0`. Older 22.x releases need `--experimental-strip-types`,
+which the `test:unit` script does not pass.
 
 ---
 
@@ -188,7 +253,13 @@ The config **throws** when `SOLENNE_E2E_BASE_URL` is unset, so a missing
 environment can never be reported as a green run. Production is not an
 acceptable target.
 
-Local mode (only database-free public pages are exercised):
+Install the browser once per machine (and once per CI run):
+
+```bash
+pnpm exec playwright install chromium
+```
+
+Local mode (only database-free public pages are exercised). Two terminals:
 
 ```bash
 # Terminal 1 - a dev server that cannot reach production Supabase:
@@ -203,11 +274,28 @@ $env:SOLENNE_E2E_BASE_URL="http://localhost:3100"
 pnpm test:e2e
 ```
 
+Or let Playwright manage the server (`SOLENNE_E2E_START_SERVER=1`, loopback base
+URLs only) — this is the exact path CI uses:
+
+```bash
+$env:NEXT_PUBLIC_SUPABASE_URL="http://127.0.0.1:9"
+$env:NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="e2e-not-a-real-key"
+$env:SUPABASE_SECRET_KEY="e2e-not-a-real-key"
+$env:SUPABASE_JWKS_URL="http://127.0.0.1:9/.well-known/jwks.json"
+$env:SOLENNE_E2E_BASE_URL="http://localhost:3100"
+$env:SOLENNE_E2E_START_SERVER="1"
+pnpm test:e2e
+```
+
 Shell environment variables take precedence over `.env.local`, so those
 overrides win. Isolation was verified: with this configuration `/products`
 returns HTTP 500 (`fetch failed`) instead of loading production products.
 
-Current coverage (5 tests, all passing):
+The browser talks to `http://localhost:<port>` because Next 16 rejects
+`127.0.0.1` for dev assets; the readiness probe uses the loopback literal
+instead.
+
+Current coverage (5 tests, all passing, and run in PR CI):
 
 - `/about` renders its heading inside the site chrome (footer + nav links).
 - `/journal` lists posts and a post link opens the article.
@@ -224,8 +312,13 @@ Not covered yet — requires a seeded staging environment:
 - Admin access control for unauthorized vs. authorized roles.
 - Wishlist/Reviews flows (not implemented in the app).
 
-**E2E is not part of PR CI.** A skipped/staging-less E2E run is never counted as
-a pass; the `Tests` job covers unit + static harnesses only.
+**Only this public-shell suite runs in PR CI** (`E2E (public shell)` job). It
+starts `next dev` on port 3100 with Supabase pinned to a closed port and
+placeholder keys, installs Chromium via
+`pnpm exec playwright install --with-deps chromium`, and fails on any test
+failure. The staging-dependent journeys above still have no CI job: they need a
+seeded Supabase project and GitHub Environment secrets, and a skipped run is
+never counted as a pass.
 
 ---
 
@@ -310,8 +403,9 @@ be measured before it is reported.
 - No RLS policy, RBAC role, permission or `SECURITY DEFINER` function changed.
 - CI references **no** secret; PR checks cannot reach any Supabase or Cloudflare
   project. `verify-rbac` and every data-writing script stay out of CI.
-- E2E requires an explicit non-production target; local mode points Supabase at
-  a closed local port, which was verified to break DB-backed routes.
+- E2E requires an explicit non-production target. The CI job and local mode
+  both point Supabase at a closed local port, which was verified to break
+  DB-backed routes; only the five database-free public pages are exercised.
 - Logging is allow-listed and excludes PII, tokens, secrets and conversation
   content.
 - `order_items`' restrictive RLS policy and the existing admin-client write path
@@ -324,11 +418,15 @@ be measured before it is reported.
 1. **Staging environment for E2E** — needed to cover catalogue, account,
    checkout and admin journeys. Until then those journeys have no browser test.
 2. **Integration tests** — require a dedicated Supabase test project; see §4.
-3. **E2E in CI** — intentionally not wired. When staging exists, add a job that
-   only runs on `workflow_dispatch` or a manually approved environment, using
-   GitHub Environment secrets.
-4. **Cloudflare worker build** (`pnpm build:worker` / `pnpm preview`) — not a CI
-   check; verify before a deploy.
+3. **Staging-dependent E2E** — the public shell runs in CI, but catalogue,
+   account, checkout and admin journeys need a seeded staging project. When it
+   exists, add a job that only runs on `workflow_dispatch` or a manually
+   approved environment, using GitHub Environment secrets.
+4. **Cloudflare Worker build** — `pnpm build:worker` is verified to produce
+   `.open-next/worker.js` without any Cloudflare credential, but it currently
+   fails as a single command because of the `sharp` bundling conflict described
+   in §1. Until that is fixed, it is not a CI check and `deploy`/`upload` stay
+   manual. Deployment health is still unverified.
 5. **Web Vitals / RUM** — no field data for LCP, INP or CLS.
 6. **AI token usage** — not measured.
 7. **Server Actions / auth guards** — covered by static harnesses and unit-level

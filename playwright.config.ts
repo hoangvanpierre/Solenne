@@ -11,7 +11,15 @@ import { defineConfig, devices } from "@playwright/test";
  *   Staging:  SOLENNE_E2E_BASE_URL=https://<staging-host> pnpm test:e2e
  *   Local:    see docs/quality/production-readiness.md (start the server first)
  *
- * This suite is NOT part of the PR CI workflow; see the same document.
+ * `SOLENNE_E2E_START_SERVER=1` lets Playwright start the local dev server
+ * itself instead of using a second terminal. It only works for a loopback
+ * base URL, and it inherits whatever Supabase environment the caller set -
+ * CI points that at a closed port so the run cannot touch a real project.
+ *
+ * Browsers must be installed once: `pnpm exec playwright install chromium`.
+ *
+ * The `public shell` suite runs in PR CI (database-free); staging-dependent
+ * journeys do not. See the same document.
  */
 
 const baseUrl = process.env.SOLENNE_E2E_BASE_URL?.trim();
@@ -31,6 +39,22 @@ if (!baseUrl) {
   );
 }
 
+const target = new URL(baseUrl);
+const startServer = process.env.SOLENNE_E2E_START_SERVER === "1";
+const loopbackHosts = new Set(["localhost", "127.0.0.1", "::1"]);
+
+if (startServer && !loopbackHosts.has(target.hostname)) {
+  throw new Error(
+    `SOLENNE_E2E_START_SERVER is only supported for a loopback base URL; got ${baseUrl}.`
+  );
+}
+
+// The browser must use `localhost` (Next 16 rejects `127.0.0.1` dev assets),
+// but the readiness probe uses the loopback literal so it never resolves to
+// the other address family.
+const serverPort = target.port || "3000";
+const readinessUrl = `http://127.0.0.1:${serverPort}/about`;
+
 export default defineConfig({
   testDir: "tests/e2e",
   // Generous on purpose: a cold `next dev` compiles a route on first request,
@@ -47,5 +71,13 @@ export default defineConfig({
     trace: "retain-on-failure",
     video: "off",
   },
+  webServer: startServer
+    ? {
+        command: `pnpm exec next dev --port ${serverPort}`,
+        url: readinessUrl,
+        timeout: 180_000,
+        reuseExistingServer: !process.env.CI,
+      }
+    : undefined,
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
 });

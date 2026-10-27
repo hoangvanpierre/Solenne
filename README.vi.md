@@ -303,7 +303,7 @@ Các thay đổi database được version hóa trong `supabase/migrations/`. H�
 
 ### Yêu cầu môi trường
 
-- **Node.js 20.9 trở lên** (phiên bản tối thiểu được Next.js 16 hỗ trợ; xem [yêu cầu cài đặt Next.js](https://nextjs.org/docs/app/getting-started/installation)).
+- **Node.js 22.18 trở lên** (bắt buộc cho bộ unit test, vì test chạy trực tiếp file `.ts` bằng cơ chế type stripping có sẵn của Node). **Node.js 24.x là phiên bản được khuyến nghị và được CI kiểm thử**; repository đang phát triển trên 24.x. Bản thân Next.js 16 chỉ yêu cầu 20.9, nên 22.18+ là mức tối thiểu riêng của repository này. Xem [yêu cầu cài đặt Next.js](https://nextjs.org/docs/app/getting-started/installation).
 - **pnpm 9 trở lên**, tương thích với định dạng lockfile `9.0` trong `pnpm-lock.yaml`.
 - Một Supabase project đã có schema và seed data cần thiết.
 
@@ -348,8 +348,9 @@ Next.js development server chạy local không tự cung cấp các binding củ
 ## Kiểm tra và xác minh
 
 Mỗi pull request vào `main` đều chạy một quality gate bắt buộc trên GitHub
-Actions (kiểm tra kiểu, lint, unit test, các script xác minh tĩnh và bản build
-production). Mô tả đầy đủ — từng bước kiểm tra chứng minh điều gì, phần nào chưa
+Actions (kiểm tra kiểu, lint, unit test, các script xác minh tĩnh, bản build
+production của Next.js và các browser test public-shell không cần database). Mô
+tả đầy đủ — từng bước kiểm tra chứng minh điều gì, phần nào chưa
 được bao phủ, và cách chạy browser test trên môi trường tách biệt — nằm trong
 [docs/quality/production-readiness.md](docs/quality/production-readiness.md).
 
@@ -378,14 +379,17 @@ node scripts/verify-dock-layout.mjs  # cần Puppeteer + dev server đang chạy
 thử và một đơn hàng dùng tạm rồi dọn dẹp. Không bao giờ chạy các bước kiểm thử có
 ghi dữ liệu trên production.
 
-**End-to-end (tùy chọn, không bao giờ dùng production)**
+**End-to-end (không bao giờ dùng production)**
 
 ```bash
+pnpm exec playwright install chromium        # một lần cho mỗi máy
 SOLENNE_E2E_BASE_URL=https://<staging-host> pnpm test:e2e
 ```
 
-Browser test yêu cầu một địa chỉ staging được chỉ định rõ và không nằm trong CI
-của pull request.
+Năm hành trình public-shell không cần database (`/about`, `/journal`, một bài
+viết, `/login`, một trang 404) cũng chạy trong CI của pull request với server
+local trỏ Supabase về một cổng đã đóng. Các hành trình catalogue, tài khoản,
+checkout và admin vẫn cần một staging project có seed data và chưa chạy trong CI.
 
 ---
 
@@ -413,9 +417,14 @@ Các file cấu hình quan trọng:
 Các lệnh thường dùng:
 
 ```bash
-pnpm build:worker
+pnpm build:worker   # chỉ build: không cần tài khoản hay token Cloudflare
 pnpm preview
 ```
+
+Hiện `pnpm build:worker` dừng ở bước bundle server vì esbuild phân giải package
+`sharp` của ứng dụng; xem
+[docs/quality/production-readiness.md](docs/quality/production-readiness.md) §1
+để biết lỗi chính xác. Cấu hình triển khai không thay đổi.
 
 Dự án cũng có lệnh triển khai thông qua `pnpm deploy`. Việc deploy production yêu cầu cấu hình tài khoản Cloudflare và xác thực phù hợp. Chỉ riêng cấu hình trong repository không chứng minh một commit cụ thể đã được triển khai.
 

@@ -303,7 +303,7 @@ Database changes are versioned under `supabase/migrations/`. Read [supabase/READ
 
 ### Prerequisites
 
-- **Node.js 20.9 or newer** (the minimum supported by Next.js 16; see the [Next.js installation requirements](https://nextjs.org/docs/app/getting-started/installation)).
+- **Node.js 22.18 or newer** (required by the unit suite, which executes `.ts` files through Node's native type stripping). **Node.js 24.x is recommended and is the version CI tests**; the repository is developed on 24.x. Next.js 16 itself only requires 20.9, so 22.18+ is this repository's own floor. See the [Next.js installation requirements](https://nextjs.org/docs/app/getting-started/installation).
 - **pnpm 9 or newer**, compatible with the committed `pnpm-lock.yaml` lockfile format (`9.0`).
 - A Supabase project with the required schema and seed data.
 
@@ -348,9 +348,10 @@ The local Next.js development server does not by itself provide Cloudflare runti
 ## Verification
 
 Every pull request against `main` runs a required GitHub Actions quality gate
-(type checking, linting, unit tests, static verification harnesses, and a
-production build). The full description — what each check proves, what is not
-covered, and how to run browser tests against an isolated environment — lives in
+(type checking, linting, unit tests, static verification harnesses, the
+production Next.js build, and the database-free public-shell browser tests). The
+full description — what each check proves, what is not covered, and how to run
+browser tests against an isolated environment — lives in
 [docs/quality/production-readiness.md](docs/quality/production-readiness.md).
 
 **Type checking, linting and tests**
@@ -377,13 +378,17 @@ node scripts/verify-dock-layout.mjs  # requires Puppeteer + a running dev server
 test accounts and an order before cleaning them up. Never run data-writing
 checks against production.
 
-**End-to-end (optional, never production)**
+**End-to-end (never production)**
 
 ```bash
+pnpm exec playwright install chromium        # once per machine
 SOLENNE_E2E_BASE_URL=https://<staging-host> pnpm test:e2e
 ```
 
-Browser tests require an explicit staging target and are not part of PR CI.
+The five database-free public-shell journeys (`/about`, `/journal`, a post,
+`/login`, a 404) also run in PR CI against a local server whose Supabase URL
+points at a closed port. Catalogue, account, checkout and admin journeys still
+need a seeded staging project and are not run in CI.
 
 ---
 
@@ -411,9 +416,14 @@ Repository configuration:
 Useful commands:
 
 ```bash
-pnpm build:worker
+pnpm build:worker   # build only: no Cloudflare account or token required
 pnpm preview
 ```
+
+`pnpm build:worker` currently stops while bundling the server because esbuild
+resolves the app's `sharp` dependency; see
+[docs/quality/production-readiness.md](docs/quality/production-readiness.md) §1
+for the exact error. Deployment configuration is otherwise unchanged.
 
 A deployment command is also available through `pnpm deploy`. Production deployment requires the appropriate Cloudflare account configuration and authentication. Repository configuration alone does not prove that a particular commit is deployed.
 

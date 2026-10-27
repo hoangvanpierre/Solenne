@@ -88,8 +88,9 @@ fails on the template path as well as on the real `@img` addon.)
 #### Verified cause
 
 1. Next.js' own output-file tracing puts `next/dist/server/image-optimizer.js`
-   **and 40 `sharp`/`@img` entries** into `.next/next-server.js.nft.json` on
-   every build, including the platform-specific `.node` binary
+   **and 40 `sharp`/`@img` entries** (count measured on win32; the Linux variant
+   traces the `linux-x64` packages instead) into `.next/next-server.js.nft.json`
+   on every build, including the platform-specific `.node` binary
    (`Select-String -Path .next\next-server.js.nft.json -Pattern sharp`). This is
    tracing only; it happens regardless of application code.
 2. `image-optimizer.js` statically contains `try { _sharp = require("sharp") }`.

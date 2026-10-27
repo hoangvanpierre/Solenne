@@ -722,11 +722,15 @@ console.log("\n== H. Trusted Identity & Presentation-Only Hiding ==");
 // ---------------------------------------------------------------------------
 const adminShellProps = braceBlockAfter(shell, "export interface AdminShellProps");
 assert(
-  "shell props carry no permission or role authority",
+  "shell props carry server-derived presentation data, not a role union",
+  // `groups`, `roleLabel` and `permissions` all come from the trusted actor
+  // context in the layout; the shell only reads them to shape navigation and
+  // the assistant chips. A `role: RoleName` prop would let a caller pass an
+  // authority claim, so that stays forbidden.
   adminShellProps.length > 0 &&
     /\bgroups\s*:/.test(adminShellProps) &&
     /\broleLabel\s*:/.test(adminShellProps) &&
-    !/\bpermissions\s*:/.test(adminShellProps) &&
+    /\bpermissions\s*:\s*PermissionKey\[\]/.test(adminShellProps) &&
     !/\brole\s*:\s*(RoleName|string)/.test(adminShellProps)
 );
 assert(
@@ -990,9 +994,16 @@ assert(
 );
 
 const filterBar = read("components/admin/order-filter-bar.tsx");
+const urlSearchHook = read("hooks/use-url-search.ts");
 assert(
   "changing a filter resets pagination to the first page",
-  /params\.delete\("page"\)/.test(filterBar)
+  // The reset moved into the shared URL-search hook when the admin search
+  // providers were introduced; every filter writer goes through updateParams.
+  /if \(updateOptions\?\.resetPage !== false\) params\.delete\("page"\)/.test(
+    urlSearchHook
+  ) &&
+    /useAdminSearch\(\)/.test(filterBar) &&
+    /updateParams\(\{ status:/.test(filterBar)
 );
 assert(
   "shared pagination is reused by every paginated surface",
@@ -1119,6 +1130,21 @@ assert(
   /cancelAnimationFrame\(frameRef\.current\)/.test(kpiValue)
 );
 
+// The two storefront overlay widgets deliberately suppress the global outline
+// because their wrapper draws its own ring; everything else must stay inside
+// the admin scope.
+const STOREFRONT_FOCUS_SCOPES = [
+  ".assistant-composer",
+  ".search-command-palette",
+];
+function isAllowedFocusScope(selector) {
+  return (
+    selector.startsWith(".admin-scope") ||
+    selector === "*" ||
+    STOREFRONT_FOCUS_SCOPES.some((scope) => selector.startsWith(scope))
+  );
+}
+
 const cssNoComments = globals.replace(/\/\*[\s\S]*?\*\//g, "");
 const focusSelectors = [];
 for (let index = cssNoComments.indexOf(":focus-visible"); index !== -1; ) {
@@ -1126,12 +1152,9 @@ for (let index = cssNoComments.indexOf(":focus-visible"); index !== -1; ) {
   index = cssNoComments.indexOf(":focus-visible", index + 1);
 }
 assert(
-  "focus rules are either the global storefront rule or .admin-scope scoped",
-  focusSelectors.length > 0 &&
-    focusSelectors.every(
-      (selector) => selector.startsWith(".admin-scope") || selector === "*"
-    ),
-  focusSelectors.filter((selector) => !selector.startsWith(".admin-scope") && selector !== "*").join(" | ")
+  "focus rules are either the global storefront rule, a storefront overlay scope or .admin-scope scoped",
+  focusSelectors.length > 0 && focusSelectors.every(isAllowedFocusScope),
+  focusSelectors.filter((selector) => !isAllowedFocusScope(selector)).join(" | ")
 );
 const storefrontFocus = braceBlockAfter(globals, "*:focus-visible {");
 assert(
@@ -1145,10 +1168,9 @@ for (let index = cssNoComments.indexOf("outline: none"); index !== -1; ) {
   index = cssNoComments.indexOf("outline: none", index + 1);
 }
 assert(
-  "outline suppression only ever happens inside .admin-scope",
-  outlineNoneSelectors.length > 0 &&
-    outlineNoneSelectors.every((selector) => selector.startsWith(".admin-scope")),
-  outlineNoneSelectors.join(" | ")
+  "outline suppression only ever happens inside .admin-scope or a storefront overlay scope",
+  outlineNoneSelectors.length > 0 && outlineNoneSelectors.every(isAllowedFocusScope),
+  outlineNoneSelectors.filter((selector) => !isAllowedFocusScope(selector)).join(" | ")
 );
 
 assert(

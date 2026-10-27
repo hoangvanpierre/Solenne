@@ -132,7 +132,11 @@ assert(
   "deleteProductAction recommends product deactivation when orders exist",
   actionCode.includes("deactivate the product instead")
 );
-const deleteProductActionBody = actionCode.slice(actionCode.indexOf("export async function deleteProductAction"));
+const deleteProductActionBody = actionCode
+  .slice(actionCode.indexOf("export async function deleteProductAction"))
+  // The action file is checked out with CRLF on Windows; normalise so the
+  // ordering assertion does not depend on the working tree's line endings.
+  .replace(/\r\n/g, "\n");
 assert(
   "deleteProductAction deletes variants before deleting product",
   deleteProductActionBody.indexOf('.from("product_variants")\n      .delete()') <

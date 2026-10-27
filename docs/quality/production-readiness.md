@@ -67,44 +67,111 @@ gone; `pnpm build` is unchanged and is still the plain Next.js build used by thi
 gate and by `next start`.
 
 The Worker build is nevertheless **not** the CI Build job today, because it does
-not currently complete on this toolchain (`@opennextjs/cloudflare` 1.20.6,
-`@opennextjs/aws` 4.1.4, Next 16.3.3). While bundling the server, OpenNext runs
-esbuild over the traced Next.js server and esbuild resolves `sharp` — the app's
-own devDependency (used by `scripts/generate-optimized-images.mjs`) and one of
-Next's optional dependencies — from the project root:
+not complete on this toolchain (`@opennextjs/cloudflare` 1.20.6,
+`@opennextjs/aws` 4.1.4, Next 16.3.3, `sharp` 0.35.4). While bundling the
+server, OpenNext runs esbuild over the traced Next.js server and esbuild inlines
+`sharp`'s native addon:
 
 ```
 ⚙️ Bundling the OpenNext server...
 X [ERROR] No loader is configured for ".node" files:
-  node_modules/.pnpm/@img/sharp-win32-x64@0.35.4/.../sharp-win32-x64-0.35.4.node
+  node_modules/.pnpm/@img/sharp-<platform>@0.35.4/.../sharp-<platform>-0.35.4.node
 X [ERROR] Could not resolve require("../src/build/Release/sharp-*-*.node")
 ```
 
-This is **not** a credential, binding or environment-variable problem: the
-failure happens after `next build` succeeds, no Cloudflare account is involved,
-and nothing is uploaded. It reproduces with `.env.local` removed.
+(The `@img/sharp-*` path segment is host-specific — `win32-x64` locally,
+`linux-x64` on a Linux runner. The second error comes from `sharp`'s own source
+build fallback, `require(\`../src/build/Release/sharp-${platform}-${version}.node\`)`
+in `sharp/dist/sharp.cjs`, which never exists in a prebuilt install: resolution
+fails on the template path as well as on the real `@img` addon.)
 
-Verified behaviour of the rest of the pipeline: with `sharp` temporarily moved
-out of Node's resolution paths (the `.pnpm` store entries and the two `sharp`
-links) and the already-built `.next` reused
-(`opennextjs-cloudflare build --skipNextBuild`), OpenNext completes normally:
+#### Verified cause
+
+1. Next.js' own output-file tracing puts `next/dist/server/image-optimizer.js`
+   **and 40 `sharp`/`@img` entries** into `.next/next-server.js.nft.json` on
+   every build, including the platform-specific `.node` binary
+   (`Select-String -Path .next\next-server.js.nft.json -Pattern sharp`). This is
+   tracing only; it happens regardless of application code.
+2. `image-optimizer.js` statically contains `try { _sharp = require("sharp") }`.
+   The `try/catch` is a runtime guard, not a bundler guard: esbuild resolves the
+   `require` at build time.
+3. `sharp` **is resolvable from the app root**, because it is both Solenne's own
+   devDependency (`node_modules/sharp`, used by
+   `scripts/generate-optimized-images.mjs`) and `next`'s `optionalDependencies`
+   entry (`^0.35.3`). So esbuild bundles it instead of leaving it unresolved.
+4. `@opennextjs/cloudflare`'s `EXCLUDED_PACKAGES` (`sharp`, `@img`) only stops
+   those traced files from being **copied** into the bundle; it does not stop
+   esbuild from resolving and inlining them. `bundle-server.js` passes only
+   `external: ["./middleware/handler.mjs"]`, and its
+   `handleOptionalDependencies([...])` list (`caniuse-lite`, `critters`, `jimp`,
+   `probe-image-size`, `react-dom/server.edge`) does not include `sharp` — and
+   would only substitute a throwing stub for a *missing* package anyway.
+
+This is **not** a credential, binding or environment-variable problem: it happens
+after `next build` succeeds, no Cloudflare account is involved, nothing is
+uploaded, and it reproduces with `.env.local` removed. It is also **not**
+Windows-specific — upstream issue
+[opennextjs/opennextjs-cloudflare#1394](https://github.com/opennextjs/opennextjs-cloudflare/issues/1394)
+reports the same two errors on Linux with `@opennextjs/cloudflare` 1.20.6 and
+Next 16.3.5.
+
+#### Fixes evaluated and rejected
+
+| Candidate | Outcome |
+| --- | --- |
+| `images.unoptimized: true` (documented Next.js config) | **Tested, ineffective.** A full `next build` with `unoptimized: true` produced an identical trace: 40 `sharp` entries and `image-optimizer.js` still present. It is also not semantically neutral here — `ParallaxImage`, the admin product thumbnails and journal pages use `next/image` without `unoptimized`. Reverted. |
+| `outputFileTracingExcludes` / `outputFileTracingIncludes` | Cannot help: tracing controls what is *copied*, while the failure is esbuild *resolving* `sharp` from the app root's `node_modules`. |
+| OpenNext configuration | No lever exists. `defineCloudflareConfig()` accepts `incrementalCache`, `tagCache`, `queue`, `cachePurge`, `enableCacheInterception`, `routePreloadingBehavior`; `OpenNextConfig` adds only `edgeExternals` (for compiling `open-next.config.ts` itself). No option stubs or externalizes a server-bundle package. |
+| Bumping `@opennextjs/cloudflare` within the 1.20 line | **Ineffective today.** The latest published version is 1.20.13; its tarball was inspected and contains no native-addon stub plugin, the same `optionalDependencies` list and the same `external` array. The upstream fix is PR [#1433](https://github.com/opennextjs/opennextjs-cloudflare/pull/1433) (“stub `.node` native addons instead of failing the server bundle”), still open/unmerged. |
+| Patching `node_modules` / OpenNext `dist` | Rejected: not a maintainable or reviewable fix. |
+| Removing `sharp` from the root dependency set / moving the generator into a separate workspace package | Rejected for now: conflicts with keeping `sharp` for `scripts/generate-optimized-images.mjs`, is a structural change, and cannot be verified on a Linux runner from this machine. Kept as the fallback if the upstream fix stalls. |
+
+#### Why excluding `sharp` from the Worker is safe for Solenne
+
+`sharp` is **build-time only** here: the only importer in the repository is
+`scripts/generate-optimized-images.mjs` (two call sites). Product photography is
+served through the pre-generated `<picture>` AVIF/WebP pipeline
+(`lib/product-images.ts`, `ProductPicture`), which deliberately bypasses
+`/_next/image`; the remaining `next/image` usages point at assets/images and are
+not part of the server runtime's sharp path. So a stub of the native addon in
+the bundled Worker would not remove any capability Solenne actually uses — which
+is exactly what upstream PR #1433 proposes. This is an argument for the eventual
+fix, **not** evidence that it has been verified.
+
+#### Diagnostic evidence (not a fix)
+
+With `sharp` temporarily moved out of Node's resolution paths (the `.pnpm` store
+entries and the two `sharp` links) and the already-built `.next` reused
+(`opennextjs-cloudflare build --skipNextBuild`), OpenNext completed:
 
 ```
 Worker saved in `.open-next/worker.js` 🚀
 OpenNext build complete.
 ```
 
-So the pipeline (OpenNext bundling → `.open-next/worker.js` + assets) works and
-needs no Cloudflare authentication; only the `sharp` resolution blocks a plain
-`pnpm build:worker`. Until that is resolved (upstream fix, or the image
-generator's `sharp` moved out of the root dependency set), the Build gate stays
-on `pnpm build` and the Worker build stays a pre-deploy, manual step.
+That only proves the rest of the pipeline (bundling → `.open-next/worker.js` +
+assets) works without any Cloudflare credential. It is not an acceptable
+production fix and was reverted; nothing in the repository depends on it.
 
-The Worker build also requires POSIX symlink support: on a Windows machine
-without Developer Mode, OpenNext fails earlier with
-`EPERM: operation not permitted, symlink ...`, because pnpm dependency links are
-recreated inside `.open-next/`. Linux CI runners do not have that problem;
-OpenNext itself prints `WARN OpenNext is not fully compatible with Windows`.
+#### Environment limits on verification
+
+The Worker build needs POSIX symlink support. On this Windows 11 machine
+(non-elevated, Developer Mode off) OpenNext fails *earlier*, in
+`copyTracedFiles`, with `EPERM: operation not permitted, symlink ...`, because
+pnpm dependency links are recreated inside `.open-next/`; OpenNext also prints
+`WARN OpenNext is not fully compatible with Windows`. Infrastructure for a
+clean Linux run (WSL, Docker, podman, remote runner) is not available on this
+machine, and CI cannot be used without pushing. The `sharp` esbuild failure
+above was observed locally only through a temporary `copyTracedFiles` diagnostic
+patch, which has been reverted.
+
+Consequently the Build gate stays on `pnpm build`, and the Worker build remains
+a manual, pre-deploy step that must be run on Linux. The next action is to retry
+`pnpm install --frozen-lockfile && pnpm build:worker` on Ubuntu with Node 24 and
+pnpm 11.24.0 once an OpenNext release carries the native-addon stub (watch #1394
+/ #1433), then confirm: image generation ×1, `next build` ×1, bundling completes,
+`.open-next/worker.js` exists, exit code 0, no upload — and only then switch the
+CI Build job to `pnpm build:worker`.
 
 `pnpm deploy` / `pnpm upload` need an authenticated Cloudflare account and
 remain a manual, out-of-band step. Deployment state is not verified by CI.
@@ -424,9 +491,11 @@ be measured before it is reported.
    approved environment, using GitHub Environment secrets.
 4. **Cloudflare Worker build** — `pnpm build:worker` is verified to produce
    `.open-next/worker.js` without any Cloudflare credential, but it currently
-   fails as a single command because of the `sharp` bundling conflict described
-   in §1. Until that is fixed, it is not a CI check and `deploy`/`upload` stay
-   manual. Deployment health is still unverified.
+   fails as a single command because esbuild inlines `sharp`'s native addon
+   (verified cause and rejected fixes in §1). The fix is upstream (OpenNext PR
+   #1433, not yet released) and has to be confirmed on a Linux runner, which is
+   not available on the current machine. Until then it is not a CI check and
+   `deploy`/`upload` stay manual. Deployment health is still unverified.
 5. **Web Vitals / RUM** — no field data for LCP, INP or CLS.
 6. **AI token usage** — not measured.
 7. **Server Actions / auth guards** — covered by static harnesses and unit-level

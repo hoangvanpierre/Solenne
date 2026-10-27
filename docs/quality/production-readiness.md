@@ -1,0 +1,335 @@
+# Production Readiness — Quality Gate, Testing and Observability
+
+This document describes the automated quality gate added in Phase 1, what it
+actually verifies, how to reproduce it locally, and what is still missing. It is
+the reference for "is this repository safe to change?" and for future work such
+as Wishlist and Verified Product Reviews.
+
+Scope of Phase 1: CI, a testing foundation (unit + E2E), a Cloudflare-native
+observability baseline, and this documentation. No application behavior, schema,
+RLS policy, RBAC permission or AI prompt was changed.
+
+---
+
+## 1. CI architecture
+
+Workflow: [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml)
+
+### Triggers
+
+| Event | Runs |
+| --- | --- |
+| `pull_request` targeting `main` | Yes |
+| `push` to `main` | Yes |
+| `workflow_dispatch` | Yes (manual) |
+
+### Guard rails
+
+| Setting | Value | Why |
+| --- | --- | --- |
+| `permissions` | `contents: read` | Least privilege; no job writes to the repository, packages or issues. |
+| `concurrency` | `ci-<workflow>-<ref>` | A new push to the same PR cancels the outdated run. Pushes to `main` are **not** cancelled, so every commit landing on `main` is verified. |
+| `timeout-minutes` | 15 (typecheck, lint), 20 (tests), 25 (build) | Bounded spend and fast feedback on a hung step. |
+| Caching | `pnpm/setup@v3` with `cache: true` | Caches the pnpm store keyed by `pnpm-lock.yaml`. |
+| Node | `node@24` | Matches local development (`v24.19.0`) and Next.js 16's supported range. |
+| pnpm | read from `packageManager` (`pnpm@11.24.0`) | Installer and lockfile version always agree. |
+| Install | `pnpm install --frozen-lockfile` | Fails instead of silently rewriting the lockfile. |
+| Secrets | **None** | No Supabase, Cloudflare or AI credential is referenced anywhere in the workflow. |
+
+### Jobs (each one is an independent required check)
+
+| Job name | Command | Failure means |
+| --- | --- | --- |
+| `Typecheck` | `pnpm exec tsc --noEmit` | A type error in application code, tests or config. |
+| `Lint` | `pnpm lint` | ESLint (flat config, `eslint-config-next`) reported an error. |
+| `Tests` | `pnpm test:unit` then `pnpm test:verify` | A behavior regression in the unit suite, or a business invariant in a harness. |
+| `Build` | `pnpm build` | The production Next.js build (including the deterministic image pipeline) failed. |
+
+Each job installs dependencies in its own named step, so a failure is
+attributable to installation, type checking, linting, tests or build — not to an
+opaque aggregate.
+
+### Why `pnpm build` and not `pnpm build:worker`
+
+`pnpm build` regenerates the optimized AVIF/WebP product variants and runs
+`next build`. It was verified to succeed with **empty Supabase environment
+variables**: every route in this app is dynamic (`ƒ` in the route table), so no
+route is prerendered against a database at build time. The build does download
+the Cactus Classical Serif font through `next/font/google`, so it needs outbound
+network access — that is existing application behaviour, not something CI adds.
+
+`pnpm build:worker` (OpenNext + Wrangler) additionally needs the Cloudflare
+toolchain and a Workers account context. It is deliberately **not** a required
+PR check; run `pnpm preview` locally before a deploy and treat worker-build
+verification as a deployment-time step. Deployment state is not verified by CI.
+
+### What CI deliberately does not do
+
+- No production credentials, no production database, no test users or orders.
+- No `verify-rbac.mjs` (it requires `.env.local` and the live project; `--full`
+  writes disposable accounts and an order).
+- No `verify-dock-layout.mjs` (requires Puppeteer and a running dev server).
+- No E2E run (needs an isolated staging environment; see §5).
+- No `continue-on-error`, no `|| true`, no skipped check presented as passing.
+
+---
+
+## 2. Running the gate locally
+
+```bash
+pnpm install --frozen-lockfile
+
+pnpm exec tsc --noEmit      # or: pnpm typecheck
+pnpm lint
+pnpm test:unit              # node:test, tests/unit/**
+pnpm test:verify            # approved static harnesses, via scripts/run-verify.mjs
+pnpm build                  # production build (+ image generation)
+```
+
+`pnpm test` runs `test:unit` then `test:verify`.
+
+Node.js **20.11+** is required for the unit command (`--disable-warning`);
+CI uses Node 24, which is the supported and tested version.
+
+---
+
+## 3. Verification harness inventory
+
+`scripts/` holds 13 static harnesses. They assert source/SQL invariants (and, for
+two of them, optionally probe the live database). They are **not** a unit test
+suite, and their presence is not proof that the app behaves correctly at runtime.
+
+### In the CI gate (`pnpm test:verify`, via `scripts/run-verify.mjs`)
+
+| Harness | Scope | Environment needs |
+| --- | --- | --- |
+| `verify-admin-assistant.mjs` | Role→tool→permission matrix, zod bounds, field allow-lists, prompt budget, route wiring | None |
+| `verify-admin-shell.mjs` | Admin shell/route guards, focus rules, pagination wiring, session handling | None |
+| `verify-callback-redirect.mjs` | OAuth callback redirect policy | None |
+| `verify-cancel-order.mjs` | `cancel_order` RPC contract and action wiring | None |
+| `verify-contact-newsletter.mjs` | Contact/newsletter actions, error paths, migration `0013` contents | None (static only) |
+| `verify-customer-status.mjs` | Customer status/reinstatement RPC contracts and audit summaries | None |
+| `verify-fulfillment-transitions.mjs` | `update_order_status` transitions, tracking code, outbox | None; the live probe runs only if `.env.local` exists and is **read-only** |
+| `verify-inventory-adjustment.mjs` | `adjust_inventory_stock` bounds, RPC signature, action wiring | None; the live probe runs only if `.env.local` exists and is **read-only** |
+| `verify-post-login-routing.mjs` | Post-login destination policy, open-redirect protection | None |
+| `verify-product-management.mjs` | Product/variant validation, delete ordering, no client stock writes | None |
+| `verify-search.mjs` | Search normalization, synonyms, ranking, highlight ranges | None |
+
+In CI there is no `.env.local`, so the two optional live probes print an
+`[INFO] ... Skipping live DB probe.` line and the harness runs its static
+assertions only. This was verified locally by temporarily hiding `.env.local`
+(83/83 and 55/55 assertions passed).
+
+### Excluded from the CI gate
+
+| Harness | Reason |
+| --- | --- |
+| `verify-rbac.mjs` | Requires `.env.local` and the live Supabase project. Its `--full` mode creates and deletes test users and an order — never run it against production. Run it manually against a dedicated test project. |
+| `verify-dock-layout.mjs` | Requires Puppeteer plus a running dev server; it renders the admin dock in a real browser. |
+
+---
+
+## 4. Testing strategy
+
+### Unit tests (`tests/unit/`, `pnpm test:unit`)
+
+Runner: **Node.js built-in test runner** (`node:test` + `node:assert/strict`)
+with native TypeScript type stripping. No framework was added: Node 24 runs the
+real `.ts` modules directly, which keeps the dependency surface at zero for unit
+tests and matches the existing `verify-search.mjs` precedent of executing the
+actual source.
+
+`allowImportingTsExtensions` was added to `tsconfig.json` so tests can import
+`../../lib/...ts` exactly as Node resolves them.
+
+| File | What it actually exercises |
+| --- | --- |
+| `admin-assistant-proposals.test.ts` | Order cancellation, fulfillment, rollback and inventory preconditions; stock never below zero; 5-minute staleness; proposal warnings/blockers. Mirrors migrations `0006`/`0007`/`0009`. |
+| `admin-assistant-drafting.test.ts` | Placeholder detection, reply-language defaulting, intent prompt contents, `mailto:` encoding and truncation budget. |
+| `admin-assistant-product-copy.test.ts` | Copy request schema (strict, bilingual rules), description/notes parsing, claim scanning, English-only apply rule. |
+| `admin-assistant-request.test.ts` | AI SDK envelope acceptance, strict context schema, tool-argument caps, PostgREST-safe search text, safe history filtering. |
+| `search.test.ts` | Accent/case-insensitive normalization (`đ` included), synonym matching, ranking, limits, highlight offsets. |
+| `validation-schemas.test.ts` | Order status enum, tracking-code requirement, product/variant schemas, rejection of client-supplied stock. |
+
+54 tests, all behavioral (they call the real functions) — no source-grep
+assertions.
+
+### Integration tests — boundary, not yet implemented
+
+Server Actions, authorization guards and RPC boundaries are currently covered
+only by static harnesses plus the unit-level precondition logic. A real
+integration suite requires:
+
+1. A **dedicated** Supabase test project (never production), with migrations
+   `0001`–`0013` applied and the seed from `scripts/seed-products.mjs`.
+2. Credentials supplied only to that job (GitHub Environment secrets), never to
+   pull requests from forks.
+3. A test-only fixture strategy that creates and deletes its own rows, or a
+   transactional rollback approach.
+
+Until that environment exists, integration coverage must not be claimed. The
+existing harnesses remain the regression net for RPC contracts.
+
+### End-to-end tests (`tests/e2e/`, `pnpm test:e2e`)
+
+Playwright (`@playwright/test` 1.64.1) is the only new dependency added in Phase
+1. It is a devDependency and is not installed at runtime. It was chosen because
+it is the maintained standard for Next.js App Router E2E, needs no global
+service, and can be pointed at a staging URL without touching the app.
+
+Run it only against an explicit target:
+
+```bash
+# Staging deployment (preferred)
+SOLENNE_E2E_BASE_URL=https://<staging-host> pnpm test:e2e
+```
+
+The config **throws** when `SOLENNE_E2E_BASE_URL` is unset, so a missing
+environment can never be reported as a green run. Production is not an
+acceptable target.
+
+Local mode (only database-free public pages are exercised):
+
+```bash
+# Terminal 1 - a dev server that cannot reach production Supabase:
+$env:NEXT_PUBLIC_SUPABASE_URL="http://127.0.0.1:9"
+$env:NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="e2e-not-a-real-key"
+$env:SUPABASE_SECRET_KEY="e2e-not-a-real-key"
+$env:SUPABASE_JWKS_URL="http://127.0.0.1:9/.well-known/jwks.json"
+pnpm dev -- -p 3100
+
+# Terminal 2:
+$env:SOLENNE_E2E_BASE_URL="http://localhost:3100"
+pnpm test:e2e
+```
+
+Shell environment variables take precedence over `.env.local`, so those
+overrides win. Isolation was verified: with this configuration `/products`
+returns HTTP 500 (`fetch failed`) instead of loading production products.
+
+Current coverage (5 tests, all passing):
+
+- `/about` renders its heading inside the site chrome (footer + nav links).
+- `/journal` lists posts and a post link opens the article.
+- `/login` renders the sign-in form (email, password, submit).
+- The locale toggle reloads into Vietnamese (`html[lang="vi"]`), keeps the URL,
+  and swaps the copy.
+- An unknown path returns HTTP 404.
+
+Not covered yet — requires a seeded staging environment:
+
+- Product catalogue and product detail (Supabase-backed).
+- Search palette results (Supabase-backed `/api/search`).
+- Login/logout, account pages, order history, checkout validation.
+- Admin access control for unauthorized vs. authorized roles.
+- Wishlist/Reviews flows (not implemented in the app).
+
+**E2E is not part of PR CI.** A skipped/staging-less E2E run is never counted as
+a pass; the `Tests` job covers unit + static harnesses only.
+
+---
+
+## 5. Observability
+
+### Cloudflare configuration (`wrangler.jsonc`)
+
+```jsonc
+"observability": {
+  "enabled": true,
+  "head_sampling_rate": 1,
+  "redact_query_string": true,
+  "logs": { "enabled": true, "invocation_logs": true, "head_sampling_rate": 1 },
+  "traces": { "enabled": true, "head_sampling_rate": 0.1 }
+},
+"upload_source_maps": true
+```
+
+- Workers Logs at 100% sampling: traffic is low, and full logs are what make an
+  incident debuggable. Query strings are redacted because search routes carry
+  user terms.
+- Traces at 10% sampling: enough for a usable p50/p95 sample without unbounded
+  trace volume/cost.
+- `upload_source_maps` keeps Worker stack traces readable.
+- No binding was added, changed or removed. This is Cloudflare-native, no
+  third-party service and no extra subscription.
+
+Config validity was checked by running `pnpm cf-typegen` (Wrangler parsed the
+file successfully); the regenerated `cloudflare-env.d.ts` was unchanged.
+
+### Structured application logging (`lib/observability/log.ts`)
+
+One JSON object per line, emitted with `console.log`/`warn`/`error`, which is
+what Workers Logs ingests.
+
+Allowed fields (everything else is dropped by an allow-list): `event`, `route`,
+`operation`, `status`, `durationMs`, `requestId`, `actorId`, `actorRole`,
+`outcome`, `errorClass`, `errorName`. Values are truncated and control
+characters stripped, so one log can never be split or forged.
+
+`requestId` prefers the Cloudflare `cf-ray` header, so a line can be correlated
+with the Cloudflare request record; it falls back to a random UUID locally.
+
+Instrumented today:
+
+| Route | Events |
+| --- | --- |
+| `app/api/chat` | `chat.rate_limited`, `chat.conversation_too_long`, `chat.request_failed` |
+| `app/api/admin-assistant` | `admin_assistant.authorization_failed`, `admin_assistant.rate_limited`, `admin_assistant.stream_failed`, `admin_assistant.request_failed` |
+
+`classifyError()` maps a thrown value to `auth` / `validation` / `rate_limited` /
+`timeout` / `upstream` / `unclassified` plus the constructor name. Error
+messages, request bodies and provider payloads are never logged.
+
+**Never logged:** passwords, access/refresh tokens, Supabase secret keys,
+payment credentials, emails, addresses, full conversation contents, tool
+arguments or request bodies.
+
+### Metrics: available vs. gaps
+
+| Signal | Status |
+| --- | --- |
+| Worker errors / unexpected 5xx | **Available** — Workers Logs invocation logs + the `*.request_failed` events. |
+| Request duration / TTFB per route | **Available** — Workers traces (10% sample) and logged `durationMs` on failure paths. |
+| Admin route p50/p95 latency | **Partial** — derivable from sampled traces; no dedicated dashboard yet. |
+| AI request failures | **Available** — `chat.request_failed`, `admin_assistant.request_failed`, `admin_assistant.stream_failed`. |
+| AI rate-limit responses | **Available** — `chat.rate_limited`, `admin_assistant.rate_limited`. |
+| AI stream failures | **Available** — `admin_assistant.stream_failed` via the stream `onError`. |
+| AI token usage | **Gap** — Workers AI usage is not captured by the current streaming setup. |
+| Storefront LCP / INP / CLS (field data) | **Gap** — no RUM/Web Vitals reporting is configured. |
+| Cold vs. warm request behaviour | **Gap** — no comparison is produced; only raw per-request timing exists. |
+| Deployment health checks | **Gap** — no synthetic probe; deploy state is not verified in CI. |
+
+No benchmark numbers are claimed in this document. Anything listed as a gap must
+be measured before it is reported.
+
+---
+
+## 6. Security review of this phase
+
+- No migration was added or modified; `0001`–`0013` are untouched.
+- No RLS policy, RBAC role, permission or `SECURITY DEFINER` function changed.
+- CI references **no** secret; PR checks cannot reach any Supabase or Cloudflare
+  project. `verify-rbac` and every data-writing script stay out of CI.
+- E2E requires an explicit non-production target; local mode points Supabase at
+  a closed local port, which was verified to break DB-backed routes.
+- Logging is allow-listed and excludes PII, tokens, secrets and conversation
+  content.
+- `order_items`' restrictive RLS policy and the existing admin-client write path
+  were left exactly as they were.
+
+---
+
+## 7. Known limitations and remaining work
+
+1. **Staging environment for E2E** — needed to cover catalogue, account,
+   checkout and admin journeys. Until then those journeys have no browser test.
+2. **Integration tests** — require a dedicated Supabase test project; see §4.
+3. **E2E in CI** — intentionally not wired. When staging exists, add a job that
+   only runs on `workflow_dispatch` or a manually approved environment, using
+   GitHub Environment secrets.
+4. **Cloudflare worker build** (`pnpm build:worker` / `pnpm preview`) — not a CI
+   check; verify before a deploy.
+5. **Web Vitals / RUM** — no field data for LCP, INP or CLS.
+6. **AI token usage** — not measured.
+7. **Server Actions / auth guards** — covered by static harnesses and unit-level
+   rules, not by executed integration tests.

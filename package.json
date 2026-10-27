@@ -9,7 +9,7 @@
     "dev": "next dev",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "pnpm run test:unit && pnpm run test:verify",
     "test:unit": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test \"tests/unit/**/*.test.ts\"",
     "test:verify": "node scripts/run-verify.mjs",

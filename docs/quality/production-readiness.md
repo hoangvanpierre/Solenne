@@ -40,7 +40,7 @@ Workflow: [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml)
 
 | Job name | Command | Failure means |
 | --- | --- | --- |
-| `Typecheck` | `pnpm exec tsc --noEmit` | A type error in application code, tests or config. |
+| `Typecheck` | `pnpm typecheck` (`next typegen && tsc --noEmit`) | A type error in application code, tests or config. `next typegen` is required because route-type globals (`LayoutProps`, `PageProps`) and `next-env.d.ts` are generated, not committed. |
 | `Lint` | `pnpm lint` | ESLint (flat config, `eslint-config-next`) reported an error. |
 | `Tests` | `pnpm test:unit` then `pnpm test:verify` | A behavior regression in the unit suite, or a business invariant in a harness. |
 | `Build` | `pnpm build` | The production Next.js build (including the deterministic image pipeline) failed. |
@@ -207,7 +207,7 @@ claimed to be covered by these five tests.**
 ```bash
 pnpm install --frozen-lockfile
 
-pnpm exec tsc --noEmit      # or: pnpm typecheck
+pnpm typecheck              # next typegen && tsc --noEmit
 pnpm lint
 pnpm test:unit              # node:test, tests/unit/**
 pnpm test:verify            # approved static harnesses, via scripts/run-verify.mjs

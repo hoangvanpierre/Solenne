@@ -68,8 +68,13 @@ jobs:
       - name: Install dependencies (frozen lockfile)
         run: pnpm install --frozen-lockfile
 
+      # Next 16 generates route types (`LayoutProps`, `PageProps`, ...) during
+      # `next dev`/`next build` only, and `next-env.d.ts` is not committed. A
+      # bare `tsc --noEmit` on a fresh checkout therefore cannot resolve those
+      # globals, so the type check runs `next typegen` first (the script does
+      # it, so local and CI are identical).
       - name: Typecheck
-        run: pnpm exec tsc --noEmit
+        run: pnpm typecheck
 
   lint:
     name: Lint

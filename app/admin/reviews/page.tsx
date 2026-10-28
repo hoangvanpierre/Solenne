@@ -28,7 +28,7 @@ import { Button } from "@/components/ui";
 import type { AdminReviewReportEntry } from "@/types";
 
 export const metadata: Metadata = {
-  title: "Review Reports — Administration",
+  title: "Review Reports - Administration",
 };
 
 interface AdminReviewsPageProps {

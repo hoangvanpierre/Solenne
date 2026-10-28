@@ -949,9 +949,23 @@ assert(
 );
 assert(
   "every management page carries bilingual copy",
-  adminPageFiles.every((file) => (read(file).match(/isVi \?/g) ?? []).length >= 3),
+  adminPageFiles.every((file) => {
+    const source = read(file);
+    // Two accepted mechanisms: the inline `isVi ? … : …` pattern used by the
+    // original admin pages, or next-intl message namespaces (used by newer
+    // features). Both must localize; a page with neither is English-only.
+    const inlineBilingual = (source.match(/isVi \?/g) ?? []).length >= 3;
+    const messageBacked = /(?:getTranslations|useTranslations)\(/.test(source);
+    return inlineBilingual || messageBacked;
+  }),
   adminPageFiles
-    .filter((file) => (read(file).match(/isVi \?/g) ?? []).length < 3)
+    .filter((file) => {
+      const source = read(file);
+      return (
+        (source.match(/isVi \?/g) ?? []).length < 3 &&
+        !/(?:getTranslations|useTranslations)\(/.test(source)
+      );
+    })
     .join(", ")
 );
 assert(

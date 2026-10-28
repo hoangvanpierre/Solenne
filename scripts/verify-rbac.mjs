@@ -145,7 +145,13 @@ async function readOnlyProbes() {
   const roles = await rest("/roles?select=name&order=rank", {});
   record("schema", "roles readable by the trusted path (0005 grants)", roles.status === 200 && (roles.json?.length ?? 0) >= 4, desc(roles));
   const perms = await rest("/permissions?select=key", {});
-  record("schema", "permission catalogue seeded (21 keys)", (perms.json?.length ?? 0) === 21, `count=${perms.json?.length}`);
+  // 0015 is committed but not applied to production. The harness therefore
+  // accepts either catalogue (21 keys without it, 22 with it) instead of
+  // forcing a schema state — it must never imply that a migration was run.
+  const permKeys = (perms.json ?? []).map((p) => p.key);
+  const hasReviewPermission = permKeys.includes("review.manage_reports");
+  const expectedCatalogue = hasReviewPermission ? 22 : 21;
+  record("schema", `permission catalogue seeded (${expectedCatalogue} keys)`, permKeys.length === expectedCatalogue, `count=${permKeys.length}`);
   const logs = await rest("/audit_logs?select=id,action&limit=5", {});
   record("schema", "audit_logs appendable by the trusted path", logs.status === 200, desc(logs));
   const del = await rest("/audit_logs?id=eq.00000000-0000-0000-0000-000000000000", { method: "DELETE" });
@@ -347,12 +353,30 @@ async function fullMatrix() {
 
 
   // ---------- identity: the database resolves the role and permissions ----------
+  // `review.manage_reports` ships with 0015, which is not applied to
+  // production. Read the live catalogue so this matrix describes reality:
+  // before 0015 it expects the 21-key set, after it expects 22.
+  const liveCatalogue = await rest("/permissions?select=key", {});
+  const liveReviewPermission = (liveCatalogue.json ?? []).some(
+    (row) => row.key === "review.manage_reports"
+  );
+
   const EXPECTED = {
     customer: ["order.create", "order.read_own", "product.read", "profile.read_own", "profile.update_own"],
     staff: ["customer.read", "inventory.read", "inventory.update", "order.read", "order.update", "product.create", "product.read", "product.update", "profile.read_own", "profile.update_own"],
     manager: ["analytics.read", "customer.read", "inventory.read", "inventory.update", "order.cancel", "order.read", "order.update", "product.create", "product.delete", "product.read", "product.update", "profile.read_own", "profile.update_own", "staff.read"],
     admin: ["analytics.read", "audit.read", "customer.read", "customer.update", "inventory.read", "inventory.update", "order.cancel", "order.create", "order.read", "order.read_own", "order.update", "product.create", "product.delete", "product.read", "product.update", "profile.read_own", "profile.update_own", "role.manage", "role.read", "staff.manage", "staff.read"],
   };
+
+  if (liveReviewPermission) {
+    EXPECTED.manager.push("review.manage_reports");
+    EXPECTED.admin.push("review.manage_reports");
+  }
+  console.log(
+    liveReviewPermission
+      ? "\n(0015 catalogue detected: review.manage_reports expected for manager + admin)"
+      : "\n(0015 not applied: review.manage_reports absent from the catalogue)"
+  );
   console.log("\n== Identity resolved by the database (current_actor RPC) ==");
   for (const roleName of ROLE_ORDER) {
     const ctx = await actor(users[roleName].token);
@@ -598,7 +622,7 @@ async function fullMatrix() {
   record(S4, "reads the role/permission matrix (role.read)", (aRolePerms.json?.length ?? 0) >= 1, desc(aRolePerms));
 
   const aPerms = await rest("/permissions?select=key", { token: aTok });
-  record(S4, "reads the permission catalogue", (aPerms.json?.length ?? 0) === 21, desc(aPerms));
+  record(S4, "reads the permission catalogue", (aPerms.json?.length ?? 0) === (liveReviewPermission ? 22 : 21), desc(aPerms));
 
   const aOrders = await rest("/orders?select=id&limit=5", { token: aTok });
   record(S4, "reads all orders (order.read)", (aOrders.json?.length ?? 0) >= 1, desc(aOrders));

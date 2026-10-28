@@ -1,24 +1,32 @@
 "use client";
 
 import { useState } from "react";
-import { Star, Check, Plus, Minus } from "lucide-react";
+import { Check, Plus, Minus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { WishlistButton } from "@/components/wishlist";
+// Direct path (not the reviews barrel): the barrel also exports a
+// server-rendered component, and this file is a Client Component.
+import { StarRating } from "@/components/reviews/star-rating";
 import { useCart } from "@/hooks/use-cart";
 import { SizeSelector } from "./size-selector";
 import { QuantitySelector } from "./quantity-selector";
 import { ScentNotes } from "./scent-notes";
-import type { Product } from "@/types";
+import type { Product, ReviewSummary } from "@/types";
 import { SCENT_CATEGORIES } from "@/lib/constants";
+import { formatAverageRating } from "@/lib/reviews-core";
 import { useAppLocale } from "@/hooks/use-locale";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ProductInfoProps {
   product: Product;
+  /** Published-review aggregate; absent means "not loaded / no reviews". */
+  reviewSummary?: ReviewSummary;
 }
 
-export function ProductInfo({ product }: ProductInfoProps) {
+export function ProductInfo({ product, reviewSummary }: ProductInfoProps) {
+  const tReviews = useTranslations("reviews");
   const [selectedVariantId, setSelectedVariantId] = useState<string>(
     product.variants[0]?.id || ""
   );
@@ -79,16 +87,30 @@ export function ProductInfo({ product }: ProductInfoProps) {
           )}
         </div>
         
-        <div className="flex items-center gap-1.5 text-sm">
-          <div className="flex text-primary">
-            <Star className="h-4 w-4 fill-current" />
-            <Star className="h-4 w-4 fill-current" />
-            <Star className="h-4 w-4 fill-current" />
-            <Star className="h-4 w-4 fill-current" />
-            <Star className="h-4 w-4 fill-current opacity-50" />
-          </div>
-          <span className="text-muted-foreground ml-1">4.8 (24)</span>
-        </div>
+        <a
+          href="#reviews"
+          className="flex items-center gap-1.5 rounded text-sm transition-colors hover:text-amber focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {reviewSummary && reviewSummary.reviewCount > 0 ? (
+            <>
+              <StarRating
+                value={reviewSummary.averageRating}
+                label={tReviews("averageLabel", {
+                  rating: formatAverageRating(reviewSummary.averageRating),
+                })}
+                size="sm"
+              />
+              <span className="text-muted-foreground ml-1 tabular-nums">
+                {formatAverageRating(reviewSummary.averageRating)} (
+                {reviewSummary.reviewCount})
+              </span>
+            </>
+          ) : (
+            <span className="text-xs text-muted-foreground underline underline-offset-4">
+              {tReviews("noReviewsShort")}
+            </span>
+          )}
+        </a>
       </div>
 
       <hr className="border-border" />

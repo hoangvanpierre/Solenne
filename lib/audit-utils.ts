@@ -29,6 +29,9 @@ export const AUDIT_ACTIONS = [
   "user.role_changed",
   "customer.status_changed",
   "customer.reinstated",
+  "review.hidden",
+  "review.report_resolved",
+  "review.report_dismissed",
   "assistant.tool_used",
 ] as const;
 
@@ -38,6 +41,7 @@ export const AUDIT_ACTION_CATEGORIES = [
   "product",
   "user",
   "customer",
+  "review",
 ] as const;
 
 export const AUDIT_RESOURCE_TYPES = [
@@ -45,6 +49,7 @@ export const AUDIT_RESOURCE_TYPES = [
   "product",
   "product_variant",
   "profile",
+  "review",
 ] as const;
 
 const EMAIL_PATTERN = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
@@ -268,6 +273,33 @@ export function formatAuditSummary(
       return `Customer account reinstated from banned to active${
         reason ? ` (Reason: ${reason})` : ""
       }`;
+    }
+
+    case "review.hidden": {
+      const title = metadata.review_title
+        ? `"${String(metadata.review_title)}"`
+        : "";
+      const reason = metadata.reason ? String(metadata.reason) : undefined;
+      if (isVi) {
+        return `Ẩn đánh giá ${title}${reason ? ` (Lý do: ${reason})` : ""}`;
+      }
+      return `Review ${title} hidden${reason ? ` (Reason: ${reason})` : ""}`;
+    }
+
+    case "review.report_resolved": {
+      const note = metadata.note ? String(metadata.note) : undefined;
+      if (isVi) {
+        return `Đã xử lý báo cáo đánh giá${note ? ` (${note})` : ""}`;
+      }
+      return `Review report resolved${note ? ` (${note})` : ""}`;
+    }
+
+    case "review.report_dismissed": {
+      const note = metadata.note ? String(metadata.note) : undefined;
+      if (isVi) {
+        return `Đã bỏ qua báo cáo đánh giá${note ? ` (${note})` : ""}`;
+      }
+      return `Review report dismissed${note ? ` (${note})` : ""}`;
     }
 
     case "assistant.tool_used": {

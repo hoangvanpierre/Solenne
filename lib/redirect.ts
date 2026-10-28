@@ -45,6 +45,7 @@ export const MANAGEMENT_PERMISSIONS: PermissionKey[] = [
   "role.read",
   "role.manage",
   "audit.read",
+  "review.manage_reports",
 ];
 
 function hasControlChars(value: string): boolean {

@@ -37,6 +37,7 @@ const HARNESSES = [
   ["verify-inventory-adjustment.mjs", "inventory adjustment contract"],
   ["verify-post-login-routing.mjs", "post-login destination policy"],
   ["verify-product-management.mjs", "product/variant management contract"],
+  ["verify-reviews.mjs", "verified reviews: eligibility, RLS, moderation contract"],
   ["verify-search.mjs", "search normalization and ranking"],
   ["verify-wishlist.mjs", "wishlist ownership, RLS and UI contract"],
 ];

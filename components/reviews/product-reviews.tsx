@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   REVIEW_SORTS,
+  isReviewReportable,
   normalizeReviewSort,
   sortReviews,
 } from "@/lib/reviews-core";
@@ -26,9 +27,14 @@ import { StarRating } from "./star-rating";
 // Product-detail reviews section.
 //
 // Server data arrives in one pass (getProductReviewsPageData): published
-// reviews, the aggregate, the viewer's own review, eligibility and the reviews
-// they already reported. Sorting happens client-side over that window, so
-// changing the order never costs a round trip.
+// reviews, the aggregate, the viewer's own review and eligibility. Sorting
+// happens client-side over that window, so changing the order never costs a
+// round trip.
+//
+// "Reported" is session-local: 0015 grants no reporter_id SELECT, so the server
+// cannot tell the client which reviews it already reported. A repeat report
+// hits the unique (review_id, reporter_id) constraint and is treated as a
+// terminal success (`already_reported`).
 //
 // Publication is immediate — there is no "pending approval" state anywhere in
 // this UI, because there is none in the schema.
@@ -62,6 +68,7 @@ export function ProductReviews({
   const [sort, setSort] = useState<ReviewSort>("newest");
   const [formMode, setFormMode] = useState<"create" | "edit" | null>(null);
   const [announcement, setAnnouncement] = useState("");
+  const [reportedIds, setReportedIds] = useState<string[]>([]);
 
   const sorted = useMemo(
     () => sortReviews(data.reviews, normalizeReviewSort(sort)),
@@ -230,9 +237,14 @@ export function ProductReviews({
                   review={review}
                   isOwn={review.id === ownReview?.id}
                   isAuthenticated={isAuthenticated}
-                  alreadyReported={data.reportedReviewIds.includes(review.id)}
+                  alreadyReported={reportedIds.includes(review.id)}
                   dateFormatter={dateFormatter}
-                  onReported={() => setAnnouncement(t("reportSuccess"))}
+                  onReported={(reviewId) => {
+                    setReportedIds((ids) =>
+                      ids.includes(reviewId) ? ids : [...ids, reviewId]
+                    );
+                    setAnnouncement(t("reportSuccess"));
+                  }}
                 />
               ))}
             </div>
@@ -253,7 +265,7 @@ interface ReviewCardProps {
   isAuthenticated: boolean;
   alreadyReported: boolean;
   dateFormatter: Intl.DateTimeFormat;
-  onReported: () => void;
+  onReported: (reviewId: string) => void;
 }
 
 function ReviewCard({
@@ -305,7 +317,11 @@ function ReviewCard({
         {review.body}
       </p>
 
-      {isAuthenticated && !isOwn && (
+      {isReviewReportable({
+        status: review.status,
+        isAuthenticated,
+        isOwnReview: isOwn,
+      }) && (
         <div className="mt-4">
           {alreadyReported ? (
             <p className="text-xs text-muted-foreground">{t("reported")}</p>

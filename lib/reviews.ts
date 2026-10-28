@@ -3,6 +3,7 @@ import { getActorContext, requireActiveActor } from "@/lib/authz";
 import { getProductsByIds } from "@/lib/products";
 import { getOrdersForUser } from "@/lib/orders";
 import {
+  GET_MY_PRODUCT_REVIEW_RPC,
   REVIEW_LIST_LIMIT,
   buildReviewSummary,
   emptyReviewSummary,
@@ -12,6 +13,7 @@ import {
   resolveReviewEligibility,
 } from "@/lib/reviews-core";
 import type {
+  OwnProductReviewRow,
   ProductReview,
   ProductReviewsPageData,
   ReviewDistribution,
@@ -26,12 +28,14 @@ import type {
 // Reads run through the USER-SCOPED Supabase client, so RLS is the real row
 // filter:
 //   * anonymous visitors reach only `status = 'published'` rows, and only the
-//     publishable columns (0015 revokes SELECT on user_id/order_item_id);
-//   * customers additionally reach their own rows (including a hidden review);
+//     publishable columns (0015 grants anon no user_id/order_item_id/hidden_*);
+//   * customers additionally reach their own rows through the
+//     get_my_product_review(product_id) RPC — there is no user_id SELECT grant
+//     to filter on;
 //   * managers/admins may read everything for investigation.
 //
-// The explicit `.eq("status", "published")` and `.eq("user_id", …)` filters are
-// defence in depth, never the authority.
+// The explicit `.eq("status", "published")` filter is defence in depth, never
+// the authority.
 //
 // Two entry points on purpose:
 //   * getProductReviewsPageData() is GUEST-SAFE and degrades to
@@ -66,18 +70,19 @@ interface ReviewStatsRow {
   rating_5: number | string;
 }
 
-interface ReportIdRow {
-  review_id: string;
-}
-
 interface DeliveredOrderRow {
   id: string;
   order_number: string;
   created_at: string;
 }
 
+/**
+ * Columns the storefront may select. `hidden_reason` is deliberately absent:
+ * 0015 grants it to `authenticated` only, and the public list is also served
+ * to `anon`. The author's own row (including hidden_reason) comes from the RPC.
+ */
 const REVIEW_COLUMNS =
-  "id, product_id, rating, title, body, display_name, status, hidden_reason, created_at, updated_at";
+  "id, product_id, rating, title, body, display_name, status, created_at, updated_at";
 
 function toNumber(value: number | string | null | undefined): number {
   if (value === null || value === undefined) return 0;
@@ -167,24 +172,33 @@ export async function getProductReviewSummary(
   };
 }
 
-async function selectOwnReview(
-  productId: string,
-  userId: string
+/**
+ * The caller's own review for a product, through the dedicated RPC.
+ *
+ * 0015 grants `authenticated` no `user_id` SELECT, so `.eq("user_id", …)` is
+ * impossible (and would be a permission error). `get_my_product_review` is a
+ * `security definer` function that filters on `auth.uid()`, requires an active
+ * account, and returns only the publishable fields plus `hidden_reason` — never
+ * the author id or the purchase evidence. No row means "no review yet".
+ */
+export async function getMyProductReview(
+  productId: string
 ): Promise<ProductReview | null> {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
-    .from("product_reviews")
-    .select(REVIEW_COLUMNS)
-    .eq("product_id", productId)
-    .eq("user_id", userId)
-    .maybeSingle();
+  const { data, error } = await supabase.rpc(GET_MY_PRODUCT_REVIEW_RPC, {
+    p_product_id: productId,
+  });
 
   if (error) {
     throw new Error(`Failed to load your review: ${error.message}`);
   }
 
-  return data ? mapReview(data as unknown as ReviewRow) : null;
+  const row = Array.isArray(data)
+    ? (data[0] as OwnProductReviewRow | undefined)
+    : (data as OwnProductReviewRow | null);
+
+  return row ? mapReview(row) : null;
 }
 
 /**
@@ -229,30 +243,6 @@ async function hasDeliveredPurchaseForProduct(
   return (items ?? []).length > 0;
 }
 
-async function reportedReviewIds(
-  reviewIds: readonly string[],
-  userId: string
-): Promise<string[]> {
-  if (reviewIds.length === 0) return [];
-
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
-    .from("review_reports")
-    .select("review_id")
-    .eq("reporter_id", userId)
-    .in("review_id", [...reviewIds]);
-
-  if (error) {
-    // Reporting state is a convenience for the UI; it must never break the
-    // review list. RLS already limits these rows to the caller's own reports.
-    console.warn("Reviews: failed to load reported ids:", error.message);
-    return [];
-  }
-
-  return ((data ?? []) as ReportIdRow[]).map((row) => row.review_id);
-}
-
 async function resolveViewer() {
   try {
     return await getActorContext();
@@ -279,7 +269,6 @@ function guestPageData(
       hasDeliveredPurchase: false,
       hasReview: false,
     }),
-    reportedReviewIds: [],
     isAuthenticated: false,
   };
 }
@@ -333,7 +322,7 @@ export async function getProductReviewsPageData(
 
   let ownReview: ProductReview | null = null;
   try {
-    ownReview = await selectOwnReview(productId, activeActor.userId);
+    ownReview = await getMyProductReview(productId);
   } catch (error) {
     if (!isMissingReviewSchema(error as { code?: string; message?: string })) {
       console.error("Reviews: failed to load own review:", error);
@@ -350,11 +339,6 @@ export async function getProductReviewsPageData(
     console.error("Reviews: failed to verify purchase:", error);
   }
 
-  const reportedIds = await reportedReviewIds(
-    reviews.map((review) => review.id),
-    activeActor.userId
-  );
-
   return {
     available: true,
     reviews,
@@ -365,7 +349,6 @@ export async function getProductReviewsPageData(
       hasReview: Boolean(ownReview),
       reviewStatus: ownReview?.status ?? null,
     }),
-    reportedReviewIds: reportedIds,
     isAuthenticated: true,
   };
 }
@@ -380,7 +363,7 @@ export async function getReviewEligibilityForViewer(
 ): Promise<ReviewEligibility> {
   const actor = await requireActiveActor();
 
-  const ownReview = await selectOwnReview(productId, actor.userId);
+  const ownReview = await getMyProductReview(productId);
   const hasDeliveredPurchase = await hasDeliveredPurchaseForProduct(
     productId,
     actor.userId
@@ -436,21 +419,7 @@ export async function getReviewableDeliveredItems(): Promise<ReviewableItem[]> {
   const products = await getProductsByIds(productIds);
   const productById = new Map(products.map((product) => [product.id, product]));
 
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("product_reviews")
-    .select("id, product_id")
-    .eq("user_id", actor.userId)
-    .in("product_id", productIds);
-
-  if (error) {
-    throw new Error(`Failed to load your reviews: ${error.message}`);
-  }
-
-  const reviewByProduct = new Map<string, string>();
-  for (const row of (data ?? []) as { id: string; product_id: string }[]) {
-    reviewByProduct.set(row.product_id, row.id);
-  }
+  const reviewByProduct = await getOwnReviewIds(productIds);
 
   const items: ReviewableItem[] = [];
 
@@ -467,4 +436,58 @@ export async function getReviewableDeliveredItems(): Promise<ReviewableItem[]> {
   }
 
   return items;
+}
+
+/** How many own-review RPC calls may be in flight at once. */
+const OWN_REVIEW_LOOKUP_CONCURRENCY = 5;
+
+/**
+ * Maps product id → the caller's review id, using only the own-review RPC.
+ *
+ * `authenticated` cannot select `product_reviews.user_id`, so the old
+ * "select my reviews where user_id = …" batch is impossible. The RPC is
+ * per-product, so the calls are chunked to keep the account page bounded
+ * without firing one request per delivered product simultaneously.
+ */
+async function getOwnReviewIds(
+  productIds: readonly string[]
+): Promise<Map<string, string>> {
+  const supabase = await createClient();
+  const reviewByProduct = new Map<string, string>();
+
+  for (
+    let offset = 0;
+    offset < productIds.length;
+    offset += OWN_REVIEW_LOOKUP_CONCURRENCY
+  ) {
+    const chunk = productIds.slice(
+      offset,
+      offset + OWN_REVIEW_LOOKUP_CONCURRENCY
+    );
+
+    const results = await Promise.all(
+      chunk.map(async (productId) => {
+        const { data, error } = await supabase.rpc(
+          GET_MY_PRODUCT_REVIEW_RPC,
+          { p_product_id: productId }
+        );
+
+        if (error) {
+          throw new Error(`Failed to load your reviews: ${error.message}`);
+        }
+
+        const row = Array.isArray(data)
+          ? (data[0] as { id?: string } | undefined)
+          : (data as { id?: string } | null);
+
+        return { productId, reviewId: row?.id ?? null };
+      })
+    );
+
+    for (const { productId, reviewId } of results) {
+      if (reviewId) reviewByProduct.set(productId, reviewId);
+    }
+  }
+
+  return reviewByProduct;
 }

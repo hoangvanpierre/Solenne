@@ -49,6 +49,8 @@ export const AUDIT_RESOURCE_TYPES = [
   "product",
   "product_variant",
   "profile",
+  "product_review",
+  "review_report",
   "review",
 ] as const;
 
@@ -276,18 +278,24 @@ export function formatAuditSummary(
     }
 
     case "review.hidden": {
-      const title = metadata.review_title
-        ? `"${String(metadata.review_title)}"`
-        : "";
+      // Written by product_reviews_guard(): metadata carries the reason,
+      // the status transition and the acting role. There is no review title in
+      // the audit row (the customer's words are not duplicated into the trail).
       const reason = metadata.reason ? String(metadata.reason) : undefined;
       if (isVi) {
-        return `Ẩn đánh giá ${title}${reason ? ` (Lý do: ${reason})` : ""}`;
+        return `Ẩn đánh giá${reason ? ` (Lý do: ${reason})` : ""}`;
       }
-      return `Review ${title} hidden${reason ? ` (Reason: ${reason})` : ""}`;
+      return `Review hidden${reason ? ` (Reason: ${reason})` : ""}`;
     }
 
     case "review.report_resolved": {
-      const note = metadata.note ? String(metadata.note) : undefined;
+      // Written by review_reports_guard(); the note key is `resolution_note`.
+      const note =
+        metadata.resolution_note != null
+          ? String(metadata.resolution_note)
+          : metadata.note != null
+            ? String(metadata.note)
+            : undefined;
       if (isVi) {
         return `Đã xử lý báo cáo đánh giá${note ? ` (${note})` : ""}`;
       }
@@ -295,7 +303,12 @@ export function formatAuditSummary(
     }
 
     case "review.report_dismissed": {
-      const note = metadata.note ? String(metadata.note) : undefined;
+      const note =
+        metadata.resolution_note != null
+          ? String(metadata.resolution_note)
+          : metadata.note != null
+            ? String(metadata.note)
+            : undefined;
       if (isVi) {
         return `Đã bỏ qua báo cáo đánh giá${note ? ` (${note})` : ""}`;
       }

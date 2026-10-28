@@ -4,8 +4,14 @@ import { revalidatePath } from "next/cache";
 import type { ZodError } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { AuthError, requireActiveActor } from "@/lib/authz";
-import { getReviewEligibilityForViewer } from "@/lib/reviews";
 import {
+  getMyProductReview,
+  getReviewEligibilityForViewer,
+} from "@/lib/reviews";
+import {
+  buildReviewInsertPayload,
+  buildReviewReportInsertPayload,
+  buildReviewUpdatePayload,
   isDuplicateReviewError,
   isMissingReviewSchema,
 } from "@/lib/reviews-core";
@@ -28,11 +34,12 @@ import {
 //     The service-role client is deliberately not used here.
 //   * Eligibility is re-checked against `orders`/`order_items` before the
 //     insert. The database then proves the same thing again inside the
-//     transaction, derives `order_item_id`/`display_name`/`status` itself, and
-//     rejects a review without a delivered purchase.
-//   * Only rating/title/body are ever sent. `status`, `display_name`,
-//     `order_item_id` and hidden_* are not writable by a customer (the INSERT
-//     grant does not include them, and the UPDATE trigger pins them).
+//     transaction, derives `user_id` from auth.uid(), derives `order_item_id`
+//     from the delivered evidence, generates the pseudonym, forces `published`,
+//     and rejects a review without a delivered purchase.
+//   * Only the granted columns are ever sent: `product_id, rating, title, body`
+//     on insert; `rating, title, body` on update. Identity, evidence, the
+//     public name, status and hidden_* are not client-writable.
 // ---------------------------------------------------------------------------
 
 function authFailure(error: unknown): ReviewActionState {
@@ -99,9 +106,8 @@ async function selectProductSlug(
 export async function createReviewAction(
   input: unknown
 ): Promise<ReviewActionState> {
-  let actor;
   try {
-    actor = await requireActiveActor();
+    await requireActiveActor();
   } catch (error) {
     return authFailure(error);
   }
@@ -140,17 +146,12 @@ export async function createReviewAction(
 
     const supabase = await createClient();
 
-    // `user_id` is the verified session id — never client input. RLS
-    // (product_reviews_insert_own) and the guard trigger re-check it.
+    // Exactly the four granted columns. `user_id`, `order_item_id`,
+    // `display_name`, `status` and hidden_* are derived by the guard trigger;
+    // sending any of them is a column-privilege error in 0015.
     const { data, error } = await supabase
       .from("product_reviews")
-      .insert({
-        product_id: productId,
-        user_id: actor.userId,
-        rating,
-        title,
-        body,
-      })
+      .insert(buildReviewInsertPayload({ productId, rating, title, body }))
       .select("id")
       .maybeSingle();
 
@@ -219,9 +220,8 @@ export async function createReviewAction(
 export async function updateReviewAction(
   input: unknown
 ): Promise<ReviewActionState> {
-  let actor;
   try {
-    actor = await requireActiveActor();
+    await requireActiveActor();
   } catch (error) {
     return authFailure(error);
   }
@@ -239,15 +239,26 @@ export async function updateReviewAction(
       return { code: "not_found", error: "This piece no longer exists." };
     }
 
+    // `authenticated` cannot select user_id, so the row is located through the
+    // own-review RPC. The RLS UPDATE policy independently restricts the write
+    // to the caller's own review (or to a manager).
+    const ownReview = await getMyProductReview(productId);
+
+    if (!ownReview) {
+      return {
+        code: "not_found",
+        error: "We couldn't find your review for this piece.",
+      };
+    }
+
     const supabase = await createClient();
 
     // Only content is sent. The trigger pins identity, evidence, the public
-    // name and the visibility fields, and refuses to edit a hidden review.
+    // pseudonym and the visibility fields, and refuses to edit a hidden review.
     const { data, error } = await supabase
       .from("product_reviews")
-      .update({ rating, title, body })
-      .eq("product_id", productId)
-      .eq("user_id", actor.userId)
+      .update(buildReviewUpdatePayload({ rating, title, body }))
+      .eq("id", ownReview.id)
       .select("id")
       .maybeSingle();
 
@@ -258,6 +269,13 @@ export async function updateReviewAction(
         return {
           code: "hidden_readonly",
           error: "A hidden review cannot be edited.",
+        };
+      }
+
+      if (message.includes("REVIEW_UPDATE_FORBIDDEN") || error.code === "42501") {
+        return {
+          code: "restricted",
+          error: "Your account cannot edit this review.",
         };
       }
 
@@ -309,9 +327,8 @@ export async function updateReviewAction(
 export async function reportReviewAction(
   input: unknown
 ): Promise<ReviewActionState> {
-  let actor;
   try {
-    actor = await requireActiveActor();
+    await requireActiveActor();
   } catch (error) {
     return authFailure(error);
   }
@@ -326,14 +343,12 @@ export async function reportReviewAction(
   try {
     const supabase = await createClient();
 
-    // `reporter_id` is the verified session id. The trigger rejects a report
-    // on a hidden review and a report on the caller's own review.
-    const { error } = await supabase.from("review_reports").insert({
-      review_id: reviewId,
-      reporter_id: actor.userId,
-      reason,
-      details,
-    });
+    // Exactly the three granted columns. `reporter_id` is derived from
+    // auth.uid() and `status` is forced to 'open' by the guard trigger; the
+    // trigger also rejects a hidden review, a missing review and a self-report.
+    const { error } = await supabase
+      .from("review_reports")
+      .insert(buildReviewReportInsertPayload({ reviewId, reason, details }));
 
     if (error) {
       if (isDuplicateReviewError(error.code)) {

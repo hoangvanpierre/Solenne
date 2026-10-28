@@ -153,10 +153,18 @@ assert(
   )
 );
 assert(
-  "order_item_id references order_items ON DELETE SET NULL",
-  /order_item_id uuid\s*\n?\s*references public\.order_items\(id\) on delete set null/i.test(
+  "order_item_id is NOT NULL and references order_items ON DELETE RESTRICT",
+  /order_item_id uuid not null\s*\n?\s*references public\.order_items\(id\) on delete restrict/i.test(
     ddl
-  )
+  ) &&
+    /alter column order_item_id set not null/i.test(ddl) &&
+    /foreign key \(order_item_id\)[\s\S]{0,120}references public\.order_items\(id\)[\s\S]{0,80}on delete restrict/i.test(
+      ddl
+    )
+);
+assert(
+  "purchase evidence can never be silently detached (no SET NULL)",
+  !/order_item_id[\s\S]{0,120}on delete set null/i.test(ddl)
 );
 assert(
   "one review per customer per product",
@@ -227,10 +235,15 @@ assert(
   /raise exception 'REVIEW_ELIGIBILITY_REQUIRED'/.test(ddl)
 );
 assert(
-  "the trigger derives display_name from profiles.full_name",
-  /select nullif\(btrim\(p\.full_name\), ''\)[\s\S]{0,200}where p\.id = new\.user_id/i.test(
+  "the trigger derives user_id from auth.uid(), never from the payload",
+  /v_actor_id := auth\.uid\(\)/.test(ddl) &&
+    /new\.user_id := v_actor_id/.test(ddl)
+);
+assert(
+  "the trigger generates a per-review pseudonym instead of a profile name",
+  /new\.display_name := 'Solenne Customer #' \|\| upper\(substr\(replace\(new\.id::text, '-', ''\), 1, 8\)\)/.test(
     ddl
-  )
+  ) && !/profiles\.full_name/.test(ddl)
 );
 assert(
   "the trigger forces status='published' on insert",
@@ -268,7 +281,7 @@ assert(
 assert(
   "hiding requires a reason and records the moderator",
   /REVIEW_HIDE_REASON_REQUIRED/.test(ddl) &&
-    /new\.hidden_by := auth\.uid\(\)/.test(ddl) &&
+    /new\.hidden_by := v_actor_id/.test(ddl) &&
     /new\.hidden_at := now\(\)/.test(ddl)
 );
 assert(
@@ -293,10 +306,72 @@ assert(
   /REPORT_ALREADY_RESOLVED/.test(ddl)
 );
 assert(
-  "trusted maintenance roles bypass the guards (mirrors 0001)",
-  /public\.requesting_role\(\) in \('service_role', 'postgres', 'supabase_admin'\)/.test(
+  "the report trigger derives reporter_id from auth.uid() and forces open",
+  /new\.reporter_id := v_actor_id/.test(ddl) &&
+    /new\.status := 'open'/.test(ddl)
+);
+assert(
+  "only the database owner bypasses the guards (service_role is not trusted)",
+  /v_requesting_role in \('postgres', 'supabase_admin'\)/.test(ddl) &&
+    !/requesting_role\(\) in \('service_role'/.test(ddl)
+);
+assert(
+  "moderation writes its audit row inside the same transaction",
+  /insert into public\.audit_logs \([\s\S]{0,200}'review\.hidden'/.test(ddl) &&
+    /insert into public\.audit_logs \([\s\S]{0,300}'review\.report_resolved'/.test(
+      ddl
+    ) &&
+    /'review\.report_dismissed'/.test(ddl)
+);
+assert(
+  "the review audit row names the product review resource",
+  /'review\.hidden',\s*\n?\s*'product_review'/.test(ddl)
+);
+assert(
+  "the report audit row names the review report resource",
+  /'review_report',\s*\n?\s*old\.id::text/.test(ddl)
+);
+assert(
+  "the audit metadata records the actor role and status transition",
+  /'actor_role', public\.current_role_name\(\)/.test(ddl) &&
+    /'previous_status', old\.status/.test(ddl) &&
+    /'new_status', new\.status/.test(ddl)
+);
+assert(
+  "a report never hides its review",
+  !/update public\.product_reviews[\s\S]{0,200}review_reports_guard/i.test(ddl)
+);
+assert(
+  "the own-review RPC exists, is scoped to auth.uid() and an active account",
+  /create or replace function public\.get_my_product_review\(p_product_id uuid\)/.test(
     ddl
-  )
+  ) &&
+    /r\.user_id = auth\.uid\(\)/.test(ddl) &&
+    /public\.is_active_account\(\)/.test(ddl)
+);
+assert(
+  "the RPC returns no user_id or purchase evidence",
+  (() => {
+    const fn = ddl.match(
+      /create or replace function public\.get_my_product_review[\s\S]*?\$\$;/i
+    )?.[0];
+    if (!fn) return false;
+    return !/user_id,/.test(fn) && !/order_item_id/.test(fn);
+  })()
+);
+assert(
+  "the RPC is SECURITY DEFINER, stable and not executable by anon",
+  /security definer/.test(
+    ddl.match(
+      /create or replace function public\.get_my_product_review[\s\S]*?\$\$;/i
+    )?.[0] ?? ""
+  ) &&
+    /grant execute on function public\.get_my_product_review\(uuid\) to authenticated;/.test(
+      ddl
+    ) &&
+    /revoke all on function public\.get_my_product_review\(uuid\) from anon;/.test(
+      ddl
+    )
 );
 
 // ---------------------------------------------------------------------------
@@ -363,19 +438,50 @@ assert(
   })()
 );
 assert(
-  "customers may INSERT only content + identity + product",
-  /grant insert \(product_id, user_id, rating, title, body\)[\s\S]{0,80}to authenticated;/i.test(
+  "customers may INSERT exactly product_id, rating, title and body",
+  /grant insert \(product_id, rating, title, body\)[\s\S]{0,80}to authenticated;/i.test(
     ddl
-  )
+  ) &&
+    !/grant insert \([^)]*user_id[^)]*\)[\s\S]{0,80}to authenticated;/i.test(ddl)
+);
+assert(
+  "authenticated SELECT excludes user_id and purchase evidence",
+  (() => {
+    const grant = ddl.match(
+      /grant select \(([\s\S]*?)\) on table public\.product_reviews to authenticated;/i
+    )?.[1];
+    if (!grant) return false;
+    return (
+      !/\buser_id\b/.test(grant) &&
+      !/\border_item_id\b/.test(grant) &&
+      /\bhidden_reason\b/.test(grant)
+    );
+  })()
 );
 assert(
   "customers never receive DELETE",
-  /revoke delete on table public\.product_reviews from authenticated;/i.test(
+  /revoke delete on table public\.product_reviews from [^;]*authenticated/i.test(
     ddl
   ) &&
-    /revoke delete on table public\.review_reports from authenticated;/i.test(
+    /revoke delete on table public\.review_reports from [^;]*authenticated/i.test(
       ddl
     )
+);
+assert(
+  "reports expose no reporter identity and INSERT only three fields",
+  (() => {
+    const selectGrant = ddl.match(
+      /grant select \(([\s\S]*?)\) on table public\.review_reports to authenticated;/i
+    )?.[1];
+    return (
+      Boolean(selectGrant) &&
+      !/\breporter_id\b/.test(selectGrant) &&
+      !/\bresolved_by\b/.test(selectGrant) &&
+      /grant insert \(review_id, reason, details\)[\s\S]{0,80}to authenticated;/i.test(
+        ddl
+      )
+    );
+  })()
 );
 assert(
   "report resolution is column-limited to status + note",
@@ -384,13 +490,17 @@ assert(
   )
 );
 assert(
-  "service_role keeps a maintenance path",
-  /grant select, insert, update, delete on table public\.product_reviews to service_role;/i.test(
-    ddl
-  ) &&
-    /grant select, insert, update, delete on table public\.review_reports to service_role;/i.test(
+  "service_role is read-only on reviews, reports and the stats view",
+  /grant select on table public\.product_reviews to service_role;/i.test(ddl) &&
+    /grant select on table public\.review_reports to service_role;/i.test(ddl) &&
+    /grant select on table public\.product_review_stats to service_role;/i.test(
       ddl
-    )
+    ) &&
+    !/grant [^;]*\b(insert|update|delete)\b[^;]*to service_role;/i.test(ddl)
+);
+assert(
+  "the migration self-verifies service_role's read-only status",
+  /service_role must be read-only on review tables/.test(sql)
 );
 assert(
   "the guard functions are SECURITY DEFINER with an empty search_path",
@@ -496,25 +606,28 @@ assert(
     !/SUPABASE_SECRET_KEY/.test(actions)
 );
 assert(
-  "identity comes from the verified actor",
-  /actor\.userId/.test(actions)
+  "identity is resolved from the session, never the payload",
+  /requireActiveActor\(\)/.test(actions) &&
+    !/input\.userId|input\.user_id|body\.userId|body\.user_id/.test(actions) &&
+    !/user_id:\s*actor\.userId/.test(actions)
 );
 assert(
-  "no user id is read from the payload",
-  !/input\.userId|input\.user_id|body\.userId|body\.user_id/.test(actions)
-);
-assert(
-  "the insert carries only product/user/rating/title/body",
-  /\.insert\(\{[\s\S]{0,200}product_id: productId,[\s\S]{0,80}user_id: actor\.userId,[\s\S]{0,80}rating,[\s\S]{0,80}title,[\s\S]{0,80}body,/.test(
+  "the insert uses the four-field payload builder",
+  /\.insert\(buildReviewInsertPayload\(\{ productId, rating, title, body \}\)\)/.test(
     actions
   ) &&
-    !/\.insert\(\{[\s\S]{0,300}(status|display_name|order_item_id|hidden_)/.test(
+    !/\.insert\(\{[\s\S]{0,300}(user_id|status|display_name|order_item_id|hidden_)/.test(
       actions
     )
 );
 assert(
-  "the update carries only rating/title/body",
-  /\.update\(\{ rating, title, body \}\)/.test(actions)
+  "the update uses the content-only payload builder on the own-review id",
+  /\.update\(buildReviewUpdatePayload\(\{ rating, title, body \}\)\)/.test(
+    actions
+  ) &&
+    /getMyProductReview\(productId\)/.test(actions) &&
+    /\.eq\("id", ownReview\.id\)/.test(actions) &&
+    !/\.eq\("user_id"/.test(actions)
 );
 assert(
   "eligibility is re-checked before publishing",
@@ -531,10 +644,10 @@ assert(
     /code: "hidden_readonly"/.test(actions)
 );
 assert(
-  "the report carries review_id + reporter_id only for identity",
-  /\.from\("review_reports"\)\.insert\(\{[\s\S]{0,200}review_id: reviewId,[\s\S]{0,80}reporter_id: actor\.userId,/.test(
+  "the report uses the three-field payload builder",
+  /\.from\("review_reports"\)[\s\S]{0,40}\.insert\(buildReviewReportInsertPayload\(\{ reviewId, reason, details \}\)\)/.test(
     actions
-  )
+  ) && !/reporter_id\s*:/.test(actions)
 );
 assert(
   "reports are idempotent per customer",
@@ -565,13 +678,26 @@ assert(
     .length >= 2
 );
 assert(
-  "moderation writes an audit row for hiding",
-  /action: "review\.hidden"/.test(moderation)
+  "moderation performs no application-level audit write",
+  !/writeAuditLog/.test(moderation) &&
+    !/from "@\/lib\/audit"/.test(moderation) &&
+    !/"review\.(hidden|report_resolved|report_dismissed)"/.test(moderation)
 );
 assert(
-  "moderation audits resolved and dismissed reports",
-  /"review\.report_resolved"/.test(moderation) &&
-    /"review\.report_dismissed"/.test(moderation)
+  "hiding sends only status + hidden_reason",
+  /buildReviewHidePayload/.test(moderation) &&
+    /\.update\(buildReviewHidePayload\(reason\)\)/.test(moderation)
+);
+assert(
+  "closing a report sends only status + resolution_note",
+  /buildReviewReportResolutionPayload/.test(moderation) &&
+    /\.update\(buildReviewReportResolutionPayload\(resolution, note\)\)/.test(
+      moderation
+    )
+);
+assert(
+  "moderation never sends a moderator identity or timestamp",
+  !/\b(hidden_by|hidden_at|resolved_by|resolved_at):/.test(moderation)
 );
 assert(
   "hiding records a mandatory reason",
@@ -612,7 +738,16 @@ assert(
 );
 assert(
   "review is a first-class audit category and resource",
-  /"review",/.test(audit) && /case "review\.hidden"/.test(audit)
+  /"review",/.test(audit) &&
+    /"product_review",/.test(audit) &&
+    /"review_report",/.test(audit) &&
+    /case "review\.hidden"/.test(audit)
+);
+assert(
+  "the audit summary reads the database-written metadata keys",
+  /metadata\.resolution_note/.test(audit) &&
+    /metadata\.reason/.test(audit) &&
+    !/metadata\.review_title/.test(audit)
 );
 
 // ---------------------------------------------------------------------------
@@ -638,8 +773,35 @@ assert(
   /from\("product_review_stats"\)/.test(dataLayer)
 );
 assert(
-  "the viewer's own review is loaded separately (hidden included)",
-  /selectOwnReview/.test(dataLayer) && /\.eq\("user_id", userId\)/.test(dataLayer)
+  "the viewer's own review is loaded through the own-review RPC",
+  /getMyProductReview/.test(dataLayer) &&
+    /\.rpc\(\s*GET_MY_PRODUCT_REVIEW_RPC,\s*\{\s*\n?\s*p_product_id: productId,/.test(
+      dataLayer
+    )
+);
+assert(
+  "the data layer never filters product_reviews by user_id",
+  !/from\("product_reviews"\)[\s\S]{0,200}\.eq\("user_id"/.test(dataLayer) &&
+    !/\.eq\("user_id", userId\)[\s\S]{0,120}product_reviews/.test(dataLayer)
+);
+assert(
+  "the data layer never queries review_reports by reporter_id",
+  !/from\("review_reports"\)/.test(dataLayer) &&
+    !/reporter_id/.test(dataLayer)
+);
+assert(
+  "the public review column list excludes hidden_reason",
+  (() => {
+    const columns = dataLayer.match(
+      /const REVIEW_COLUMNS =\s*\n?\s*"([^"]+)"/i
+    )?.[1];
+    return Boolean(columns) && !/hidden_reason/.test(columns);
+  })()
+);
+assert(
+  "reviewable items resolve each product's review through the RPC",
+  /getOwnReviewIds/.test(dataLayer) &&
+    (dataLayer.match(/GET_MY_PRODUCT_REVIEW_RPC/g) ?? []).length >= 2
 );
 assert(
   "guests get a safe page payload with no query failure",
@@ -672,6 +834,25 @@ assert(
   /"open",[\s\S]{0,80}"resolved",[\s\S]{0,80}"dismissed",[\s\S]{0,80}"all"/.test(
     adminData
   )
+);
+assert(
+  "the moderation queue reads no reporter identity or purchase evidence",
+  !/reporter_id/.test(adminData) &&
+    !/\buser_id\b/.test(adminData) &&
+    !/order_item_id/.test(adminData)
+);
+assert(
+  "the moderation queue selects only granted report columns",
+  (() => {
+    const columns = adminData.match(
+      /\.from\("review_reports"\)\s*\n?\s*\.select\(\s*\n?\s*"([^"]+)"/i
+    )?.[1];
+    return (
+      Boolean(columns) &&
+      !/reporter_id/.test(columns) &&
+      !/resolved_by/.test(columns)
+    );
+  })()
 );
 
 // ---------------------------------------------------------------------------
@@ -857,6 +1038,25 @@ assert(
   !/\buserId\s*:/.test(reviewTypesCode) &&
     !/\borderItemId\s*:/.test(reviewTypesCode) &&
     !/\breporterId\s*:/.test(reviewTypesCode)
+);
+assert(
+  "the page payload no longer carries reported review ids",
+  !/reportedReviewIds/.test(reviewTypesCode) &&
+    !/reportedReviewIds/.test(productReviews)
+);
+assert(
+  "the own-review RPC row model exposes no author id or evidence",
+  (() => {
+    const row = reviewTypesCode.match(
+      /export interface OwnProductReviewRow \{([\s\S]*?)\}/
+    )?.[1];
+    return (
+      Boolean(row) &&
+      !/\buser_id\b/.test(row) &&
+      !/\border_item_id\b/.test(row) &&
+      /\bhidden_reason\b/.test(row)
+    );
+  })()
 );
 assert(
   "the public review model carries the verified-by-construction contract",

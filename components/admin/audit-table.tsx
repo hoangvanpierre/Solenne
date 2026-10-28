@@ -128,6 +128,8 @@ const RESOURCE_TYPE_OPTIONS = [
   { value: "product", labelEn: "Product", labelVi: "Sản phẩm" },
   { value: "product_variant", labelEn: "Product Variant", labelVi: "Phiên bản" },
   { value: "profile", labelEn: "User Profile", labelVi: "Hồ sơ người dùng" },
+  { value: "product_review", labelEn: "Product Review", labelVi: "Đánh giá sản phẩm" },
+  { value: "review_report", labelEn: "Review Report", labelVi: "Báo cáo đánh giá" },
 ];
 
 const DATE_PRESET_OPTIONS: {

@@ -1,6 +1,17 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  GET_MY_PRODUCT_REVIEW_RPC,
+  REVIEW_HIDE_FIELDS,
+  REVIEW_INSERT_FIELDS,
+  REVIEW_REPORT_INSERT_FIELDS,
+  REVIEW_REPORT_RESOLUTION_FIELDS,
+  REVIEW_UPDATE_FIELDS,
+  buildReviewHidePayload,
+  buildReviewInsertPayload,
+  buildReviewReportInsertPayload,
+  buildReviewReportResolutionPayload,
+  buildReviewUpdatePayload,
   buildReviewSummary,
   computeAverageRating,
   computeReviewDistribution,
@@ -253,50 +264,50 @@ test("the public display name is trimmed, collapsed and bounded", () => {
 });
 
 // ---------------------------------------------------------------------------
-// Reporting: published, other people's reviews only
+// Reporting: published reviews that are not the viewer's own
 // ---------------------------------------------------------------------------
 
 test("a published review by someone else is reportable", () => {
   assert.equal(
     isReviewReportable({
       status: "published",
-      authorId: OTHER_CUSTOMER,
-      viewerId: CUSTOMER,
+      isAuthenticated: true,
+      isOwnReview: false,
     }),
     true
   );
 });
 
-test("hidden, self-authored, authorless and guest reports are refused", () => {
+test("hidden, self-authored and guest reports are refused", () => {
   assert.equal(
     isReviewReportable({
       status: "hidden",
-      authorId: OTHER_CUSTOMER,
-      viewerId: CUSTOMER,
+      isAuthenticated: true,
+      isOwnReview: false,
     }),
     false
   );
   assert.equal(
     isReviewReportable({
       status: "published",
-      authorId: CUSTOMER,
-      viewerId: CUSTOMER,
+      isAuthenticated: true,
+      isOwnReview: true,
     }),
     false
   );
   assert.equal(
     isReviewReportable({
       status: "published",
-      authorId: null,
-      viewerId: CUSTOMER,
+      isAuthenticated: false,
+      isOwnReview: false,
     }),
     false
   );
   assert.equal(
     isReviewReportable({
-      status: "published",
-      authorId: OTHER_CUSTOMER,
-      viewerId: null,
+      status: null,
+      isAuthenticated: true,
+      isOwnReview: false,
     }),
     false
   );
@@ -368,6 +379,133 @@ test("distribution percentages stay within 0–100", () => {
 });
 
 // ---------------------------------------------------------------------------
+// Database write payloads: only the columns 0015 grants
+// ---------------------------------------------------------------------------
+
+test("the own-review lookup targets the dedicated RPC", () => {
+  assert.equal(GET_MY_PRODUCT_REVIEW_RPC, "get_my_product_review");
+});
+
+test("a review INSERT carries exactly the four granted columns", () => {
+  const payload = buildReviewInsertPayload({
+    productId: PRODUCT_A,
+    rating: 5,
+    title: "Beautiful",
+    body: "Warm and quiet for hours.",
+  });
+
+  assert.deepEqual(Object.keys(payload).sort(), [...REVIEW_INSERT_FIELDS].sort());
+  assert.deepEqual(payload, {
+    product_id: PRODUCT_A,
+    rating: 5,
+    title: "Beautiful",
+    body: "Warm and quiet for hours.",
+  });
+
+  // Identity, evidence, pseudonym, status and moderation fields are
+  // database-derived; a client must never be able to smuggle them in.
+  for (const forbidden of [
+    "user_id",
+    "order_item_id",
+    "display_name",
+    "status",
+    "hidden_by",
+    "hidden_at",
+    "hidden_reason",
+    "verified_purchase",
+    "is_verified",
+    "created_at",
+    "updated_at",
+  ]) {
+    assert.equal(forbidden in payload, false, forbidden);
+  }
+});
+
+test("a review UPDATE carries only rating, title and body", () => {
+  const payload = buildReviewUpdatePayload({
+    rating: 4,
+    title: "Still lovely",
+    body: "A second season with the same candle.",
+  });
+
+  assert.deepEqual(Object.keys(payload).sort(), [...REVIEW_UPDATE_FIELDS].sort());
+  assert.equal("status" in payload, false);
+  assert.equal("hidden_reason" in payload, false);
+  assert.equal("user_id" in payload, false);
+});
+
+test("a report INSERT carries exactly review_id, reason and details", () => {
+  const payload = buildReviewReportInsertPayload({
+    reviewId: PRODUCT_B,
+    reason: "spam",
+    details: null,
+  });
+
+  assert.deepEqual(
+    Object.keys(payload).sort(),
+    [...REVIEW_REPORT_INSERT_FIELDS].sort()
+  );
+  assert.deepEqual(payload, {
+    review_id: PRODUCT_B,
+    reason: "spam",
+    details: null,
+  });
+
+  for (const forbidden of [
+    "reporter_id",
+    "status",
+    "resolved_by",
+    "resolved_at",
+    "resolution_note",
+  ]) {
+    assert.equal(forbidden in payload, false, forbidden);
+  }
+});
+
+test("hiding a review sends visibility fields only", () => {
+  const payload = buildReviewHidePayload("Contains personal data");
+
+  assert.deepEqual(Object.keys(payload).sort(), [...REVIEW_HIDE_FIELDS].sort());
+  assert.deepEqual(payload, {
+    status: "hidden",
+    hidden_reason: "Contains personal data",
+  });
+
+  for (const forbidden of [
+    "title",
+    "body",
+    "rating",
+    "user_id",
+    "product_id",
+    "order_item_id",
+    "display_name",
+    "hidden_by",
+    "hidden_at",
+  ]) {
+    assert.equal(forbidden in payload, false, forbidden);
+  }
+});
+
+test("closing a report sends status and resolution_note only", () => {
+  for (const resolution of ["resolved", "dismissed"] as const) {
+    const payload = buildReviewReportResolutionPayload(resolution, "Reviewed");
+
+    assert.deepEqual(
+      Object.keys(payload).sort(),
+      [...REVIEW_REPORT_RESOLUTION_FIELDS].sort()
+    );
+    assert.deepEqual(payload, {
+      status: resolution,
+      resolution_note: "Reviewed",
+    });
+
+    for (const forbidden of ["resolved_by", "resolved_at", "reporter_id"]) {
+      assert.equal(forbidden in payload, false, forbidden);
+    }
+  }
+});
+
+// ---------------------------------------------------------------------------
 // Localized error mapping
 // ---------------------------------------------------------------------------
 
@@ -428,6 +566,21 @@ test("recognizes an absent review schema", () => {
     true
   );
   assert.equal(
+    isMissingReviewSchema({
+      code: "PGRST202",
+      message:
+        "Could not find the function public.get_my_product_review(p_product_id) in the schema cache",
+    }),
+    true
+  );
+  assert.equal(
+    isMissingReviewSchema({
+      code: "42883",
+      message: "function public.get_my_product_review(uuid) does not exist",
+    }),
+    true
+  );
+  assert.equal(
     isMissingReviewSchema({ message: "permission denied for table orders" }),
     false
   );
@@ -439,10 +592,18 @@ test("recognizes an absent review schema", () => {
 // ---------------------------------------------------------------------------
 
 test("review audit summaries carry the reason and resolution note", () => {
+  // product_reviews_guard() metadata: product_id, previous_status,
+  // new_status, reason, actor_role. No review title is recorded.
   assert.match(
     formatAuditSummary(
       "review.hidden",
-      { review_title: "Lovely", reason: "Contains personal data" },
+      {
+        product_id: PRODUCT_A,
+        previous_status: "published",
+        new_status: "hidden",
+        reason: "Contains personal data",
+        actor_role: "manager",
+      },
       "en"
     ),
     /Contains personal data/
@@ -450,7 +611,14 @@ test("review audit summaries carry the reason and resolution note", () => {
   assert.match(
     formatAuditSummary(
       "review.report_resolved",
-      { note: "Hidden after review" },
+      {
+        review_id: PRODUCT_B,
+        report_reason: "spam",
+        previous_status: "open",
+        new_status: "resolved",
+        resolution_note: "Hidden after review",
+        actor_role: "admin",
+      },
       "en"
     ),
     /Hidden after review/
@@ -458,9 +626,21 @@ test("review audit summaries carry the reason and resolution note", () => {
   assert.match(
     formatAuditSummary(
       "review.report_dismissed",
-      { note: "No violation" },
+      {
+        review_id: PRODUCT_B,
+        report_reason: "irrelevant",
+        previous_status: "open",
+        new_status: "dismissed",
+        resolution_note: "No violation",
+        actor_role: "manager",
+      },
       "vi"
     ),
     /No violation/
+  );
+  // Historical rows written before the trigger change used `note`.
+  assert.match(
+    formatAuditSummary("review.report_resolved", { note: "Legacy note" }, "en"),
+    /Legacy note/
   );
 });

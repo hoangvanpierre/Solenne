@@ -3,7 +3,9 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/container";
 import { ProductGrid } from "@/components/product";
+import { WishlistProvider } from "@/components/wishlist";
 import { SCENT_CATEGORIES } from "@/lib/constants";
+import { getWishlistProductIdsForViewer } from "@/lib/wishlist";
 import {
   getFeaturedProducts,
   getProductsByCategory,
@@ -70,6 +72,10 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
 
   if (!collection) notFound();
 
+  // One server-rendered fetch hydrates every heart in the grid; the cards
+  // themselves never query the wishlist.
+  const wishlistIds = await getWishlistProductIdsForViewer();
+
   return (
     <div className="py-24 lg:py-32">
       <Container>
@@ -96,7 +102,9 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
           </p>
         </div>
 
-        <ProductGrid products={collection.products} columns={3} />
+        <WishlistProvider initialIds={wishlistIds}>
+          <ProductGrid products={collection.products} columns={3} />
+        </WishlistProvider>
       </Container>
     </div>
   );

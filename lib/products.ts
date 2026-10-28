@@ -144,3 +144,33 @@ export const getFeaturedProducts = cache(async function getFeaturedProducts(): P
 
   return (data as unknown as ProductRow[]).map(mapProduct);
 });
+
+/**
+ * Fetch several active products by id in one query.
+ *
+ * Used by the wishlist, which must never issue one request per saved product.
+ * The caller is responsible for ordering the result (the wishlist renders
+ * newest-saved first), so this returns them in whatever order PostgREST does.
+ * Inactive products are filtered out: a deactivated product must not appear in
+ * a customer's wishlist even though its row still exists.
+ */
+export const getProductsByIds = cache(async function getProductsByIds(
+  ids: string[]
+): Promise<Product[]> {
+  const unique = Array.from(new Set(ids.filter(Boolean)));
+  if (unique.length === 0) return [];
+
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("products")
+    .select(PRODUCTS_SELECT)
+    .in("id", unique)
+    .eq("is_active", true);
+
+  if (error) {
+    throw new Error(`Failed to fetch products by id: ${error.message}`);
+  }
+
+  return (data as unknown as ProductRow[]).map(mapProduct);
+});

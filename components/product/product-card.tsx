@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { Heart } from "lucide-react";
 import { ProductPicture } from "@/components/product/product-picture";
+import { WishlistButton } from "@/components/wishlist";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn, formatPrice } from "@/lib/utils";
@@ -73,16 +73,6 @@ export function ProductCard({
     check("primary", setPrimaryLoaded);
     check("secondary", setSecondaryLoaded);
   }, []);
-
-  const heartRef = useRef<HTMLButtonElement>(null);
-  const popHeart = () => {
-    const heart = heartRef.current;
-    if (!heart) return;
-    heart.classList.remove(styles.pop);
-    // Restart the keyframe if the visitor taps repeatedly.
-    void heart.offsetWidth;
-    heart.classList.add(styles.pop);
-  };
 
   const fmt = (usd: number) =>
     formatPrice(
@@ -223,24 +213,18 @@ export function ProductCard({
             )}
           </div>
 
-          <button
-            ref={heartRef}
-            type="button"
-            className={cn(
-              styles.wishlist,
-              "absolute top-3 right-3 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/40 bg-white/75 text-warm-black shadow-sm backdrop-blur-md",
-            )}
-            onClick={(e) => {
-              e.preventDefault();
-              // Wishlist persistence is not wired yet; keep the interaction
-              // purely visual so the existing behaviour is unchanged.
-              popHeart();
-            }}
-            onAnimationEnd={() => heartRef.current?.classList.remove(styles.pop)}
-            aria-label={locale === "vi" ? "Lưu vào danh sách ước" : "Add to wishlist"}
-          >
-            <Heart className="h-4 w-4" aria-hidden="true" />
-          </button>
+          {/*
+            Shared wishlist control. The saved state comes from
+            <WishlistProvider> (one server-rendered fetch per document), so a
+            grid of cards issues no per-card request. `styles.pop` is the
+            card's existing keyframe, restarted by the button on a save.
+          */}
+          <WishlistButton
+            productId={product.id}
+            productName={product.name}
+            pulseClassName={styles.pop}
+            className={cn(styles.wishlist, "absolute top-3 right-3 z-20")}
+          />
         </div>
 
         <div className="space-y-1">

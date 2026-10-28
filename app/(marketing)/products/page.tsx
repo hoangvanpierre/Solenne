@@ -3,13 +3,17 @@ import { Container } from "@/components/ui/container";
 import { ScrollReveal } from "@/components/animations/scroll-reveal";
 import { TextReveal } from "@/components/animations/text-reveal";
 import { ProductGrid } from "@/components/product";
+import { WishlistProvider } from "@/components/wishlist";
 import { getProducts } from "@/lib/products";
+import { getWishlistProductIdsForViewer } from "@/lib/wishlist";
 import styles from "./products.module.css";
 
 export default async function ProductsPage() {
   const products = await getProducts();
   const locale = await getLocale();
   const isVi = locale === "vi";
+  // Single hydration for every heart on the page (guests cost no query).
+  const wishlistIds = await getWishlistProductIdsForViewer();
 
   return (
     <div className="py-24 lg:py-32">
@@ -29,7 +33,9 @@ export default async function ProductsPage() {
           </ScrollReveal>
         </div>
 
-        <ProductGrid products={products} />
+        <WishlistProvider initialIds={wishlistIds}>
+          <ProductGrid products={products} />
+        </WishlistProvider>
       </Container>
     </div>
   );

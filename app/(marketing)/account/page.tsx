@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getLocale } from "next-intl/server";
-import { ArrowRight, LogOut, ShieldCheck, Sparkles } from "lucide-react";
+import { getLocale, getTranslations } from "next-intl/server";
+import { ArrowRight, Heart, LogOut, ShieldCheck, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getDefaultAddress } from "@/lib/addresses";
 import { getActorContext } from "@/lib/authz";
@@ -23,6 +23,7 @@ import {
 export default async function AccountPage() {
   const locale = await getLocale();
   const isVi = locale === "vi";
+  const tWishlist = await getTranslations("wishlist");
   const supabase = await createClient();
   const {
     data: { user },
@@ -109,6 +110,19 @@ export default async function AccountPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
+            {/* Wishlist is a first-class account destination, so it is reachable
+                from the dashboard header on every breakpoint. */}
+            <Button
+              asChild
+              variant="outline"
+              className="inline-flex items-center gap-2 text-[11.5px] uppercase tracking-wider h-auto min-h-11 py-2.5 px-5 font-normal"
+            >
+              <Link href="/account/wishlist">
+                <Heart className="w-4 h-4" />
+                <span>{tWishlist("viewWishlist")}</span>
+              </Link>
+            </Button>
+
             {isManagement && (
               <Button
                 asChild

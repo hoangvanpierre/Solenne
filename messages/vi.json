@@ -224,5 +224,28 @@
     "disclaimer": "Chỉ tư vấn hương thơm và chính sách của Nhà hương.",
     "rateLimit": "Quý khách đã gửi hơi nhiều tin nhắn — vui lòng chờ một lát rồi thử lại.",
     "tooLong": "Cuộc trò chuyện đã khá dài. Quý khách vui lòng mở cuộc trò chuyện mới để tiếp tục."
+  },
+  "wishlist": {
+    "title": "Danh Sách Ước",
+    "subtitle": "Những tác phẩm quý khách đã giữ lại, chờ đến khi thật sự sẵn sàng.",
+    "backToAccount": "Quay lại không gian cá nhân",
+    "viewWishlist": "Danh sách ước",
+    "addCta": "Lưu vào danh sách ước",
+    "savedCta": "Đã lưu",
+    "addLabel": "Thêm {name} vào danh sách ước",
+    "removeLabel": "Xoá {name} khỏi danh sách ước",
+    "removeAction": "Xoá",
+    "emptyTitle": "Danh sách ước còn trống",
+    "emptyDescription": "Chạm vào trái tim trên bất kỳ tác phẩm nào để giữ nó lại đây, cho đến khi quý khách sẵn sàng.",
+    "emptyCta": "Khám phá bộ sưu tập",
+    "loadError": "Chưa thể tải danh sách ước lúc này. Quý khách vui lòng tải lại trang, hoặc liên hệ chúng tôi nếu sự cố tiếp tục tái diễn.",
+    "contactUs": "Liên hệ chúng tôi",
+    "actionError": "Chưa thể cập nhật danh sách ước. Quý khách vui lòng thử lại.",
+    "errorSignIn": "Quý khách vui lòng đăng nhập để lưu tác phẩm vào danh sách ước.",
+    "errorRestricted": "Tài khoản này hiện chưa thể lưu tác phẩm. Quý khách vui lòng liên hệ nếu cho rằng có nhầm lẫn.",
+    "errorUnavailable": "Tác phẩm này hiện không còn sẵn có.",
+    "announcementSaved": "Đã lưu vào danh sách ước.",
+    "announcementRemoved": "Đã xoá khỏi danh sách ước.",
+    "dismiss": "Đóng thông báo"
   }
 }

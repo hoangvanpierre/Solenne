@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Star, Heart, Check, Plus, Minus } from "lucide-react";
+import { Star, Check, Plus, Minus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { WishlistButton } from "@/components/wishlist";
 import { useCart } from "@/hooks/use-cart";
 import { SizeSelector } from "./size-selector";
 import { QuantitySelector } from "./quantity-selector";
@@ -151,10 +152,12 @@ export function ProductInfo({ product }: ProductInfoProps) {
           </AnimatePresence>
         </Button>
         
-        <Button variant="ghost" className="w-full text-muted-foreground gap-2">
-          <Heart className="h-4 w-4" />{" "}
-          {locale === "vi" ? "Lưu vào danh sách ước" : "Add to Wishlist"}
-        </Button>
+        {/* Shared wishlist control — same store and state as the product cards. */}
+        <WishlistButton
+          productId={product.id}
+          productName={product.name}
+          variant="full"
+        />
       </div>
 
       {/* Accordions */}

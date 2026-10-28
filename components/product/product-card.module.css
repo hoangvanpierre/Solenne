@@ -231,6 +231,13 @@
   transform: none;
 }
 
+/* A saved piece must advertise its state without waiting for hover, otherwise
+   the only signal that a product is on the wishlist is a pointer gesture. */
+.wishlist[data-saved="true"] {
+  opacity: 1;
+  transform: none;
+}
+
 .pop {
   animation: wishlist-pop 380ms var(--product-ease);
 }

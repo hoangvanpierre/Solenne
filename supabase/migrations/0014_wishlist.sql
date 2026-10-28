@@ -185,10 +185,10 @@ begin
       and c.relname = 'wishlist_items'
       and con.contype = 'u'
       and (
-        select array_agg(a.attname order by a.attname)
+        select array_agg(a.attname::text order by a.attname::text)
         from unnest(con.conkey) as k(attnum)
         join pg_attribute a on a.attrelid = con.conrelid and a.attnum = k.attnum
-      ) = array['product_id', 'user_id']
+      ) = ARRAY['product_id', 'user_id']::text[]
   ) into v_unique_pair;
 
   if not v_unique_pair then

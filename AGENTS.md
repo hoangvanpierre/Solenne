@@ -31,12 +31,12 @@ Package manager is **pnpm** (see `pnpm-workspace.yaml`). Scripts defined in `pac
 | `pnpm typecheck` | `tsc --noEmit` | Type checks application code, tests and config. |
 | `pnpm test` | `pnpm test:unit && pnpm test:verify` | The local half of the CI gate. |
 | `pnpm test:unit` | `node --test "tests/unit/**/*.test.ts"` | Node's built-in test runner with TypeScript type stripping. No framework dependency. |
-| `pnpm test:verify` | `node scripts/run-verify.mjs` | Only the deterministic harnesses approved for CI (11 of 13). |
+| `pnpm test:verify` | `node scripts/run-verify.mjs` | Only the deterministic harnesses approved for CI (12 of 14). |
 | `pnpm test:e2e` | `playwright test` | Requires `SOLENNE_E2E_BASE_URL` (staging, or a local server; never production). The 5 database-free public-shell tests run in PR CI; staging journeys do not. Install the browser once: `pnpm exec playwright install chromium`. |
 
 There is **no formatter configured**, and unit tests use Node's built-in runner rather than a framework — do not add one unless asked. `docs/quality/production-readiness.md` documents the CI gate, the unit/E2E test inventory, and what is still untested.
 
-There are also **static verification harnesses** in `scripts/` — plain Node scripts (no test framework) that assert invariants over the SQL migrations, Zod schemas, and source code. Run them directly, e.g. `node scripts/verify-customer-status.mjs`. Each prints `[PASS]`/`[FAIL]` lines and a summary; the exit code is non-zero on failure. 13 exist: `verify-admin-assistant`, `verify-admin-shell`, `verify-callback-redirect`, `verify-cancel-order`, `verify-contact-newsletter`, `verify-customer-status`, `verify-dock-layout`, `verify-fulfillment-transitions`, `verify-inventory-adjustment`, `verify-post-login-routing`, `verify-product-management`, `verify-rbac`, `verify-search`. `pnpm test:verify` runs the 11 that are safe in CI; `verify-rbac` (live Supabase) and `verify-dock-layout` (Puppeteer) stay manual.
+There are also **static verification harnesses** in `scripts/` — plain Node scripts (no test framework) that assert invariants over the SQL migrations, Zod schemas, and source code. Run them directly, e.g. `node scripts/verify-customer-status.mjs`. Each prints `[PASS]`/`[FAIL]` lines and a summary; the exit code is non-zero on failure. 14 exist: `verify-admin-assistant`, `verify-admin-shell`, `verify-callback-redirect`, `verify-cancel-order`, `verify-contact-newsletter`, `verify-customer-status`, `verify-dock-layout`, `verify-fulfillment-transitions`, `verify-inventory-adjustment`, `verify-post-login-routing`, `verify-product-management`, `verify-rbac`, `verify-search`, `verify-wishlist`. `pnpm test:verify` runs the 12 that are safe in CI; `verify-rbac` (live Supabase) and `verify-dock-layout` (Puppeteer) stay manual.
 
 ## Architecture & Data Flow
 
@@ -53,7 +53,7 @@ app/
       page.tsx          # Product listing — queries getProducts() from Supabase via lib/products.ts
       [slug]/page.tsx   # Product detail — async Server Component, queries getProductBySlug() from Supabase
     collections/        # Scent families: page.tsx + [slug]/page.tsx
-    account/            # Account hub (auth-gated): page.tsx, orders/, address/, profile/
+    account/            # Account hub (auth-gated): page.tsx, orders/, address/, profile/, wishlist/
     checkout/           # Checkout — auth-gated; server page prefills contact info, renders CheckoutForm (client)
       success/page.tsx  # Order confirmation/receipt — reads ?number=<orderNumber>, shows "pending payment" status
     about/ contact/ faq/ journal/ shipping/ care-guide/   # Static content routes
@@ -130,6 +130,17 @@ On success the client clears the cart and redirects to `/checkout/success?number
 
 **Saved addresses** (`lib/addresses.ts`, backed by the `addresses` table): `createOrder` also saves the checkout shipping address as the user's single **default** address (best-effort — never fails the order). The `/checkout` page prefills the form from it (plus `profiles.full_name`/`phone`), and the account page's "Shipping Sanctuary" card displays it. The table has no full-name/phone columns, so those always come from the profile.
 
+### Wishlist (migration `0014` — **not applied**)
+
+Full design notes: `docs/features/wishlist.md`. Summary:
+
+- **Table**: `public.wishlist_items` (`user_id` → `profiles`, `product_id` → `products`, both cascade, unique `(user_id, product_id)`), created by `supabase/migrations/0014_wishlist.sql`. RLS is the enforcement point: three per-command own-row policies, each also requiring `public.is_active_account()`; **no `for all` policy and no `update` grant**, so `user_id`/`product_id` can never be rewritten by a client. `anon` holds nothing.
+- **Actions**: `app/actions/wishlist.ts` (`addToWishlistAction`, `removeFromWishlistAction`). Identity comes only from `requireActiveActor()`; the product id is validated by `parseWishlistProductId()` before any query; the add path verifies the product exists **and** `is_active`; a duplicate insert (`23505`) is treated as success, which is what makes saving idempotent; both actions `revalidatePath` the wishlist and catalogue. They use the **user-scoped** client (`lib/supabase/server.ts`), never the secret-key admin client.
+- **Data**: `lib/wishlist.ts` — `getWishlistProductIdsForViewer()` is guest-safe and memoized (returns `[]` for guests, so no query and no broken catalogue), `getWishlistProducts()` is strict and backs `/account/wishlist`. `getProductsByIds()` in `lib/products.ts` batches the product read (no N+1).
+- **State**: one `components/wishlist/wishlist-provider.tsx` per page, hydrated from server props (`initialIds`), so a grid of cards issues **zero** per-card requests and every heart (card, detail, wishlist row) reads the same store. Wired into `/products`, `/collections/[slug]`, `/products/[slug]`; deliberately **not** in the root layout (that would force static pages dynamic). Mutations are optimistic and roll back only the affected id.
+- **UI**: `components/wishlist/wishlist-button.tsx` is the single heart control (`variant: "icon" | "full"`) with `aria-pressed`, a product-specific `aria-label`, `aria-busy` and a spinner while pending; guests are routed to `/login?next=<current internal path>` instead of writing a row. `/account/wishlist` has skeleton/empty/error states and is linked from the account dashboard header.
+- **i18n**: every string lives under `wishlist.*` in `messages/en.json` / `messages/vi.json`; failures map through `wishlistErrorKey()` onto those keys rather than rendering an English sentence.
+
 ### Contact & newsletter tables — **migration `0013` applied to production; do not re-run it**
 
 `app/actions/contact.ts` (`submitContactAction`) and `app/actions/newsletter.ts` (`subscribeNewsletterAction`) insert into `contact_messages` and `newsletter_subscribers` via the secret-key admin client. The DDL for both tables is the numbered migration **`supabase/migrations/0013_contact_newsletter_tables.sql`**. The older `scripts/schema-newsletter-contact.sql` is a **superseded pointer, not an instruction** — it contains no DDL at all, only a warning that `0013` is already applied and must not be re-run. It used to be the canonical script, and it used to grant broad `INSERT` to `anon`/`authenticated` with `WITH CHECK (true)`; `0013` tightens this to `service_role` only.
@@ -147,9 +158,9 @@ State of the code today:
 
 ### Database migrations & RPCs
 
-`supabase/migrations/` holds **13** migrations, `0001`–`0013`. **All 13 are applied to the live database** — `0001`–`0012` verified against the live schema on 2026-10-20, and `0013_contact_newsletter_tables.sql` applied manually to production afterwards. They are plain `.sql` files run via the Supabase SQL editor — there is **no migration runner script** in the repo, so applying a new one is a manual, out-of-band step.
+`supabase/migrations/` holds **14** migrations, `0001`–`0014`. **`0001`–`0013` are applied to the live database** — `0001`–`0012` verified against the live schema on 2026-10-20, and `0013_contact_newsletter_tables.sql` applied manually to production afterwards. **`0014_wishlist.sql` is committed but NOT applied**: until someone runs it in the Supabase SQL editor, the wishlist heart has no table behind it and every save returns the localized "couldn't update" error (the catalogue still renders — hearts degrade to unsaved). They are plain `.sql` files run via the Supabase SQL editor — there is **no migration runner script** in the repo, so applying a new one is a manual, out-of-band step.
 
-**Never re-run an already-applied migration** (`0013` included) as a way of "verifying" anything. Any future schema change must be authored as a **new** migration beginning with **`0014`**, reviewed, and applied manually via the Supabase SQL editor **only when explicitly authorized**.
+**Never re-run an already-applied migration** (`0013` included) as a way of "verifying" anything. Any future schema change must be authored as a **new** migration beginning with **`0015`**, reviewed, and applied manually via the Supabase SQL editor **only when explicitly authorized**.
 
 | Migration | Purpose |
 | --- | --- |
@@ -166,6 +177,7 @@ State of the code today:
 | `0011_manage_customer_status_atomic.sql` | `manage_customer_status` — atomic, permission-checked status change + audit row |
 | `0012_reinstate_banned_customer_atomic.sql` | `reinstate_banned_customer` — atomic reinstatement of a banned customer + audit row |
 | `0013_contact_newsletter_tables.sql` | Creates `public.contact_messages` and `public.newsletter_subscribers`. RLS enabled; `anon`/`authenticated` privileges revoked, `service_role` only; ends with a self-verifying `DO $$` block. **Applied to production — do not re-run.** |
+| `0014_wishlist.sql` | Creates `public.wishlist_items` (`user_id` → `profiles`, `product_id` → `products`, both `on delete cascade`), unique `(user_id, product_id)` for idempotent saves, two indexes. RLS enabled with three per-command own-row policies (`select`/`insert`/`delete`, each guarded by `public.is_active_account()`); **no `for all` policy and no `update` grant**, so ownership fields are immutable. `anon` revoked; `authenticated` gets exactly select/insert/delete; ends with a self-verifying `DO $$` block. **NOT yet applied — see `docs/features/wishlist.md` for the manual steps.** |
 
 #### Live RPC inventory (19 RPCs — verified 2026-10-20 against the live PostgREST OpenAPI spec)
 
@@ -217,6 +229,8 @@ Read from the `definitions` block of the live PostgREST OpenAPI spec (`GET /rest
 
 **Now present live:** `contact_messages` and `newsletter_subscribers` — migration `0013` **has been applied** to production, so the 11-relation count above predates it; see "Contact & newsletter tables" above.
 
+**Not yet live:** `public.wishlist_items` — created by migration `0014_wishlist.sql`, which is committed but **not applied**. Until it is run, `wishlist_items` is absent from the live PostgREST spec and wishlist writes fail with a localized error. See `docs/features/wishlist.md`.
+
 Key conventions in the atomic RPCs (`0011`, `0012`):
 - `SECURITY DEFINER` with a **hardened `search_path`** (`''`, empty string) — never leave the default `search_path` on a definer function.
 - The function **re-checks the caller's permission inside the transaction**; do not rely on the server action's pre-check alone.
@@ -238,6 +252,7 @@ components/
   sections/     # Marketing page sections (Hero, BrandStory, FeaturedProducts, CraftSection, ScentExplorer, ScentCanvas, Testimonials, Newsletter, ContactForm)
   animations/   # Motion primitives (SmoothScroll, ScrollReveal, TextReveal, TextFillAnimation, ParallaxImage, HorizontalScroll, PinnedSection, MagneticButton)
   account/      # Account hub UI: OrderHistoryCard, OrderListItem, AddressForm, ProfileForm, StatusBadge, RestrictedAccountNotice
+  wishlist/     # WishlistProvider/useWishlist, WishlistButton, WishlistItemRow
   admin/        # Back-office UI: order/customer/product/inventory/audit panels and tables
   auth/         # PasswordStrengthMeter only — the only component folder WITHOUT a barrel
   address/      # Address form primitives shared by checkout + account (shipping-address-fields)

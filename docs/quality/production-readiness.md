@@ -228,7 +228,7 @@ which the `test:unit` script does not pass.
 
 ## 3. Verification harness inventory
 
-`scripts/` holds 13 static harnesses. They assert source/SQL invariants (and, for
+`scripts/` holds 14 static harnesses. They assert source/SQL invariants (and, for
 two of them, optionally probe the live database). They are **not** a unit test
 suite, and their presence is not proof that the app behaves correctly at runtime.
 
@@ -247,6 +247,7 @@ suite, and their presence is not proof that the app behaves correctly at runtime
 | `verify-post-login-routing.mjs` | Post-login destination policy, open-redirect protection | None |
 | `verify-product-management.mjs` | Product/variant validation, delete ordering, no client stock writes | None |
 | `verify-search.mjs` | Search normalization, synonyms, ranking, highlight ranges | None |
+| `verify-wishlist.mjs` | Wishlist ownership model, RLS policies and grants, action authz, UI aria contract, en/vi key parity | None (static only) |
 
 In CI there is no `.env.local`, so the two optional live probes print an
 `[INFO] ... Skipping live DB probe.` line and the harness runs its static
@@ -283,8 +284,9 @@ actual source.
 | `admin-assistant-request.test.ts` | AI SDK envelope acceptance, strict context schema, tool-argument caps, PostgREST-safe search text, safe history filtering. |
 | `search.test.ts` | Accent/case-insensitive normalization (`đ` included), synonym matching, ranking, limits, highlight offsets. |
 | `validation-schemas.test.ts` | Order status enum, tracking-code requirement, product/variant schemas, rejection of client-supplied stock. |
+| `wishlist-core.test.ts` | Wishlist id validation (incl. rejected non-uuid and smuggled-ownership payloads), `23505` idempotency, toggle/add/remove semantics without mutation, row normalization, failure→message-key mapping, and login return-path safety. |
 
-54 tests, all behavioral (they call the real functions) — no source-grep
+81 tests, all behavioral (they call the real functions) — no source-grep
 assertions.
 
 ### Integration tests — boundary, not yet implemented
@@ -294,7 +296,7 @@ only by static harnesses plus the unit-level precondition logic. A real
 integration suite requires:
 
 1. A **dedicated** Supabase test project (never production), with migrations
-   `0001`–`0013` applied and the seed from `scripts/seed-products.mjs`.
+   `0001`–`0014` applied and the seed from `scripts/seed-products.mjs`.
 2. Credentials supplied only to that job (GitHub Environment secrets), never to
    pull requests from forks.
 3. A test-only fixture strategy that creates and deletes its own rows, or a

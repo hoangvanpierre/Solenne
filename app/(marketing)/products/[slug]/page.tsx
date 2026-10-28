@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/container";
 import { ProductGallery, ProductInfo } from "@/components/product";
+import { WishlistProvider } from "@/components/wishlist";
 import { getProductBySlug } from "@/lib/products";
+import { getWishlistProductIdsForViewer } from "@/lib/wishlist";
 
 export default async function ProductPage({
   params,
@@ -15,6 +17,10 @@ export default async function ProductPage({
     notFound();
   }
 
+  // Same shared store as the grid, so the detail heart and the card hearts
+  // never disagree after a save.
+  const wishlistIds = await getWishlistProductIdsForViewer();
+
   return (
     <div className="py-24 lg:py-32">
       <Container>
@@ -25,7 +31,9 @@ export default async function ProductPage({
           />
           
           <div className="relative z-10 min-w-0 lg:py-12">
-            <ProductInfo product={product} />
+            <WishlistProvider initialIds={wishlistIds}>
+              <ProductInfo product={product} />
+            </WishlistProvider>
           </div>
         </div>
       </Container>

@@ -1311,10 +1311,10 @@ const migrations = fs
   .sort();
 
 assert(
-  "migration set is unchanged (0001-0013)",
-  migrations.length === 13 &&
+  "migration set is unchanged (0001-0014)",
+  migrations.length === 14 &&
     migrations[0].startsWith("0001") &&
-    migrations[migrations.length - 1].startsWith("0013"),
+    migrations[migrations.length - 1].startsWith("0014"),
   migrations.join(", ")
 );
 

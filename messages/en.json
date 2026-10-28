@@ -224,5 +224,28 @@
     "disclaimer": "Scent guidance and store policies only.",
     "rateLimit": "Too many messages just now — please wait a moment and try again.",
     "tooLong": "This conversation has grown quite long. Please start a new chat to keep going."
+  },
+  "wishlist": {
+    "title": "Wishlist",
+    "subtitle": "The pieces you've saved, waiting until you're ready.",
+    "backToAccount": "Back to Account",
+    "viewWishlist": "Wishlist",
+    "addCta": "Add to Wishlist",
+    "savedCta": "Saved",
+    "addLabel": "Add {name} to your wishlist",
+    "removeLabel": "Remove {name} from your wishlist",
+    "removeAction": "Remove",
+    "emptyTitle": "Your wishlist is quiet",
+    "emptyDescription": "Tap the heart on any piece to keep it here until you're ready.",
+    "emptyCta": "Explore Collection",
+    "loadError": "We couldn't load your wishlist right now. Please refresh the page, or contact us if the problem persists.",
+    "contactUs": "Contact us",
+    "actionError": "We couldn't update your wishlist. Please try again.",
+    "errorSignIn": "Please sign in to save pieces to your wishlist.",
+    "errorRestricted": "This account can't save pieces right now. Please contact us if you believe this is a mistake.",
+    "errorUnavailable": "This piece is no longer available.",
+    "announcementSaved": "Saved to your wishlist.",
+    "announcementRemoved": "Removed from your wishlist.",
+    "dismiss": "Dismiss message"
   }
 }

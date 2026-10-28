@@ -38,6 +38,7 @@ const HARNESSES = [
   ["verify-post-login-routing.mjs", "post-login destination policy"],
   ["verify-product-management.mjs", "product/variant management contract"],
   ["verify-search.mjs", "search normalization and ranking"],
+  ["verify-wishlist.mjs", "wishlist ownership, RLS and UI contract"],
 ];
 
 const results = [];

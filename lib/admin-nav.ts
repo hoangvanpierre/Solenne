@@ -14,6 +14,7 @@ import type { PermissionKey } from "@/types";
 //   /admin/products   requireAnyPermission(["product.create", "product.update", "product.delete"])
 //   /admin/inventory  requirePermission("inventory.read")
 //   /admin/customers  requirePermission("customer.read")
+//   /admin/reviews    requirePermission("review.manage_reports")
 //   /admin/audit      requirePermission("audit.read")
 //
 // An empty `requires` means "any active management actor" — the layout has
@@ -30,6 +31,7 @@ export type AdminNavItemId =
   | "products"
   | "inventory"
   | "customers"
+  | "reviews"
   | "audit";
 
 export interface AdminNavItem {
@@ -108,6 +110,14 @@ export const ADMIN_NAV_GROUPS: readonly AdminNavGroup[] = [
         label: "Customers",
         labelVi: "Khách hàng",
         requires: ["customer.read"],
+        match: "prefix",
+      },
+      {
+        id: "reviews",
+        href: "/admin/reviews",
+        label: "Reviews",
+        labelVi: "Đánh giá",
+        requires: ["review.manage_reports"],
         match: "prefix",
       },
       {

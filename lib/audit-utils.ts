@@ -29,6 +29,9 @@ export const AUDIT_ACTIONS = [
   "user.role_changed",
   "customer.status_changed",
   "customer.reinstated",
+  "review.hidden",
+  "review.report_resolved",
+  "review.report_dismissed",
   "assistant.tool_used",
 ] as const;
 
@@ -38,6 +41,7 @@ export const AUDIT_ACTION_CATEGORIES = [
   "product",
   "user",
   "customer",
+  "review",
 ] as const;
 
 export const AUDIT_RESOURCE_TYPES = [
@@ -45,6 +49,9 @@ export const AUDIT_RESOURCE_TYPES = [
   "product",
   "product_variant",
   "profile",
+  "product_review",
+  "review_report",
+  "review",
 ] as const;
 
 const EMAIL_PATTERN = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
@@ -268,6 +275,44 @@ export function formatAuditSummary(
       return `Customer account reinstated from banned to active${
         reason ? ` (Reason: ${reason})` : ""
       }`;
+    }
+
+    case "review.hidden": {
+      // Written by product_reviews_guard(): metadata carries the reason,
+      // the status transition and the acting role. There is no review title in
+      // the audit row (the customer's words are not duplicated into the trail).
+      const reason = metadata.reason ? String(metadata.reason) : undefined;
+      if (isVi) {
+        return `Ẩn đánh giá${reason ? ` (Lý do: ${reason})` : ""}`;
+      }
+      return `Review hidden${reason ? ` (Reason: ${reason})` : ""}`;
+    }
+
+    case "review.report_resolved": {
+      // Written by review_reports_guard(); the note key is `resolution_note`.
+      const note =
+        metadata.resolution_note != null
+          ? String(metadata.resolution_note)
+          : metadata.note != null
+            ? String(metadata.note)
+            : undefined;
+      if (isVi) {
+        return `Đã xử lý báo cáo đánh giá${note ? ` (${note})` : ""}`;
+      }
+      return `Review report resolved${note ? ` (${note})` : ""}`;
+    }
+
+    case "review.report_dismissed": {
+      const note =
+        metadata.resolution_note != null
+          ? String(metadata.resolution_note)
+          : metadata.note != null
+            ? String(metadata.note)
+            : undefined;
+      if (isVi) {
+        return `Đã bỏ qua báo cáo đánh giá${note ? ` (${note})` : ""}`;
+      }
+      return `Review report dismissed${note ? ` (${note})` : ""}`;
     }
 
     case "assistant.tool_used": {

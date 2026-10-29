@@ -14,6 +14,7 @@ import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OrderListItem, RestrictedAccountNotice } from "@/components/account";
+import { ReviewInvitation } from "@/components/reviews";
 import type { Order } from "@/types";
 
 export const metadata: Metadata = {
@@ -162,6 +163,12 @@ export default async function OrdersPage() {
 
         <Suspense fallback={<OrdersListSkeleton />}>
           <OrdersList userId={user.id} locale={locale} />
+        </Suspense>
+
+        {/* Delivered pieces awaiting a verified review. Supplementary: a
+            failure here never takes the order history down. */}
+        <Suspense fallback={<Skeleton className="mt-12 h-48 w-full rounded-2xl" />}>
+          <ReviewInvitation />
         </Suspense>
       </Container>
     </div>

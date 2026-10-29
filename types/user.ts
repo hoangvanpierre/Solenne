@@ -25,6 +25,7 @@ export type PermissionKey =
   | "role.read"
   | "role.manage"
   | "audit.read"
+  | "review.manage_reports"
   | "profile.read_own"
   | "profile.update_own";
 
@@ -70,18 +71,6 @@ export interface Address {
   postalCode: string;
   country: string;
   isDefault: boolean;
-}
-
-export interface Review {
-  id: string;
-  productId: string;
-  userId: string;
-  rating: number;
-  title?: string;
-  body: string;
-  isVerified: boolean;
-  createdAt: string;
-  userName: string;
 }
 
 export interface CustomerSummary {

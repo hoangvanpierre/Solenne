@@ -8,6 +8,7 @@ import {
   Layers,
   Package,
   ShieldCheck,
+  Star,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -27,6 +28,7 @@ const NAV_ICONS: Record<AdminNavItemId, LucideIcon> = {
   products: Layers,
   inventory: Boxes,
   customers: Users,
+  reviews: Star,
   audit: ShieldCheck,
 };
 

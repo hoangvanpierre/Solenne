@@ -83,6 +83,11 @@ const APPROVED_METADATA_KEYS = new Set([
   "role",
   "old_role",
   "new_role",
+  // Reviews (metadata written by the 0015 guard triggers)
+  "review_id",
+  "report_reason",
+  "resolution_note",
+  "actor_role",
 ]);
 
 const SENSITIVE_KEY_PATTERN =

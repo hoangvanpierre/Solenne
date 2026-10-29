@@ -30,6 +30,8 @@ export { CustomerTable } from "./customer-table";
 export type { CustomerTableProps } from "./customer-table";
 export { CustomerStatusControl } from "./customer-status-control";
 export type { CustomerStatusControlProps } from "./customer-status-control";
+export { ReviewModerationControl } from "./review-moderation-control";
+export type { ReviewModerationControlProps } from "./review-moderation-control";
 export { AdminBrandLogo } from "./admin-brand-logo";
 export type { AdminBrandLogoProps } from "./admin-brand-logo";
 export { AdminShell } from "./admin-shell";

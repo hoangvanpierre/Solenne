@@ -1310,11 +1310,30 @@ const migrations = fs
   .filter((file) => file.endsWith(".sql"))
   .sort();
 
+// The assistant itself needs no migration. The baseline below is the reviewed
+// 0001-0014 set; later features (e.g. 0015_reviews.sql) may append migrations,
+// but none of the reviewed baseline files may change, disappear, or reorder.
+const BASELINE_MIGRATIONS = [
+  "0001_rbac_schema.sql",
+  "0002_rbac_seed.sql",
+  "0003_rbac_rls.sql",
+  "0004_bootstrap_admin.sql",
+  "0005_rbac_security_foundation.sql",
+  "0006_cancel_order_atomic.sql",
+  "0007_order_fulfillment_transitions.sql",
+  "0008_cancel_order_outbox_event.sql",
+  "0009_inventory_adjust_atomic.sql",
+  "0010_customer_metrics_rpcs.sql",
+  "0011_manage_customer_status_atomic.sql",
+  "0012_reinstate_banned_customer_atomic.sql",
+  "0013_contact_newsletter_tables.sql",
+  "0014_wishlist.sql",
+];
+
 assert(
-  "migration set is unchanged (0001-0014)",
-  migrations.length === 14 &&
-    migrations[0].startsWith("0001") &&
-    migrations[migrations.length - 1].startsWith("0014"),
+  "the reviewed 0001-0014 migration baseline is intact",
+  migrations.length >= BASELINE_MIGRATIONS.length &&
+    BASELINE_MIGRATIONS.every((file, index) => migrations[index] === file),
   migrations.join(", ")
 );
 

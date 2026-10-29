@@ -69,7 +69,7 @@ export function AdminSearchResults({
       data-search-pending={isPending ? "true" : "false"}
       className={cn(
         "transition-opacity duration-200 ease-out motion-reduce:transition-none",
-        isPending ? "opacity-60" : "opacity-100",
+        isPending ? "opacity-80" : "opacity-100",
         className
       )}
     >

@@ -115,7 +115,7 @@ export function CustomerTable({
               />
               <label
                 htmlFor="customer-status-filter"
-                className="text-xs font-normal text-muted-foreground whitespace-nowrap"
+                className="text-sm font-normal text-muted-foreground whitespace-nowrap"
               >
                 {isVi ? "Trạng thái:" : "Status:"}
               </label>
@@ -128,7 +128,7 @@ export function CustomerTable({
                   id="customer-status-filter"
                   value={currentStatus}
                   onChange={(e) => handleStatusChange(e.target.value)}
-                  className="admin-inline-select peer cursor-pointer appearance-none rounded-md bg-transparent py-1 pl-1 pr-5 text-xs font-normal text-foreground transition-colors hover:bg-muted/60 focus-visible:text-foreground"
+                  className="admin-inline-select peer cursor-pointer appearance-none rounded-md bg-transparent py-1 pl-1 pr-5 text-sm font-normal text-foreground transition-colors hover:bg-muted/60 focus-visible:text-foreground"
                 >
                   {STATUS_FILTER_OPTIONS.map((opt) => (
                     <option
@@ -247,7 +247,7 @@ export function CustomerTable({
                                 )}
                                 {c.phone && <span>•</span>}
                                 <span
-                                  className="tabular-nums font-normal text-xs text-muted-foreground/80 truncate max-w-[120px]"
+                                  className="tabular-nums font-normal text-xs text-muted-foreground truncate max-w-[120px]"
                                   title={c.id}
                                 >
                                   {c.id.slice(0, 8)}…

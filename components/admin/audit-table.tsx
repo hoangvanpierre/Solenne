@@ -266,7 +266,7 @@ export function AuditTable({
             title={`View order details: ${log.resourceId}`}
           >
             <span>{label}</span>
-            <ExternalLink className="h-3 w-3 opacity-70" />
+            <ExternalLink className="h-3 w-3" />
           </Link>
         );
       }
@@ -297,7 +297,7 @@ export function AuditTable({
             title={`View product: ${log.resourceId}`}
           >
             <span>{productName}</span>
-            <ExternalLink className="h-3 w-3 opacity-70" />
+            <ExternalLink className="h-3 w-3" />
           </Link>
         );
       }
@@ -328,7 +328,7 @@ export function AuditTable({
             title={`View parent product: ${rawProductId}`}
           >
             <span>{label}</span>
-            <ExternalLink className="h-3 w-3 opacity-70" />
+            <ExternalLink className="h-3 w-3" />
           </Link>
         );
       }
@@ -365,7 +365,7 @@ export function AuditTable({
     if (!log.actorId) {
       return (
         <span className="inline-flex items-center gap-1 text-xs italic font-normal text-muted-foreground">
-          <ShieldCheck className="h-3.5 w-3.5 opacity-60" />
+          <ShieldCheck className="h-3.5 w-3.5" />
           <span>{isVi ? "Hệ thống" : "System"}</span>
         </span>
       );
@@ -385,7 +385,7 @@ export function AuditTable({
         className="inline-flex items-center gap-1 tabular-nums font-normal text-xs text-muted-foreground"
         title={`Actor UUID: ${log.actorId}`}
       >
-        <User className="h-3.5 w-3.5 opacity-60" />
+        <User className="h-3.5 w-3.5" />
         <span>{`ID: ${log.actorId.slice(0, 8)}…`}</span>
       </span>
     );
@@ -565,7 +565,7 @@ export function AuditTable({
                             className="inline-flex items-center gap-1 tabular-nums font-normal"
                             title={log.createdAt}
                           >
-                            <Clock className="h-3.5 w-3.5 opacity-60" />
+                            <Clock className="h-3.5 w-3.5" />
                             <span>{formatDate(log.createdAt)}</span>
                           </span>
                         </td>
@@ -679,7 +679,7 @@ export function AuditTable({
                       className="inline-flex items-center gap-1 tabular-nums font-normal text-xs text-muted-foreground"
                       title={log.createdAt}
                     >
-                      <Clock className="h-3 w-3 opacity-60" />
+                      <Clock className="h-3 w-3" />
                       <span>{formatDate(log.createdAt)}</span>
                     </span>
                   </div>

@@ -321,7 +321,7 @@ export function ProductCopyAssistant({
           )}
 
           {result.warnings && result.warnings.length > 0 ? (
-            <p className="mt-1.5 text-xs leading-snug text-amber-700 dark:text-amber-400">
+            <p className="mt-1.5 text-xs leading-snug text-amber">
               {isVi
                 ? `Không thể áp dụng — bản nháp có: ${result.warnings.join(", ")}.`
                 : `Cannot apply — the draft contains: ${result.warnings.join(", ")}.`}

@@ -20,9 +20,10 @@ export interface AdminKpiCardProps {
   locale?: string;
 }
 
-// Icon chips only carry a tint: the accent colours in this theme fail WCAG AA
-// as small text (amber ~2.5:1 on ivory), so text stays foreground and the
-// colour lives in the chip background / icon.
+// Icon chips only carry a tint. The brand hues fail WCAG AA as small text on
+// ivory (amber ~2.5:1), so `.admin-scope` remaps the `text-amber` / `text-sage`
+// / `text-blush` utilities to their darker readable equivalents; the raw hue
+// stays on the chip background and the icon inherits the readable one.
 const TONE_STYLES: Record<AdminKpiTone, string> = {
   neutral: "bg-muted text-foreground/80",
   attention: "bg-amber/15 text-amber",

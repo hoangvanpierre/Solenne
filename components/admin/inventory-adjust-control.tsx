@@ -329,7 +329,7 @@ export function InventoryAdjustControl({
               <div className="space-y-2">
                 <label
                   htmlFor={`delta-input-${variantId}`}
-                  className="block text-xs font-normal text-foreground"
+                  className="block text-sm font-normal text-foreground"
                 >
                   {isVi ? "Mức thay đổi (Delta)" : "Adjustment Delta"}
                 </label>
@@ -344,6 +344,7 @@ export function InventoryAdjustControl({
                       key={`add-${amt}`}
                       type="button"
                       disabled={isPending}
+                      aria-pressed={delta === amt}
                       onClick={() => setDeltaValue(amt)}
                       className={cn(
                         "rounded-md border px-2 py-1 text-xs tabular-nums font-normal transition-colors",
@@ -364,6 +365,7 @@ export function InventoryAdjustControl({
                       key={`sub-${amt}`}
                       type="button"
                       disabled={isPending}
+                      aria-pressed={delta === amt}
                       onClick={() => setDeltaValue(amt)}
                       className={cn(
                         "rounded-md border px-2 py-1 text-xs tabular-nums font-normal transition-colors",
@@ -417,7 +419,7 @@ export function InventoryAdjustControl({
                 <div className="flex items-center justify-between text-xs">
                   <label
                     htmlFor={`reason-input-${variantId}`}
-                    className="font-normal text-foreground"
+                    className="text-sm font-normal text-foreground"
                   >
                     {isVi ? "Lý do điều chỉnh (Bắt buộc)" : "Adjustment Reason (Required)"}
                   </label>

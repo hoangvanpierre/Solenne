@@ -384,7 +384,7 @@ export function OrderFulfillmentControl({
                 <div className="flex justify-between items-center text-xs">
                   <label
                     htmlFor={`tracking-input-${orderId}`}
-                    className="font-normal text-foreground"
+                    className="text-sm font-normal text-foreground"
                   >
                     {isVi ? "Mã vận đơn" : "Tracking Code"}
                     <span className="text-destructive ml-1">*</span>
@@ -581,7 +581,7 @@ export function OrderFulfillmentControl({
                 <div className="flex justify-between items-center text-xs">
                   <label
                     htmlFor={`rollback-reason-${orderId}`}
-                    className="font-normal text-foreground"
+                    className="text-sm font-normal text-foreground"
                   >
                     {isVi ? "Lý do chuyển lùi" : "Rollback Reason"}
                     <span className="text-destructive ml-1">*</span>

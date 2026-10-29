@@ -182,7 +182,7 @@ export function OrderCancelControl({
           <div className="space-y-1.5">
             <label
               htmlFor={`cancel-reason-${orderId}`}
-              className="block text-xs font-normal text-foreground"
+              className="block text-sm font-normal text-foreground"
             >
               {isVi
                 ? "Lý do hủy (không bắt buộc)"

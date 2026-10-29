@@ -756,6 +756,19 @@ a:visited {
   color: var(--primary);
 }
 
+/* The current page also carries a solid accent rail. The 15% amber tint alone
+   is only ~1.14:1 against the card, which is too quiet to answer "where am I?"
+   at a glance; the 3px rail is painted as a background gradient so it adds no
+   layout shift and leaves the focus ring's box-shadow untouched. */
+.admin-scope .admin-nav-link[aria-current="page"] {
+  background-color: color-mix(in oklab, var(--color-amber) 18%, transparent);
+  background-image: linear-gradient(
+    to right,
+    var(--admin-amber-text) 0 3px,
+    transparent 3px
+  );
+}
+
 /* Segmented filters (e.g. /admin/reviews). The selected pill is a solid,
    high-contrast surface in both themes; the inactive pill stays readable. */
 .admin-scope .admin-filter-pill {

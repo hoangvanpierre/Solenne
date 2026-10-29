@@ -553,7 +553,7 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
                                   className="object-cover"
                                 />
                               ) : (
-                                <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground/40 tabular-nums">
+                                <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground tabular-nums">
                                   —
                                 </div>
                               )}
@@ -727,7 +727,7 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
                               className="object-cover"
                             />
                           ) : (
-                            <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground/40 tabular-nums">
+                            <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground tabular-nums">
                               —
                             </div>
                           )}

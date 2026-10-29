@@ -206,7 +206,7 @@ export default async function AdminReviewsPage({
             >
               <span>{t(FILTER_LABEL_KEYS[value])}</span>
               {value === "open" && openCount !== null ? (
-                <span className="tabular-nums opacity-80">{openCount}</span>
+                <span className="tabular-nums">{openCount}</span>
               ) : null}
             </Link>
           );

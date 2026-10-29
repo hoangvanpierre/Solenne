@@ -538,7 +538,7 @@ export function AdminAssistant({ locale, permissions }: AdminAssistantProps) {
               >
                 <header className="flex items-start justify-between gap-3 border-b border-border px-4 py-3.5">
                   <div className="min-w-0">
-                    <p className="mb-1 flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                    <p className="mb-1 flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
                       <span className="h-1 w-1 rounded-full bg-amber" aria-hidden />
                       {isVi ? "Solenne · Vận hành" : "Solenne · Operations"}
                     </p>
@@ -576,12 +576,12 @@ export function AdminAssistant({ locale, permissions }: AdminAssistantProps) {
                 </header>
 
                 <div className="flex items-center gap-2 border-b border-border/70 px-4 py-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground">
                     <span className="h-1.5 w-1.5 rounded-full bg-sage" aria-hidden />
                     {contextLabel}
                   </span>
                   {context.entity ? (
-                    <span className="truncate rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground">
+                    <span className="truncate rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground">
                       {context.entity.type} ·{" "}
                       {context.entity.ref.length > 10
                         ? `${context.entity.ref.slice(0, 8)}…`
@@ -599,7 +599,7 @@ export function AdminAssistant({ locale, permissions }: AdminAssistantProps) {
                 >
                   {messages.length === 0 ? (
                     <div className="space-y-4">
-                      <p className="text-[13px] leading-relaxed text-muted-foreground">
+                      <p className="text-sm leading-relaxed text-muted-foreground">
                         {isVi
                           ? "Tôi đọc được đơn hàng, tồn kho và khách hàng để trả lời câu hỏi vận hành. Tôi chỉ đề xuất thay đổi — bạn xem lại và xác nhận, thao tác thật chạy qua màn hình quản trị."
                           : "I can read orders, stock and customer records to answer operations questions. I only propose changes — you review and confirm, and the real action runs through the admin control."}
@@ -612,14 +612,14 @@ export function AdminAssistant({ locale, permissions }: AdminAssistantProps) {
                               key={suggestion.id}
                               type="button"
                               onClick={() => submit(suggestion.prompt)}
-                              className="rounded-full border border-border px-3 py-1.5 text-[11.5px] text-foreground transition-colors hover:border-amber/60 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70"
+                              className="rounded-full border border-border px-3 py-1.5 text-xs text-foreground transition-colors hover:border-amber/60 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70"
                             >
                               {suggestion.label}
                             </button>
                           ))}
                         </div>
                       ) : (
-                        <p className="text-[12px] text-muted-foreground">
+                        <p className="text-xs text-muted-foreground">
                           {isVi
                             ? "Vai trò của bạn chưa có quyền đọc dữ liệu vận hành."
                             : "Your role does not have any operational data permissions yet."}
@@ -641,7 +641,7 @@ export function AdminAssistant({ locale, permissions }: AdminAssistantProps) {
                   )}
 
                   {status === "submitted" ? (
-                    <div className="flex items-center gap-1.5 text-[12px] text-muted-foreground">
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <span className="sr-only">
                         {isVi ? "Trợ lý đang trả lời" : "Assistant is replying"}
                       </span>
@@ -674,10 +674,10 @@ export function AdminAssistant({ locale, permissions }: AdminAssistantProps) {
                   <div className="border-t border-border bg-muted/30 px-4 py-2.5">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+                        <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
                           {isVi ? "Soạn thư trả lời" : "Draft a reply"}
                         </p>
-                        <p className="truncate text-[12px] text-foreground">
+                        <p className="truncate text-xs text-foreground">
                           {draftRequest.orderNumber}
                         </p>
                       </div>
@@ -708,7 +708,7 @@ export function AdminAssistant({ locale, permissions }: AdminAssistantProps) {
                           onClick={() => setDraftLanguage(code)}
                           aria-pressed={draftLanguage === code}
                           className={cn(
-                            "rounded-full border px-2.5 py-0.5 text-[11px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70",
+                            "rounded-full border px-2.5 py-0.5 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70",
                             draftLanguage === code
                               ? "border-foreground bg-foreground text-background"
                               : "border-border text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -726,14 +726,14 @@ export function AdminAssistant({ locale, permissions }: AdminAssistantProps) {
                           type="button"
                           onClick={() => submitDraftIntent(intent.id)}
                           disabled={isBusy}
-                          className="rounded-full border border-border bg-card px-2.5 py-1 text-[11px] text-foreground transition-colors hover:border-amber/60 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70 disabled:opacity-40"
+                          className="rounded-full border border-border bg-card px-2.5 py-1 text-xs text-foreground transition-colors hover:border-amber/60 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70 disabled:opacity-40"
                         >
                           {isVi ? intent.label.vi : intent.label.en}
                         </button>
                       ))}
                     </div>
 
-                    <p className="mt-1.5 text-[10px] leading-snug text-muted-foreground">
+                    <p className="mt-1.5 text-xs leading-snug text-muted-foreground">
                       {isVi
                         ? "Bản nháp chỉ để xem lại — không có gì được gửi đi."
                         : "A draft only — nothing is sent."}
@@ -744,7 +744,7 @@ export function AdminAssistant({ locale, permissions }: AdminAssistantProps) {
                 {showFailure ? (
                   <div
                     role="alert"
-                    className="border-t border-destructive/30 bg-destructive/5 px-4 py-2 text-[12px] leading-snug text-destructive"
+                    className="border-t border-destructive/30 bg-destructive/5 px-4 py-2 text-xs leading-snug text-destructive"
                   >
                     {failureMessage}
                   </div>
@@ -772,7 +772,7 @@ export function AdminAssistant({ locale, permissions }: AdminAssistantProps) {
                           ? "Hỏi về đơn hàng, tồn kho, khách hàng — hoặc yêu cầu một thay đổi…"
                           : "Ask about orders, stock or customers — or request a change…"
                       }
-                      className="max-h-32 min-h-[38px] flex-1 resize-none rounded-xl border border-border bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60"
+                      className="max-h-32 min-h-[38px] flex-1 resize-none rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60"
                     />
 
                     {isBusy ? (
@@ -796,7 +796,7 @@ export function AdminAssistant({ locale, permissions }: AdminAssistantProps) {
                     )}
                   </div>
 
-                  <div className="mt-2 flex items-center justify-between gap-2 text-[10.5px] text-muted-foreground">
+                  <div className="mt-2 flex items-center justify-between gap-2 text-xs text-muted-foreground">
                     <span>
                       {isVi
                         ? "Chỉ đề xuất · bạn xác nhận mọi thay đổi"

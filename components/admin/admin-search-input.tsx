@@ -128,7 +128,7 @@ export function AdminSearchInput({
           spellCheck={false}
           enterKeyHint="search"
           className={cn(
-            "admin-quiet-field h-10 rounded-xl pl-9.5 text-[13px]",
+            "admin-quiet-field h-10 rounded-xl pl-9.5 text-sm",
             hasValue ? "pr-16" : "pr-10"
           )}
         />

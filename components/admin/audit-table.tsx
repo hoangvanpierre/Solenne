@@ -262,7 +262,7 @@ export function AuditTable({
         return (
           <Link
             href={`/admin/orders/${encodeURIComponent(log.resourceId)}`}
-            className="inline-flex items-center gap-1 tabular-nums font-normal text-xs text-amber hover:underline transition-colors"
+            className="inline-flex items-center gap-1 tabular-nums admin-text-link font-normal text-xs transition-colors"
             title={`View order details: ${log.resourceId}`}
           >
             <span>{label}</span>
@@ -293,7 +293,7 @@ export function AuditTable({
         return (
           <Link
             href={`/admin/products/${encodeURIComponent(log.resourceId)}`}
-            className="inline-flex items-center gap-1 font-normal text-xs text-sage hover:underline transition-colors"
+            className="inline-flex items-center gap-1 admin-text-link font-normal text-xs transition-colors"
             title={`View product: ${log.resourceId}`}
           >
             <span>{productName}</span>
@@ -324,7 +324,7 @@ export function AuditTable({
         return (
           <Link
             href={`/admin/products/${encodeURIComponent(rawProductId)}`}
-            className="inline-flex items-center gap-1 tabular-nums font-normal text-xs text-sage hover:underline transition-colors"
+            className="inline-flex items-center gap-1 tabular-nums admin-text-link font-normal text-xs transition-colors"
             title={`View parent product: ${rawProductId}`}
           >
             <span>{label}</span>
@@ -472,7 +472,7 @@ export function AuditTable({
           {/* Active Filter Indicator */}
           <div className="flex items-center gap-2 text-xs font-normal text-muted-foreground">
             {hasActiveFilters && (
-              <span className="inline-flex items-center gap-1 rounded-full border border-amber/30 bg-amber/10 px-2.5 py-0.5 text-[11px] font-normal text-amber">
+              <span className="inline-flex items-center gap-1 rounded-full border border-amber/30 bg-amber/10 px-2.5 py-0.5 text-xs font-normal text-amber">
                 <Filter className="h-3 w-3" />
                 <span>{isVi ? "Bộ lọc đang kích hoạt" : "Filters active"}</span>
               </span>
@@ -495,7 +495,7 @@ export function AuditTable({
           <h3 className="mt-4 text-lg font-normal text-foreground">
             {isVi ? "Không tìm thấy nhật ký kiểm toán" : "No audit records found"}
           </h3>
-          <p className="mt-1 text-[13.5px] leading-[1.6] font-normal text-muted-foreground max-w-sm">
+          <p className="mt-1 text-sm leading-[1.6] font-normal text-muted-foreground max-w-sm">
             {hasActiveFilters
               ? isVi
                 ? "Không có bản ghi nào thỏa mãn điều kiện lọc. Vui lòng thử thay đổi tiêu chí hoặc đặt lại bộ lọc."
@@ -599,7 +599,7 @@ export function AuditTable({
                           {/* Expanded Metadata Disclosure */}
                           {isExpanded && (
                             <div className="mt-3 rounded-xl border border-border/60 bg-muted/20 p-3 space-y-2">
-                              <span className="text-[10.5px] font-normal uppercase tracking-wider text-muted-foreground">
+                              <span className="text-xs font-normal uppercase tracking-wider text-muted-foreground">
                                 {isVi ? "Siêu dữ liệu được phê duyệt" : "Approved Metadata"}
                               </span>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs tabular-nums font-normal">
@@ -608,7 +608,7 @@ export function AuditTable({
                                     key={key}
                                     className="flex flex-col bg-background/60 p-2 rounded-lg border border-border/40"
                                   >
-                                    <span className="text-[10.5px] font-normal text-muted-foreground uppercase">
+                                    <span className="text-xs font-normal text-muted-foreground uppercase">
                                       {key}
                                     </span>
                                     <span
@@ -692,13 +692,13 @@ export function AuditTable({
                   {/* Actor and Target Details */}
                   <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-border/40">
                     <div>
-                      <span className="text-[10.5px] font-normal uppercase text-muted-foreground block">
+                      <span className="text-xs font-normal uppercase text-muted-foreground block">
                         {isVi ? "Người thực hiện" : "Actor"}
                       </span>
                       <div className="mt-0.5">{renderActor(log)}</div>
                     </div>
                     <div>
-                      <span className="text-[10.5px] font-normal uppercase text-muted-foreground block">
+                      <span className="text-xs font-normal uppercase text-muted-foreground block">
                         {isVi ? "Đối tượng" : "Target"}
                       </span>
                       <div className="mt-0.5">{renderTargetEntity(log)}</div>
@@ -734,7 +734,7 @@ export function AuditTable({
 
                       {isExpanded && (
                         <div className="mt-2.5 rounded-xl border border-border/60 bg-muted/20 p-3 space-y-2">
-                          <span className="text-[10.5px] font-normal uppercase tracking-wider text-muted-foreground">
+                          <span className="text-xs font-normal uppercase tracking-wider text-muted-foreground">
                             {isVi ? "Siêu dữ liệu được phê duyệt" : "Approved Metadata"}
                           </span>
                           <div className="space-y-1.5 text-xs tabular-nums font-normal">
@@ -743,7 +743,7 @@ export function AuditTable({
                                 key={key}
                                 className="flex flex-col bg-background/60 p-2 rounded-lg border border-border/40"
                               >
-                                <span className="text-[10.5px] font-normal text-muted-foreground uppercase">
+                                <span className="text-xs font-normal text-muted-foreground uppercase">
                                   {key}
                                 </span>
                                 <span

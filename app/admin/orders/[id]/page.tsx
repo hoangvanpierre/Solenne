@@ -209,7 +209,7 @@ export default async function AdminOrderDetailPage({
         eyebrow={
           <div className="flex flex-wrap items-center gap-3">
             <OrderStatusBadge status={order.status} locale={locale} />
-            <span className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+            <span className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
               {isVi ? "Hồ sơ đơn hàng" : "Order record"}
             </span>
           </div>
@@ -250,7 +250,7 @@ export default async function AdminOrderDetailPage({
         }
         actions={
           <div>
-            <div className="text-[11px] font-normal uppercase tracking-wider text-muted-foreground">
+            <div className="text-xs font-normal uppercase tracking-wider text-muted-foreground">
               {isVi ? "Tổng đơn hàng" : "Order Total"}
             </div>
             <div className="tabular-nums text-3xl font-normal text-foreground">
@@ -427,7 +427,7 @@ export default async function AdminOrderDetailPage({
 
             <div className="space-y-3 text-sm font-normal">
               <div>
-                <div className="text-[11px] font-normal uppercase tracking-wider text-muted-foreground">
+                <div className="text-xs font-normal uppercase tracking-wider text-muted-foreground">
                   {isVi ? "Tên khách hàng" : "Name"}
                 </div>
                 <div className="mt-0.5 font-normal text-foreground">
@@ -436,7 +436,7 @@ export default async function AdminOrderDetailPage({
               </div>
 
               <div>
-                <div className="text-[11px] font-normal uppercase tracking-wider text-muted-foreground">
+                <div className="text-xs font-normal uppercase tracking-wider text-muted-foreground">
                   {isVi ? "Email" : "Email"}
                 </div>
                 <div className="mt-0.5 text-foreground truncate">
@@ -449,7 +449,7 @@ export default async function AdminOrderDetailPage({
               </div>
 
               <div>
-                <div className="text-[11px] font-normal uppercase tracking-wider text-muted-foreground">
+                <div className="text-xs font-normal uppercase tracking-wider text-muted-foreground">
                   {isVi ? "Số điện thoại" : "Phone"}
                 </div>
                 <div className="mt-0.5 text-foreground tabular-nums font-normal">
@@ -462,7 +462,7 @@ export default async function AdminOrderDetailPage({
               </div>
 
               <div>
-                <div className="text-[11px] font-normal uppercase tracking-wider text-muted-foreground">
+                <div className="text-xs font-normal uppercase tracking-wider text-muted-foreground">
                   {isVi ? "Mã tài khoản" : "Account ID"}
                 </div>
                 <div className="mt-0.5 tabular-nums text-xs text-muted-foreground truncate font-normal">
@@ -515,7 +515,7 @@ export default async function AdminOrderDetailPage({
 
                 {order.trackingCode && (
                   <div className="pt-3 border-t border-border space-y-1">
-                    <div className="text-[11px] font-normal uppercase tracking-wider text-muted-foreground">
+                    <div className="text-xs font-normal uppercase tracking-wider text-muted-foreground">
                       {isVi ? "Mã vận đơn" : "Tracking Code"}
                     </div>
                     <div className="tabular-nums text-xs font-normal text-foreground select-all">

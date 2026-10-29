@@ -55,7 +55,7 @@ export function ReviewModerationControl({
   if (report.status !== "open") {
     return (
       <div className="mt-5 rounded-xl border border-border bg-muted/20 p-4">
-        <p className="text-xs font-normal uppercase tracking-[0.06em] text-muted-foreground">
+        <p className="text-xs font-medium uppercase tracking-[0.06em] text-muted-foreground">
           {report.status === "resolved"
             ? t("reportClosedResolved")
             : t("reportClosedDismissed")}
@@ -173,11 +173,11 @@ export function ReviewModerationControl({
   return (
     <div className="mt-5 border-t border-border pt-4">
       {review === null ? (
-        <p className="text-xs leading-relaxed text-muted-foreground">
+        <p className="text-sm leading-relaxed text-muted-foreground">
           {t("reviewUnavailable")}
         </p>
       ) : alreadyHidden ? (
-        <p className="text-xs leading-relaxed text-muted-foreground">
+        <p className="text-sm leading-relaxed text-muted-foreground">
           {t("reviewAlreadyHidden")}
         </p>
       ) : null}
@@ -223,10 +223,10 @@ export function ReviewModerationControl({
           className="space-y-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4"
         >
           <div>
-            <p className="text-sm font-normal text-foreground">
+            <p className="text-base font-medium text-foreground">
               {t("hideTitle")}
             </p>
-            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
               {t("hideDescription")}
             </p>
           </div>
@@ -234,7 +234,7 @@ export function ReviewModerationControl({
           <div className="space-y-1.5">
             <label
               htmlFor={`hide-reason-${report.id}`}
-              className="block text-xs font-normal text-foreground"
+              className="block text-sm font-medium text-foreground"
             >
               {t("hideReasonLabel")}
               <span className="ml-1 text-destructive" aria-hidden="true">
@@ -250,7 +250,7 @@ export function ReviewModerationControl({
               disabled={pending}
               required
               placeholder={t("hideReasonPlaceholder")}
-              className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+              className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
             />
             <div className="flex items-start justify-between gap-3">
               <span className="text-xs text-muted-foreground">
@@ -294,10 +294,10 @@ export function ReviewModerationControl({
           className="space-y-3 rounded-xl border border-sage/30 bg-sage/5 p-4"
         >
           <div>
-            <p className="text-sm font-normal text-foreground">
+            <p className="text-base font-medium text-foreground">
               {mode === "resolve" ? t("resolveTitle") : t("dismissTitle")}
             </p>
-            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
               {mode === "resolve"
                 ? t("resolveDescription")
                 : t("dismissDescription")}
@@ -307,7 +307,7 @@ export function ReviewModerationControl({
           <div className="space-y-1.5">
             <label
               htmlFor={`resolution-note-${report.id}`}
-              className="block text-xs font-normal text-foreground"
+              className="block text-sm font-medium text-foreground"
             >
               {t("resolutionNoteLabel")}
             </label>
@@ -319,7 +319,7 @@ export function ReviewModerationControl({
               maxLength={REVIEW_MODERATION_REASON_MAX}
               disabled={pending}
               placeholder={t("resolutionNotePlaceholder")}
-              className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+              className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
             />
             <span className="block text-xs text-muted-foreground">
               {t("resolutionNoteHint", { max: REVIEW_MODERATION_REASON_MAX })}
@@ -346,7 +346,7 @@ export function ReviewModerationControl({
       )}
 
       {error ? (
-        <p role="alert" className="mt-3 text-xs leading-relaxed text-destructive">
+        <p role="alert" className="mt-3 text-sm leading-relaxed text-destructive">
           {error}
         </p>
       ) : null}

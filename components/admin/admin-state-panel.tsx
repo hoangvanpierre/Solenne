@@ -21,7 +21,7 @@ export interface AdminStatePanelProps {
 }
 
 const TONE_STYLES: Record<AdminStatePanelTone, string> = {
-  neutral: "bg-amber/10 text-amber-dark",
+  neutral: "bg-amber/10 text-primary",
   danger: "bg-destructive/10 text-destructive",
 };
 
@@ -43,17 +43,17 @@ export function AdminStatePanel({
       <div
         aria-hidden="true"
         className={cn(
-          "mx-auto flex h-12 w-12 items-center justify-center rounded-full",
+          "mx-auto flex h-14 w-14 items-center justify-center rounded-full",
           TONE_STYLES[tone]
         )}
       >
-        <Icon className="h-6 w-6" />
+        <Icon className="h-7 w-7" />
       </div>
 
       <h2 className="mt-5 text-2xl text-foreground">{title}</h2>
 
       {description ? (
-        <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">
+        <p className="mx-auto mt-3 max-w-lg text-base leading-relaxed text-muted-foreground">
           {description}
         </p>
       ) : null}

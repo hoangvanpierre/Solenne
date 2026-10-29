@@ -394,7 +394,7 @@ export function VariantManager({
                             ? "Điều chỉnh tồn kho tại mục Quản lý kho"
                             : "Adjust stock via Inventory Management"
                         }
-                        className="inline-flex items-center gap-1 text-xs text-amber hover:underline hover:text-amber/80 font-normal whitespace-nowrap"
+                        className="admin-text-link inline-flex items-center gap-1 text-xs font-normal whitespace-nowrap"
                       >
                         <Boxes className="h-3 w-3" />
                         <span>{isVi ? "Kho hàng" : "Inventory"}</span>
@@ -770,7 +770,7 @@ export function VariantManager({
                   <Button asChild variant="outline" size="sm" className="w-full font-normal text-xs">
                     <Link
                       href="/admin/inventory"
-                      className="inline-flex items-center justify-center gap-1.5 text-xs text-amber font-normal"
+                      className="inline-flex items-center justify-center gap-1.5 admin-text-link text-xs font-normal"
                     >
                       <Boxes className="h-3.5 w-3.5" />
                       <span>

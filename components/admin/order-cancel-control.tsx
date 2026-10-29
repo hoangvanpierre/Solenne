@@ -200,7 +200,7 @@ export function OrderCancelControl({
                   ? "Ví dụ: Khách hàng đổi ý, hết nguyên liệu chế tác..."
                   : "e.g. Customer requested cancellation, duplicate order..."
               }
-              className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-[13px] font-normal text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
+              className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-sm font-normal text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
             />
           </div>
 

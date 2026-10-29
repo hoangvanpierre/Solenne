@@ -272,7 +272,7 @@ export function InventoryAdjustControl({
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Current vs New Stock Preview */}
               <div className="rounded-xl border border-border bg-muted/20 p-4">
-                <div className="text-[10.5px] font-normal text-muted-foreground uppercase tracking-wider mb-2">
+                <div className="text-xs font-normal text-muted-foreground uppercase tracking-wider mb-2">
                   {isVi ? "Biến động tồn kho" : "Stock Impact Preview"}
                 </div>
                 <div className="flex items-center justify-between gap-4 text-sm font-normal">
@@ -387,7 +387,7 @@ export function InventoryAdjustControl({
                     onChange={(e) => handleDeltaInputChange(e.target.value)}
                     disabled={isPending}
                     placeholder="+10 or -5"
-                    className="w-full rounded-xl border border-border bg-background px-3 py-2 tabular-nums text-[13.5px] font-normal text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
+                    className="w-full rounded-xl border border-border bg-background px-3 py-2 tabular-nums text-sm font-normal text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
                   />
                   <div className="absolute inset-y-0 right-2 flex items-center gap-1">
                     <button
@@ -450,7 +450,7 @@ export function InventoryAdjustControl({
                       ? "Ví dụ: Nhập hàng lô mới PO-102, hư hỏng trong kho, kiểm kê bù trừ..."
                       : "e.g. Received shipment PO-102, damaged in warehouse, cycle count adjustment..."
                   }
-                  className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-[13px] font-normal text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
+                  className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-sm font-normal text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
                 />
               </div>
 

@@ -183,7 +183,7 @@ export default async function AdminPage() {
       <section aria-labelledby="shortcuts-heading" className="space-y-4">
         <h2
           id="shortcuts-heading"
-          className="text-xs uppercase tracking-[0.08em] text-muted-foreground"
+          className="text-xl font-medium text-foreground"
         >
           {isVi ? "Lối tắt nghiệp vụ" : "Workspace shortcuts"}
         </h2>
@@ -700,14 +700,14 @@ function MetricsPanel({
   return (
     <section className="rounded-2xl border border-border bg-card p-5 sm:p-6">
       <div className="flex items-center justify-between gap-3">
-        <h3 className="flex items-center gap-2 text-lg text-foreground">
+        <h3 className="flex items-center gap-2 text-xl font-medium text-foreground">
           <Icon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
           {title}
         </h3>
 
         <Link
           href={href}
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70 focus-visible:ring-offset-2 focus-visible:ring-offset-card"
+          className="admin-quiet-link inline-flex items-center gap-1 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70 focus-visible:ring-offset-2 focus-visible:ring-offset-card"
         >
           {linkLabel}
           <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />

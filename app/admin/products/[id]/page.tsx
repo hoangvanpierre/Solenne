@@ -294,7 +294,7 @@ export default async function AdminProductDetailPage({
         {/* Quick Stats Overview */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="rounded-xl border border-border bg-card p-3.5 space-y-1">
-            <span className="text-[10.5px] text-muted-foreground font-normal uppercase tracking-wider block">
+            <span className="text-xs text-muted-foreground font-normal uppercase tracking-wider block">
               {isVi ? "Giá cơ bản" : "Base Price"}
             </span>
             <div className="tabular-nums text-lg font-normal text-foreground">
@@ -303,7 +303,7 @@ export default async function AdminProductDetailPage({
           </div>
 
           <div className="rounded-xl border border-border bg-card p-3.5 space-y-1">
-            <span className="text-[10.5px] text-muted-foreground font-normal uppercase tracking-wider block">
+            <span className="text-xs text-muted-foreground font-normal uppercase tracking-wider block">
               {isVi ? "Tổng số phiên bản" : "Total Variants"}
             </span>
             <div className="tabular-nums text-lg font-normal text-foreground">
@@ -313,7 +313,7 @@ export default async function AdminProductDetailPage({
 
           <div className="rounded-xl border border-border bg-card p-3.5 space-y-1">
             <div className="flex items-center justify-between">
-              <span className="text-[10.5px] text-muted-foreground font-normal uppercase tracking-wider block">
+              <span className="text-xs text-muted-foreground font-normal uppercase tracking-wider block">
                 {isVi ? "Tổng tồn kho" : "Total Stock"}
               </span>
               <StockStatusBadge stock={totalStock} locale={locale} />
@@ -324,7 +324,7 @@ export default async function AdminProductDetailPage({
           </div>
 
           <div className="rounded-xl border border-border bg-card p-3.5 space-y-1">
-            <span className="text-[10.5px] text-muted-foreground font-normal uppercase tracking-wider block">
+            <span className="text-xs text-muted-foreground font-normal uppercase tracking-wider block">
               {isVi ? "Ngày khởi tạo" : "Created On"}
             </span>
             <div className="text-xs text-foreground font-normal tabular-nums flex items-center gap-1.5 pt-1">

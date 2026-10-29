@@ -441,9 +441,9 @@ assert(
   /isVi \? "Đăng xuất" : "Sign out"/.test(shell)
 );
 assert(
-  "sign-out label uses the compact 11px admin type scale",
-  /admin-logout-button[^"]*text-\[11px\]/.test(shell),
-  "expected text-[11px] on the logout button"
+  "sign-out label uses the compact admin type scale",
+  /admin-logout-button[^"]*text-xs/.test(shell),
+  "expected text-xs on the logout button"
 );
 assert(
   "sign-out control cannot wrap onto a second line",

@@ -204,12 +204,12 @@ export function ProductCopyAssistant({
   const canTranslate = canImprove;
 
   const buttonClass =
-    "inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-[11px] text-foreground transition-colors hover:border-amber/60 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60 disabled:opacity-40 disabled:hover:border-border disabled:hover:bg-transparent";
+    "inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-xs text-foreground transition-colors hover:border-amber/60 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60 disabled:opacity-40 disabled:hover:border-border disabled:hover:bg-transparent";
 
   return (
     <div className="mt-2 rounded-xl border border-dashed border-border bg-muted/20 p-2.5">
       <div className="flex flex-wrap items-center gap-1.5">
-        <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
+        <span className="inline-flex items-center gap-1 text-xs uppercase tracking-[0.08em] text-muted-foreground">
           <Sparkles className="h-3 w-3" aria-hidden="true" />
           {isVi ? "Viết cùng trợ lý" : "Write with assistant"}
         </span>
@@ -269,7 +269,7 @@ export function ProductCopyAssistant({
       </div>
 
       {!hasName ? (
-        <p className="mt-1.5 text-[10.5px] text-muted-foreground">
+        <p className="mt-1.5 text-xs text-muted-foreground">
           {isVi
             ? "Nhập tên sản phẩm trước để trợ lý có ngữ cảnh."
             : "Add a product name first so the assistant has context."}
@@ -277,7 +277,7 @@ export function ProductCopyAssistant({
       ) : null}
 
       {errorCode ? (
-        <p className="mt-1.5 text-[10.5px] leading-snug text-destructive">
+        <p className="mt-1.5 text-xs leading-snug text-destructive">
           {errorMessage(errorCode, isVi)}
         </p>
       ) : null}
@@ -285,16 +285,16 @@ export function ProductCopyAssistant({
       {result ? (
         <div className="mt-2 rounded-lg border border-border bg-card p-2.5">
           <div className="flex flex-wrap items-center justify-between gap-1.5">
-            <span className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
+            <span className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
               {isVi ? "Bản nháp" : "Preview"}
             </span>
-            <span className="rounded-full border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground">
+            <span className="rounded-full border border-border px-1.5 py-0.5 text-xs text-muted-foreground">
               {resultLanguage === "vi" ? "Tiếng Việt" : "English"}
             </span>
           </div>
 
           {result.notes ? (
-            <div className="mt-1.5 space-y-0.5 text-[12px] text-foreground">
+            <div className="mt-1.5 space-y-0.5 text-xs text-foreground">
               <p>
                 <span className="text-muted-foreground">
                   {isVi ? "Hương đầu: " : "Top: "}
@@ -315,13 +315,13 @@ export function ProductCopyAssistant({
               </p>
             </div>
           ) : (
-            <p className="mt-1.5 whitespace-pre-wrap text-[12px] leading-relaxed text-foreground">
+            <p className="mt-1.5 whitespace-pre-wrap text-xs leading-relaxed text-foreground">
               {result.text}
             </p>
           )}
 
           {result.warnings && result.warnings.length > 0 ? (
-            <p className="mt-1.5 text-[10.5px] leading-snug text-amber-700 dark:text-amber-400">
+            <p className="mt-1.5 text-xs leading-snug text-amber-700 dark:text-amber-400">
               {isVi
                 ? `Không thể áp dụng — bản nháp có: ${result.warnings.join(", ")}.`
                 : `Cannot apply — the draft contains: ${result.warnings.join(", ")}.`}
@@ -330,7 +330,7 @@ export function ProductCopyAssistant({
 
           {result.applyable === false &&
           (!result.warnings || result.warnings.length === 0) ? (
-            <p className="mt-1.5 text-[10.5px] leading-snug text-muted-foreground">
+            <p className="mt-1.5 text-xs leading-snug text-muted-foreground">
               {isVi
                 ? "Solenne hiện chỉ lưu nội dung tiếng Anh. Bản tiếng Việt chỉ để sao chép."
                 : "Solenne stores English copy only for now, so this Vietnamese draft is copy-only."}
@@ -366,7 +366,7 @@ export function ProductCopyAssistant({
             </button>
           </div>
 
-          <p className="mt-1.5 text-[10px] leading-snug text-muted-foreground">
+          <p className="mt-1.5 text-xs leading-snug text-muted-foreground">
             {isVi
               ? "Áp dụng chỉ điền vào biểu mẫu. Chưa có gì được lưu cho tới khi bạn bấm Lưu."
               : "Apply only fills the field. Nothing is saved until you press Save."}

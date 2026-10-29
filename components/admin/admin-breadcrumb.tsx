@@ -25,8 +25,7 @@ export function AdminBreadcrumb({
       <Link
         href={href}
         className={cn(
-          "inline-flex items-center gap-1.5 rounded text-[11px] font-normal uppercase tracking-widest text-muted-foreground transition-colors",
-          "hover:text-foreground"
+          "admin-quiet-link inline-flex items-center gap-1.5 rounded text-xs font-medium uppercase tracking-[0.08em] transition-colors"
         )}
       >
         <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />

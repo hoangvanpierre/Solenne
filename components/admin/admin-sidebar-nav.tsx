@@ -54,7 +54,7 @@ export function AdminSidebarNav({
       <div className="space-y-5">
         {groups.map((group) => (
           <div key={group.id}>
-            <h2 className="px-3 pb-2 text-xs uppercase tracking-[0.08em] text-muted-foreground">
+            <h2 className="px-3 pb-2 text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">
               {isVi ? group.labelVi : group.label}
             </h2>
 
@@ -70,19 +70,14 @@ export function AdminSidebarNav({
                       onClick={onNavigate}
                       aria-current={isActive ? "page" : undefined}
                       className={cn(
-                        "flex items-center gap-3 rounded-xl px-3 py-2.5 text-base transition-colors duration-150",
+                        "admin-nav-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors duration-150",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70 focus-visible:ring-offset-2 focus-visible:ring-offset-card",
-                        isActive
-                          ? "bg-amber/15 text-foreground"
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                        isActive ? "bg-amber/15" : "hover:bg-muted"
                       )}
                     >
                       <Icon
                         aria-hidden="true"
-                        className={cn(
-                          "h-4 w-4 shrink-0 transition-colors duration-150",
-                          isActive ? "text-foreground/70" : "text-muted-foreground"
-                        )}
+                        className="admin-nav-icon h-4 w-4 shrink-0 transition-colors duration-150"
                       />
                       <span className="truncate">
                         {isVi ? item.labelVi : item.label}

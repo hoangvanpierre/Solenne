@@ -410,7 +410,7 @@ export function OrderFulfillmentControl({
                       : "e.g. VN-POST-8392019, DHL-928172..."
                   }
                   className={cn(
-                    "w-full rounded-xl border bg-background px-3 py-2 text-[13px] tabular-nums font-normal text-foreground placeholder:text-muted-foreground disabled:opacity-50",
+                    "w-full rounded-xl border bg-background px-3 py-2 text-sm tabular-nums font-normal text-foreground placeholder:text-muted-foreground disabled:opacity-50",
                     trackingError
                       ? "border-destructive"
                       : "border-border"
@@ -607,7 +607,7 @@ export function OrderFulfillmentControl({
                       : "e.g. Courier returned damaged parcel to atelier for inspection..."
                   }
                   className={cn(
-                    "w-full resize-none rounded-xl border bg-background px-3 py-2 text-[13px] font-normal text-foreground placeholder:text-muted-foreground disabled:opacity-50",
+                    "w-full resize-none rounded-xl border bg-background px-3 py-2 text-sm font-normal text-foreground placeholder:text-muted-foreground disabled:opacity-50",
                     rollbackError
                       ? "border-destructive"
                       : "border-border"

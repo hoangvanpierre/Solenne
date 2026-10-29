@@ -532,17 +532,19 @@ a:visited {
 }
 
 /* --- Admin Back-Office Typography ---
-   Admin-only refinement. The back-office is operational UI, so navigation,
-   tables, filters and form controls use the platform UI sans stack, while the
-   brand's Cactus serif stays on page/section headings and anything explicitly
-   marked `font-serif`. Nothing here reaches the storefront or account pages:
-   every declaration is scoped to `.admin-scope`, and no font is downloaded —
-   the sans stack is the system one that already exists on the device. */
+   Admin-only. The back-office uses one typeface throughout — the brand's
+   Cactus Classical Serif — so navigation, tables, filters, form controls and
+   headings read the same as the storefront. The family ships a single weight
+   (400), so the admin scale carries hierarchy through size, colour and spacing
+   rather than weight. Nothing here reaches the storefront or account pages:
+   every declaration is scoped to `.admin-scope`, and no extra font file is
+   downloaded — it is the same face the storefront already loads. */
 .admin-scope {
-  --admin-font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-    Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-  font-family: var(--admin-font-sans);
-  --font-sans: var(--admin-font-sans);
+  --admin-font: var(--font-cactus), "Cactus Classical Serif", serif;
+  font-family: var(--admin-font);
+  /* Re-points the `font-sans` utility (and the sans default) at the brand face
+     so no control can fall back to a platform UI font inside the back-office. */
+  --font-sans: var(--admin-font);
 
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -601,7 +603,7 @@ a:visited {
   }
 }
 
-/* Serif is reserved for brand expression and editorial headings. */
+/* Page and section headings: brand face, regular weight, editorial tracking. */
 .admin-scope h1,
 .admin-scope h2,
 .admin-scope h3 {
@@ -756,17 +758,10 @@ a:visited {
   color: var(--primary);
 }
 
-/* The current page also carries a solid accent rail. The 15% amber tint alone
-   is only ~1.14:1 against the card, which is too quiet to answer "where am I?"
-   at a glance; the 3px rail is painted as a background gradient so it adds no
-   layout shift and leaves the focus ring's box-shadow untouched. */
+/* The current page is marked by the warm amber tint alone; the foreground text
+   and primary icon above carry the rest of the emphasis. */
 .admin-scope .admin-nav-link[aria-current="page"] {
   background-color: color-mix(in oklab, var(--color-amber) 18%, transparent);
-  background-image: linear-gradient(
-    to right,
-    var(--admin-amber-text) 0 3px,
-    transparent 3px
-  );
 }
 
 /* Segmented filters (e.g. /admin/reviews). The selected pill is a solid,

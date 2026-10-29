@@ -70,7 +70,7 @@ export function OrderFilterBar({
             />
             <label
               htmlFor="order-status-filter"
-              className="text-xs font-normal text-muted-foreground whitespace-nowrap"
+              className="text-sm font-normal text-muted-foreground whitespace-nowrap"
             >
               {isVi ? "Trạng thái:" : "Status:"}
             </label>
@@ -81,7 +81,7 @@ export function OrderFilterBar({
                 onChange={(event) =>
                   updateParams({ status: event.target.value })
                 }
-                className="admin-inline-select peer cursor-pointer appearance-none rounded-md bg-transparent py-1 pl-1 pr-5 text-xs font-normal text-foreground transition-colors hover:bg-muted/60 focus-visible:text-foreground"
+                className="admin-inline-select peer cursor-pointer appearance-none rounded-md bg-transparent py-1 pl-1 pr-5 text-sm font-normal text-foreground transition-colors hover:bg-muted/60 focus-visible:text-foreground"
               >
                 {ORDER_STATUS_FILTER_OPTIONS.map((option) => (
                   <option

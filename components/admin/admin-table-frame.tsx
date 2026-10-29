@@ -42,7 +42,7 @@ export function AdminTableFrame({
           )}
         >
           {caption ? <caption className="sr-only">{caption}</caption> : null}
-          <thead className="border-b border-border bg-muted/30 text-xs font-normal uppercase tracking-[0.06em] text-muted-foreground">
+          <thead className="border-b border-border bg-muted/40 text-xs font-medium uppercase tracking-[0.06em] text-muted-foreground">
             <tr>{head}</tr>
           </thead>
           {children}

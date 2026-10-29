@@ -169,17 +169,17 @@ function DataUsedTables({
         <div key={`${table.caption}-${tableIndex}`}>
           {table.rows.length === 0 ? (
             <>
-              <p className="mb-1 text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
+              <p className="mb-1 text-xs uppercase tracking-[0.08em] text-muted-foreground">
                 {table.caption}
               </p>
-              <p className="text-[10.5px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 {isVi ? "Không có dòng nào." : "No rows returned."}
               </p>
             </>
           ) : (
             <div className="overflow-x-auto rounded-md border border-border/60">
-              <table className="w-full border-collapse text-left text-[10.5px]">
-                <caption className="px-1.5 py-1 text-left text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
+              <table className="w-full border-collapse text-left text-xs">
+                <caption className="px-1.5 py-1 text-left text-xs uppercase tracking-[0.08em] text-muted-foreground">
                   {table.caption}
                 </caption>
                 <thead>
@@ -225,7 +225,7 @@ function DataUsedTables({
           )}
 
           {table.note ? (
-            <p className="mt-0.5 text-[10px] leading-snug text-muted-foreground">
+            <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
               {table.note}
             </p>
           ) : null}
@@ -285,7 +285,7 @@ function CopyButton({
       type="button"
       onClick={handleCopy}
       aria-label={label}
-      className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60"
+      className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60"
     >
       {copied ? (
         <Check className="h-3 w-3" aria-hidden="true" />
@@ -323,17 +323,17 @@ function DraftCard({ draft, isVi }: { draft: DraftValue; isVi: boolean }) {
     <div className="rounded-xl border border-border bg-card p-3">
       <div className="mb-2 flex flex-wrap items-center gap-1.5">
         <Mail className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
-        <span className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+        <span className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
           {isVi ? "Bản nháp thư" : "Draft reply"}
         </span>
-        <span className="rounded-full border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground">
+        <span className="rounded-full border border-border px-1.5 py-0.5 text-xs text-muted-foreground">
           {languageLabel}
         </span>
       </div>
 
       <label
         htmlFor={`${fieldId}-subject`}
-        className="block text-[10px] uppercase tracking-[0.08em] text-muted-foreground"
+        className="block text-xs uppercase tracking-[0.08em] text-muted-foreground"
       >
         {isVi ? "Tiêu đề" : "Subject"}
       </label>
@@ -341,12 +341,12 @@ function DraftCard({ draft, isVi }: { draft: DraftValue; isVi: boolean }) {
         id={`${fieldId}-subject`}
         value={subject}
         onChange={(event) => setSubject(event.target.value)}
-        className="mt-1 w-full rounded-md border border-border bg-background px-2 py-1.5 text-[12.5px] text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40"
+        className="mt-1 w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40"
       />
 
       <label
         htmlFor={`${fieldId}-body`}
-        className="mt-2 block text-[10px] uppercase tracking-[0.08em] text-muted-foreground"
+        className="mt-2 block text-xs uppercase tracking-[0.08em] text-muted-foreground"
       >
         {isVi ? "Nội dung" : "Body"}
       </label>
@@ -355,7 +355,7 @@ function DraftCard({ draft, isVi }: { draft: DraftValue; isVi: boolean }) {
         value={body}
         onChange={(event) => setBody(event.target.value)}
         rows={9}
-        className="mt-1 w-full resize-y rounded-md border border-border bg-background px-2 py-1.5 text-[12.5px] leading-relaxed text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40"
+        className="mt-1 w-full resize-y rounded-md border border-border bg-background px-2 py-1.5 text-sm leading-relaxed text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40"
       />
 
       <div className="mt-2 flex flex-wrap items-center gap-1.5">
@@ -371,7 +371,7 @@ function DraftCard({ draft, isVi }: { draft: DraftValue; isVi: boolean }) {
         />
         <a
           href={mailto.href}
-          className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60"
+          className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60"
         >
           <Mail className="h-3 w-3" aria-hidden="true" />
           {isVi ? "Mở ứng dụng thư" : "Open in mail app"}
@@ -379,7 +379,7 @@ function DraftCard({ draft, isVi }: { draft: DraftValue; isVi: boolean }) {
       </div>
 
       {mailto.truncated ? (
-        <p className="mt-2 text-[10.5px] leading-snug text-amber-700 dark:text-amber-400">
+        <p className="mt-2 text-xs leading-snug text-amber-700 dark:text-amber-400">
           {isVi
             ? `Nội dung quá dài cho liên kết thư nên đã được rút gọn (giữ ${mailto.keptCharacters}/${mailto.originalCharacters} ký tự). Hãy dùng nút chép để giữ đầy đủ.`
             : `The body was too long for a mail link, so it was shortened (kept ${mailto.keptCharacters} of ${mailto.originalCharacters} characters). Use the copy button to keep all of it.`}
@@ -387,13 +387,13 @@ function DraftCard({ draft, isVi }: { draft: DraftValue; isVi: boolean }) {
       ) : null}
 
       {placeholders.length > 0 ? (
-        <p className="mt-2 text-[10.5px] leading-snug text-amber-700 dark:text-amber-400">
+        <p className="mt-2 text-xs leading-snug text-amber-700 dark:text-amber-400">
           {isVi ? "Cần điền trước khi gửi: " : "Fill in before sending: "}
           <span className="font-medium">{placeholders.join(", ")}</span>
         </p>
       ) : null}
 
-      <p className="mt-2 text-[10px] leading-snug text-muted-foreground">
+      <p className="mt-2 text-xs leading-snug text-muted-foreground">
         {isVi
           ? "Đây chỉ là bản nháp. Solenne không gửi hay lưu thư từ khung này."
           : "This is only a draft. Solenne never sends or saves email from this drawer."}
@@ -725,13 +725,13 @@ function ProposalCard({
         <Icon className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
         <span
           id={titleId}
-          className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground"
+          className="text-xs uppercase tracking-[0.08em] text-muted-foreground"
         >
           {proposalTypeLabel(proposal.type, isVi)}
         </span>
         <span
           className={cn(
-            "rounded-full border px-1.5 py-0.5 text-[10px]",
+            "rounded-full border px-1.5 py-0.5 text-xs",
             blocked
               ? "border-destructive/40 text-destructive"
               : "border-sage/60 text-foreground"
@@ -745,16 +745,16 @@ function ProposalCard({
               ? "Sẵn sàng"
               : "Ready"}
         </span>
-        <span className="ml-auto text-[10px] text-muted-foreground">
+        <span className="ml-auto text-xs text-muted-foreground">
           {proposalAgeLabel(proposal.createdAt, now, isVi)}
         </span>
       </div>
 
-      <p className="text-[12.5px] leading-relaxed text-foreground">
+      <p className="text-sm leading-relaxed text-foreground">
         {proposal.humanSummary}
       </p>
 
-      <dl className="mt-2 space-y-1 text-[11px] leading-snug">
+      <dl className="mt-2 space-y-1 text-xs leading-snug">
         {rows.map(([label, value]) => (
           <div key={label} className="flex justify-between gap-2">
             <dt className="text-muted-foreground">{label}</dt>
@@ -764,7 +764,7 @@ function ProposalCard({
       </dl>
 
       {proposal.warnings.length > 0 ? (
-        <ul className="mt-2 space-y-0.5 text-[10.5px] leading-snug text-amber-700 dark:text-amber-400">
+        <ul className="mt-2 space-y-0.5 text-xs leading-snug text-amber-700 dark:text-amber-400">
           {proposal.warnings.map((warning) => (
             <li key={warning}>{warning}</li>
           ))}
@@ -772,7 +772,7 @@ function ProposalCard({
       ) : null}
 
       {blocked ? (
-        <div role="alert" className="mt-2 space-y-0.5 text-[10.5px] leading-snug text-destructive">
+        <div role="alert" className="mt-2 space-y-0.5 text-xs leading-snug text-destructive">
           {proposal.blockers.map((blocker) => (
             <p key={blocker}>{blocker}</p>
           ))}
@@ -782,7 +782,7 @@ function ProposalCard({
       {stale ? (
         <p
           role="alert"
-          className="mt-2 text-[10.5px] leading-snug text-amber-700 dark:text-amber-400"
+          className="mt-2 text-xs leading-snug text-amber-700 dark:text-amber-400"
         >
           {isVi
             ? "Đề xuất này đã cũ hoặc dữ liệu đã thay đổi. Hãy tạo lại đề xuất trước khi xác nhận."
@@ -794,14 +794,14 @@ function ProposalCard({
         <p
           role="status"
           aria-live="polite"
-          className="mt-2 text-[11px] leading-snug text-sage"
+          className="mt-2 text-xs leading-snug text-sage"
         >
           {done}
         </p>
       ) : null}
 
       {error ? (
-        <p role="alert" className="mt-2 text-[10.5px] leading-snug text-destructive">
+        <p role="alert" className="mt-2 text-xs leading-snug text-destructive">
           {error}
         </p>
       ) : null}
@@ -812,7 +812,7 @@ function ProposalCard({
             <button
               type="button"
               onClick={() => setStep("confirm")}
-              className="rounded-md border border-border bg-foreground px-2.5 py-1 text-[11px] text-background transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60 focus-visible:ring-offset-2 focus-visible:ring-offset-card"
+              className="rounded-md border border-border bg-foreground px-2.5 py-1 text-xs text-background transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60 focus-visible:ring-offset-2 focus-visible:ring-offset-card"
             >
               {isVi ? "Xem lại và xác nhận" : "Review and confirm"}
             </button>
@@ -822,7 +822,7 @@ function ProposalCard({
             <button
               type="button"
               onClick={onRefresh}
-              className="inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-[11px] text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60"
+              className="inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-xs text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60"
             >
               <RefreshCw className="h-3 w-3" aria-hidden="true" />
               {stale
@@ -841,7 +841,7 @@ function ProposalCard({
             <div>
               <label
                 htmlFor={`${titleId}-delta`}
-                className="block text-[10px] uppercase tracking-[0.08em] text-muted-foreground"
+                className="block text-xs uppercase tracking-[0.08em] text-muted-foreground"
               >
                 {isVi ? "Mức điều chỉnh" : "Adjustment"}
               </label>
@@ -852,7 +852,7 @@ function ProposalCard({
                 step={1}
                 value={delta}
                 onChange={(event) => setDelta(event.target.value)}
-                className="mt-1 w-full rounded-md border border-border bg-background px-2 py-1.5 text-[12.5px] text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40"
+                className="mt-1 w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40"
               />
             </div>
           ) : null}
@@ -861,7 +861,7 @@ function ProposalCard({
             <div>
               <label
                 htmlFor={`${titleId}-tracking`}
-                className="block text-[10px] uppercase tracking-[0.08em] text-muted-foreground"
+                className="block text-xs uppercase tracking-[0.08em] text-muted-foreground"
               >
                 {isVi ? "Mã vận đơn" : "Tracking code"}
               </label>
@@ -871,7 +871,7 @@ function ProposalCard({
                 value={trackingCode}
                 onChange={(event) => setTrackingCode(event.target.value)}
                 maxLength={100}
-                className="mt-1 w-full rounded-md border border-border bg-background px-2 py-1.5 text-[12.5px] text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40"
+                className="mt-1 w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40"
               />
             </div>
           ) : null}
@@ -880,7 +880,7 @@ function ProposalCard({
             <div>
               <label
                 htmlFor={`${titleId}-reason`}
-                className="block text-[10px] uppercase tracking-[0.08em] text-muted-foreground"
+                className="block text-xs uppercase tracking-[0.08em] text-muted-foreground"
               >
                 {needsReason
                   ? isVi
@@ -897,18 +897,18 @@ function ProposalCard({
                 onChange={(event) => setReason(event.target.value)}
                 rows={2}
                 maxLength={proposal.type === "inventory_adjustment" ? 255 : 500}
-                className="mt-1 w-full resize-y rounded-md border border-border bg-background px-2 py-1.5 text-[12.5px] leading-relaxed text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40"
+                className="mt-1 w-full resize-y rounded-md border border-border bg-background px-2 py-1.5 text-sm leading-relaxed text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40"
               />
             </div>
           ) : null}
 
           {fieldError ? (
-            <p role="alert" className="text-[10.5px] leading-snug text-destructive">
+            <p role="alert" className="text-xs leading-snug text-destructive">
               {fieldError}
             </p>
           ) : null}
 
-          <p className="text-[10px] leading-snug text-amber-700 dark:text-amber-400">
+          <p className="text-xs leading-snug text-amber-700 dark:text-amber-400">
             {isVi
               ? "Xác nhận sẽ thay đổi dữ liệu thật. Màn hình quản trị sẽ kiểm tra lại quyền và trạng thái."
               : "Confirming changes real data. The admin control re-checks permission and state."}
@@ -919,7 +919,7 @@ function ProposalCard({
               type="button"
               onClick={() => setStep("review")}
               disabled={pending}
-              className="rounded-md border border-border px-2.5 py-1 text-[11px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60 disabled:opacity-40"
+              className="rounded-md border border-border px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60 disabled:opacity-40"
             >
               {isVi ? "Quay lại" : "Back"}
             </button>
@@ -928,7 +928,7 @@ function ProposalCard({
               type="button"
               onClick={confirm}
               disabled={!canConfirm}
-              className="inline-flex items-center gap-1 rounded-md border border-destructive/50 bg-destructive px-2.5 py-1 text-[11px] text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/70 focus-visible:ring-offset-2 focus-visible:ring-offset-card disabled:opacity-40"
+              className="inline-flex items-center gap-1 rounded-md border border-destructive/50 bg-destructive px-2.5 py-1 text-xs text-destructive-foreground transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/70 focus-visible:ring-offset-2 focus-visible:ring-offset-card disabled:opacity-40"
             >
               {pending ? (
                 <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
@@ -941,7 +941,7 @@ function ProposalCard({
         </div>
       )}
 
-      <p className="mt-2 text-[10px] leading-snug text-muted-foreground">
+      <p className="mt-2 text-xs leading-snug text-muted-foreground">
         {isVi
           ? "Trợ lý chỉ đề xuất. Bạn xác nhận; thao tác thật chạy qua màn hình quản trị."
           : "The assistant only proposes. You confirm; the real action runs through the admin control."}
@@ -990,7 +990,7 @@ export function AdminAssistantMessage({
   if (isUser) {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[85%] rounded-2xl rounded-br-md bg-foreground px-3.5 py-2.5 text-[13px] leading-relaxed text-background">
+        <div className="max-w-[85%] rounded-2xl rounded-br-md bg-foreground px-3.5 py-2.5 text-sm leading-relaxed text-background">
           {text}
         </div>
       </div>
@@ -1015,7 +1015,7 @@ export function AdminAssistantMessage({
           {running.map((part, index) => (
             <span
               key={`${toolNameOf(part)}-${index}`}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/50 px-2.5 py-1 text-[11px] text-muted-foreground"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/50 px-2.5 py-1 text-xs text-muted-foreground"
             >
               <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
               {toolLabel(toolNameOf(part), isVi)}
@@ -1025,14 +1025,14 @@ export function AdminAssistantMessage({
       ) : null}
 
       {text ? (
-        <div className="group relative max-w-[95%] text-[13px] leading-relaxed text-foreground">
+        <div className="group relative max-w-[95%] text-sm leading-relaxed text-foreground">
           <p className="whitespace-pre-wrap">{text}</p>
 
           <button
             type="button"
             onClick={handleCopy}
             aria-label={isVi ? "Sao chép câu trả lời" : "Copy answer"}
-            className="mt-1.5 inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[11px] text-muted-foreground opacity-0 transition-opacity hover:bg-muted hover:text-foreground focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60 group-hover:opacity-100"
+            className="mt-1.5 inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-xs text-muted-foreground opacity-0 transition-opacity hover:bg-muted hover:text-foreground focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60 group-hover:opacity-100"
           >
             {copied ? (
               <Check className="h-3 w-3" aria-hidden="true" />
@@ -1051,7 +1051,7 @@ export function AdminAssistantMessage({
       ) : null}
 
       {!text && isStreaming && running.length === 0 ? (
-        <p className="text-[13px] text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           {isVi ? "Đang soạn câu trả lời…" : "Composing a reply…"}
         </p>
       ) : null}
@@ -1075,7 +1075,7 @@ export function AdminAssistantMessage({
             type="button"
             onClick={() => setOpen((value) => !value)}
             aria-expanded={open}
-            className="flex w-full items-center gap-1.5 px-2.5 py-2 text-left text-[11px] uppercase tracking-[0.08em] text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-foreground/50"
+            className="flex w-full items-center gap-1.5 px-2.5 py-2 text-left text-xs uppercase tracking-[0.08em] text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-foreground/50"
           >
             <ChevronDown
               className={cn(
@@ -1097,22 +1097,22 @@ export function AdminAssistantMessage({
                 const failed = part.state === "output-error";
 
                 return (
-                  <li key={`${name}-${index}`} className="text-[11px] leading-snug">
+                  <li key={`${name}-${index}`} className="text-xs leading-snug">
                     <p className="flex flex-wrap items-center gap-x-1.5 text-foreground">
                       <span className="font-medium">{toolLabel(name, isVi)}</span>
                       <span className="text-muted-foreground">({name})</span>
                       {rows !== null ? (
-                        <span className="rounded-full border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                        <span className="rounded-full border border-border px-1.5 py-0.5 text-xs text-muted-foreground">
                           {rows} {isVi ? "dòng" : rows === 1 ? "row" : "rows"}
                         </span>
                       ) : null}
                       {failed ? (
-                        <span className="text-[10px] uppercase tracking-[0.08em] text-destructive">
+                        <span className="text-xs uppercase tracking-[0.08em] text-destructive">
                           {isVi ? "lỗi" : "failed"}
                         </span>
                       ) : null}
                     </p>
-                    <p className="mt-0.5 break-words font-mono text-[10.5px] text-muted-foreground">
+                    <p className="mt-0.5 break-words font-mono text-xs text-muted-foreground">
                       {formatArgs(part.input)}
                     </p>
                     {!failed ? (

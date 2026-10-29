@@ -208,7 +208,7 @@ export default async function CustomerDetailPage({
         eyebrow={
           <div className="flex flex-wrap items-center gap-3">
             <CustomerStatusBadge status={customer.status} locale={locale} />
-            <span className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+            <span className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
               {isVi ? "Hồ sơ khách hàng" : "Customer record"}
             </span>
           </div>
@@ -232,7 +232,7 @@ export default async function CustomerDetailPage({
       {/* Metrics Highlights */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="rounded-2xl border border-border bg-card p-5 space-y-1.5">
-          <div className="flex items-center gap-2 text-[10.5px] font-normal uppercase tracking-wider text-muted-foreground">
+          <div className="flex items-center gap-2 text-xs font-normal uppercase tracking-wider text-muted-foreground">
             <ShoppingBag className="h-4 w-4 text-amber" />
             <span>{isVi ? "Tổng số đơn hàng" : "Total Orders"}</span>
           </div>
@@ -258,7 +258,7 @@ export default async function CustomerDetailPage({
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-5 space-y-1.5">
-          <div className="flex items-center gap-2 text-[10.5px] font-normal uppercase tracking-wider text-muted-foreground">
+          <div className="flex items-center gap-2 text-xs font-normal uppercase tracking-wider text-muted-foreground">
             <Package className="h-4 w-4 text-amber" />
             <span>{isVi ? "Tổng chi tiêu tích lũy" : "Lifetime Spend"}</span>
           </div>
@@ -297,7 +297,7 @@ export default async function CustomerDetailPage({
 
             <div className="space-y-3.5 text-sm">
               <div>
-                <span className="text-[10.5px] font-normal uppercase tracking-wider text-muted-foreground block">
+                <span className="text-xs font-normal uppercase tracking-wider text-muted-foreground block">
                   {isVi ? "Tên hiển thị" : "Display Name"}
                 </span>
                 <span className="font-normal text-foreground mt-0.5 block">
@@ -306,7 +306,7 @@ export default async function CustomerDetailPage({
               </div>
 
               <div>
-                <span className="text-[10.5px] font-normal uppercase tracking-wider text-muted-foreground block">
+                <span className="text-xs font-normal uppercase tracking-wider text-muted-foreground block">
                   {isVi ? "Số điện thoại" : "Phone"}
                 </span>
                 <span className="mt-0.5 block tabular-nums text-xs font-normal text-foreground">
@@ -319,7 +319,7 @@ export default async function CustomerDetailPage({
               </div>
 
               <div>
-                <span className="text-[10.5px] font-normal uppercase tracking-wider text-muted-foreground block">
+                <span className="text-xs font-normal uppercase tracking-wider text-muted-foreground block">
                   {isVi ? "Địa chỉ email" : "Email Address"}
                 </span>
                 <span className="mt-0.5 block text-xs break-all text-foreground font-normal">
@@ -396,7 +396,7 @@ export default async function CustomerDetailPage({
                         <div className="flex items-center gap-2.5">
                           <Link
                             href={`/admin/orders/${order.id}`}
-                            className="tabular-nums text-xs font-normal text-foreground hover:text-amber transition-colors"
+                            className="admin-text-link tabular-nums text-xs font-normal transition-colors"
                           >
                             {order.orderNumber}
                           </Link>

@@ -315,7 +315,7 @@ export default async function AdminOrdersPage({
                           <td className="py-4 px-6 tabular-nums text-xs font-normal text-foreground whitespace-nowrap">
                             <Link
                               href={`/admin/orders/${order.id}`}
-                              className="inline-flex items-center rounded underline-offset-4 hover:text-amber hover:underline focus-visible:outline-none"
+                              className="admin-text-link inline-flex items-center rounded focus-visible:outline-none"
                               title={
                                 isVi
                                   ? `Quản lý đơn hàng ${order.orderNumber}`
@@ -420,7 +420,7 @@ export default async function AdminOrdersPage({
                       <div className="flex items-center justify-between gap-2">
                         <Link
                           href={`/admin/orders/${order.id}`}
-                          className="tabular-nums text-xs font-normal text-foreground hover:text-amber hover:underline underline-offset-4 focus-visible:outline-none rounded"
+                          className="admin-text-link tabular-nums text-xs font-normal focus-visible:outline-none rounded"
                           title={
                             isVi
                               ? `Quản lý đơn hàng ${order.orderNumber}`

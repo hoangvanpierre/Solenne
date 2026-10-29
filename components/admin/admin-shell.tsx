@@ -160,7 +160,7 @@ export function AdminShell({
     <div className="flex min-h-full flex-col lg:flex-row">
       <a
         href="#admin-main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-[80] focus:rounded-full focus:bg-foreground focus:px-4 focus:py-2 focus:text-sm focus:text-background"
+        className="admin-skip-link sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-[80] focus:rounded-full focus:bg-foreground focus:px-4 focus:py-2 focus:text-sm focus:text-background"
       >
         {isVi ? "Chuyển đến nội dung" : "Skip to content"}
       </a>
@@ -253,14 +253,14 @@ export function AdminShell({
             </button>
 
             <div className="min-w-0">
-              <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
+              <p className="text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">
                 {isVi ? "Quản trị" : "Administration"}
               </p>
               <p className="truncate text-base text-foreground">{sectionLabel}</p>
             </div>
 
             <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
-              <span className="hidden items-center rounded-full border border-border px-2.5 py-1 text-xs uppercase tracking-[0.06em] text-muted-foreground sm:inline-flex">
+              <span className="hidden items-center rounded-full border border-border px-2.5 py-1 text-xs font-medium uppercase tracking-[0.06em] text-muted-foreground sm:inline-flex">
                 {roleLabel}
               </span>
 
@@ -270,7 +270,7 @@ export function AdminShell({
 
               <Link
                 href="/"
-                className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                className="admin-quiet-link inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-sm transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
                 <span className="hidden sm:inline">
@@ -344,7 +344,9 @@ function ShellIdentity({
         </span>
 
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm text-foreground">{displayName}</p>
+          <p className="truncate text-sm font-medium text-foreground">
+            {displayName}
+          </p>
           {email && fullName ? (
             <p className="truncate text-xs text-muted-foreground">{email}</p>
           ) : null}
@@ -355,7 +357,7 @@ function ShellIdentity({
         <span
           className={cn(
             "inline-flex min-w-0 items-center truncate rounded-full border border-border px-2 py-0.5",
-            "text-xs uppercase tracking-[0.06em] text-muted-foreground"
+            "text-xs font-medium uppercase tracking-[0.06em] text-muted-foreground"
           )}
         >
           {roleLabel}
@@ -364,7 +366,7 @@ function ShellIdentity({
         <form action={signOutAction} className="shrink-0">
           <button
             type="submit"
-            className="admin-logout-button inline-flex min-h-6 items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] uppercase tracking-[0.02em] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70 focus-visible:ring-offset-2 focus-visible:ring-offset-card"
+            className="admin-logout-button inline-flex min-h-6 items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium uppercase tracking-[0.02em] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/70 focus-visible:ring-offset-2 focus-visible:ring-offset-card"
           >
             <LogOut className="h-3 w-3 shrink-0" aria-hidden="true" />
             <span className="whitespace-nowrap">

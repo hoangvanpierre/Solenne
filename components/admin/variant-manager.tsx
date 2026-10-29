@@ -315,7 +315,7 @@ export function VariantManager({
         {/* Variant List */}
         {variants.length === 0 ? (
           <div className="rounded-xl border border-dashed border-border p-8 text-center space-y-3">
-            <Layers className="mx-auto h-8 w-8 text-muted-foreground/60" />
+            <Layers className="mx-auto h-8 w-8 text-muted-foreground" />
             <div className="space-y-1">
               <p className="text-sm font-normal text-foreground">
                 {isVi ? "Chưa có phiên bản nào" : "No variants defined"}
@@ -363,13 +363,13 @@ export function VariantManager({
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground font-normal">
                       {variant.size && (
                         <span className="inline-flex items-center gap-1">
-                          <Scale className="h-3 w-3 text-muted-foreground/70" />
+                          <Scale className="h-3 w-3 text-muted-foreground" />
                           <span>{variant.size}</span>
                         </span>
                       )}
                       {variant.burnTime && (
                         <span className="inline-flex items-center gap-1">
-                          <Clock className="h-3 w-3 text-muted-foreground/70" />
+                          <Clock className="h-3 w-3 text-muted-foreground" />
                           <span>{variant.burnTime}</span>
                         </span>
                       )}
@@ -394,7 +394,7 @@ export function VariantManager({
                             ? "Điều chỉnh tồn kho tại mục Quản lý kho"
                             : "Adjust stock via Inventory Management"
                         }
-                        className="inline-flex items-center gap-1 text-xs text-amber hover:underline hover:text-amber/80 font-normal whitespace-nowrap"
+                        className="admin-text-link inline-flex items-center gap-1 text-xs font-normal whitespace-nowrap"
                       >
                         <Boxes className="h-3 w-3" />
                         <span>{isVi ? "Kho hàng" : "Inventory"}</span>
@@ -770,7 +770,7 @@ export function VariantManager({
                   <Button asChild variant="outline" size="sm" className="w-full font-normal text-xs">
                     <Link
                       href="/admin/inventory"
-                      className="inline-flex items-center justify-center gap-1.5 text-xs text-amber font-normal"
+                      className="inline-flex items-center justify-center gap-1.5 admin-text-link text-xs font-normal"
                     >
                       <Boxes className="h-3.5 w-3.5" />
                       <span>

@@ -115,7 +115,7 @@ export function CustomerTable({
               />
               <label
                 htmlFor="customer-status-filter"
-                className="text-xs font-normal text-muted-foreground whitespace-nowrap"
+                className="text-sm font-normal text-muted-foreground whitespace-nowrap"
               >
                 {isVi ? "Trạng thái:" : "Status:"}
               </label>
@@ -128,7 +128,7 @@ export function CustomerTable({
                   id="customer-status-filter"
                   value={currentStatus}
                   onChange={(e) => handleStatusChange(e.target.value)}
-                  className="admin-inline-select peer cursor-pointer appearance-none rounded-md bg-transparent py-1 pl-1 pr-5 text-xs font-normal text-foreground transition-colors hover:bg-muted/60 focus-visible:text-foreground"
+                  className="admin-inline-select peer cursor-pointer appearance-none rounded-md bg-transparent py-1 pl-1 pr-5 text-sm font-normal text-foreground transition-colors hover:bg-muted/60 focus-visible:text-foreground"
                 >
                   {STATUS_FILTER_OPTIONS.map((opt) => (
                     <option
@@ -235,7 +235,7 @@ export function CustomerTable({
                             <div className="min-w-0">
                               <Link
                                 href={`/admin/customers/${c.id}`}
-                                className="font-normal text-[13.5px] text-foreground hover:text-amber transition-colors line-clamp-1"
+                                className="font-normal text-sm text-foreground hover:underline transition-colors line-clamp-1"
                               >
                                 {displayName}
                               </Link>
@@ -247,7 +247,7 @@ export function CustomerTable({
                                 )}
                                 {c.phone && <span>•</span>}
                                 <span
-                                  className="tabular-nums font-normal text-xs text-muted-foreground/80 truncate max-w-[120px]"
+                                  className="tabular-nums font-normal text-xs text-muted-foreground truncate max-w-[120px]"
                                   title={c.id}
                                 >
                                   {c.id.slice(0, 8)}…
@@ -281,7 +281,7 @@ export function CustomerTable({
                           )}
                         </td>
 
-                        <td className="py-4 px-6 text-right font-normal tabular-nums text-foreground whitespace-nowrap text-[13.5px]">
+                        <td className="py-4 px-6 text-right font-normal tabular-nums text-foreground whitespace-nowrap text-sm">
                           {canReadOrders && c.lifetimeSpend !== null
                             ? formatPrice(c.lifetimeSpend)
                             : "—"}
@@ -331,7 +331,7 @@ export function CustomerTable({
                         <div className="min-w-0">
                           <Link
                             href={`/admin/customers/${c.id}`}
-                            className="font-normal text-foreground hover:text-amber line-clamp-1 text-sm"
+                            className="font-normal text-foreground hover:underline line-clamp-1 text-sm"
                           >
                             {displayName}
                           </Link>
@@ -347,7 +347,7 @@ export function CustomerTable({
 
                     <div className="grid grid-cols-2 gap-3 pt-2 border-t border-border/60 text-xs">
                       <div>
-                        <span className="text-muted-foreground block text-[10.5px] font-normal uppercase tracking-wider">
+                        <span className="text-muted-foreground block text-xs font-normal uppercase tracking-wider">
                           {isVi ? "Đơn hàng" : "Orders"}
                         </span>
                         <span className="font-normal tabular-nums text-foreground mt-0.5 inline-block text-xs">
@@ -369,7 +369,7 @@ export function CustomerTable({
                       </div>
 
                       <div className="text-right">
-                        <span className="text-muted-foreground block text-[10.5px] font-normal uppercase tracking-wider">
+                        <span className="text-muted-foreground block text-xs font-normal uppercase tracking-wider">
                           {isVi ? "Tổng chi tiêu" : "Spend"}
                         </span>
                         <span className="font-normal tabular-nums text-foreground mt-0.5 inline-block text-xs">

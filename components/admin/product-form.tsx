@@ -468,7 +468,7 @@ export function ProductForm({
                     setIsSlugManuallyEdited(true);
                   }}
                   placeholder="solenne-aura"
-                  className="flex h-11 w-full rounded-lg border border-border bg-transparent px-4 py-2 tabular-nums text-[13.5px] font-normal placeholder:text-muted-foreground focus-visible:outline-none disabled:opacity-50 transition-colors"
+                  className="flex h-11 w-full rounded-lg border border-border bg-transparent px-4 py-2 tabular-nums text-sm font-normal placeholder:text-muted-foreground focus-visible:outline-none disabled:opacity-50 transition-colors"
                   required
                   disabled={isPending}
                 />
@@ -514,7 +514,7 @@ export function ProductForm({
                     ? "Mô tả nguồn cảm hứng, tầng hương và không gian phù hợp để thưởng thức..."
                     : "Describe the artistic inspiration, atmospheric qualities, and sensory journey..."
                 }
-                className="flex w-full rounded-lg border border-border bg-transparent px-4 py-2.5 text-[13px] font-normal transition-colors duration-200 placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex w-full rounded-lg border border-border bg-transparent px-4 py-2.5 text-sm font-normal transition-colors duration-200 placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={isPending}
               />
               {fieldErrors.description?.[0] && (
@@ -826,7 +826,7 @@ export function ProductForm({
                   className="rounded-xl border border-border bg-card/60 p-4 space-y-4"
                 >
                   <div className="flex items-center justify-between border-b border-border pb-3">
-                    <span className="text-[11px] font-normal uppercase tracking-wider text-muted-foreground">
+                    <span className="text-xs font-normal uppercase tracking-wider text-muted-foreground">
                       {isVi
                         ? `Phiên bản #${index + 1}`
                         : `Variant #${index + 1}`}

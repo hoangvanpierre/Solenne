@@ -451,7 +451,7 @@ export function CustomerStatusControl({
             <div className="flex items-center justify-between">
               <label
                 htmlFor={`status-reason-${customerId}`}
-                className="block text-xs font-normal text-foreground"
+                className="block text-sm font-normal text-foreground"
               >
                 {isVi ? "Lý do thay đổi trạng thái" : "Reason for status change"}
                 <span className="text-destructive ml-1">*</span>
@@ -485,7 +485,7 @@ export function CustomerStatusControl({
                   ? "Ví dụ: Đã giải quyết xong xác minh danh tính khách hàng..."
                   : "e.g. Customer identity verification successfully resolved..."
               }
-              className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-[13px] font-normal text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
+              className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-sm font-normal text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
             />
             <p className="text-xs text-muted-foreground font-normal">
               {isVi

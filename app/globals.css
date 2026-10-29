@@ -531,28 +531,110 @@ a:visited {
   min-height: 2.75rem;
 }
 
-/* --- Admin Back-Office Typography --- */
+/* --- Admin Back-Office Typography ---
+   Admin-only. The back-office uses one typeface throughout — the brand's
+   Cactus Classical Serif — so navigation, tables, filters, form controls and
+   headings read the same as the storefront. The family ships a single weight
+   (400), so the admin scale carries hierarchy through size, colour and spacing
+   rather than weight. Nothing here reaches the storefront or account pages:
+   every declaration is scoped to `.admin-scope`, and no extra font file is
+   downloaded — it is the same face the storefront already loads. */
 .admin-scope {
-  /* Cactus Classical Serif Typography */
-  font-family: var(--font-cactus), "Cactus Classical Serif", serif;
-  --font-sans: var(--font-cactus), "Cactus Classical Serif", serif;
-  --font-serif: var(--font-cactus), "Cactus Classical Serif", serif;
-  --font-script: var(--font-cactus), "Cactus Classical Serif", serif;
-  --font-mono: var(--font-cactus), "Cactus Classical Serif", serif;
+  --admin-font: var(--font-cactus), "Cactus Classical Serif", serif;
+  font-family: var(--admin-font);
+  /* Re-points the `font-sans` utility (and the sans default) at the brand face
+     so no control can fall back to a platform UI font inside the back-office. */
+  --font-sans: var(--admin-font);
+
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  font-size: var(--text-sm);    /* 13px compact base for back-office tables and controls */
-  line-height: 1.55;
+  /* Warm, higher-contrast surfaces for dense operational screens. Only the
+     tokens that were failing readability are re-pointed; the ivory ground and
+     the amber/sage/blush brand tints keep their identity. */
+  --foreground: #1f1a15;
+  --muted: #f2ede5;
+  --muted-foreground: #57504a;
+  --border: #d9cdbe;
+  --admin-field-border: #9a8a78;
+  /* Solid actions need AA against their own label. Brand amber stays on the
+     tints (amber/10, amber/15); the solid fill deepens to the same brown the
+     storefront already uses for amber-dark. */
+  --primary: #8a5f35;
+  --primary-foreground: #ffffff;
+  --secondary: #5f6e57;
+  --secondary-foreground: #ffffff;
+  --destructive: #b23f3f;
+  --destructive-foreground: #ffffff;
+  --ring: #8a5f35;
+  /* Brand tints fail AA as small text on ivory (amber 2.7:1, sage 3.0:1,
+     blush 2.0:1). The tints stay on borders and backgrounds; text that carries
+     meaning uses these darker equivalents. Dark mode restores the light
+     brand values below, where they already clear AA. */
+  --admin-amber-text: #8a5f35;
+  --admin-sage-text: #5a6a51;
+  --admin-blush-text: #8f5555;
+
+  font-size: 0.875rem; /* 14px operational base */
+  line-height: 1.6;
 }
 
+@media (prefers-color-scheme: dark) {
+  .admin-scope {
+    /* `.admin-scope` is unlayered and comes after the global `:root` dark
+       block, so every light token it sets has to be restated here. */
+    --foreground: #f5f1ea;
+    --muted: #221f1c;
+    --muted-foreground: #b3aaa0;
+    --border: #3a342e;
+    --admin-field-border: #6b6157;
+    /* Solid actions flip to the light brand fill with a dark label, which is
+       the same pairing the storefront already uses in dark mode. */
+    --primary: #c4956a;
+    --primary-foreground: #141210;
+    --secondary: #8b9a82;
+    --secondary-foreground: #141210;
+    --destructive: #d07070;
+    --destructive-foreground: #141210;
+    --ring: #c4956a;
+    --admin-amber-text: #c4956a;
+    --admin-sage-text: #8b9a82;
+    --admin-blush-text: #d4a5a5;
+  }
+}
+
+/* Page and section headings: brand face, regular weight, editorial tracking. */
 .admin-scope h1,
 .admin-scope h2,
-.admin-scope h3,
-.admin-scope h4 {
-  font-family: inherit;
+.admin-scope h3 {
+  font-family: var(--font-cactus), "Cactus Classical Serif", serif;
   font-weight: 400;
   letter-spacing: 0.02em;
+}
+
+.admin-scope h4,
+.admin-scope h5,
+.admin-scope h6 {
+  font-family: inherit;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* Readable operational type scale. `@theme inline` bakes the sizes into the
+   utilities, so the admin steps are re-pointed here instead of via --text-*.
+   These are unlayered and scoped, so they win over the layered utilities. */
+.admin-scope .text-xs { font-size: 0.75rem; }     /* 12px meta, badges, captions */
+.admin-scope .text-sm { font-size: 0.875rem; }    /* 14px body, tables, controls */
+.admin-scope .text-base { font-size: 0.9375rem; } /* 15px lead copy */
+.admin-scope .text-xl { font-size: 1.0625rem; }   /* 17px section headings */
+.admin-scope .text-2xl { font-size: 1.1875rem; }  /* 19px card/empty-state titles */
+.admin-scope .text-3xl { font-size: 1.625rem; }   /* 26px page title (mobile) */
+.admin-scope .text-4xl { font-size: 1.75rem; }    /* 28px page title / KPI value */
+
+/* Shared buttons keep one label size in the back-office, including the
+   `asChild` links that carry `data-variant`. */
+.admin-scope [data-variant] {
+  font-size: 0.8125rem; /* 13px */
 }
 
 .admin-scope table {
@@ -563,7 +645,14 @@ a:visited {
 .admin-scope select,
 .admin-scope textarea {
   min-height: 2.5rem;
-  font-size: var(--text-sm);
+  font-size: 0.875rem;
+}
+
+/* Control boundaries: stronger than the decorative divider token so a field
+   stays identifiable, while the quiet toolbar fields keep their borderless
+   treatment and invalid fields keep their destructive border. */
+.admin-scope :where(input, select, textarea):not(.border-destructive):not(.admin-quiet-field) {
+  border-color: var(--admin-field-border);
 }
 
 /* Inline toolbar select (e.g. the customer status filter). The shared 40px
@@ -644,6 +733,119 @@ a:visited {
 .admin-scope .admin-quiet-field:hover {
   background-color: color-mix(in oklab, var(--color-amber) 9%, var(--color-background));
 }
+
+/* --- Admin link semantics ---
+   The global, unlayered `a, a:visited { color: inherit }` rule outranks every
+   layered Tailwind text utility. In the back-office that flattened link
+   colours and left the selected review filter as dark-on-dark. These scoped,
+   unlayered rules re-assert colour for the three link roles the admin area
+   uses, without touching the storefront rule itself. */
+.admin-scope .admin-nav-link {
+  color: var(--muted-foreground);
+}
+
+.admin-scope .admin-nav-link:hover,
+.admin-scope .admin-nav-link[aria-current="page"] {
+  color: var(--foreground);
+}
+
+.admin-scope .admin-nav-link .admin-nav-icon {
+  color: var(--muted-foreground);
+}
+
+.admin-scope .admin-nav-link:hover .admin-nav-icon,
+.admin-scope .admin-nav-link[aria-current="page"] .admin-nav-icon {
+  color: var(--primary);
+}
+
+/* The current page is marked by the warm amber tint alone; the foreground text
+   and primary icon above carry the rest of the emphasis. */
+.admin-scope .admin-nav-link[aria-current="page"] {
+  background-color: color-mix(in oklab, var(--color-amber) 18%, transparent);
+}
+
+/* Segmented filters (e.g. /admin/reviews). The selected pill is a solid,
+   high-contrast surface in both themes; the inactive pill stays readable. */
+.admin-scope .admin-filter-pill {
+  color: var(--muted-foreground);
+  border-color: var(--border);
+  background-color: transparent;
+}
+
+.admin-scope .admin-filter-pill:not([aria-current="page"]):hover {
+  color: var(--foreground);
+  border-color: color-mix(in oklab, var(--foreground) 35%, transparent);
+  background-color: color-mix(in oklab, var(--color-amber) 8%, transparent);
+}
+
+.admin-scope .admin-filter-pill[aria-current="page"] {
+  color: var(--background);
+  border-color: var(--foreground);
+  background-color: var(--foreground);
+}
+
+/* Keep the selected pill legible while focused: the generic admin focus wash
+   above would otherwise replace its dark fill and strand the light label. */
+.admin-scope a.admin-filter-pill[aria-current="page"]:focus-visible {
+  color: var(--background);
+  background-color: var(--foreground);
+}
+
+/* Inline text links inside tables and metadata blocks. */
+.admin-scope .admin-text-link {
+  color: var(--primary);
+  text-decoration-color: color-mix(in oklab, var(--primary) 45%, transparent);
+  text-underline-offset: 0.25em;
+}
+
+.admin-scope .admin-text-link:hover {
+  color: color-mix(in oklab, var(--primary) 85%, var(--foreground));
+  text-decoration-line: underline;
+}
+
+/* Quiet chrome links (breadcrumb, top-bar "Boutique", chart panel actions). */
+.admin-scope .admin-quiet-link {
+  color: var(--muted-foreground);
+}
+
+.admin-scope .admin-quiet-link:hover {
+  color: var(--foreground);
+}
+
+/* The skip link is an <a>, so it needs the explicit inverse colour too. */
+.admin-scope a.admin-skip-link:focus {
+  color: var(--background);
+}
+
+/* Shared buttons rendered as links (`<Button asChild><Link/></Button>`) keep
+   the foreground their variant was designed for. */
+.admin-scope a[data-variant="default"] {
+  color: var(--primary-foreground);
+}
+
+.admin-scope a[data-variant="secondary"] {
+  color: var(--secondary-foreground);
+}
+
+.admin-scope a[data-variant="destructive"] {
+  color: var(--destructive-foreground);
+}
+
+/* Brand tint text. The raw amber/sage/blush hues stay available for borders,
+   tint washes and decorative icons; text that carries meaning takes the
+   readable equivalent, so a sage label on a sage/10 chip is no longer 3:1. */
+.admin-scope .text-amber {
+  color: var(--admin-amber-text);
+}
+
+.admin-scope .text-sage {
+  color: var(--admin-sage-text);
+}
+
+.admin-scope .text-blush {
+  color: var(--admin-blush-text);
+}
+
 
 .admin-scope button.rounded-full,
 .admin-scope a.rounded-full[class*="inline-flex"] {

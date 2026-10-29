@@ -223,7 +223,7 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[10.5px] font-normal text-muted-foreground uppercase tracking-wider">
+            <span className="text-xs font-normal text-muted-foreground uppercase tracking-wider">
               {isVi ? "Tổng sản phẩm" : "Total Products"}
             </span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-muted-foreground">
@@ -251,7 +251,7 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[10.5px] font-normal text-sage uppercase tracking-wider">
+            <span className="text-xs font-normal text-sage uppercase tracking-wider">
               {isVi ? "Đang mở bán" : "Active / Live"}
             </span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-sage/15 text-sage">
@@ -279,7 +279,7 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[10.5px] font-normal text-amber uppercase tracking-wider">
+            <span className="text-xs font-normal text-amber uppercase tracking-wider">
               {isVi ? "Tạm ẩn / Bản nháp" : "Inactive / Draft"}
             </span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber/15 text-amber">
@@ -297,7 +297,7 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
         {/* Featured Products */}
         <div className="rounded-2xl border border-border bg-card/40 p-4 text-left">
           <div className="flex items-center justify-between">
-            <span className="text-[10.5px] font-normal text-muted-foreground uppercase tracking-wider">
+            <span className="text-xs font-normal text-muted-foreground uppercase tracking-wider">
               {isVi ? "Nổi bật" : "Featured"}
             </span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber/15 text-amber">
@@ -553,14 +553,14 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
                                   className="object-cover"
                                 />
                               ) : (
-                                <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground/40 tabular-nums">
+                                <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground tabular-nums">
                                   —
                                 </div>
                               )}
                             </div>
                             <div className="space-y-1">
                               <div className="flex items-center gap-2">
-                                <span className="font-normal text-foreground text-[13.5px]">
+                                <span className="font-normal text-foreground text-sm">
                                   {product.name}
                                 </span>
 
@@ -569,7 +569,7 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
                                 href={`/products/${product.slug}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-muted-foreground hover:text-foreground inline-flex items-center"
+                                className="admin-quiet-link inline-flex items-center"
                                 title={
                                   isVi
                                     ? "Xem trang tác phẩm trên cửa hàng"
@@ -581,18 +581,18 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
 
                               {/* Status Badge */}
                               {product.isActive ? (
-                                <span className="inline-flex items-center rounded-md border border-sage/40 bg-sage/10 px-1.5 py-0.5 text-[11px] font-normal text-sage">
+                                <span className="inline-flex items-center rounded-md border border-sage/40 bg-sage/10 px-1.5 py-0.5 text-xs font-normal text-sage">
                                   {isVi ? "Mở bán" : "Active"}
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center rounded-md border border-border bg-muted/60 px-1.5 py-0.5 text-[11px] font-normal text-muted-foreground">
+                                <span className="inline-flex items-center rounded-md border border-border bg-muted/60 px-1.5 py-0.5 text-xs font-normal text-muted-foreground">
                                   {isVi ? "Tạm ẩn" : "Draft"}
                                 </span>
                               )}
 
                               {/* Featured Badge */}
                               {product.isFeatured && (
-                                <span className="inline-flex items-center gap-0.5 rounded-md border border-amber/40 bg-amber/10 px-1.5 py-0.5 text-[11px] font-normal text-amber">
+                                <span className="inline-flex items-center gap-0.5 rounded-md border border-amber/40 bg-amber/10 px-1.5 py-0.5 text-xs font-normal text-amber">
                                   <Sparkles className="h-2.5 w-2.5" />
                                   <span>{isVi ? "Nổi bật" : "Featured"}</span>
                                 </span>
@@ -609,7 +609,7 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
                         {/* Category */}
                         <td className="py-4 px-4 whitespace-nowrap">
                           <span
-                            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-normal ${categoryMeta.className}`}
+                            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-normal ${categoryMeta.className}`}
                           >
                             {isVi ? categoryMeta.labelVi : categoryMeta.labelEn}
                           </span>
@@ -635,7 +635,7 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
                         </td>
 
                         {/* Base Price */}
-                        <td className="py-4 px-4 tabular-nums text-[13px] font-normal text-foreground whitespace-nowrap">
+                        <td className="py-4 px-4 tabular-nums text-sm font-normal text-foreground whitespace-nowrap">
                           <div>{formatPrice(product.basePrice)}</div>
                           {product.compareAtPrice && (
                             <div className="text-xs text-muted-foreground line-through">
@@ -648,7 +648,7 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
                         <td className="py-4 px-6 whitespace-nowrap">
                           <div className="flex items-center gap-2">
                             <span
-                              className={`tabular-nums text-[13.5px] font-normal ${
+                              className={`tabular-nums text-sm font-normal ${
                                 totalStock === 0
                                   ? "text-destructive"
                                   : totalStock <= 10
@@ -660,7 +660,7 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
                             </span>
                             <Link
                               href="/admin/inventory"
-                              className="text-muted-foreground hover:text-amber inline-flex items-center p-1 rounded hover:bg-muted/40 transition-colors"
+                              className="admin-quiet-link inline-flex items-center p-1 rounded hover:bg-muted/40 transition-colors"
                               title={
                                 isVi
                                   ? "Xem trong quản lý tồn kho"
@@ -727,7 +727,7 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
                               className="object-cover"
                             />
                           ) : (
-                            <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground/40 tabular-nums">
+                            <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground tabular-nums">
                               —
                             </div>
                           )}
@@ -738,16 +738,16 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
                               {product.name}
                             </h4>
                           {product.isActive ? (
-                            <span className="rounded-md border border-sage/40 bg-sage/10 px-1.5 py-0.5 text-[11px] text-sage font-normal">
+                            <span className="rounded-md border border-sage/40 bg-sage/10 px-1.5 py-0.5 text-xs text-sage font-normal">
                               {isVi ? "Mở bán" : "Active"}
                             </span>
                           ) : (
-                            <span className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground font-normal">
+                            <span className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-muted-foreground font-normal">
                               {isVi ? "Tạm ẩn" : "Draft"}
                             </span>
                           )}
                           {product.isFeatured && (
-                            <span className="rounded-md border border-amber/40 bg-amber/10 px-1.5 py-0.5 text-[11px] text-amber font-normal inline-flex items-center gap-0.5">
+                            <span className="rounded-md border border-amber/40 bg-amber/10 px-1.5 py-0.5 text-xs text-amber font-normal inline-flex items-center gap-0.5">
                               <Sparkles className="h-2.5 w-2.5" />
                               <span>{isVi ? "Nổi bật" : "Featured"}</span>
                             </span>
@@ -760,7 +760,7 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
                     </div>
 
                     <span
-                      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-normal shrink-0 ${categoryMeta.className}`}
+                      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-normal shrink-0 ${categoryMeta.className}`}
                     >
                         {isVi ? categoryMeta.labelVi : categoryMeta.labelEn}
                       </span>
@@ -800,7 +800,7 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
                         </span>
                         <Link
                           href="/admin/inventory"
-                          className="text-muted-foreground hover:text-amber text-xs underline underline-offset-2 ml-1"
+                          className="admin-quiet-link text-xs underline underline-offset-2 ml-1"
                         >
                           {isVi ? "Kho hàng" : "Inventory"}
                         </Link>
@@ -811,7 +811,7 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
                           href={`/products/${product.slug}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-muted-foreground hover:text-foreground p-1"
+                          className="admin-quiet-link p-1"
                           title={isVi ? "Xem trang sản phẩm" : "View live product"}
                         >
                           <ExternalLink className="h-3.5 w-3.5" />

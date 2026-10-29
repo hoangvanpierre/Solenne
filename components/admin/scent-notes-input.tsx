@@ -208,7 +208,7 @@ export function ScentNotesInput({
               ? "Nhập nốt hương và nhấn Enter..."
               : "Type a note and press Enter...")
           }
-          className="flex h-9 w-full rounded-lg border border-border bg-transparent px-3 py-1 text-[13px] font-normal placeholder:text-muted-foreground transition-colors"
+          className="flex h-9 w-full rounded-lg border border-border bg-transparent px-3 py-1 text-sm font-normal placeholder:text-muted-foreground transition-colors"
         />
         <button
           type="button"

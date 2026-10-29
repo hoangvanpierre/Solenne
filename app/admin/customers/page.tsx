@@ -158,7 +158,7 @@ export default async function AdminCustomersPage({
 
       <AdminPageHeader
         eyebrow={
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber/30 bg-amber/10 px-3 py-1 text-[11px] uppercase tracking-[0.08em] text-foreground">
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber/30 bg-amber/10 px-3 py-1 text-xs uppercase tracking-[0.08em] text-foreground">
             <Users className="h-3.5 w-3.5 text-amber-dark" aria-hidden="true" />
             <span>{isVi ? "Danh bạ khách hàng" : "Customer Directory"}</span>
           </div>

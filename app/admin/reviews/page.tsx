@@ -173,7 +173,7 @@ export default async function AdminReviewsPage({
 
       <AdminPageHeader
         eyebrow={
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber/30 bg-amber/10 px-3 py-1 text-[11px] uppercase tracking-[0.08em] text-foreground">
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber/30 bg-amber/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.08em] text-foreground">
             <Flag className="h-3.5 w-3.5 text-amber-dark" aria-hidden="true" />
             <span>{t("eyebrow")}</span>
           </div>
@@ -202,15 +202,11 @@ export default async function AdminReviewsPage({
               key={value}
               href={`/admin/reviews?status=${value}`}
               aria-current={active ? "page" : undefined}
-              className={
-                active
-                  ? "inline-flex items-center gap-1.5 rounded-full border border-foreground bg-foreground px-3.5 py-1.5 text-xs font-normal text-background"
-                  : "inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-xs font-normal text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground"
-              }
+              className="admin-filter-pill inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors"
             >
               <span>{t(FILTER_LABEL_KEYS[value])}</span>
               {value === "open" && openCount !== null ? (
-                <span className="tabular-nums opacity-80">{openCount}</span>
+                <span className="tabular-nums">{openCount}</span>
               ) : null}
             </Link>
           );
@@ -284,7 +280,7 @@ export default async function AdminReviewsPage({
                   {review ? (
                     <div className="mt-4">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h2 className="font-serif text-xl font-normal text-foreground">
+                        <h2 className="font-serif text-2xl font-normal text-foreground">
                           {review.title}
                         </h2>
                         <StarRating
@@ -330,7 +326,7 @@ export default async function AdminReviewsPage({
 
                   {report.details ? (
                     <div className="mt-4 rounded-xl border border-border bg-muted/20 p-4">
-                      <p className="text-[11px] font-normal uppercase tracking-[0.06em] text-muted-foreground">
+                      <p className="text-xs font-medium uppercase tracking-[0.06em] text-muted-foreground">
                         {t("reportDetailsLabel")}
                       </p>
                       <p className="mt-1.5 whitespace-pre-line text-sm leading-relaxed text-foreground">

@@ -189,7 +189,7 @@ function InventoryTableContent({ items, locale = "en" }: InventoryTableProps) {
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[10.5px] font-normal text-muted-foreground uppercase tracking-wider">
+            <span className="text-xs font-normal text-muted-foreground uppercase tracking-wider">
               {isVi ? "Tổng phiên bản" : "Total Variants"}
             </span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-muted-foreground">
@@ -217,7 +217,7 @@ function InventoryTableContent({ items, locale = "en" }: InventoryTableProps) {
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[10.5px] font-normal text-sage uppercase tracking-wider">
+            <span className="text-xs font-normal text-sage uppercase tracking-wider">
               {isVi ? "Dồi dào (>10)" : "In Stock (>10)"}
             </span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-sage/15 text-sage">
@@ -245,7 +245,7 @@ function InventoryTableContent({ items, locale = "en" }: InventoryTableProps) {
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[10.5px] font-normal text-amber uppercase tracking-wider">
+            <span className="text-xs font-normal text-amber uppercase tracking-wider">
               {isVi ? `Sắp hết (≤${LOW_STOCK_THRESHOLD})` : `Low Stock (≤${LOW_STOCK_THRESHOLD})`}
             </span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber/15 text-amber">
@@ -273,7 +273,7 @@ function InventoryTableContent({ items, locale = "en" }: InventoryTableProps) {
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[10.5px] font-normal text-destructive uppercase tracking-wider">
+            <span className="text-xs font-normal text-destructive uppercase tracking-wider">
               {isVi ? "Hết hàng (0)" : "Out of Stock (0)"}
             </span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-destructive/15 text-destructive">
@@ -473,7 +473,7 @@ function InventoryTableContent({ items, locale = "en" }: InventoryTableProps) {
                         <td className="py-4 px-6">
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
-                              <span className="font-normal text-[13.5px] text-foreground">
+                              <span className="font-normal text-sm text-foreground">
                                 {item.productName}
                               </span>
                               {item.productSlug && (
@@ -481,14 +481,14 @@ function InventoryTableContent({ items, locale = "en" }: InventoryTableProps) {
                                   href={`/products/${item.productSlug}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-muted-foreground hover:text-foreground inline-flex items-center"
+                                  className="admin-quiet-link inline-flex items-center"
                                   title={isVi ? "Xem trang sản phẩm" : "View product page"}
                                 >
                                   <ExternalLink className="h-3 w-3" />
                                 </Link>
                               )}
                               {!item.isProductActive && (
-                                <span className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground font-normal">
+                                <span className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-muted-foreground font-normal">
                                   {isVi ? "Ẩn" : "Draft"}
                                 </span>
                               )}
@@ -511,21 +511,21 @@ function InventoryTableContent({ items, locale = "en" }: InventoryTableProps) {
                         {/* Category */}
                         <td className="py-4 px-4 whitespace-nowrap">
                           <span
-                            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-normal ${categoryMeta.className}`}
+                            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-normal ${categoryMeta.className}`}
                           >
                             {isVi ? categoryMeta.labelVi : categoryMeta.labelEn}
                           </span>
                         </td>
 
                         {/* Price */}
-                        <td className="py-4 px-4 tabular-nums text-[13px] font-normal text-foreground whitespace-nowrap">
+                        <td className="py-4 px-4 tabular-nums text-sm font-normal text-foreground whitespace-nowrap">
                           {formatPrice(item.price)}
                         </td>
 
                         {/* Stock Quantity & Badge */}
                         <td className="py-4 px-6 whitespace-nowrap">
                           <div className="flex items-center gap-3">
-                            <span className="tabular-nums text-[13.5px] font-normal text-foreground min-w-[2.5rem]">
+                            <span className="tabular-nums text-sm font-normal text-foreground min-w-[2.5rem]">
                               {item.stockQuantity}
                             </span>
                             <StockStatusBadge
@@ -574,7 +574,7 @@ function InventoryTableContent({ items, locale = "en" }: InventoryTableProps) {
                             {item.productName}
                           </h4>
                           {!item.isProductActive && (
-                            <span className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground font-normal">
+                            <span className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-xs text-muted-foreground font-normal">
                               {isVi ? "Ẩn" : "Draft"}
                             </span>
                           )}
@@ -588,7 +588,7 @@ function InventoryTableContent({ items, locale = "en" }: InventoryTableProps) {
                       </div>
 
                       <span
-                        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-normal shrink-0 ${categoryMeta.className}`}
+                        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-normal shrink-0 ${categoryMeta.className}`}
                       >
                         {isVi ? categoryMeta.labelVi : categoryMeta.labelEn}
                       </span>

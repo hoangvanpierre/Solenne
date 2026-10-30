@@ -52,7 +52,7 @@ async function OrdersList({ userId, locale }: { userId: string; locale: string }
       <p className="rounded-2xl border border-border p-6 text-base text-muted-foreground">
         {isVi ? (
           <>
-            Chưa thể tải lịch sử đơn hàng lúc này. Quý khách vui lòng tải lại trang hoặc{" "}
+            Không thể tải lịch sử đơn hàng lúc này. Vui lòng tải lại trang hoặc{" "}
             <Link
               href="/contact"
               className="underline underline-offset-4 transition-colors hover:text-foreground"
@@ -87,7 +87,7 @@ async function OrdersList({ userId, locale }: { userId: string; locale: string }
         </p>
         <p className="text-sm text-muted-foreground">
           {isVi
-            ? "Các tác phẩm nến thơm của quý khách sẽ xuất hiện tại đây."
+            ? "Đơn hàng của bạn sẽ xuất hiện tại đây."
             : "Your candle orders will appear here."}
         </p>
         <Button asChild size="sm" className="mt-2">
@@ -146,17 +146,17 @@ export default async function OrdersPage() {
             className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            {isVi ? "Quay lại không gian cá nhân" : "Back to Account"}
+            {isVi ? "Quay lại tài khoản" : "Back to Account"}
           </Link>
         </nav>
 
         <div className="mb-10">
           <h1 className="font-serif text-2xl sm:text-3xl font-normal leading-[1.22] mb-3 text-foreground tracking-[0.02em]">
-            {isVi ? "Lịch Sử Đơn Hàng" : "Order History"}
+            {isVi ? "Lịch sử đơn hàng" : "Order History"}
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground leading-relaxed font-normal">
             {isVi
-              ? "Tất cả các tác phẩm quý khách đã từng thỉnh, mới nhất trước."
+              ? "Tất cả đơn hàng bạn từng đặt, mới nhất ở trên."
               : "Every order you've placed, most recent first."}
           </p>
         </div>

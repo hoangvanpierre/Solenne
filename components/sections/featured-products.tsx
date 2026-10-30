@@ -42,14 +42,14 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
         <div className="mb-16 text-center">
           <ScrollReveal>
             <p className="text-[10.5px] sm:text-[11px] tracking-[0.16em] uppercase text-muted-foreground font-normal mb-2.5">
-              {locale === "vi" ? "Tuyển chọn của Nhà hương" : "Maison Curations"}
+              {locale === "vi" ? "Nổi bật" : "Featured"}
             </p>
           </ScrollReveal>
           <TextReveal
             text={
               locale === "vi"
-                ? "Những tuyệt tác được trân quý"
-                : "Treasured Creations"
+                ? "Những mùi hương được yêu thích"
+                : "Favourites from the studio"
             }
             as="h2"
             className="font-serif text-2xl sm:text-3xl font-normal leading-[1.25] text-foreground text-balance"
@@ -87,7 +87,7 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
                   {product.compareAtPrice && (
                     <div className="absolute top-3 left-3">
                       <Badge variant="sale">
-                        {locale === "vi" ? "Đãi ngộ" : "Sale"}
+                        {locale === "vi" ? "Giảm giá" : "Sale"}
                       </Badge>
                     </div>
                   )}
@@ -133,7 +133,7 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
               href="/products"
               className="inline-flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary transition-colors group"
             >
-              {locale === "vi" ? "Xem tất cả tác phẩm" : "View All Products"}
+              {locale === "vi" ? "Xem tất cả sản phẩm" : "View all candles"}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </div>

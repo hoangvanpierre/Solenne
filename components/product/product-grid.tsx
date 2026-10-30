@@ -17,7 +17,7 @@ export function ProductGrid({ products, columns = 4 }: ProductGridProps) {
     return (
       <div className="py-12 text-center">
         <p className="text-muted-foreground">
-          {isVi ? "Không tìm thấy tác phẩm nào." : "No products found."}
+          {isVi ? "Không tìm thấy sản phẩm nào." : "No products found."}
         </p>
       </div>
     );

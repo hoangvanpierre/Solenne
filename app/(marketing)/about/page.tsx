@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 export const metadata: Metadata = {
   title: "About — Solenne",
   description:
-    "The story behind Solenne: small-batch artisan candles crafted with intention, honest ingredients, and a lighter footprint.",
+    "The story behind Solenne: hand-poured scented candles made in small batches, with natural soy wax and fragrance composed in Grasse.",
 };
 
 export default async function AboutPage() {
@@ -17,41 +17,41 @@ export default async function AboutPage() {
   const sections = [
     {
       id: "craft",
-      title: isVi ? "Nghệ thuật đúc nến chậm rãi" : "Our Craft",
+      title: isVi ? "Đổ chậm, bằng tay" : "Poured slowly, by hand",
       paragraphs: isVi
         ? [
-            "Mỗi tác phẩm Solenne bắt đầu trong xưởng thủ công tĩnh mịch, nơi từng mẻ nến nhỏ được đổ tay với sự điềm đạm vô song. Chúng tôi làm việc chậm rãi, bởi chúng tôi hiểu rằng sự xa xỉ đích thực không bao giờ có thể vội vã.",
-            "Từ việc cân chỉnh bấc nến đến nhát cắt tỉa cuối cùng, mỗi công đoạn đều tuân theo nghi thức lâu đời: kiểm soát nghiêm ngặt nhiệt độ rót, bấc bông dệt không chì và tròn mười bốn ngày ủ hương trước khi tác phẩm đủ tư cách tỏa sáng trong ngôi nhà bạn.",
+            "Nến được đổ tại xưởng theo từng mẻ nhỏ. Chúng tôi làm chậm, vì một ngọn nến làm vội sẽ dễ nhận ra ngay từ mùi hương.",
+            "Từ lúc cắt bấc đến thời gian ủ hương, mỗi bước theo cùng một quy trình: rót chậm, kiểm soát nhiệt độ cẩn thận và tròn hai tuần ủ trước khi nến rời xưởng.",
           ]
         : [
-            "Every Solenne candle begins in our studio, where small batches are poured by hand. We work slowly and deliberately, because a candle made in a hurry is easy to smell.",
-            "From wick trimming to cure time, each step follows the same ritual: slow pours, careful temperature control, and two full weeks of curing before a candle is good enough to leave our hands.",
+            "Every candle is poured in our studio in small batches. We work slowly, because a candle made in a hurry is easy to smell.",
+            "From wick trimming to cure time, each step follows the same routine: slow pours, careful temperature control, and two full weeks of curing before a candle leaves the studio.",
           ],
     },
     {
       id: "ingredients",
-      title: isVi ? "Nguyên liệu thanh khiết & Cao quý" : "Our Ingredients",
+      title: isVi ? "Nguyên liệu" : "What goes in",
       paragraphs: isVi
         ? [
-            "Chúng tôi sử dụng 100% sáp đậu nành tự nhiên, bấc cotton thuần khiết và tinh dầu hương thực vật được hòa quyện tại Grasse, kinh đô nước hoa của Pháp — tuyệt đối không chứa phthalate hay phụ phẩm dầu mỏ độc hại.",
-            "Mỗi bản hòa tấu hương thơm hé lộ qua ba tầng biến chuyển: nốt khởi hương thanh thoát khẽ chào đón, nốt tâm hương nồng nàn vương vấn suốt đêm dài, và nốt hương nền lắng đọng vấn vương mãi trong căn phòng ngay cả khi ngọn lửa đã say ngủ.",
+            "Chúng tôi dùng 100% sáp đậu nành tự nhiên, bấc cotton và tinh dầu hương pha chế không chứa phthalate. Chỉ những nguyên liệu bạn sẽ thấy ổn khi đốt trong nhà.",
+            "Mỗi mùi hương mở ra theo ba tầng: hương đầu chào đón, hương giữa vương lại, và hương nền ở lại sau khi ngọn lửa đã tắt.",
           ]
         : [
-            "We use 100% natural soy wax, cotton wicks, and premium fragrance oils blended without phthalates. Nothing you wouldn't want burning in your own home.",
-            "Each scent is composed in three movements: top notes that greet you, heart notes that linger, and base notes that stay long after the flame is out.",
+            "We use 100% natural soy wax, cotton wicks, and fragrance oils blended without phthalates. Nothing you wouldn't want burning in your own home.",
+            "Each scent opens in three stages: top notes that greet you, heart notes that linger, and a base that stays after the flame is out.",
           ],
     },
     {
       id: "sustainability",
-      title: isVi ? "Tấm lòng tri ân Mẹ thiên nhiên" : "Our Footprint",
+      title: isVi ? "Môi trường" : "Our footprint",
       paragraphs: isVi
         ? [
-            "Những chiếc ly thủy tinh dày dặn được tạo ra để nâng niu, rồi tái sinh cho những công năng mới. Từng vỏ hộp, hộp giấy và dải ruy-băng đều có nguồn gốc bền vững và có thể tái chế trọn vẹn.",
-            "Chúng tôi bù trừ lượng khí thải trong vận chuyển và giữ cho bao bì tối giản, không nhựa — bởi vẻ đẹp tinh tế thanh tao không cần bất cứ điều gì để giấu giếm.",
+            "Ly nến được làm để giữ lại rồi dùng tiếp. Mỗi chiếc hũ, hộp thiếc và hộp giấy đều tái chế được, và sáp đậu nành đến từ nguồn tái tạo trồng tại Hoa Kỳ.",
+            "Chúng tôi bù trừ khí thải vận chuyển và giữ bao bì tối giản. Ở đây không có gì để che giấu.",
           ]
         : [
-            "Our vessels are designed to be relished, then reused. Every jar, tin, and box is recyclable, and our soy wax is sourced from renewable, American-grown soybeans.",
-            "We offset shipping emissions and keep packaging minimal, because the luxury we're after has nothing to hide.",
+            "Our vessels are made to be kept, then reused. Every jar, tin and box is recyclable, and our soy wax comes from renewable, American-grown soybeans.",
+            "We offset shipping emissions and keep packaging minimal. There is nothing here to hide.",
           ],
     },
   ];
@@ -96,7 +96,7 @@ export default async function AboutPage() {
         <div className="mt-20 border-t border-border pt-12">
           <Button asChild size="lg">
             <Link href="/products">
-              {isVi ? "Khám phá bộ sưu tập nến" : "Explore the Collection"}
+              {isVi ? "Khám phá bộ sưu tập" : "Explore the collection"}
             </Link>
           </Button>
         </div>

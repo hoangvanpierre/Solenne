@@ -13,6 +13,17 @@ import { Button } from "@/components/ui";
 // the page query parameter on the current URL, so search, status and date
 // filters survive every page change and the server re-queries the whole data
 // set with the same filters.
+export interface AdminPaginationLabels {
+  /** Accessible name of the pagination landmark. */
+  navigation: string;
+  previous: string;
+  next: string;
+  /** Template with `{page}` and `{total}`. */
+  pageOf: string;
+  /** Template with `{start}`, `{end}`, `{total}` and `{item}`. */
+  summary: string;
+}
+
 export interface AdminPaginationProps {
   /** 1-based page the server rendered. */
   page: number;
@@ -28,7 +39,22 @@ export interface AdminPaginationProps {
   itemLabelVi: string;
   /** Query parameter that carries the page number. */
   pageParam?: string;
+  /**
+   * Localized copy from the caller's message catalogue. When omitted the
+   * built-in English/Vietnamese wording is used, so the existing tables keep
+   * their current text unchanged.
+   */
+  labels?: AdminPaginationLabels;
   className?: string;
+}
+
+function fillTemplate(
+  template: string,
+  values: Record<string, string | number>
+): string {
+  return template.replace(/\{(\w+)\}/g, (match, key: string) =>
+    key in values ? String(values[key]) : match
+  );
 }
 
 export function AdminPagination({
@@ -40,6 +66,7 @@ export function AdminPagination({
   itemLabelEn,
   itemLabelVi,
   pageParam = "page",
+  labels,
   className,
 }: AdminPaginationProps) {
   const isVi = locale === "vi";
@@ -57,6 +84,14 @@ export function AdminPagination({
     totalCount === 0 ? 0 : Math.min((safePage - 1) * safeLimit + 1, totalCount);
   const endRecord = Math.min(safePage * safeLimit, totalCount);
 
+  const navigationLabel =
+    labels?.navigation ?? (isVi ? "Phân trang" : "Pagination");
+  const previousLabel = labels?.previous ?? (isVi ? "Trước" : "Previous");
+  const nextLabel = labels?.next ?? (isVi ? "Sau" : "Next");
+  const pageOfLabel =
+    labels?.pageOf ??
+    (isVi ? "Trang {page}/{total}" : "Page {page} of {total}");
+
   const goToPage = (nextPage: number) => {
     const params = new URLSearchParams(searchParams.toString());
     if (nextPage <= 1) {
@@ -70,14 +105,21 @@ export function AdminPagination({
 
   return (
     <nav
-      aria-label={isVi ? "Phân trang" : "Pagination"}
+      aria-label={navigationLabel}
       className={cn(
         "flex flex-col gap-4 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between",
         className
       )}
     >
       <p className="text-sm text-muted-foreground" aria-live="polite">
-        {isVi ? (
+        {labels ? (
+          fillTemplate(labels.summary, {
+            start: startRecord,
+            end: endRecord,
+            total: totalCount,
+            item: isVi ? itemLabelVi : itemLabelEn,
+          })
+        ) : isVi ? (
           <>
             Hiển thị{" "}
             <span className="tabular-nums text-foreground">{startRecord}</span>
@@ -107,13 +149,14 @@ export function AdminPagination({
           disabled={!canGoPrevious}
         >
           <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
-          <span>{isVi ? "Trước" : "Previous"}</span>
+          <span>{previousLabel}</span>
         </Button>
 
         <span className="px-1 text-sm tabular-nums text-muted-foreground">
-          {isVi
-            ? `Trang ${safePage}/${totalPages}`
-            : `Page ${safePage} of ${totalPages}`}
+          {fillTemplate(pageOfLabel, {
+            page: safePage,
+            total: totalPages,
+          })}
         </span>
 
         <Button
@@ -123,7 +166,7 @@ export function AdminPagination({
           onClick={() => goToPage(safePage + 1)}
           disabled={!canGoNext}
         >
-          <span>{isVi ? "Sau" : "Next"}</span>
+          <span>{nextLabel}</span>
           <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
         </Button>
       </div>

@@ -7,7 +7,7 @@ import { SCENT_CATEGORIES } from "@/lib/constants";
 export const metadata: Metadata = {
   title: "Collections — Solenne",
   description:
-    "Explore Solenne's curated candle collections, organized by scent family: floral, woody, fresh, and warm.",
+    "Solenne candle collections, organised by scent family: floral, woody, fresh and warm.",
 };
 
 export default async function CollectionsPage() {

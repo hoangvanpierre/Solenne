@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Expand } from "lucide-react";
 import { ProductPicture } from "@/components/product/product-picture";
 import { cn } from "@/lib/utils";
+import { useAppLocale } from "@/hooks/use-locale";
 
 interface ProductGalleryProps {
   images: string[];
@@ -14,6 +15,7 @@ interface ProductGalleryProps {
 export function ProductGallery({ images, productName }: ProductGalleryProps) {
   const hasImages = images && images.length > 0;
   const galleryImages = hasImages ? images : [];
+  const isVi = useAppLocale() === "vi";
       
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -33,7 +35,11 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
             {hasImages ? (
               <ProductPicture
                 src={galleryImages[activeIndex]}
-                alt={`${productName} - photo ${activeIndex + 1}`}
+                alt={
+                  isVi
+                    ? `${productName} — ảnh ${activeIndex + 1}`
+                    : `${productName} — photo ${activeIndex + 1}`
+                }
                 fill
                 priority={activeIndex === 0}
                 loading={activeIndex === 0 ? "eager" : "lazy"}
@@ -49,7 +55,9 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
 
         <button 
           className="absolute bottom-4 right-4 z-10 p-2 rounded-full bg-white/50 backdrop-blur-md opacity-0 transition-opacity group-hover:opacity-100 hover:bg-white"
-          aria-label={`Expand ${productName} image`}
+          aria-label={
+            isVi ? `Phóng to ảnh ${productName}` : `Expand ${productName} image`
+          }
         >
           <Expand className="h-5 w-5" />
         </button>
@@ -62,7 +70,11 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
             <button
               key={idx}
               onClick={() => setActiveIndex(idx)}
-              aria-label={`View ${productName} photo ${idx + 1}`}
+              aria-label={
+                isVi
+                  ? `Xem ảnh ${idx + 1} của ${productName}`
+                  : `View ${productName} photo ${idx + 1}`
+              }
               className={cn(
                 "relative aspect-[3/4] w-20 flex-shrink-0 overflow-hidden rounded-xl bg-muted transition-all duration-200",
                 activeIndex === idx
@@ -73,7 +85,11 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
               {hasImages ? (
                 <ProductPicture
                   src={img}
-                  alt={`${productName} thumbnail ${idx + 1}`}
+                  alt={
+                    isVi
+                      ? `Ảnh thu nhỏ ${idx + 1} của ${productName}`
+                      : `${productName} thumbnail ${idx + 1}`
+                  }
                   fill
                   sizes="80px"
                   className="object-cover"

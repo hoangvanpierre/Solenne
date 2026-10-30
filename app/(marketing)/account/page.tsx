@@ -90,7 +90,7 @@ export default async function AccountPage() {
             <div className="flex flex-wrap items-center gap-2.5">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber/30 bg-amber/10 text-amber text-[11px] tracking-wider uppercase font-normal">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>{isVi ? "Thành viên Góc riêng Solenne" : "Solenne Sanctuary Member"}</span>
+                <span>{isVi ? "Thành viên Solenne" : "Solenne Member"}</span>
               </div>
               {isManagement && (
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-border bg-muted/60 text-muted-foreground text-[11px] tracking-wider uppercase font-normal">
@@ -100,12 +100,12 @@ export default async function AccountPage() {
               )}
             </div>
             <h1 className="font-serif text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground tracking-[0.02em]">
-              {isVi ? "Không Gian Cá Nhân" : "Account"}
+              {isVi ? "Tài khoản" : "Account"}
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground font-normal">
               {isVi
-                ? "Nơi lưu giữ những nốt hương và hành trình cùng Solenne"
-                : "Your personal space at Solenne"}
+                ? "Đơn hàng, địa chỉ và thông tin tài khoản của bạn."
+                : "Your orders, address, and details."}
             </p>
           </div>
 
@@ -161,12 +161,12 @@ export default async function AccountPage() {
 
           <aside className="lg:col-span-2">
             <h2 className="font-serif text-xl sm:text-2xl font-normal text-foreground leading-[1.28]">
-              {isVi ? "Địa chỉ an nhận" : "Shipping Sanctuary"}
+              {isVi ? "Địa chỉ giao hàng" : "Shipping address"}
             </h2>
             <p className="mt-2 text-[13.5px] sm:text-[14px] leading-relaxed text-muted-foreground font-normal">
               {isVi
-                ? "Điểm đến mặc định của quý khách, tự động điền khi thỉnh nến."
-                : "Your default destination, filled in automatically at checkout."}
+                ? "Địa chỉ mặc định của bạn, tự động điền khi thanh toán."
+                : "Your default address, filled in automatically at checkout."}
             </p>
 
             {defaultAddress ? (
@@ -222,12 +222,12 @@ export default async function AccountPage() {
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div>
               <h2 className="font-serif text-xl sm:text-2xl font-normal text-foreground leading-[1.28]">
-                {isVi ? "Hồ sơ bản sắc" : "Bespoke Profile"}
+                {isVi ? "Hồ sơ cá nhân" : "Profile"}
               </h2>
               <p className="mt-2 max-w-lg text-[13.5px] sm:text-[14px] leading-relaxed text-muted-foreground font-normal">
                 {isVi
-                  ? "Nốt hương yêu thích, tiền tệ hiển thị và chi tiết tài khoản — lưu giữ tĩnh tại nơi đây."
-                  : "Your scent preferences, currency, and account details — kept in one quiet place."}
+                  ? "Sở thích mùi hương, đơn vị tiền tệ và thông tin tài khoản."
+                  : "Your scent preferences, currency, and account details."}
               </p>
             </div>
             <Link
@@ -242,10 +242,10 @@ export default async function AccountPage() {
           <div className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-12">
             <div>
               <p className="text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground font-normal">
-                {isVi ? "Sở thích hương sắc" : "Scent Preferences"}
+                {isVi ? "Sở thích mùi hương" : "Scent Preferences"}
               </p>
               <p className="mt-2.5 text-[13px] leading-relaxed text-foreground font-normal">
-                {isVi ? "Chưa được thiết lập riêng." : "Not personalized yet."}
+                {isVi ? "Chưa thiết lập." : "Not personalized yet."}
               </p>
               <Link
                 href="/collections"

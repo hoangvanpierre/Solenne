@@ -4,7 +4,7 @@
 
 export const SITE_NAME = "Solenne";
 export const SITE_DESCRIPTION =
-  "Artisan scented candles crafted with intention. Illuminate your moments with Solenne's hand-poured, natural soy wax candles.";
+  "Hand-poured scented candles made in small batches with natural soy wax. Light for the moments that matter.";
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://solenne.com";
 
@@ -13,10 +13,10 @@ export const CONTACT_EMAIL = "dangvohoangvan@gmail.com";
 // --- Navigation Links ---
 export const NAV_LINKS = [
   { label: "Home", labelVi: "Trang chủ", href: "/" },
-  { label: "Shop", labelVi: "Cửa hàng", href: "/products" },
+  { label: "Shop", labelVi: "Sản phẩm", href: "/products" },
   { label: "Collections", labelVi: "Bộ sưu tập", href: "/collections" },
-  { label: "About", labelVi: "Câu chuyện Solenne", href: "/about" },
-  { label: "Journal", labelVi: "Nhật ký hương", href: "/journal" },
+  { label: "About", labelVi: "Giới thiệu", href: "/about" },
+  { label: "Journal", labelVi: "Tạp chí", href: "/journal" },
   { label: "Contact", labelVi: "Liên hệ", href: "/contact" },
 ] as const;
 
@@ -24,33 +24,33 @@ export const NAV_LINKS = [
 export const FOOTER_LINKS = {
   shop: {
     title: "Shop",
-    titleVi: "Tác phẩm của Nhà hương",
+    titleVi: "Sản phẩm",
     links: [
-      { label: "All Products", labelVi: "Tất cả sáng tạo", href: "/products" },
+      { label: "All Products", labelVi: "Tất cả sản phẩm", href: "/products" },
       { label: "Collections", labelVi: "Bộ sưu tập", href: "/collections" },
-      { label: "New Arrivals", labelVi: "Tác phẩm mới", href: "/products?sort=newest" },
-      { label: "Best Sellers", labelVi: "Được trân quý nhất", href: "/products?sort=popular" },
-      { label: "Gift Sets", labelVi: "Hộp quà thượng hạng", href: "/collections/gift-sets" },
+      { label: "New Arrivals", labelVi: "Sản phẩm mới", href: "/products?sort=newest" },
+      { label: "Best Sellers", labelVi: "Bán chạy", href: "/products?sort=popular" },
+      { label: "Gift Sets", labelVi: "Bộ quà tặng", href: "/collections/gift-sets" },
     ],
   },
   about: {
     title: "About",
-    titleVi: "Di sản Solenne",
+    titleVi: "Giới thiệu",
     links: [
-      { label: "Our Story", labelVi: "Câu chuyện Nhà hương", href: "/about" },
-      { label: "Craftsmanship", labelVi: "Nghệ thuật chế tác", href: "/about#craft" },
-      { label: "Ingredients", labelVi: "Nguyên liệu tự nhiên", href: "/about#ingredients" },
-      { label: "Sustainability", labelVi: "Cam kết bền vững", href: "/about#sustainability" },
+      { label: "Our Story", labelVi: "Câu chuyện của Solenne", href: "/about" },
+      { label: "Craftsmanship", labelVi: "Cách chúng tôi làm", href: "/about#craft" },
+      { label: "Ingredients", labelVi: "Nguyên liệu", href: "/about#ingredients" },
+      { label: "Sustainability", labelVi: "Môi trường", href: "/about#sustainability" },
     ],
   },
   support: {
     title: "Support",
-    titleVi: "Chăm sóc tri âm",
+    titleVi: "Hỗ trợ",
     links: [
-      { label: "Contact Us", labelVi: "Liên hệ chúng tôi", href: "/contact" },
+      { label: "Contact Us", labelVi: "Liên hệ", href: "/contact" },
       { label: "FAQ", labelVi: "Câu hỏi thường gặp", href: "/faq" },
       { label: "Shipping & Returns", labelVi: "Giao hàng & Đổi trả", href: "/shipping" },
-      { label: "Candle Care Guide", labelVi: "Nghi thức chăm sóc nến", href: "/care-guide" },
+      { label: "Candle Care Guide", labelVi: "Cách chăm sóc nến", href: "/care-guide" },
     ],
   },
 } as const;
@@ -105,8 +105,8 @@ export const SCENT_CATEGORIES = [
     id: "floral" as const,
     name: "Floral",
     nameVi: "Hoa",
-    description: "Delicate blooms and garden-fresh petals",
-    descriptionVi: "Hương hoa tinh tế và cánh hoa tươi mát",
+    description: "Soft blooms and fresh-cut petals",
+    descriptionVi: "Hoa mềm và cánh hoa vừa cắt",
     color: "#D4A5A5",
     bgColor: "bg-blush/20",
     icon: "flower",
@@ -115,8 +115,8 @@ export const SCENT_CATEGORIES = [
     id: "woody" as const,
     name: "Woody",
     nameVi: "Gỗ",
-    description: "Warm cedar, sandalwood, and earthy tones",
-    descriptionVi: "Gỗ tuyết tùng ấm áp, đàn hương và hương đất",
+    description: "Cedar, sandalwood and dry earth",
+    descriptionVi: "Tuyết tùng, đàn hương và hương đất khô",
     color: "#8B7355",
     bgColor: "bg-amber/20",
     icon: "tree",
@@ -125,8 +125,8 @@ export const SCENT_CATEGORIES = [
     id: "fresh" as const,
     name: "Fresh",
     nameVi: "Tươi mát",
-    description: "Crisp citrus, ocean breeze, and morning dew",
-    descriptionVi: "Cam chanh tươi mát, gió biển và sương mai",
+    description: "Citrus peel, sea air and morning dew",
+    descriptionVi: "Vỏ cam chanh, gió biển và sương mai",
     color: "#8B9A82",
     bgColor: "bg-sage/20",
     icon: "wind",
@@ -135,8 +135,8 @@ export const SCENT_CATEGORIES = [
     id: "warm" as const,
     name: "Warm",
     nameVi: "Ấm áp",
-    description: "Rich vanilla, amber, and spiced comfort",
-    descriptionVi: "Vanilla nồng nàn, hổ phách và hương gia vị",
+    description: "Vanilla, amber and warm spice",
+    descriptionVi: "Vani, hổ phách và gia vị ấm",
     color: "#C4956A",
     bgColor: "bg-amber/20",
     icon: "flame",
@@ -157,8 +157,8 @@ export const USD_TO_VND = 25_000;
 // --- Announcement Messages ---
 export const ANNOUNCEMENTS = [
   "Free shipping on orders over $50",
-  "Handcrafted with natural soy wax",
-  "New: Summer Bloom Collection ✨",
+  "Hand-poured with natural soy wax",
+  "New: Summer Bloom collection",
   "Gift wrapping available at checkout",
 ] as const;
 

@@ -68,8 +68,11 @@ export function Newsletter() {
 
           <ScrollReveal delay={0.2}>
             {feedback?.type === "success" ? (
-              <div className="rounded-full bg-cream/10 border border-cream/20 py-3.5 px-6 max-w-md mx-auto text-sm text-cream animate-fadeIn">
-                ✨ {feedback.message}
+              <div
+                role="status"
+                className="rounded-full bg-cream/10 border border-cream/20 py-3.5 px-6 max-w-md mx-auto text-sm text-cream animate-fadeIn"
+              >
+                {feedback.message}
               </div>
             ) : (
               <form

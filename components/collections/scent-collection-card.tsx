@@ -152,7 +152,7 @@ export function ScentCollectionCard({
             <span className={styles.linkRow}>
               <span className={styles.linkText}>
                 {isVi
-                  ? `Khám phá bộ sưu tập ${category.nameVi}`
+                  ? `Khám phá hương ${category.nameVi}`
                   : `Explore the ${category.name} collection`}
                 <span
                   className={styles.linkUnderline}

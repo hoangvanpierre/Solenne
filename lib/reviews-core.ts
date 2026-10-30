@@ -1,4 +1,7 @@
 import type {
+  AdminReviewEntry,
+  AdminReviewStatusFilter,
+  AdminReviewView,
   ReviewDistribution,
   ReviewEligibility,
   ReviewReportReason,
@@ -379,6 +382,232 @@ export function isMissingReviewSchema(
     message.includes("review_reports") ||
     message.includes("product_review_stats")
   );
+}
+
+// ---------------------------------------------------------------------------
+// Back-office "All Reviews" browsing (pure helpers).
+//
+// /admin/reviews has two top-level views: the report queue (moderation) and the
+// review list (monitoring). These helpers own the URL contract of the second
+// one — which view a request resolves to, how each filter is validated, and how
+// a database row becomes a displayable entry — so the server page, the client
+// table and the unit tests cannot drift apart.
+//
+// Nothing here reads an author UUID, purchase evidence or a moderation actor:
+// migration 0015 grants `authenticated` none of those columns, and the review
+// list has no use for them.
+// ---------------------------------------------------------------------------
+
+export const ADMIN_REVIEW_VIEWS = ["all", "reports"] as const;
+
+export const ADMIN_REVIEW_STATUS_FILTERS = [
+  "all",
+  "published",
+  "hidden",
+] as const;
+
+export const ADMIN_REVIEW_RATING_FILTERS = [5, 4, 3, 2, 1] as const;
+
+/** Rows per page in the All Reviews table. */
+export const ADMIN_REVIEW_PAGE_SIZE = 20;
+/** Hard ceiling for a page number, so a hostile `?page=` cannot cost a scan. */
+export const ADMIN_REVIEW_MAX_PAGE = 1000;
+/** Shortest committed search term; one-character searches are skipped. */
+export const ADMIN_REVIEW_SEARCH_MIN = 2;
+/**
+ * Longest accepted search term. Kept in step with ADMIN_SEARCH_MAX_LENGTH in
+ * lib/search-utils.ts; duplicated here so this module stays dependency-free and
+ * importable by the Node test runner.
+ */
+export const ADMIN_REVIEW_SEARCH_MAX = 80;
+
+/**
+ * True for the four report-status values the Reports view understands. Used
+ * only to recognize pre-existing bookmarks such as `?status=open`, which
+ * predate the `view` parameter and must keep opening the Reports view.
+ */
+export function isLegacyReviewReportStatus(value: unknown): boolean {
+  return (
+    value === "open" ||
+    value === "resolved" ||
+    value === "dismissed" ||
+    value === "all"
+  );
+}
+
+/**
+ * Resolves the active top-level view.
+ *
+ * `view` wins whenever it is one of the known values. When it is absent (or
+ * unrecognized) but a legacy report `status` parameter is present, the request
+ * is an old Reports bookmark and stays on Reports. Everything else is All
+ * Reviews, which is the default view of /admin/reviews.
+ */
+export function normalizeAdminReviewView(
+  view: unknown,
+  legacyReportStatus?: unknown
+): AdminReviewView {
+  if (
+    typeof view === "string" &&
+    (ADMIN_REVIEW_VIEWS as readonly string[]).includes(view)
+  ) {
+    return view as AdminReviewView;
+  }
+
+  return isLegacyReviewReportStatus(legacyReportStatus) ? "reports" : "all";
+}
+
+/** Unknown or missing publication status falls back to "all". */
+export function normalizeAdminReviewStatusFilter(
+  value: unknown
+): AdminReviewStatusFilter {
+  return typeof value === "string" &&
+    (ADMIN_REVIEW_STATUS_FILTERS as readonly string[]).includes(value)
+    ? (value as AdminReviewStatusFilter)
+    : "all";
+}
+
+/**
+ * Parses the rating filter. Returns a star value 1–5, or null for "all
+ * ratings". Anything malformed (`"6"`, `"0"`, `"4.5"`, `"abc"`, arrays) is
+ * treated as no rating filter rather than being passed to the query.
+ */
+export function normalizeAdminReviewRatingFilter(value: unknown): number | null {
+  if (typeof value === "number") {
+    return isValidReviewRating(value) ? value : null;
+  }
+
+  if (typeof value !== "string") return null;
+
+  const trimmed = value.trim();
+  if (!/^[1-5]$/.test(trimmed)) return null;
+
+  const parsed = Number(trimmed);
+  return isValidReviewRating(parsed) ? parsed : null;
+}
+
+/**
+ * Parses a 1-based page number. Missing, non-numeric, fractional and negative
+ * values all resolve to page 1; an absurdly large page is clamped so the
+ * offset stays bounded.
+ */
+export function normalizeAdminReviewPage(value: unknown): number {
+  const raw =
+    typeof value === "number"
+      ? value
+      : typeof value === "string"
+        ? Number(value.trim())
+        : Number.NaN;
+
+  if (!Number.isFinite(raw)) return 1;
+
+  const page = Math.floor(raw);
+  if (page < 1) return 1;
+
+  return Math.min(page, ADMIN_REVIEW_MAX_PAGE);
+}
+
+/**
+ * Bounds and sanitizes a free-text search term.
+ *
+ * PostgREST's `.or()` grammar is comma-separated, so a term containing commas,
+ * parentheses, quotes, colons, asterisks or backslashes could rewrite the
+ * filter expression. Those characters become spaces here, before the term is
+ * ever interpolated. `%` and `_` are kept because they are meaningful to the
+ * caller's literal search and are escaped when the LIKE pattern is built.
+ */
+export function normalizeAdminReviewSearch(value: unknown): string {
+  if (typeof value !== "string") return "";
+
+  return value
+    .slice(0, ADMIN_REVIEW_SEARCH_MAX)
+    .replace(/[,().*:"'\\]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * `%term%` for an ILIKE filter, or null when there is nothing to search.
+ * Wildcards in the term match literally (same escaping as `escapeLikePattern`
+ * in lib/search-utils.ts, repeated here to keep this module import-free).
+ */
+export function buildAdminReviewSearchPattern(term: unknown): string | null {
+  const normalized = normalizeAdminReviewSearch(term);
+  if (normalized.length === 0) return null;
+
+  const escaped = normalized
+    .replace(/\\/g, "\\\\")
+    .replace(/%/g, "\\%")
+    .replace(/_/g, "\\_");
+
+  return `%${escaped}%`;
+}
+
+/** The exact `product_reviews` columns the All Reviews query selects. */
+export const ADMIN_REVIEW_COLUMNS = [
+  "id",
+  "product_id",
+  "rating",
+  "title",
+  "body",
+  "display_name",
+  "status",
+  "created_at",
+  "updated_at",
+] as const;
+
+/** Row shape returned by the All Reviews query (snake_case). */
+export interface AdminReviewRow {
+  id: string;
+  product_id: string;
+  rating: number | string;
+  title: string;
+  body: string;
+  display_name: string | null;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Product label needed by one review row. */
+export interface AdminReviewProductLabel {
+  name: string;
+  slug: string | null;
+}
+
+function normalizeRowRating(value: number | string): number {
+  const parsed = typeof value === "string" ? Number(value) : value;
+  if (!Number.isFinite(parsed)) return 0;
+  return Math.min(REVIEW_RATING_MAX, Math.max(0, Math.round(parsed)));
+}
+
+/**
+ * Maps a database row plus its resolved product label onto the display model.
+ *
+ * A review whose product row could not be read still renders (with an empty
+ * name, which the UI replaces with its localized "unknown product" label)
+ * instead of disappearing from the list. Anything other than `hidden` is
+ * treated as `published`, mirroring the two-state CHECK constraint.
+ */
+export function mapAdminReviewRow(
+  row: AdminReviewRow,
+  product: AdminReviewProductLabel | null
+): AdminReviewEntry {
+  const productName = typeof product?.name === "string" ? product.name.trim() : "";
+
+  return {
+    id: row.id,
+    productId: row.product_id,
+    productName,
+    productSlug: product?.slug ?? null,
+    rating: normalizeRowRating(row.rating),
+    title: row.title ?? "",
+    body: row.body ?? "",
+    displayName: normalizeReviewDisplayName(row.display_name),
+    status: row.status === "hidden" ? "hidden" : "published",
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
 }
 
 // ---------------------------------------------------------------------------

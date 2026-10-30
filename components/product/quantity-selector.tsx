@@ -1,6 +1,7 @@
 "use client";
 
 import { Minus, Plus } from "lucide-react";
+import { useAppLocale } from "@/hooks/use-locale";
 
 interface QuantitySelectorProps {
   quantity: number;
@@ -13,7 +14,9 @@ export function QuantitySelector({
   onQuantityChange, 
   max = 10 
 }: QuantitySelectorProps) {
-  
+  const locale = useAppLocale();
+  const isVi = locale === "vi";
+
   const handleDecrease = () => {
     if (quantity > 1) onQuantityChange(quantity - 1);
   };
@@ -29,7 +32,7 @@ export function QuantitySelector({
         onClick={handleDecrease}
         disabled={quantity <= 1}
         className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50 disabled:hover:bg-transparent"
-        aria-label="Decrease quantity"
+        aria-label={isVi ? "Giảm số lượng" : "Decrease quantity"}
       >
         <Minus className="h-3.5 w-3.5" />
       </button>
@@ -43,7 +46,7 @@ export function QuantitySelector({
         onClick={handleIncrease}
         disabled={quantity >= max}
         className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50 disabled:hover:bg-transparent"
-        aria-label="Increase quantity"
+        aria-label={isVi ? "Tăng số lượng" : "Increase quantity"}
       >
         <Plus className="h-4 w-4" />
       </button>

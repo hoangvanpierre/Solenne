@@ -80,7 +80,7 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
     <div className="py-24 lg:py-32">
       <Container>
         <nav
-          aria-label="Breadcrumb"
+          aria-label={isVi ? "Đường dẫn" : "Breadcrumb"}
           className="mb-8 text-[13px] text-muted-foreground font-normal"
         >
           <Link

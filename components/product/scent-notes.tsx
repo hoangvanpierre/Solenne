@@ -15,17 +15,17 @@ export function ScentNotes({ top, heart, base }: ScentNotesProps) {
 
   const tiers = [
     {
-      label: isVi ? "Khởi hương (Nốt đầu)" : "Top Notes",
+      label: isVi ? "Hương đầu" : "Top notes",
       notes: top,
       bg: "bg-stone-50",
     },
     {
-      label: isVi ? "Tâm hương (Nốt giữa)" : "Heart Notes",
+      label: isVi ? "Hương giữa" : "Heart notes",
       notes: heart,
       bg: "bg-stone-100",
     },
     {
-      label: isVi ? "Hương nền (Nốt cuối)" : "Base Notes",
+      label: isVi ? "Hương nền" : "Base notes",
       notes: base,
       bg: "bg-stone-200",
     },

@@ -18,25 +18,25 @@ export default async function ContactPage() {
   const contactCards = [
     {
       icon: Mail,
-      title: isVi ? "Thư điện tử" : "Email",
+      title: isVi ? "Email" : "Email",
       lines: [
         CONTACT_EMAIL,
         isVi
-          ? "Phản hồi trang trọng trong 2 ngày làm việc."
+          ? "Phản hồi trong hai ngày làm việc."
           : "We reply within two business days.",
       ],
     },
     {
       icon: MapPin,
-      title: isVi ? "Xưởng chế tác" : "Studio",
+      title: isVi ? "Xưởng" : "Studio",
       lines: [
-        isVi ? "Xưởng thủ công Solenne" : "Solenne Studio",
-        isVi ? "Đón tiếp theo lịch hẹn riêng." : "By appointment only.",
+        isVi ? "Xưởng Solenne" : "Solenne Studio",
+        isVi ? "Đến thăm theo lịch hẹn." : "By appointment only.",
       ],
     },
     {
       icon: Clock,
-      title: isVi ? "Thời gian đón tiếp" : "Hours",
+      title: isVi ? "Giờ mở cửa" : "Hours",
       lines: [
         isVi ? "Thứ Hai đến Thứ Sáu" : "Monday to Friday",
         "9:00 – 17:00 (GMT+7)",
@@ -49,12 +49,12 @@ export default async function ContactPage() {
       <Container className="max-w-5xl">
         <div className="mb-16">
           <h1 className="font-serif text-2xl sm:text-3xl font-normal leading-[1.22] mb-3 text-foreground tracking-[0.02em]">
-            {isVi ? "Liên hệ Nhà hương" : "Contact"}
+            {isVi ? "Liên hệ" : "Contact"}
           </h1>
           <p className="text-muted-foreground text-sm sm:text-base max-w-2xl font-normal leading-relaxed">
             {isVi
-              ? "Dù là một băn khoăn về đơn hàng, nốt hương quý khách đang kiếm tìm, hay món quà gửi trao người thương, chúng tôi luôn ở đây để lắng nghe."
-              : "Whether it's a question about an order, a scent you're searching for, or a gift you'd like help choosing, we'd love to hear from you."}
+              ? "Bạn có câu hỏi về đơn hàng, một mùi hương hay một món quà? Viết cho xưởng, chúng tôi sẽ phản hồi trong hai ngày làm việc."
+              : "Questions about an order, a scent, or a gift? Write to the studio and we'll reply within two business days."}
           </p>
         </div>
 
@@ -79,8 +79,8 @@ export default async function ContactPage() {
             ))}
             <p className="text-[13px] text-muted-foreground font-normal leading-relaxed">
               {isVi
-                ? "Đối với các câu hỏi về đơn hàng cụ thể, quý khách vui lòng kèm theo mã đơn hàng để chúng tôi hỗ trợ nhanh nhất."
-                : "For order-specific questions, please include your order number so we can help you faster."}
+                ? "Với câu hỏi về một đơn hàng cụ thể, hãy kèm mã đơn hàng để chúng tôi hỗ trợ nhanh hơn."
+                : "For order-specific questions, include your order number so we can help you faster."}
             </p>
           </div>
 

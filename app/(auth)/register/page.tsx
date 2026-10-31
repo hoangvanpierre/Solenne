@@ -144,24 +144,24 @@ function RegisterForm() {
         </div>
         <div className="space-y-2.5">
           <h1 className="text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground">
-            {isVi ? "Xác Thực Quyền Truy Cập" : "Verify Your Sanctuary Access"}
+            {isVi ? "Xác nhận email" : "Verify your email"}
           </h1>
           <p className="text-sm text-muted-foreground leading-relaxed">
             {state.message}
           </p>
           <div className="p-3.5 rounded-xl bg-background border border-border/80 text-xs text-foreground/90 font-mono">
-            {isVi ? "Người nhận:" : "Recipient:"}{" "}
+            {isVi ? "Gửi đến:" : "Sent to:"}{" "}
             <span className="font-normal text-amber underline underline-offset-4">{state.email || email}</span>
           </div>
           <p className="text-xs text-muted-foreground/80 pt-1">
             {isVi
-              ? "Chưa nhận được thư? Quý khách vui lòng kiểm tra hộp thư rác (spam) hoặc đợi trong giây lát."
-              : "Did not receive the email? Please check your spam folder or allow a few minutes for delivery."}
+              ? "Chưa nhận được thư? Kiểm tra hộp thư rác hoặc đợi vài phút."
+              : "Didn't get the email? Check your spam folder or wait a few minutes."}
           </p>
         </div>
         <Button asChild className="w-full h-12 bg-foreground text-background hover:bg-foreground/90 transition-all group">
           <Link href="/login" className="inline-flex items-center justify-center gap-2">
-            <span>{isVi ? "Tiến hành đăng nhập" : "Proceed to Sign In"}</span>
+            <span>{isVi ? "Đăng nhập" : "Sign in"}</span>
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </Button>
@@ -174,7 +174,7 @@ function RegisterForm() {
       {/* Header */}
       <div className="space-y-2 text-left">
         <h1 className="text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground">
-          {isVi ? "Khởi Tạo Tài Khoản" : "Create an Account"}
+          {isVi ? "Tạo tài khoản" : "Create account"}
         </h1>
         <p className="text-sm text-muted-foreground">
           {isVi
@@ -201,14 +201,14 @@ function RegisterForm() {
             htmlFor="fullName"
             className="text-xs font-medium uppercase tracking-wider text-foreground/80"
           >
-            {isVi ? "Họ và tên" : "Full Name"}
+            {isVi ? "Họ và tên" : "Full name"}
           </label>
           <Input
             id="fullName"
             name="fullName"
             type="text"
             autoComplete="name"
-            placeholder={isVi ? "Quý danh của bạn" : "Elena Vance"}
+            placeholder={isVi ? "Tên của bạn" : "Your full name"}
             value={fullName}
             onChange={(e) => handleChange("fullName", e.target.value)}
             onBlur={() => handleBlur("fullName")}
@@ -229,7 +229,7 @@ function RegisterForm() {
             htmlFor="email"
             className="text-xs font-medium uppercase tracking-wider text-foreground/80"
           >
-            {isVi ? "Địa chỉ email" : "Email Address"}
+            {isVi ? "Email" : "Email"}
           </label>
           <Input
             id="email"
@@ -311,7 +311,7 @@ function RegisterForm() {
             htmlFor="confirmPassword"
             className="text-xs font-medium uppercase tracking-wider text-foreground/80"
           >
-            {isVi ? "Xác nhận mật khẩu" : "Confirm Password"}
+            {isVi ? "Xác nhận mật khẩu" : "Confirm password"}
           </label>
           <div className="relative">
             <Input
@@ -371,10 +371,10 @@ function RegisterForm() {
           {isPending ? (
             <span className="inline-flex items-center gap-2">
               <Loader2 className="w-4 h-4 animate-spin" />
-              <span>{isVi ? "Đang khởi tạo tài khoản..." : "Creating Account..."}</span>
+              <span>{isVi ? "Đang tạo tài khoản..." : "Creating account..."}</span>
             </span>
           ) : (
-            isVi ? "Tạo Tài Khoản" : "Create Account"
+            isVi ? "Tạo tài khoản" : "Create account"
           )}
         </Button>
       </form>
@@ -386,7 +386,7 @@ function RegisterForm() {
           href={`/login${next !== "/account" ? `?next=${encodeURIComponent(next)}` : ""}`}
           className="font-medium text-foreground hover:text-amber underline-offset-4 hover:underline transition-colors"
         >
-          {isVi ? "Đăng nhập" : "Sign In"}
+          {isVi ? "Đăng nhập" : "Sign in"}
         </Link>
       </div>
     </div>

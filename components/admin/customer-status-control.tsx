@@ -64,7 +64,7 @@ function getDisplayError(err: string, isVi: boolean): string {
       return "A valid reason between 5 and 255 characters is required.";
     }
     if (err.includes("FORBIDDEN") || err.includes("do not have permission")) {
-      return "You do not have permission to manage customer accounts.";
+      return "You don't have permission to manage customer accounts.";
     }
     if (err.includes("UNAUTHENTICATED") || err.includes("sign in")) {
       return "Please sign in to manage customer accounts.";
@@ -79,10 +79,10 @@ function getDisplayError(err: string, isVi: boolean): string {
     return "Chỉ có thể quản lý trạng thái của tài khoản khách hàng.";
   }
   if (err.includes("SELF_REINSTATEMENT_FORBIDDEN")) {
-    return "Quý khách không thể tự kích hoạt lại tài khoản của chính mình.";
+    return "Không thể tự kích hoạt lại tài khoản của mình.";
   }
   if (err.includes("SELF_STATUS_CHANGE_FORBIDDEN")) {
-    return "Quý khách không thể tự thay đổi trạng thái tài khoản của chính mình.";
+    return "Không thể tự thay đổi trạng thái tài khoản của mình.";
   }
   if (err.includes("CUSTOMER_NOT_BANNED")) {
     return "Chỉ tài khoản đang bị cấm mới có thể được kích hoạt lại.";
@@ -107,7 +107,7 @@ function getDisplayError(err: string, isVi: boolean): string {
     return "Bắt buộc nhập lý do thay đổi trạng thái (từ 5 đến 255 ký tự).";
   }
   if (err.includes("FORBIDDEN") || err.includes("do not have permission")) {
-    return "Quý khách không có quyền quản lý tài khoản khách hàng.";
+    return "Không có quyền quản lý tài khoản khách hàng.";
   }
   if (err.includes("UNAUTHENTICATED") || err.includes("sign in")) {
     return "Vui lòng đăng nhập để thực hiện thao tác.";
@@ -218,7 +218,7 @@ export function CustomerStatusControl({
       <div className="flex items-center gap-2 border-b border-border pb-4">
         <ShieldAlert className="h-5 w-5 text-muted-foreground" />
         <h2 className="text-lg font-normal text-foreground">
-          {isVi ? "Quản lý trạng thái tài khoản" : "Account Status Management"}
+          {isVi ? "Quản lý trạng thái tài khoản" : "Account status"}
         </h2>
       </div>
 
@@ -229,7 +229,7 @@ export function CustomerStatusControl({
               <div className="flex items-center gap-2 text-destructive font-normal text-xs">
                 <Ban className="h-4 w-4 shrink-0" />
                 <span>
-                  {isVi ? "Tài khoản bị cấm" : "Account Banned"}
+                  {isVi ? "Tài khoản bị cấm" : "Account banned"}
                 </span>
               </div>
               <p className="text-xs text-muted-foreground font-normal leading-relaxed">
@@ -248,7 +248,7 @@ export function CustomerStatusControl({
                   <span>
                     {isVi
                       ? "Kích hoạt lại tài khoản bị cấm"
-                      : "Reinstate Banned Customer"}
+                      : "Reinstate customer"}
                   </span>
                 </Button>
               </div>
@@ -258,7 +258,7 @@ export function CustomerStatusControl({
               <div className="flex items-center gap-2 text-muted-foreground font-normal text-xs">
                 <Lock className="h-4 w-4 shrink-0" />
                 <span>
-                  {isVi ? "Tài khoản chờ kích hoạt" : "Pending Activation"}
+                  {isVi ? "Tài khoản chờ kích hoạt" : "Pending activation"}
                 </span>
               </div>
               <p className="text-xs text-muted-foreground font-normal leading-relaxed">
@@ -286,7 +286,7 @@ export function CustomerStatusControl({
                     >
                       <PauseCircle className="h-4 w-4 mr-2 shrink-0" />
                       <span>
-                        {isVi ? "Tạm khóa tài khoản" : "Suspend Account"}
+                        {isVi ? "Tạm khóa tài khoản" : "Suspend account"}
                       </span>
                     </Button>
 
@@ -297,7 +297,7 @@ export function CustomerStatusControl({
                       onClick={() => handleOpenAction("banned")}
                     >
                       <Ban className="h-4 w-4 mr-2 shrink-0" />
-                      <span>{isVi ? "Cấm tài khoản" : "Ban Account"}</span>
+                      <span>{isVi ? "Cấm tài khoản" : "Ban account"}</span>
                     </Button>
                   </>
                 )}
@@ -314,7 +314,7 @@ export function CustomerStatusControl({
                       <span>
                         {isVi
                           ? "Kích hoạt lại tài khoản"
-                          : "Reactivate Account"}
+                          : "Reactivate account"}
                       </span>
                     </Button>
 
@@ -325,7 +325,7 @@ export function CustomerStatusControl({
                       onClick={() => handleOpenAction("banned")}
                     >
                       <Ban className="h-4 w-4 mr-2 shrink-0" />
-                      <span>{isVi ? "Cấm tài khoản" : "Ban Account"}</span>
+                      <span>{isVi ? "Cấm tài khoản" : "Ban account"}</span>
                     </Button>
                   </>
                 )}
@@ -356,55 +356,55 @@ export function CustomerStatusControl({
               <h3 className="text-sm font-normal text-foreground">
                 {targetAction === "reinstate"
                   ? isVi
-                    ? "Xác nhận kích hoạt lại tài khoản bị cấm"
-                    : "Confirm Reinstatement of Banned Customer"
+                    ? "Kích hoạt lại tài khoản"
+                    : "Reinstate account"
                   : targetAction === "banned"
                   ? isVi
-                    ? "Xác nhận cấm tài khoản vĩnh viễn"
-                    : "Confirm Account Ban"
+                    ? "Cấm tài khoản"
+                    : "Ban account"
                   : targetAction === "suspended"
                   ? isVi
-                    ? "Xác nhận tạm khóa tài khoản"
-                    : "Confirm Account Suspension"
+                    ? "Tạm khóa tài khoản"
+                    : "Suspend account"
                   : isVi
-                  ? "Xác nhận kích hoạt lại tài khoản"
-                  : "Confirm Account Reactivation"}
+                  ? "Kích hoạt lại tài khoản"
+                  : "Reactivate account"}
               </h3>
               <p className="text-xs leading-relaxed text-muted-foreground font-normal">
                 {targetAction === "reinstate"
                   ? isVi ? (
                       <>
-                        Quý khách có chắc chắn muốn kích hoạt lại tài khoản bị cấm của{" "}
+                        Kích hoạt lại tài khoản bị cấm của{" "}
                         <span className="font-normal text-foreground">
                           {displayName}
                         </span>
-                        ? Trạng thái tài khoản sẽ được chuyển thành hoạt động (Active), khôi phục quyền đăng nhập và đặt hàng. Thao tác này được lưu vết kiểm toán vĩnh viễn.
+                        ? Trạng thái sẽ trở về Hoạt động, khôi phục quyền đăng nhập và đặt hàng. Thao tác này được ghi vào nhật ký kiểm toán.
                       </>
                     ) : (
                       <>
-                        Are you sure you want to reinstate the banned account for{" "}
+                        Reinstate the banned account for{" "}
                         <span className="font-normal text-foreground">
                           {displayName}
                         </span>
-                        ? The account status will be restored to Active, restoring sign-in and checkout abilities. This executive action is permanently recorded in the audit log.
+                        ? The status returns to Active, restoring sign-in and checkout. The action is written to the audit log.
                       </>
                     )
                   : targetAction === "banned"
                   ? isVi ? (
                       <>
-                        Quý khách có chắc chắn muốn cấm tài khoản của{" "}
+                        Cấm tài khoản của{" "}
                         <span className="font-normal text-foreground">
                           {displayName}
                         </span>
-                        ? Cấm tài khoản là vĩnh viễn trong luồng quản lý thông thường.
+                        ? Cấm là trạng thái cuối trong luồng quản lý thông thường.
                       </>
                     ) : (
                       <>
-                        Are you sure you want to ban the account of{" "}
+                        Ban the account of{" "}
                         <span className="font-normal text-foreground">
                           {displayName}
                         </span>
-                        ? Banning is permanent within the normal status-management workflow.
+                        ? Banning is permanent in the normal status workflow.
                       </>
                     )
                   : targetAction === "suspended"
@@ -471,19 +471,19 @@ export function CustomerStatusControl({
               placeholder={
                 targetAction === "reinstate"
                   ? isVi
-                    ? "Ví dụ: Ban quản trị đã phê duyệt kích hoạt lại tài khoản sau khi xem xét và xác minh thông tin..."
-                    : "e.g. Executive approval to reinstate customer account following formal review and verification..."
+                    ? "Ví dụ: đã xem xét và xác minh lại thông tin..."
+                    : "e.g. Customer record reviewed and verified..."
                   : targetAction === "banned"
                   ? isVi
-                    ? "Ví dụ: Vi phạm nghiêm trọng điều khoản sử dụng, gian lận thanh toán..."
+                    ? "Ví dụ: vi phạm điều khoản sử dụng, gian lận thanh toán..."
                     : "e.g. Terms of service violation, fraudulent payment attempt..."
                   : targetAction === "suspended"
                   ? isVi
-                    ? "Ví dụ: Tạm khóa do phát hiện hoạt động đăng nhập bất thường..."
-                    : "e.g. Temporary hold due to suspicious account activity..."
+                    ? "Ví dụ: tạm khóa do hoạt động đăng nhập bất thường..."
+                    : "e.g. Temporary hold for unusual sign-in activity..."
                   : isVi
-                  ? "Ví dụ: Đã giải quyết xong xác minh danh tính khách hàng..."
-                  : "e.g. Customer identity verification successfully resolved..."
+                  ? "Ví dụ: đã xác minh danh tính khách hàng..."
+                  : "e.g. Customer identity verified..."
               }
               className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-sm font-normal text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
             />
@@ -535,19 +535,19 @@ export function CustomerStatusControl({
               <span>
                 {targetAction === "reinstate"
                   ? isVi
-                    ? "Xác nhận kích hoạt lại"
-                    : "Confirm Reinstatement"
+                    ? "Kích hoạt lại"
+                    : "Reinstate account"
                   : targetAction === "banned"
                   ? isVi
-                    ? "Xác nhận cấm"
-                    : "Confirm Ban"
+                    ? "Cấm tài khoản"
+                    : "Ban account"
                   : targetAction === "suspended"
                   ? isVi
-                    ? "Xác nhận tạm khóa"
-                    : "Confirm Suspension"
+                    ? "Tạm khóa"
+                    : "Suspend account"
                   : isVi
-                  ? "Xác nhận kích hoạt"
-                  : "Confirm Reactivation"}
+                  ? "Kích hoạt"
+                  : "Reactivate account"}
               </span>
             </Button>
           </div>

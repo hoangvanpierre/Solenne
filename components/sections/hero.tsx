@@ -11,7 +11,6 @@ import { MagneticButton } from "@/components/animations/magnetic-button";
 
 export function Hero() {
   const t = useTranslations("hero");
-  const tCommon = useTranslations("common");
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -81,7 +80,7 @@ export function Hero() {
               className="bg-cream text-warm-black hover:bg-cream/90 px-6 py-2.5 sm:px-7 sm:py-3 text-[12.5px] sm:text-[13px] font-normal tracking-[0.04em] shadow-md rounded-full h-auto"
               asChild
             >
-              <Link href="/products">{tCommon("shopNow")}</Link>
+              <Link href="/products">{t("primaryCta")}</Link>
             </Button>
           </MagneticButton>
 
@@ -91,7 +90,7 @@ export function Hero() {
               className="bg-white/20 backdrop-blur-xs border-white/60 text-cream hover:bg-white/30 px-6 py-2.5 sm:px-7 sm:py-3 text-[12.5px] sm:text-[13px] font-normal tracking-[0.04em] shadow-sm rounded-full h-auto transform-gpu"
               asChild
             >
-              <Link href="/about">{tCommon("readMore")}</Link>
+              <Link href="/about">{t("secondaryCta")}</Link>
             </Button>
           </MagneticButton>
         </motion.div>

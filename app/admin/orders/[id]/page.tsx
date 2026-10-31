@@ -34,7 +34,7 @@ import { Button } from "@/components/ui";
 import type { Order } from "@/types";
 
 export const metadata: Metadata = {
-  title: "Order Details — Administration",
+  title: "Order details — Administration",
 };
 
 const UUID_REGEX =
@@ -105,7 +105,7 @@ export default async function AdminOrderDetailPage({
             title={isVi ? "Khu vực không khả dụng" : "Area unavailable"}
             description={
               isVi
-                ? "Quý khách không có quyền truy cập vào thông tin đơn hàng này."
+                ? "Không có quyền xem đơn hàng này."
                 : "You do not have permission to view this order."
             }
             icon={ShieldAlert}
@@ -167,11 +167,11 @@ export default async function AdminOrderDetailPage({
 
         <AdminStatePanel
           icon={PackageX}
-          title={isVi ? "Không tìm thấy đơn hàng" : "Order Not Found"}
+          title={isVi ? "Không tìm thấy đơn hàng" : "Order not found"}
           description={
             isVi
-              ? "Đơn hàng này không tồn tại hoặc quý khách không có quyền truy cập."
-              : "This order does not exist or you do not have permission to view it."
+              ? "Không tìm thấy đơn hàng, hoặc bạn không có quyền truy cập."
+              : "This order doesn't exist, or you don't have permission to view it."
           }
           actions={
             <Button asChild variant="outline" className="font-normal text-xs">
@@ -251,7 +251,7 @@ export default async function AdminOrderDetailPage({
         actions={
           <div>
             <div className="text-xs font-normal uppercase tracking-wider text-muted-foreground">
-              {isVi ? "Tổng đơn hàng" : "Order Total"}
+              {isVi ? "Tổng đơn hàng" : "Order total"}
             </div>
             <div className="tabular-nums text-3xl font-normal text-foreground">
               {formatPrice(order.total)}
@@ -269,7 +269,7 @@ export default async function AdminOrderDetailPage({
             <div className="flex items-center gap-2 border-b border-border pb-4">
               <Package className="h-5 w-5 text-muted-foreground" />
               <h2 className="text-lg font-normal text-foreground">
-                {isVi ? "Tác phẩm đặt mua" : "Order Items"}
+                {isVi ? "Sản phẩm đã đặt" : "Order items"}
               </h2>
               <span className="ml-auto text-xs text-muted-foreground font-normal tabular-nums">
                 {order.items.length}{" "}
@@ -314,7 +314,7 @@ export default async function AdminOrderDetailPage({
             <div className="flex items-center gap-2 border-b border-border pb-4">
               <Receipt className="h-5 w-5 text-muted-foreground" />
               <h2 className="text-lg font-normal text-foreground">
-                {isVi ? "Tóm tắt thanh toán" : "Payment Summary"}
+                {isVi ? "Tóm tắt thanh toán" : "Payment summary"}
               </h2>
             </div>
 
@@ -327,7 +327,7 @@ export default async function AdminOrderDetailPage({
               </div>
 
               <div className="flex justify-between text-muted-foreground font-normal">
-                <span>{isVi ? "Phí vận chuyển" : "Shipping Fee"}</span>
+                <span>{isVi ? "Phí vận chuyển" : "Shipping fee"}</span>
                 <span className="tabular-nums font-normal text-foreground">
                   {order.shippingFee === 0
                     ? isVi
@@ -363,7 +363,7 @@ export default async function AdminOrderDetailPage({
               <div className="flex items-center gap-2 border-b border-border pb-3">
                 <FileText className="h-5 w-5 text-muted-foreground" />
                 <h2 className="text-lg font-normal text-foreground">
-                  {isVi ? "Ghi chú của khách hàng" : "Customer Notes"}
+                  {isVi ? "Ghi chú của khách hàng" : "Customer notes"}
                 </h2>
               </div>
               <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed font-normal">
@@ -401,7 +401,7 @@ export default async function AdminOrderDetailPage({
             <div className="flex items-center gap-2">
               <Mail className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
               <h2 className="text-lg font-normal text-foreground">
-                {isVi ? "Thư cho khách" : "Customer Reply"}
+                {isVi ? "Thư cho khách" : "Customer reply"}
               </h2>
             </div>
             <p className="text-xs font-normal leading-relaxed text-muted-foreground">
@@ -481,7 +481,7 @@ export default async function AdminOrderDetailPage({
             <div className="flex items-center gap-2 border-b border-border pb-4">
               <MapPin className="h-5 w-5 text-muted-foreground" />
               <h2 className="text-lg font-normal text-foreground">
-                {isVi ? "Địa chỉ giao hàng" : "Shipping Address"}
+                {isVi ? "Địa chỉ giao hàng" : "Shipping address"}
               </h2>
             </div>
 
@@ -516,7 +516,7 @@ export default async function AdminOrderDetailPage({
                 {order.trackingCode && (
                   <div className="pt-3 border-t border-border space-y-1">
                     <div className="text-xs font-normal uppercase tracking-wider text-muted-foreground">
-                      {isVi ? "Mã vận đơn" : "Tracking Code"}
+                      {isVi ? "Mã vận đơn" : "Tracking code"}
                     </div>
                     <div className="tabular-nums text-xs font-normal text-foreground select-all">
                       {order.trackingCode}

@@ -20,7 +20,7 @@ import { Button } from "@/components/ui";
 import type { AuditDatePreset, AuditQueryResult } from "@/types";
 
 export const metadata: Metadata = {
-  title: "Audit Trail — Administration",
+  title: "Audit trail — Administration",
 };
 
 interface AdminAuditPageProps {
@@ -110,8 +110,8 @@ export default async function AdminAuditPage({ searchParams }: AdminAuditPagePro
             title={isVi ? "Khu vực không khả dụng" : "Area unavailable"}
             description={
               isVi
-                ? "Quý khách không có quyền truy cập vào nhật ký kiểm toán quản trị."
-                : "You do not have permission to view the security audit logs."
+                ? "Không có quyền xem nhật ký kiểm toán."
+                : "You don't have permission to view the audit log."
             }
             icon={ShieldAlert}
             actions={
@@ -164,10 +164,10 @@ export default async function AdminAuditPage({ searchParams }: AdminAuditPagePro
         eyebrow={
           <div className="inline-flex items-center gap-2 rounded-full border border-amber/30 bg-amber/10 px-3 py-1 text-xs uppercase tracking-[0.08em] text-foreground">
             <ShieldCheck className="h-3.5 w-3.5 text-amber-dark" aria-hidden="true" />
-            <span>{isVi ? "Kiểm toán bảo mật" : "Security Audit"}</span>
+            <span>{isVi ? "Kiểm toán bảo mật" : "Security audit"}</span>
           </div>
         }
-        title={isVi ? "Nhật ký kiểm toán" : "Audit Trail"}
+        title={isVi ? "Nhật ký kiểm toán" : "Audit trail"}
         description={
           isVi
             ? "Nhật ký bất biến ghi nhận mọi hoạt động quản trị, vận hành và thay đổi trạng thái trong hệ thống."

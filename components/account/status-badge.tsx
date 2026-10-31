@@ -11,7 +11,7 @@ const STATUS_STYLES: Record<OrderStatus, string> = {
 };
 
 const STATUS_LABELS_EN: Record<OrderStatus, string> = {
-  pending: "Pending Payment",
+  pending: "Pending payment",
   paid: "Paid",
   processing: "Processing",
   shipped: "Shipped",
@@ -22,9 +22,9 @@ const STATUS_LABELS_EN: Record<OrderStatus, string> = {
 const STATUS_LABELS_VI: Record<OrderStatus, string> = {
   pending: "Chờ thanh toán",
   paid: "Đã thanh toán",
-  processing: "Đang chế tác",
-  shipped: "Đang chuyển giao",
-  delivered: "Đã an nhận",
+  processing: "Đang xử lý",
+  shipped: "Đã gửi hàng",
+  delivered: "Đã giao",
   cancelled: "Đã hủy",
 };
 

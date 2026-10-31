@@ -45,14 +45,14 @@ export function ProfileForm({ defaultName, defaultPhone }: ProfileFormProps) {
       setSubmitError(
         result.error ??
           (isVi
-            ? "Đã xảy ra lỗi khi cập nhật thông tin. Xin vui lòng thử lại."
+            ? "Đã xảy ra lỗi khi lưu thông tin. Vui lòng thử lại."
             : "Something went wrong. Please try again.")
       );
       if (result.fieldErrors) setFieldErrors(result.fieldErrors);
     } catch {
       setSubmitError(
         isVi
-          ? "Đã xảy ra lỗi khi cập nhật thông tin. Xin vui lòng thử lại."
+          ? "Đã xảy ra lỗi khi lưu thông tin. Vui lòng thử lại."
           : "Something went wrong. Please try again."
       );
     } finally {
@@ -63,12 +63,12 @@ export function ProfileForm({ defaultName, defaultPhone }: ProfileFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
       <Input
-        label={isVi ? "Họ và tên quý khách" : "Full Name"}
+        label={isVi ? "Họ và tên" : "Full name"}
         name="fullName"
         value={fullName}
         onChange={(event) => setFullName(event.target.value)}
         error={errorFor("fullName")}
-        placeholder={isVi ? "Quý danh của bạn" : "Your full name"}
+        placeholder={isVi ? "Họ và tên của bạn" : "Your full name"}
         autoComplete="name"
         required
       />
@@ -93,10 +93,10 @@ export function ProfileForm({ defaultName, defaultPhone }: ProfileFormProps) {
         {isSubmitting ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            {isVi ? "Đang lưu thay đổi..." : "Saving..."}
+            {isVi ? "Đang lưu…" : "Saving…"}
           </>
         ) : (
-          isVi ? "Lưu thay đổi" : "Save Changes"
+          isVi ? "Lưu thay đổi" : "Save changes"
         )}
       </Button>
     </form>

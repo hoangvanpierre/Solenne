@@ -16,8 +16,8 @@ import { CONTACT_EMAIL } from "@/lib/constants";
 import { formatPrice } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Order Confirmed — Solenne",
-  description: "Your Solenne order has been placed.",
+  title: "Order received — Solenne",
+  description: "Your Solenne order has been received.",
 };
 
 interface CheckoutSuccessPageProps {
@@ -68,17 +68,17 @@ export default async function CheckoutSuccessPage({
             <CheckCircle2 className="h-8 w-8 text-sage" />
           </div>
           <h1 className="font-serif text-2xl sm:text-3xl font-normal leading-[1.22] mb-3 text-foreground tracking-[0.02em]">
-            {isVi ? "Trân trọng cảm ơn quý khách" : "Thank you for your order"}
+            {isVi ? "Đơn hàng đã được tiếp nhận" : "Your order has been received"}
           </h1>
           {order && (
             <p className="text-muted-foreground text-sm sm:text-base leading-relaxed font-normal">
               {isVi ? (
                 <>
-                  Tác phẩm với mã đơn{" "}
+                  Đơn hàng{" "}
                   <span className="font-normal tabular-nums text-foreground">
                     {order.orderNumber}
                   </span>{" "}
-                  đã được xác nhận và lưu giữ trang trọng.
+                  đã được tiếp nhận.
                 </>
               ) : (
                 <>
@@ -86,7 +86,7 @@ export default async function CheckoutSuccessPage({
                   <span className="font-normal tabular-nums text-foreground">
                     {order.orderNumber}
                   </span>{" "}
-                  is confirmed and reserved.
+                  has been received.
                 </>
               )}
             </p>
@@ -103,7 +103,7 @@ export default async function CheckoutSuccessPage({
                     {isVi ? "Trạng thái:" : "Status:"}
                   </span>
                   <span className="rounded-full border border-amber/30 bg-amber/10 px-2.5 py-0.5 text-[11px] font-normal uppercase tracking-wider text-amber">
-                    {isVi ? "Đang chờ thanh toán" : "Pending Payment"}
+                    {isVi ? "Chờ thanh toán" : "Pending payment"}
                   </span>
                 </div>
                 <span className="text-[13px] text-muted-foreground font-normal tabular-nums">
@@ -152,7 +152,7 @@ export default async function CheckoutSuccessPage({
                   <span className="tabular-nums">
                     {order.shippingFee === 0
                       ? isVi
-                        ? "Trân quý miễn phí"
+                        ? "Miễn phí"
                         : "Free"
                       : formatPrice(order.shippingFee)}
                   </span>
@@ -167,7 +167,7 @@ export default async function CheckoutSuccessPage({
             <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div className="rounded-2xl border border-border p-6 text-[13.5px] font-normal leading-relaxed">
                 <h2 className="mb-3 font-serif text-base font-normal text-foreground leading-[1.3]">
-                  {isVi ? "Địa chỉ đón nhận" : "Shipping to"}
+                  {isVi ? "Giao đến" : "Shipping to"}
                 </h2>
                 <p className="text-muted-foreground">
                   {order.shippingAddress.fullName}
@@ -199,11 +199,11 @@ export default async function CheckoutSuccessPage({
                 <p className="leading-relaxed text-muted-foreground">
                   {isVi ? (
                     <>
-                      Phương thức thanh toán trực tuyến đang được hoàn thiện. Đơn hàng của quý khách đã được lưu giữ trang trọng và an toàn — Nhà hương sẽ gửi email đến{" "}
+                      Thanh toán trực tuyến đang được hoàn thiện. Đơn hàng đã được giữ chỗ — chúng tôi sẽ gửi email đến{" "}
                       <span className="font-normal text-foreground">
                         {order.shippingAddress.email ?? user.email}
                       </span>{" "}
-                      kèm hướng dẫn thanh toán chi tiết, hoặc quý khách có thể liên hệ chúng tôi bất cứ lúc nào qua{" "}
+                      kèm hướng dẫn thanh toán, hoặc bạn có thể liên hệ{" "}
                       <a
                         href={`mailto:${CONTACT_EMAIL}`}
                         className="underline underline-offset-4 hover:text-foreground"
@@ -214,12 +214,12 @@ export default async function CheckoutSuccessPage({
                     </>
                   ) : (
                     <>
-                      Online payment is on its way. Until it&apos;s enabled, your
-                      order is safely reserved — we&apos;ll email{" "}
+                      Online payment is coming soon. Your order is reserved —
+                      we&apos;ll email{" "}
                       <span className="font-medium text-foreground">
                         {order.shippingAddress.email ?? user.email}
                       </span>{" "}
-                      with payment instructions, or you can reach us anytime at{" "}
+                      with payment instructions, or you can reach us at{" "}
                       <a
                         href={`mailto:${CONTACT_EMAIL}`}
                         className="underline underline-offset-4 hover:text-foreground"
@@ -236,12 +236,12 @@ export default async function CheckoutSuccessPage({
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Button asChild size="lg">
                 <Link href="/products">
-                  {isVi ? "Tiếp tục dạo bước" : "Continue Shopping"}
+                  {isVi ? "Tiếp tục mua sắm" : "Continue shopping"}
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline">
                 <Link href="/account">
-                  {isVi ? "Xem lịch sử đơn hàng" : "View My Orders"}
+                  {isVi ? "Xem đơn hàng" : "View orders"}
                 </Link>
               </Button>
             </div>
@@ -251,7 +251,7 @@ export default async function CheckoutSuccessPage({
             <p className="text-muted-foreground">
               {isVi ? (
                 <>
-                  Không tìm thấy thông tin đơn hàng này. Nếu quý khách tin rằng có sự nhầm lẫn, xin vui lòng liên hệ{" "}
+                  Không tìm thấy đơn hàng này. Nếu cho rằng có nhầm lẫn, hãy liên hệ{" "}
                   <a
                     href={`mailto:${CONTACT_EMAIL}`}
                     className="underline underline-offset-4 hover:text-foreground"
@@ -262,7 +262,7 @@ export default async function CheckoutSuccessPage({
                 </>
               ) : (
                 <>
-                  We couldn&apos;t find that order. If you believe this is a
+                  We couldn&apos;t find that order. If you think this is a
                   mistake, contact us at{" "}
                   <a
                     href={`mailto:${CONTACT_EMAIL}`}
@@ -276,7 +276,7 @@ export default async function CheckoutSuccessPage({
             </p>
             <Button asChild variant="outline" className="mt-6">
               <Link href="/account">
-                {isVi ? "Xem lịch sử đơn hàng" : "View My Orders"}
+                {isVi ? "Xem đơn hàng" : "View orders"}
               </Link>
             </Button>
           </div>

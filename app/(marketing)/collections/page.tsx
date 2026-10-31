@@ -19,11 +19,11 @@ export default async function CollectionsPage() {
       <Container>
         <div className="mb-16">
           <CollectionsIntro
-            title={isVi ? "Các Bộ sưu tập Hương sắc" : "Collections"}
+            title={isVi ? "Bộ sưu tập" : "Collections"}
             intro={
               isVi
-                ? "Mỗi bộ sưu tập được kiến tạo xoay quanh một họ hương đặc trưng, đưa bạn chạm vào miền cảm xúc hằng kiếm tìm. Đổ tay theo từng mẻ nhỏ từ sáp đậu nành thiên nhiên thuần khiết và tinh dầu nước hoa Pháp cao cấp."
-                : "Each collection is composed around a scent family, so you can find the mood you're seeking. Hand-poured in small batches with natural soy wax and premium fragrance oils."
+                ? "Mỗi bộ sưu tập xoay quanh một họ hương, để bạn tìm được mùi hương mình muốn. Đổ tay theo mẻ nhỏ từ sáp đậu nành tự nhiên và tinh dầu không chứa phthalate."
+                : "Each collection is built around one scent family, so you can find the mood you want. Hand-poured in small batches with natural soy wax and phthalate-free fragrance oils."
             }
           />
         </div>

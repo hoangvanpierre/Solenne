@@ -28,7 +28,7 @@ export default function ResetPasswordPage() {
           <ShieldCheck className="w-5 h-5" />
         </div>
         <h1 className="text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground">
-          {isVi ? "Thiết Lập Mật Khẩu Mới" : "Set New Password"}
+          {isVi ? "Đặt mật khẩu mới" : "Set new password"}
         </h1>
         <p className="text-sm text-muted-foreground">
           {isVi
@@ -53,7 +53,7 @@ export default function ResetPasswordPage() {
             htmlFor="password"
             className="text-xs font-medium uppercase tracking-wider text-foreground/80"
           >
-            {isVi ? "Mật khẩu mới" : "New Password"}
+            {isVi ? "Mật khẩu mới" : "New password"}
           </label>
           <div className="relative">
             <Input
@@ -100,7 +100,7 @@ export default function ResetPasswordPage() {
             htmlFor="confirmPassword"
             className="text-xs font-medium uppercase tracking-wider text-foreground/80"
           >
-            {isVi ? "Xác nhận mật khẩu mới" : "Confirm New Password"}
+            {isVi ? "Xác nhận mật khẩu mới" : "Confirm new password"}
           </label>
           <div className="relative">
             <Input
@@ -150,10 +150,10 @@ export default function ResetPasswordPage() {
           {isPending ? (
             <span className="inline-flex items-center gap-2">
               <Loader2 className="w-4 h-4 animate-spin" />
-              <span>{isVi ? "Đang cập nhật mật khẩu..." : "Updating Password..."}</span>
+              <span>{isVi ? "Đang lưu..." : "Saving..."}</span>
             </span>
           ) : (
-            isVi ? "Lưu & Đăng Nhập" : "Save & Sign In"
+            isVi ? "Lưu và đăng nhập" : "Save and sign in"
           )}
         </Button>
       </form>

@@ -46,7 +46,7 @@ function getDisplayError(err: string, isVi: boolean): string {
       return "Product variant not found.";
     }
     if (err.includes("FORBIDDEN") || err.includes("do not have permission")) {
-      return "You do not have permission to adjust inventory.";
+      return "You don't have permission to adjust inventory.";
     }
     if (err.includes("UNAUTHENTICATED") || err.includes("sign in")) {
       return "Please sign in to adjust inventory.";
@@ -70,7 +70,7 @@ function getDisplayError(err: string, isVi: boolean): string {
     return "Không tìm thấy phiên bản sản phẩm này.";
   }
   if (err.includes("FORBIDDEN") || err.includes("do not have permission")) {
-    return "Quý khách không có quyền điều chỉnh tồn kho.";
+    return "Không có quyền điều chỉnh tồn kho.";
   }
   if (err.includes("UNAUTHENTICATED") || err.includes("sign in")) {
     return "Vui lòng đăng nhập để thực hiện điều chỉnh.";
@@ -246,7 +246,7 @@ export function InventoryAdjustControl({
                     id={`adjust-title-${variantId}`}
                     className="text-lg font-normal text-foreground"
                   >
-                    {isVi ? "Điều chỉnh tồn kho" : "Adjust Stock"}
+                    {isVi ? "Điều chỉnh tồn kho" : "Adjust stock"}
                   </h2>
                 </div>
                 <p className="text-xs text-muted-foreground font-normal">
@@ -273,7 +273,7 @@ export function InventoryAdjustControl({
               {/* Current vs New Stock Preview */}
               <div className="rounded-xl border border-border bg-muted/20 p-4">
                 <div className="text-xs font-normal text-muted-foreground uppercase tracking-wider mb-2">
-                  {isVi ? "Biến động tồn kho" : "Stock Impact Preview"}
+                  {isVi ? "Biến động tồn kho" : "Stock impact"}
                 </div>
                 <div className="flex items-center justify-between gap-4 text-sm font-normal">
                   <div className="space-y-0.5">
@@ -331,7 +331,7 @@ export function InventoryAdjustControl({
                   htmlFor={`delta-input-${variantId}`}
                   className="block text-sm font-normal text-foreground"
                 >
-                  {isVi ? "Mức thay đổi (Delta)" : "Adjustment Delta"}
+                  {isVi ? "Mức thay đổi (Delta)" : "Change"}
                 </label>
 
                 {/* Quick Presets */}
@@ -421,7 +421,7 @@ export function InventoryAdjustControl({
                     htmlFor={`reason-input-${variantId}`}
                     className="text-sm font-normal text-foreground"
                   >
-                    {isVi ? "Lý do điều chỉnh (Bắt buộc)" : "Adjustment Reason (Required)"}
+                    {isVi ? "Lý do điều chỉnh (Bắt buộc)" : "Reason (required)"}
                   </label>
                   <span
                     className={cn(
@@ -497,7 +497,7 @@ export function InventoryAdjustControl({
                   disabled={!canSubmit}
                   className="bg-amber hover:bg-amber/90 text-primary-foreground font-normal text-xs"
                 >
-                  <span>{isVi ? "Xác nhận điều chỉnh" : "Confirm Adjustment"}</span>
+                  <span>{isVi ? "Áp dụng điều chỉnh" : "Apply adjustment"}</span>
                 </Button>
               </div>
             </form>

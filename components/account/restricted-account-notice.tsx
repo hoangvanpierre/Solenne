@@ -35,9 +35,8 @@ export function RestrictedAccountNotice({
       <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">
         {isVi ? (
           <>
-            Tài khoản Solenne của quý khách hiện đang bị hạn chế, nên khu vực
-            này chưa khả dụng. Nếu quý khách cho rằng đây là nhầm lẫn, xin vui
-            lòng liên hệ{" "}
+            Tài khoản Solenne đang bị hạn chế, nên khu vực này chưa khả dụng.
+            Nếu bạn cho rằng đây là nhầm lẫn, hãy liên hệ{" "}
             <a
               href={`mailto:${CONTACT_EMAIL}`}
               className="underline underline-offset-4 transition-colors hover:text-foreground"
@@ -69,12 +68,12 @@ export function RestrictedAccountNotice({
             type="submit"
             className="inline-flex items-center gap-2"
           >
-            <span>{isVi ? "Đăng xuất" : "Sign Out"}</span>
+            <span>{isVi ? "Đăng xuất" : "Sign out"}</span>
           </Button>
         </form>
         <Button asChild className="inline-flex items-center gap-2">
           <Link href="/products">
-            <span>{isVi ? "Tiếp tục dạo bước" : "Continue Shopping"}</span>
+            <span>{isVi ? "Tiếp tục mua sắm" : "Continue shopping"}</span>
             <ArrowRight className="h-4 w-4" />
           </Link>
         </Button>

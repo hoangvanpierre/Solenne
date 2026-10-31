@@ -95,7 +95,7 @@ async function OrdersList({ userId, locale }: { userId: string; locale: string }
             href="/products"
             className="inline-flex items-center gap-2"
           >
-            <span>{isVi ? "Khám phá bộ sưu tập" : "Explore Collection"}</span>
+            <span>{isVi ? "Khám phá bộ sưu tập" : "Explore the collection"}</span>
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </Button>

@@ -40,7 +40,9 @@
     "subtitle": "Artisan scented candles, hand-poured with intention",
     "explore": "Explore Collection",
     "story": "Our Story",
-    "scroll": "Scroll"
+    "scroll": "Scroll",
+    "primaryCta": "Shop Now",
+    "secondaryCta": "Read Our Story"
   },
   "brandStory": {
     "description": "Every candle is poured by hand in small batches, made to turn an ordinary evening into something worth keeping.",

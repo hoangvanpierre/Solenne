@@ -60,7 +60,7 @@ const ROLE_COPY: Record<
   { eyebrow: string; eyebrowVi: string; title: string; titleVi: string; description: string; descriptionVi: string }
 > = {
   admin: {
-    eyebrow: "Solenne Administration",
+    eyebrow: "Solenne administration",
     eyebrowVi: "Solenne Quản trị",
     title: "Admin Hub",
     titleVi: "Trung tâm quản trị",
@@ -70,9 +70,9 @@ const ROLE_COPY: Record<
       "Đơn hàng, danh mục, tồn kho, khách hàng và nhật ký kiểm toán trong một góc nhìn.",
   },
   manager: {
-    eyebrow: "Solenne Operations Management",
+    eyebrow: "Solenne operations",
     eyebrowVi: "Solenne Quản lý vận hành",
-    title: "Manager Workspace",
+    title: "Manager workspace",
     titleVi: "Trung tâm điều hành",
     description:
       "Operational oversight across fulfillment, catalogue, stock and customer records.",
@@ -82,7 +82,7 @@ const ROLE_COPY: Record<
   staff: {
     eyebrow: "Solenne Operations",
     eyebrowVi: "Solenne Vận hành",
-    title: "Operations Workspace",
+    title: "Operations workspace",
     titleVi: "Khu vực vận hành",
     description:
       "Daily fulfillment, catalogue maintenance, stock and customer work.",

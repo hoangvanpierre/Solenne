@@ -68,12 +68,12 @@ export default async function AddressPage() {
 
         <div className="mb-10">
           <h1 className="font-serif text-2xl sm:text-3xl font-normal leading-[1.22] mb-3 text-foreground tracking-[0.02em]">
-            {isVi ? "Địa Chỉ An Nhận" : "Shipping Address"}
+            {isVi ? "Địa chỉ giao hàng" : "Shipping address"}
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground leading-relaxed font-normal">
             {isVi
-              ? "Điểm đến mặc định của quý khách, tự động điền khi thỉnh nến."
-              : "Your default destination, filled in automatically at checkout."}
+              ? "Địa chỉ mặc định, tự động điền khi thanh toán."
+              : "Your default address, filled in automatically at checkout."}
           </p>
         </div>
 

@@ -18,7 +18,7 @@ import {
 } from "@/components/admin";
 
 export const metadata: Metadata = {
-  title: "New Product — Administration",
+  title: "New product — Administration",
 };
 
 export default async function AdminNewProductPage() {
@@ -63,10 +63,10 @@ export default async function AdminNewProductPage() {
       <div className="py-8">
         <div className="mx-auto max-w-2xl">
           <AdminStatePanel
-            title={isVi ? "Khu vực không khả dụng" : "Creation Restricted"}
+            title={isVi ? "Khu vực không khả dụng" : "Creation restricted"}
             description={
               isVi
-                ? "Quý khách không có quyền tạo sản phẩm mới trong hệ thống quản trị."
+                ? "Không có quyền tạo sản phẩm."
                 : "You do not hold administrative permission to create new products."
             }
             icon={ShieldAlert}
@@ -100,10 +100,10 @@ export default async function AdminNewProductPage() {
         eyebrow={
           <div className="inline-flex items-center gap-2 rounded-full border border-amber/30 bg-amber/10 px-3 py-1 text-xs uppercase tracking-[0.08em] text-foreground">
             <PlusCircle className="h-3.5 w-3.5 text-amber-dark" aria-hidden="true" />
-            <span>{isVi ? "Xưởng sáng tác" : "Creation Studio"}</span>
+            <span>{isVi ? "Sản phẩm mới" : "New product"}</span>
           </div>
         }
-        title={isVi ? "Tạo sản phẩm mới" : "Create New Product"}
+        title={isVi ? "Tạo sản phẩm" : "Create product"}
         description={
           isVi
             ? "Định hình sáng tạo nến thơm, cấu trúc hương thơm và quy cách phiên bản mở bán ban đầu."

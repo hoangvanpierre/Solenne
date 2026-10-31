@@ -58,7 +58,7 @@ function getFulfillmentDisplayError(err: string, isVi: boolean): string {
     err.includes("ROLLBACK_REASON_REQUIRED") ||
     err.includes("reason is required to rollback")
   ) {
-    return "Bắt buộc nhập lý do khi chuyển lùi đơn hàng về trạng thái đang chế tác.";
+    return "Bắt buộc nhập lý do khi đưa đơn hàng về trạng thái đang xử lý.";
   }
   if (
     err.includes("ROLLBACK_REASON_INVALID") ||
@@ -79,7 +79,7 @@ function getFulfillmentDisplayError(err: string, isVi: boolean): string {
     return "Lộ trình chuyển đổi trạng thái này không được phép.";
   }
   if (err.includes("FORBIDDEN") || err.includes("do not have permission")) {
-    return "Quý khách không có quyền thực hiện thao tác chuyển trạng thái này.";
+    return "Không có quyền chuyển trạng thái đơn hàng.";
   }
   if (err.includes("UNAUTHENTICATED") || err.includes("sign in")) {
     return "Vui lòng đăng nhập để cập nhật trạng thái đơn hàng.";
@@ -248,7 +248,7 @@ export function OrderFulfillmentControl({
       <div className="flex items-center gap-2 border-b border-border pb-4">
         <PackageCheck className="h-5 w-5 text-muted-foreground" />
         <h2 className="text-lg font-normal text-foreground">
-          {isVi ? "Trạng thái giao vận" : "Fulfillment Controls"}
+          {isVi ? "Trạng thái giao hàng" : "Fulfillment"}
         </h2>
       </div>
 
@@ -268,7 +268,7 @@ export function OrderFulfillmentControl({
         <div className="rounded-xl border border-border bg-background/50 p-3.5 space-y-1.5">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span className="uppercase tracking-wider font-normal">
-              {isVi ? "Mã vận đơn hiện tại" : "Active Tracking Code"}
+              {isVi ? "Mã vận đơn hiện tại" : "Tracking code"}
             </span>
             <button
               type="button"
@@ -303,8 +303,8 @@ export function OrderFulfillmentControl({
         <div className="space-y-3">
           <p className="text-xs leading-relaxed text-muted-foreground font-normal">
             {isVi
-              ? "Bắt đầu đóng gói và xử lý tác phẩm cho đơn hàng này."
-              : "Commence atelier preparation and crafting for this order."}
+              ? "Bắt đầu đóng gói và xử lý đơn hàng này."
+              : "Start packing and processing this order."}
           </p>
 
           {canUpdate ? (
@@ -316,7 +316,7 @@ export function OrderFulfillmentControl({
               onClick={handleStartProcessing}
             >
               <Play className="h-4 w-4" />
-              <span>{isVi ? "Bắt đầu chế tác" : "Start Processing"}</span>
+              <span>{isVi ? "Bắt đầu xử lý" : "Start processing"}</span>
             </Button>
           ) : (
             <p className="text-xs text-muted-foreground italic font-normal">
@@ -338,8 +338,8 @@ export function OrderFulfillmentControl({
             <div className="space-y-3">
               <p className="text-xs leading-relaxed text-muted-foreground font-normal">
                 {isVi
-                  ? "Đơn hàng đang được chuẩn bị. Khi bưu kiện sẵn sàng gửi giao, hãy nhập mã vận đơn để xác nhận chuyển giao."
-                  : "Order is currently being crafted. Once the parcel is ready for dispatch, enter a tracking code to mark as shipped."}
+                  ? "Đơn hàng đang được chuẩn bị. Khi kiện hàng sẵn sàng gửi, nhập mã vận đơn để xác nhận đã gửi hàng."
+                  : "The order is being prepared. When the parcel is ready, enter a tracking code to mark it shipped."}
               </p>
 
               {canUpdate ? (
@@ -350,7 +350,7 @@ export function OrderFulfillmentControl({
                   onClick={() => setActiveAction("ship")}
                 >
                   <Truck className="h-4 w-4" />
-                  <span>{isVi ? "Xác nhận gửi hàng" : "Mark as Shipped"}</span>
+                  <span>{isVi ? "Xác nhận gửi hàng" : "Mark as shipped"}</span>
                 </Button>
               ) : (
                 <p className="text-xs text-muted-foreground italic font-normal">
@@ -369,12 +369,12 @@ export function OrderFulfillmentControl({
                 <Truck className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <div className="space-y-1">
                   <h3 className="text-sm font-normal text-foreground">
-                    {isVi ? "Xác nhận gửi hàng" : "Dispatch Order"}
+                    {isVi ? "Gửi hàng" : "Mark as shipped"}
                   </h3>
                   <p className="text-xs leading-relaxed text-muted-foreground font-normal">
                     {isVi
-                      ? "Nhập mã vận đơn bưu chính / giao vận cho đơn hàng này."
-                      : "Enter the courier tracking code for parcel dispatch."}
+                      ? "Nhập mã vận đơn của đơn vị giao hàng cho đơn này."
+                      : "Enter the courier tracking code for this order."}
                   </p>
                 </div>
               </div>
@@ -386,7 +386,7 @@ export function OrderFulfillmentControl({
                     htmlFor={`tracking-input-${orderId}`}
                     className="text-sm font-normal text-foreground"
                   >
-                    {isVi ? "Mã vận đơn" : "Tracking Code"}
+                    {isVi ? "Mã vận đơn" : "Tracking code"}
                     <span className="text-destructive ml-1">*</span>
                   </label>
                   <span className="text-muted-foreground text-xs tabular-nums font-normal">
@@ -444,7 +444,7 @@ export function OrderFulfillmentControl({
                   }
                   className="order-1 sm:order-2 font-normal text-xs"
                 >
-                  <span>{isVi ? "Xác nhận gửi" : "Confirm & Ship"}</span>
+                  <span>{isVi ? "Xác nhận gửi" : "Confirm and ship"}</span>
                 </Button>
               </div>
             </form>
@@ -463,8 +463,8 @@ export function OrderFulfillmentControl({
             <div className="space-y-3">
               <p className="text-xs leading-relaxed text-muted-foreground font-normal">
                 {isVi
-                  ? "Bưu kiện đang trên đường vận chuyển. Khi khách hàng đã an nhận, xác nhận để hoàn tất quy trình."
-                  : "Parcel is in transit. Once confirmed received by the client, complete the fulfillment workflow."}
+                  ? "Kiện hàng đang trên đường. Khi khách đã nhận, xác nhận để hoàn tất đơn hàng."
+                  : "The parcel is on its way. Once the customer has it, confirm delivery to close the order."}
               </p>
 
               <div className="flex flex-col gap-2">
@@ -476,7 +476,7 @@ export function OrderFulfillmentControl({
                     onClick={() => setActiveAction("deliver")}
                   >
                     <CheckCircle2 className="h-4 w-4" />
-                    <span>{isVi ? "Xác nhận đã giao" : "Mark as Delivered"}</span>
+                    <span>{isVi ? "Xác nhận đã giao" : "Mark as delivered"}</span>
                   </Button>
                 )}
 
@@ -491,8 +491,8 @@ export function OrderFulfillmentControl({
                     <RotateCcw className="h-4 w-4" />
                     <span>
                       {isVi
-                        ? "Chuyển lùi về Đang chế tác"
-                        : "Rollback to Processing"}
+                        ? "Chuyển về Đang xử lý"
+                        : "Move back to processing"}
                     </span>
                   </Button>
                 )}
@@ -507,7 +507,7 @@ export function OrderFulfillmentControl({
                 <CheckCircle2 className="h-5 w-5 text-sage shrink-0 mt-0.5" />
                 <div className="space-y-1">
                   <h3 className="text-sm font-normal text-foreground">
-                    {isVi ? "Xác nhận đã an nhận" : "Confirm Delivery"}
+                    {isVi ? "Xác nhận đã giao" : "Confirm delivery"}
                   </h3>
                   <p className="text-xs leading-relaxed text-muted-foreground font-normal">
                     {isVi ? (
@@ -516,7 +516,7 @@ export function OrderFulfillmentControl({
                         <span className="tabular-nums font-normal text-foreground">
                           {orderNumber}
                         </span>{" "}
-                        đã được giao thành công tới quý khách. Đây là trạng thái hoàn tất giao vận.
+                        đã được giao tới khách. Đây là bước cuối của quy trình giao hàng.
                       </>
                     ) : (
                       <>
@@ -524,7 +524,7 @@ export function OrderFulfillmentControl({
                         <span className="tabular-nums font-normal text-foreground">
                           {orderNumber}
                         </span>{" "}
-                        has been successfully delivered. This is a terminal fulfillment state.
+                        has been delivered. This is the final fulfillment step.
                       </>
                     )}
                   </p>
@@ -550,7 +550,7 @@ export function OrderFulfillmentControl({
                   onClick={handleConfirmDeliver}
                   className="order-1 sm:order-2 font-normal text-xs"
                 >
-                  <span>{isVi ? "Xác nhận đã giao" : "Confirm Delivery"}</span>
+                  <span>{isVi ? "Xác nhận đã giao" : "Confirm delivery"}</span>
                 </Button>
               </div>
             </div>
@@ -566,12 +566,12 @@ export function OrderFulfillmentControl({
                 <AlertTriangle className="h-5 w-5 text-amber shrink-0 mt-0.5" />
                 <div className="space-y-1">
                   <h3 className="text-sm font-normal text-foreground">
-                    {isVi ? "Chuyển lùi trạng thái" : "Rollback to Processing"}
+                    {isVi ? "Chuyển về Đang xử lý" : "Move back to processing"}
                   </h3>
                   <p className="text-xs leading-relaxed text-muted-foreground font-normal">
                     {isVi
-                      ? "Chuyển lùi trạng thái sẽ đưa đơn hàng về Đang chế tác và xóa mã vận đơn hiện tại. Bắt buộc nhập lý do cho hồ sơ kiểm toán."
-                      : "Rolling back will return this order to Processing and clear its active tracking code. A reason is required for the audit record."}
+                      ? "Thao tác này đưa đơn hàng về Đang xử lý và xóa mã vận đơn hiện tại. Cần nhập lý do cho hồ sơ kiểm toán."
+                      : "This returns the order to Processing and clears its tracking code. A reason is required for the audit record."}
                   </p>
                 </div>
               </div>
@@ -583,7 +583,7 @@ export function OrderFulfillmentControl({
                     htmlFor={`rollback-reason-${orderId}`}
                     className="text-sm font-normal text-foreground"
                   >
-                    {isVi ? "Lý do chuyển lùi" : "Rollback Reason"}
+                    {isVi ? "Lý do chuyển lùi" : "Rollback reason"}
                     <span className="text-destructive ml-1">*</span>
                   </label>
                   <span className="text-muted-foreground text-xs tabular-nums font-normal">
@@ -603,8 +603,8 @@ export function OrderFulfillmentControl({
                   autoFocus
                   placeholder={
                     isVi
-                      ? "Ví dụ: Đơn vị giao vận làm hỏng kiện hàng, hoàn atelier kiểm tra lại..."
-                      : "e.g. Courier returned damaged parcel to atelier for inspection..."
+                      ? "Ví dụ: đơn vị giao hàng trả lại kiện bị hỏng để kiểm tra..."
+                      : "e.g. the courier returned a damaged parcel for inspection..."
                   }
                   className={cn(
                     "w-full resize-none rounded-xl border bg-background px-3 py-2 text-sm font-normal text-foreground placeholder:text-muted-foreground disabled:opacity-50",
@@ -627,7 +627,7 @@ export function OrderFulfillmentControl({
                   onClick={handleCloseAction}
                   className="order-2 sm:order-1 font-normal text-xs"
                 >
-                  {isVi ? "Giữ trạng thái" : "Keep Shipped"}
+                  {isVi ? "Giữ trạng thái" : "Keep as shipped"}
                 </Button>
                 <Button
                   type="submit"
@@ -641,7 +641,7 @@ export function OrderFulfillmentControl({
                   }
                   className="order-1 sm:order-2 text-amber border-amber/40 hover:bg-amber/15 hover:text-amber font-normal text-xs"
                 >
-                  <span>{isVi ? "Xác nhận chuyển lùi" : "Confirm Rollback"}</span>
+                  <span>{isVi ? "Xác nhận chuyển lùi" : "Confirm rollback"}</span>
                 </Button>
               </div>
             </form>
@@ -658,14 +658,14 @@ export function OrderFulfillmentControl({
             <CheckCircle2 className="h-4 w-4" />
             <span>
               {isVi
-                ? "Đơn hàng đã được giao hoàn tất."
-                : "Order fulfillment complete."}
+                ? "Đơn hàng đã giao."
+                : "Order delivered."}
             </span>
           </div>
           <p className="text-xs text-muted-foreground font-normal">
             {isVi
-              ? "Tác phẩm đã được chuyển giao trọn vẹn tới quý khách."
-              : "All creations have been safely received by the client."}
+              ? "Đơn hàng đã được giao tới khách."
+              : "The order has been delivered to the customer."}
           </p>
         </div>
       )}

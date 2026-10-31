@@ -88,15 +88,15 @@ export function AddressForm({ defaultValues }: AddressFormProps) {
       setSubmitError(
         result.error ??
           (isVi
-            ? "Đã xảy ra lỗi khi lưu địa chỉ. Xin vui lòng thử lại."
-            : "Something went wrong. Please try again.")
+            ? "Không lưu được địa chỉ. Vui lòng thử lại."
+            : "We couldn't save your address. Please try again.")
       );
       if (result.fieldErrors) setFieldErrors(result.fieldErrors);
     } catch {
       setSubmitError(
         isVi
-          ? "Đã xảy ra lỗi khi lưu địa chỉ. Xin vui lòng thử lại."
-          : "Something went wrong. Please try again."
+          ? "Không lưu được địa chỉ. Vui lòng thử lại."
+          : "We couldn't save your address. Please try again."
       );
     } finally {
       setIsSubmitting(false);
@@ -123,10 +123,10 @@ export function AddressForm({ defaultValues }: AddressFormProps) {
         {isSubmitting ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            {isVi ? "Đang lưu địa chỉ..." : "Saving..."}
+            {isVi ? "Đang lưu…" : "Saving…"}
           </>
         ) : (
-          isVi ? "Lưu địa chỉ" : "Save Address"
+          isVi ? "Lưu địa chỉ" : "Save address"
         )}
       </Button>
     </form>

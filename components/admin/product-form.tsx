@@ -56,28 +56,28 @@ const CATEGORY_OPTIONS: {
   {
     value: "floral",
     labelEn: "Floral",
-    labelVi: "Hương Hoa",
+    labelVi: "Hương hoa",
     descEn: "Delicate blooms, jasmine, rose, neroli",
     descVi: "Hoa nhài, hoa hồng, hoa cam thanh tao",
   },
   {
     value: "woody",
     labelEn: "Woody",
-    labelVi: "Hương Gỗ",
+    labelVi: "Hương gỗ",
     descEn: "Sandalwood, cedar, vetiver, amber",
     descVi: "Gỗ đàn hương, tuyết tùng, cỏ hương bài",
   },
   {
     value: "fresh",
     labelEn: "Fresh",
-    labelVi: "Tươi Mát",
+    labelVi: "Tươi mát",
     descEn: "Citrus, bergamot, sea salt, green tea",
     descVi: "Cam bergamot, muối biển, trà xanh tươi mát",
   },
   {
     value: "warm",
     labelEn: "Warm",
-    labelVi: "Ấm Áp",
+    labelVi: "Ấm áp",
     descEn: "Vanilla, tonka, cinnamon, spiced amber",
     descVi: "Vani, đậu tonka, quế, hổ phách nồng ấm",
   },
@@ -413,7 +413,7 @@ export function ProductForm({
             </div>
             <div>
               <h3 className="text-lg font-normal text-foreground">
-                {isVi ? "Thông tin cơ bản" : "Core Information"}
+                {isVi ? "Thông tin cơ bản" : "Core information"}
               </h3>
               <p className="text-xs font-normal text-muted-foreground">
                 {isVi
@@ -426,7 +426,7 @@ export function ProductForm({
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
-                label={isVi ? "Tên sản phẩm *" : "Product Name *"}
+                label={isVi ? "Tên sản phẩm *" : "Product name *"}
                 value={name}
                 onChange={handleNameChange}
                 placeholder={isVi ? "Ví dụ: Solenne Aura" : "e.g. Solenne Aura"}
@@ -485,13 +485,13 @@ export function ProductForm({
             </div>
 
             <Input
-              label={isVi ? "Khẩu hiệu / Giới thiệu ngắn" : "Tagline / Short Hook"}
+              label={isVi ? "Khẩu hiệu" : "Tagline"}
               value={tagline}
               onChange={(e) => setTagline(e.target.value)}
               placeholder={
                 isVi
-                  ? "Ví dụ: Ánh sáng trầm mặc, gợi mở những chiều hoài niệm"
-                  : "e.g. A serene warmth that evokes quiet nostalgia"
+                  ? "Ví dụ: Hương gỗ ấm và dịu cho buổi tối"
+                  : "e.g. Warm cedar and amber for a quiet evening"
               }
               error={fieldErrors.tagline?.[0]}
               disabled={isPending}
@@ -502,7 +502,7 @@ export function ProductForm({
                 htmlFor="product-description"
                 className="text-sm font-normal text-foreground"
               >
-                {isVi ? "Mô tả chi tiết" : "Detailed Description"}
+                {isVi ? "Mô tả" : "Description"}
               </label>
               <textarea
                 id="product-description"
@@ -511,8 +511,8 @@ export function ProductForm({
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder={
                   isVi
-                    ? "Mô tả nguồn cảm hứng, tầng hương và không gian phù hợp để thưởng thức..."
-                    : "Describe the artistic inspiration, atmospheric qualities, and sensory journey..."
+                    ? "Mô tả mùi hương, không gian phù hợp và thành phần..."
+                    : "Describe the scent, the room it suits, and what it's made of..."
                 }
                 className="flex w-full rounded-lg border border-border bg-transparent px-4 py-2.5 text-sm font-normal transition-colors duration-200 placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={isPending}
@@ -552,7 +552,7 @@ export function ProductForm({
             </div>
             <div>
               <h3 className="text-lg font-normal text-foreground">
-                {isVi ? "Nhóm hương & Trạng thái" : "Scent Family & Publication"}
+                {isVi ? "Nhóm hương & Trạng thái" : "Scent family & status"}
               </h3>
               <p className="text-xs font-normal text-muted-foreground">
                 {isVi
@@ -565,7 +565,7 @@ export function ProductForm({
           {/* Scent Category Selection */}
           <div className="space-y-2">
             <label className="text-sm font-normal text-foreground">
-              {isVi ? "Nhóm hương chính *" : "Fragrance Category *"}
+              {isVi ? "Nhóm hương chính *" : "Scent family *"}
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {CATEGORY_OPTIONS.map((opt) => {
@@ -602,7 +602,7 @@ export function ProductForm({
           {/* Pricing Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
             <Input
-              label={isVi ? "Giá cơ bản (USD) *" : "Base Price (USD) *"}
+              label={isVi ? "Giá cơ bản (USD) *" : "Base price (USD) *"}
               type="number"
               step="0.01"
               min="0"
@@ -667,12 +667,12 @@ export function ProductForm({
               />
               <label htmlFor="is-featured-toggle" className="cursor-pointer space-y-0.5">
                 <span className="text-sm font-normal text-foreground block">
-                  {isVi ? "Sản phẩm nổi bật (Featured)" : "Featured Collection"}
+                  {isVi ? "Sản phẩm nổi bật" : "Featured"}
                 </span>
                 <span className="text-xs font-normal text-muted-foreground block leading-relaxed">
                   {isVi
-                    ? "Ghim tại vị trí trang trọng trên trang chủ và bộ sưu tập tiêu biểu."
-                    : "Prominently featured on the storefront homepage and curated showcases."}
+                    ? "Hiển thị trên trang chủ và trong các bộ sưu tập nổi bật."
+                    : "Shown on the homepage and in featured collections."}
                 </span>
               </label>
             </div>
@@ -687,7 +687,7 @@ export function ProductForm({
             </div>
             <div>
               <h3 className="text-lg font-normal text-foreground">
-                {isVi ? "Cấu trúc tầng hương" : "Scent Architecture"}
+                {isVi ? "Tầng hương" : "Scent notes"}
               </h3>
               <p className="text-xs font-normal text-muted-foreground">
                 {isVi
@@ -699,7 +699,7 @@ export function ProductForm({
 
           <div className="space-y-5">
             <ScentNotesInput
-              label={isVi ? "Hương đầu (Top Notes)" : "Top Notes"}
+              label={isVi ? "Hương đầu (Top Notes)" : "Top notes"}
               description={
                 isVi
                   ? "Ấn tượng ban đầu khi thắp sáng (ví dụ: Bergamot, Yuzu)"
@@ -714,7 +714,7 @@ export function ProductForm({
             />
 
             <ScentNotesInput
-              label={isVi ? "Hương giữa (Heart Notes)" : "Heart Notes"}
+              label={isVi ? "Hương giữa (Heart Notes)" : "Heart notes"}
               description={
                 isVi
                   ? "Trọng tâm linh hồn của mùi hương (ví dụ: Hoa nhài, Hoa huệ)"
@@ -731,7 +731,7 @@ export function ProductForm({
             />
 
             <ScentNotesInput
-              label={isVi ? "Hương cuối (Base Notes)" : "Base Notes"}
+              label={isVi ? "Hương cuối (Base Notes)" : "Base notes"}
               description={
                 isVi
                   ? "Dư âm sâu lắng đọng lại trong không gian (ví dụ: Đàn hương, Hổ phách)"
@@ -782,7 +782,7 @@ export function ProductForm({
                   <h3 className="text-lg font-normal text-foreground">
                     {isVi
                       ? "Khởi tạo phiên bản sản phẩm"
-                      : "Initial Product Variants"}
+                      : "Initial variants"}
                   </h3>
                   <p className="text-xs font-normal text-muted-foreground">
                     {isVi
@@ -800,7 +800,7 @@ export function ProductForm({
                 className="inline-flex items-center gap-1.5 self-start sm:self-auto text-xs font-normal"
               >
                 <Plus className="h-3.5 w-3.5" />
-                <span>{isVi ? "Thêm quy cách" : "Add Another Variant"}</span>
+                <span>{isVi ? "Thêm phiên bản" : "Add variant"}</span>
               </Button>
             </div>
 
@@ -811,7 +811,7 @@ export function ProductForm({
                 <span className="font-normal text-foreground">
                   {isVi
                     ? "Nguyên tắc quản lý kho: "
-                    : "Inventory Management Policy: "}
+                    : "Inventory policy: "}
                 </span>
                 {isVi
                   ? "Tồn kho ban đầu (Initial Stock) chỉ được thiết lập ngay tại bước tạo mới này. Sau khi sản phẩm được tạo, mọi điều chỉnh số lượng tồn kho chỉ được thực hiện thông qua trang Quản lý kho."
@@ -847,7 +847,7 @@ export function ProductForm({
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     <Input
-                      label={isVi ? "Tên phiên bản *" : "Variant Name *"}
+                      label={isVi ? "Tên phiên bản *" : "Variant name *"}
                       value={v.name}
                       onChange={(e) =>
                         handleUpdateDraftVariant(v.id, "name", e.target.value)
@@ -868,7 +868,7 @@ export function ProductForm({
                     />
 
                     <Input
-                      label={isVi ? "Thời gian cháy" : "Burn Time"}
+                      label={isVi ? "Thời gian cháy" : "Burn time"}
                       value={v.burnTime}
                       onChange={(e) =>
                         handleUpdateDraftVariant(
@@ -906,7 +906,7 @@ export function ProductForm({
 
                     <Input
                       label={
-                        isVi ? "Tồn kho ban đầu *" : "Initial Stock *"
+                        isVi ? "Tồn kho ban đầu *" : "Initial stock *"
                       }
                       type="number"
                       step="1"
@@ -956,10 +956,10 @@ export function ProductForm({
                 : mode === "create"
                   ? isVi
                     ? "Tạo sản phẩm"
-                    : "Create Product"
+                    : "Create product"
                   : isVi
                     ? "Lưu thay đổi"
-                    : "Save Product Details"}
+                    : "Save changes"}
             </Button>
           </div>
         </div>
@@ -973,12 +973,12 @@ export function ProductForm({
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="space-y-1">
               <h3 className="text-lg font-normal text-destructive">
-                {isVi ? "Vùng nguy hiểm: Xóa sản phẩm" : "Danger Zone: Delete Product"}
+                {isVi ? "Xóa sản phẩm" : "Delete product"}
               </h3>
               <p className="text-xs text-muted-foreground max-w-xl leading-relaxed font-normal">
                 {isVi
-                  ? "Hệ thống bảo vệ lịch sử đơn hàng của khách. Nếu sản phẩm hoặc phiên bản đã từng được đặt mua, việc xóa sẽ bị ngăn chặn hoàn toàn trên máy chủ. Trong trường hợp đó, quý khách vui lòng chọn trạng thái ẩn (Inactive)."
-                  : "Historical customer order data is strictly protected. If this product or any of its variants are referenced in past orders, server-side validation will reject deletion. In that case, deactivate the product instead."}
+                  ? "Lịch sử đơn hàng được bảo vệ. Nếu sản phẩm hoặc dung tích đã xuất hiện trong đơn hàng cũ, máy chủ sẽ từ chối xóa. Khi đó, hãy chuyển sản phẩm sang trạng thái Ẩn."
+                  : "Order history is protected. If this product or any of its sizes appear in past orders, the server will refuse deletion. Hide the product instead."}
               </p>
             </div>
 
@@ -994,7 +994,7 @@ export function ProductForm({
                 className="self-start sm:self-auto shrink-0 font-normal text-xs"
               >
                 <Trash2 className="h-4 w-4 mr-1.5" />
-                <span>{isVi ? "Xóa sản phẩm" : "Delete Product"}</span>
+                <span>{isVi ? "Xóa sản phẩm" : "Delete product"}</span>
               </Button>
             )}
           </div>
@@ -1044,13 +1044,13 @@ export function ProductForm({
                 <div className="rounded-xl border border-border bg-muted/20 p-3.5 text-xs text-muted-foreground space-y-2 leading-relaxed font-normal">
                   <p>
                     {isVi
-                      ? "Hành động này sẽ xóa vĩnh viễn sản phẩm cùng tất cả các phiên bản trực thuộc."
-                      : "This action will permanently delete the product and all of its associated variants."}
+                      ? "Sản phẩm và toàn bộ dung tích sẽ bị xóa vĩnh viễn."
+                      : "This permanently deletes the product and all of its sizes."}
                   </p>
                   <p className="font-normal text-foreground">
                     {isVi
-                      ? "Lưu ý: Nếu sản phẩm đã phát sinh đơn hàng, máy chủ sẽ từ chối xóa và yêu cầu chuyển sang trạng thái Ẩn."
-                      : "Notice: If any variant has appeared in customer orders, the server will block deletion and require deactivation instead."}
+                      ? "Nếu đã có đơn hàng cho sản phẩm này, máy chủ sẽ từ chối xóa. Hãy chuyển sang trạng thái Ẩn."
+                      : "If the product appears in any order, the server will block deletion. Hide it instead."}
                   </p>
                 </div>
 
@@ -1063,7 +1063,7 @@ export function ProductForm({
                     disabled={isPending}
                     className="font-normal text-xs"
                   >
-                    {isVi ? "Hủy bỏ" : "Cancel"}
+                    {isVi ? "Hủy" : "Cancel"}
                   </Button>
                   <Button
                     type="button"
@@ -1078,8 +1078,8 @@ export function ProductForm({
                         ? "Đang xóa..."
                         : "Deleting..."
                       : isVi
-                        ? "Xác nhận xóa vĩnh viễn"
-                        : "Confirm Delete"}
+                        ? "Xóa vĩnh viễn"
+                        : "Delete permanently"}
                   </Button>
                 </div>
               </div>

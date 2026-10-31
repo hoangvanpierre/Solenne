@@ -86,8 +86,8 @@ export default async function AdminInventoryPage({
             title={isVi ? "Khu vực không khả dụng" : "Area unavailable"}
             description={
               isVi
-                ? "Quý khách không có quyền truy cập vào danh mục quản trị tồn kho."
-                : "You do not have permission to view the administrative inventory."
+                ? "Không có quyền xem tồn kho."
+                : "You don't have permission to view inventory."
             }
             icon={ShieldAlert}
             actions={
@@ -140,7 +140,7 @@ export default async function AdminInventoryPage({
         eyebrow={
           <div className="inline-flex items-center gap-2 rounded-full border border-amber/30 bg-amber/10 px-3 py-1 text-xs uppercase tracking-[0.08em] text-foreground">
             <Boxes className="h-3.5 w-3.5 text-amber-dark" aria-hidden="true" />
-            <span>{isVi ? "Tồn kho phiên bản" : "Variant Stock"}</span>
+            <span>{isVi ? "Tồn kho phiên bản" : "Variant stock"}</span>
           </div>
         }
         title={isVi ? "Quản lý tồn kho" : "Inventory"}

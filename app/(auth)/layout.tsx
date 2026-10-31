@@ -29,7 +29,7 @@ export default async function AuthLayout({
             SOLENNE
           </BrandLogo>
           <p className="text-[10.5px] uppercase tracking-[0.2em] text-cream/60 mt-1 font-normal">
-            {isVi ? "Nến thơm nghệ nhân thủ công" : "Artisan Scented Candles"}
+            {isVi ? "Nến thơm thủ công" : "Hand-poured scented candles"}
           </p>
         </div>
 
@@ -37,26 +37,26 @@ export default async function AuthLayout({
         <div className="relative z-10 max-w-md my-auto space-y-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber/30 bg-amber/10 text-amber text-[11px] tracking-wide font-normal">
             <Sparkles className="w-3 h-3" />
-            <span>{isVi ? "Góc riêng tĩnh tại Solenne" : "The Solenne Sanctuary"}</span>
+            <span>{isVi ? "Không gian của bạn" : "Your account"}</span>
           </div>
 
           <blockquote className="font-serif text-2xl xl:text-3xl font-normal leading-relaxed text-amber-light/95">
             {isVi
-              ? "“Mỗi ngọn nến đong đầy tâm niệm, mang hơi ấm dịu dàng và cõi an yên thuần khiết vào chốn thiêng liêng của bạn.”"
-              : "“Candles poured with intention, casting warmth and serene peace into your sacred space.”"}
+              ? "“Nến đổ tay từng mẻ nhỏ, mang hơi ấm và sự tĩnh tại vào không gian của bạn.”"
+              : "“Candles poured with intention, making room for warmth and quiet.”"}
           </blockquote>
 
           <p className="text-sm text-cream/70 leading-relaxed font-sans">
             {isVi
-              ? "Đăng nhập để theo dõi tác phẩm đang chế tác, lưu giữ nốt hương bản sắc và thỉnh nến với trải nghiệm trang trọng."
-              : "Sign in to track your artisanal orders, save your favorite bespoke scents, and enjoy seamless expedited checkout."}
+              ? "Đăng nhập để theo dõi đơn hàng, lưu mùi hương yêu thích và thanh toán nhanh hơn."
+              : "Sign in to track your orders, save favourite scents, and check out faster."}
           </p>
         </div>
 
         {/* Footer info */}
         <div className="relative z-10 text-xs text-cream/50 flex items-center justify-between font-sans">
           <span>{isVi ? "Đổ tay thủ công từng mẻ nhỏ" : "Hand-poured in small batches"}</span>
-          <span>{isVi ? "100% Sáp đậu nành & Tinh dầu thiên nhiên" : "100% Natural Soy & Botanicals"}</span>
+          <span>{isVi ? "Sáp đậu nành & tinh dầu không phthalate" : "Soy wax & phthalate-free fragrance oils"}</span>
         </div>
       </div>
 
@@ -69,7 +69,7 @@ export default async function AuthLayout({
             className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors group"
           >
             <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
-            <span>{isVi ? "Trở về Tiệm nến Solenne" : "Return to Boutique"}</span>
+            <span>{isVi ? "Về trang chủ" : "Back to home"}</span>
           </Link>
 
           {/* Mobile Logo */}
@@ -90,8 +90,8 @@ export default async function AuthLayout({
         <div className="w-full max-w-md mx-auto text-center text-xs text-muted-foreground pt-6">
           <p>
             {isVi
-              ? `© ${new Date().getFullYear()} Nhà hương Solenne. Bảo lưu mọi quyền.`
-              : `© ${new Date().getFullYear()} Solenne Fragrances. All rights reserved.`}
+              ? `© ${new Date().getFullYear()} Solenne. Bảo lưu mọi quyền.`
+              : `© ${new Date().getFullYear()} Solenne. All rights reserved.`}
           </p>
         </div>
       </div>

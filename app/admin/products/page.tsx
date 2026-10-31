@@ -95,8 +95,8 @@ export default async function AdminProductsPage({
             title={isVi ? "Khu vực không khả dụng" : "Area unavailable"}
             description={
               isVi
-                ? "Quý khách không có quyền truy cập vào danh mục quản trị sản phẩm."
-                : "You do not have permission to view the administrative product catalog."
+                ? "Không có quyền xem sản phẩm."
+                : "You don't have permission to view products."
             }
             icon={ShieldAlert}
             actions={
@@ -149,7 +149,7 @@ export default async function AdminProductsPage({
         eyebrow={
           <div className="inline-flex items-center gap-2 rounded-full border border-amber/30 bg-amber/10 px-3 py-1 text-xs uppercase tracking-[0.08em] text-foreground">
             <Layers className="h-3.5 w-3.5 text-amber-dark" aria-hidden="true" />
-            <span>{isVi ? "Danh mục tác phẩm" : "Product Catalog"}</span>
+            <span>{isVi ? "Danh mục sản phẩm" : "Product catalog"}</span>
           </div>
         }
         title={isVi ? "Quản lý sản phẩm" : "Products"}
@@ -177,7 +177,7 @@ export default async function AdminProductsPage({
             >
               <Link href="/admin/products/new">
                 <Plus className="h-4 w-4" aria-hidden="true" />
-                <span>{isVi ? "Thêm sản phẩm" : "Add Product"}</span>
+                <span>{isVi ? "Thêm sản phẩm" : "Add product"}</span>
               </Link>
             </Button>
           ) : undefined

@@ -49,22 +49,22 @@ const CATEGORY_MAP: Record<
 > = {
   floral: {
     labelEn: "Floral",
-    labelVi: "Hương Hoa",
+    labelVi: "Hương hoa",
     className: "border-blush/40 bg-blush/15 text-blush",
   },
   woody: {
     labelEn: "Woody",
-    labelVi: "Hương Gỗ",
+    labelVi: "Hương gỗ",
     className: "border-amber/40 bg-amber/15 text-amber",
   },
   fresh: {
     labelEn: "Fresh",
-    labelVi: "Tươi Mát",
+    labelVi: "Tươi mát",
     className: "border-sage/40 bg-sage/15 text-sage",
   },
   warm: {
     labelEn: "Warm",
-    labelVi: "Ấm Áp",
+    labelVi: "Ấm áp",
     className: "border-amber/40 bg-amber/15 text-amber",
   },
 };
@@ -224,7 +224,7 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-normal text-muted-foreground uppercase tracking-wider">
-              {isVi ? "Tổng sản phẩm" : "Total Products"}
+              {isVi ? "Tổng sản phẩm" : "Total products"}
             </span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-muted-foreground">
               <Layers className="h-4 w-4" />
@@ -325,7 +325,7 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
             }
             placeholder={
               isVi
-                ? "Tìm theo tên tác phẩm, slug hoặc SKU..."
+                ? "Tìm theo tên sản phẩm, slug hoặc SKU..."
                 : "Search by product name, slug, or SKU..."
             }
             resultCount={filteredProducts.length}
@@ -349,12 +349,12 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
                 aria-label={isVi ? "Lọc theo nhóm hương" : "Filter by category"}
               >
                 <option value="all">
-                  {isVi ? "Tất cả nhóm hương" : "All Categories"}
+                  {isVi ? "Tất cả nhóm hương" : "All categories"}
                 </option>
-                <option value="floral">{isVi ? "Hương Hoa" : "Floral"}</option>
-                <option value="woody">{isVi ? "Hương Gỗ" : "Woody"}</option>
-                <option value="fresh">{isVi ? "Tươi Mát" : "Fresh"}</option>
-                <option value="warm">{isVi ? "Ấm Áp" : "Warm"}</option>
+                <option value="floral">{isVi ? "Hương hoa" : "Floral"}</option>
+                <option value="woody">{isVi ? "Hương gỗ" : "Woody"}</option>
+                <option value="fresh">{isVi ? "Tươi mát" : "Fresh"}</option>
+                <option value="warm">{isVi ? "Ấm áp" : "Warm"}</option>
               </select>
             </div>
 
@@ -370,7 +370,7 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
                 aria-label={isVi ? "Lọc theo trạng thái" : "Filter by status"}
               >
                 <option value="all">
-                  {isVi ? "Tất cả trạng thái" : "All Status"}
+                  {isVi ? "Tất cả trạng thái" : "All statuses"}
                 </option>
                 <option value="active">
                   {isVi ? "Đang mở bán" : "Active"}
@@ -390,13 +390,13 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
                 aria-label={isVi ? "Sắp xếp danh sách" : "Sort list"}
               >
                 <option value="newest">
-                  {isVi ? "Mới nhất trước" : "Newest First"}
+                  {isVi ? "Mới nhất trước" : "Newest first"}
                 </option>
                 <option value="name-asc">
-                  {isVi ? "Tên: A–Z" : "Product Name: A–Z"}
+                  {isVi ? "Tên: A–Z" : "Product name: A–Z"}
                 </option>
                 <option value="name-desc">
-                  {isVi ? "Tên: Z–A" : "Product Name: Z–A"}
+                  {isVi ? "Tên: Z–A" : "Product name: Z–A"}
                 </option>
                 <option value="price-asc">
                   {isVi ? "Giá: Thấp đến cao" : "Price: Low to High"}
@@ -405,10 +405,10 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
                   {isVi ? "Giá: Cao đến thấp" : "Price: High to Low"}
                 </option>
                 <option value="stock-desc">
-                  {isVi ? "Tồn kho: Nhiều đến ít" : "Total Stock: High to Low"}
+                  {isVi ? "Tồn kho: Nhiều đến ít" : "Stock: high to low"}
                 </option>
                 <option value="stock-asc">
-                  {isVi ? "Tồn kho: Ít đến nhiều" : "Total Stock: Low to High"}
+                  {isVi ? "Tồn kho: Ít đến nhiều" : "Stock: low to high"}
                 </option>
               </select>
             </div>
@@ -433,7 +433,7 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
         <div className="flex items-center justify-between text-xs font-normal text-muted-foreground pt-1 border-t border-border/40">
           <span>
             {isVi
-              ? `Hiển thị ${filteredProducts.length} trên tổng số ${metrics.total} tác phẩm`
+              ? `Hiển thị ${filteredProducts.length} trên tổng số ${metrics.total} sản phẩm`
               : `Showing ${filteredProducts.length} of ${metrics.total} products`}
           </span>
 
@@ -456,16 +456,16 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
                   ? "Chưa có sản phẩm nào"
                   : "No products in catalog"
                 : isVi
-                  ? "Không tìm thấy tác phẩm phù hợp"
+                  ? "Không tìm thấy sản phẩm phù hợp"
                   : "No matching products found"
             }
             description={
               metrics.total === 0
                 ? isVi
-                  ? "Chưa có tác phẩm nến nào trong danh mục quản trị."
+                  ? "Chưa có sản phẩm nào trong danh mục."
                   : "There are currently no products recorded in the system."
                 : isVi
-                  ? "Không có tác phẩm nào thỏa mãn điều kiện lọc và từ khóa tìm kiếm đã chọn."
+                  ? "Không có sản phẩm nào khớp bộ lọc và từ khóa tìm kiếm."
                   : "Try adjusting your search terms or filters to find what you're looking for."
             }
             actions={
@@ -487,7 +487,7 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
                 head={
                   <>
                     <th scope="col" className="py-3.5 px-6 font-normal">
-                      {isVi ? "Tác phẩm" : "Product"}
+                      {isVi ? "Sản phẩm" : "Product"}
                     </th>
                     <th scope="col" className="py-3.5 px-4 font-normal">
                       {isVi ? "Nhóm hương" : "Category"}
@@ -496,10 +496,10 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
                       {isVi ? "Phiên bản" : "Variants"}
                     </th>
                     <th scope="col" className="py-3.5 px-4 font-normal">
-                      {isVi ? "Giá cơ bản" : "Base Price"}
+                      {isVi ? "Giá cơ bản" : "Base price"}
                     </th>
                     <th scope="col" className="py-3.5 px-6 font-normal">
-                      {isVi ? "Tổng tồn kho" : "Total Stock"}
+                      {isVi ? "Tổng tồn kho" : "Total stock"}
                     </th>
                     <th scope="col" className="py-3.5 px-4 font-normal">
                       {isVi ? "Ngày tạo" : "Created"}
@@ -572,7 +572,7 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
                                 className="admin-quiet-link inline-flex items-center"
                                 title={
                                   isVi
-                                    ? "Xem trang tác phẩm trên cửa hàng"
+                                    ? "Xem trang sản phẩm trên cửa hàng"
                                     : "View product on storefront"
                                 }
                               >

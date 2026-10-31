@@ -16,9 +16,9 @@ export const ORDER_STATUS_FILTER_OPTIONS = [
   { value: "all", labelEn: "All statuses", labelVi: "Tất cả trạng thái" },
   { value: "pending", labelEn: "Pending payment", labelVi: "Chờ thanh toán" },
   { value: "paid", labelEn: "Paid", labelVi: "Đã thanh toán" },
-  { value: "processing", labelEn: "Processing", labelVi: "Đang chế tác" },
-  { value: "shipped", labelEn: "Shipped", labelVi: "Đang chuyển giao" },
-  { value: "delivered", labelEn: "Delivered", labelVi: "Đã an nhận" },
+  { value: "processing", labelEn: "Processing", labelVi: "Đang xử lý" },
+  { value: "shipped", labelEn: "Shipped", labelVi: "Đã gửi hàng" },
+  { value: "delivered", labelEn: "Delivered", labelVi: "Đã giao" },
   { value: "cancelled", labelEn: "Cancelled", labelVi: "Đã hủy" },
 ] as const;
 

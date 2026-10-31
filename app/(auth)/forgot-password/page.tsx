@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
         </div>
         <div className="space-y-2">
           <h1 className="text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground">
-            {isVi ? "Đã Gửi Liên Kết Khôi Phục" : "Reset Link Sent"}
+            {isVi ? "Đã gửi liên kết" : "Reset link sent"}
           </h1>
           <p className="text-sm text-muted-foreground leading-relaxed">
             {state.message}
@@ -35,7 +35,7 @@ export default function ForgotPasswordPage() {
         </div>
         <Button asChild className="w-full h-12 bg-foreground text-background cursor-pointer">
           <Link href="/login">
-            {isVi ? "Quay lại Đăng nhập" : "Return to Sign In"}
+            {isVi ? "Quay lại đăng nhập" : "Back to sign in"}
           </Link>
         </Button>
       </div>
@@ -50,7 +50,7 @@ export default function ForgotPasswordPage() {
           <KeyRound className="w-5 h-5" />
         </div>
         <h1 className="text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground">
-          {isVi ? "Khôi Phục Mật Khẩu" : "Recover Password"}
+          {isVi ? "Khôi phục mật khẩu" : "Reset password"}
         </h1>
         <p className="text-sm text-muted-foreground">
           {isVi
@@ -76,7 +76,7 @@ export default function ForgotPasswordPage() {
             htmlFor="email"
             className="text-xs font-medium uppercase tracking-wider text-foreground/80"
           >
-            {isVi ? "Địa chỉ email" : "Email Address"}
+            {isVi ? "Email" : "Email"}
           </label>
           <Input
             id="email"
@@ -107,7 +107,7 @@ export default function ForgotPasswordPage() {
               <span>{isVi ? "Đang gửi liên kết..." : "Sending link..."}</span>
             </span>
           ) : (
-            isVi ? "Gửi Liên Kết Khôi Phục" : "Send Reset Link"
+            isVi ? "Gửi liên kết" : "Send reset link"
           )}
         </Button>
       </form>
@@ -119,7 +119,7 @@ export default function ForgotPasswordPage() {
           className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors group"
         >
           <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
-          <span>{isVi ? "Quay lại Đăng nhập" : "Back to Sign In"}</span>
+          <span>{isVi ? "Quay lại đăng nhập" : "Back to sign in"}</span>
         </Link>
       </div>
     </div>

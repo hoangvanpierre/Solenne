@@ -103,8 +103,8 @@ export default async function AdminCustomersPage({
             title={isVi ? "Khu vực không khả dụng" : "Area unavailable"}
             description={
               isVi
-                ? "Quý khách không có quyền truy cập vào danh bạ khách hàng quản trị."
-                : "You do not have permission to view the management customer directory."
+                ? "Không có quyền xem danh bạ khách hàng."
+                : "You don't have permission to view the customer directory."
             }
             icon={ShieldAlert}
             actions={
@@ -160,7 +160,7 @@ export default async function AdminCustomersPage({
         eyebrow={
           <div className="inline-flex items-center gap-2 rounded-full border border-amber/30 bg-amber/10 px-3 py-1 text-xs uppercase tracking-[0.08em] text-foreground">
             <Users className="h-3.5 w-3.5 text-amber-dark" aria-hidden="true" />
-            <span>{isVi ? "Danh bạ khách hàng" : "Customer Directory"}</span>
+            <span>{isVi ? "Danh bạ khách hàng" : "Customer directory"}</span>
           </div>
         }
         title={isVi ? "Quản lý khách hàng" : "Customers"}
@@ -181,7 +181,7 @@ export default async function AdminCustomersPage({
         }
       />
 
-      {/* Interactive Customer Directory */}
+      {/* Interactive Customer directory */}
       <AdminSearchProvider initialValue={search} minLength={2}>
         <CustomerTable
           customers={queryResult.customers}

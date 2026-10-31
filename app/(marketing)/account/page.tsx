@@ -77,7 +77,7 @@ export default async function AccountPage() {
   const displayName =
     profile?.full_name?.trim() ||
     user.user_metadata?.full_name?.trim() ||
-    (isVi ? "Khách hàng ẩn danh" : "Anonymous Member");
+    (isVi ? "Thành viên" : "Member");
   const phone = profile?.phone?.trim() || null;
   const email = user.email?.trim() || null;
 
@@ -145,16 +145,16 @@ export default async function AccountPage() {
                 className="inline-flex items-center gap-2 text-[11.5px] uppercase tracking-wider h-auto min-h-11 py-2.5 px-5 font-normal"
               >
                 <LogOut className="w-4 h-4" />
-                <span>{isVi ? "Đăng xuất" : "Sign Out"}</span>
+                <span>{isVi ? "Đăng xuất" : "Sign out"}</span>
               </Button>
             </form>
           </div>
         </header>
 
-        {/* Main: Order History (60%) + Shipping Sanctuary (40%) */}
+        {/* Main: order history (60%) + shipping address (40%) */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16 pt-12">
           <section className="lg:col-span-3">
-            <Suspense fallback={<OrderHistoryCardSkeleton />}>
+            <Suspense fallback={<OrderHistoryCardSkeleton locale={locale} />}>
               <OrderHistoryCard userId={user.id} />
             </Suspense>
           </section>
@@ -217,7 +217,7 @@ export default async function AccountPage() {
           </aside>
         </div>
 
-        {/* Bespoke Profile: full-width settings panel */}
+        {/* Profile: full-width settings panel */}
         <section className="mt-16 border-t border-border pt-12">
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div>
@@ -242,16 +242,16 @@ export default async function AccountPage() {
           <div className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-12">
             <div>
               <p className="text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground font-normal">
-                {isVi ? "Sở thích mùi hương" : "Scent Preferences"}
+                {isVi ? "Sở thích mùi hương" : "Scent preferences"}
               </p>
               <p className="mt-2.5 text-[13px] leading-relaxed text-foreground font-normal">
-                {isVi ? "Chưa thiết lập." : "Not personalized yet."}
+                {isVi ? "Chưa thiết lập." : "Not set yet."}
               </p>
               <Link
                 href="/collections"
                 className="mt-2 inline-flex items-center gap-1.5 text-[13px] text-muted-foreground transition-colors hover:text-foreground font-normal"
               >
-                <span>{isVi ? "Khám phá các nốt hương" : "Discover scents"}</span>
+                <span>{isVi ? "Khám phá các nốt hương" : "Explore scent families"}</span>
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
@@ -263,17 +263,19 @@ export default async function AccountPage() {
                 USD ($) / VND (₫)
               </p>
               <p className="mt-1 text-[11.5px] text-muted-foreground font-normal">
-                {isVi ? "Tùy chọn hiển thị tiền tệ linh hoạt." : "Multi-currency display supported."}
+                {isVi
+                  ? "Giá có thể hiển thị bằng USD hoặc VND."
+                  : "Prices can be shown in USD or VND."}
               </p>
             </div>
             <div>
               <p className="text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground font-normal">
-                {isVi ? "Thông tin tài khoản" : "Account Information"}
+                {isVi ? "Thông tin tài khoản" : "Account information"}
               </p>
               <div className="mt-2.5 space-y-2 text-[13px]">
                 <div>
                   <span className="text-[10px] uppercase tracking-wider text-muted-foreground block font-normal">
-                    {isVi ? "Tên hiển thị" : "Display Name"}
+                    {isVi ? "Tên hiển thị" : "Display name"}
                   </span>
                   <span className="font-normal text-foreground mt-0.5 block text-[13.5px]">
                     {displayName}
@@ -295,7 +297,7 @@ export default async function AccountPage() {
 
                 <div>
                   <span className="text-[10px] uppercase tracking-wider text-muted-foreground block font-normal">
-                    {isVi ? "Địa chỉ email" : "Email Address"}
+                    {isVi ? "Địa chỉ email" : "Email address"}
                   </span>
                   <span className="mt-0.5 block text-[13px] break-all text-foreground font-normal">
                     {email || (
@@ -308,7 +310,7 @@ export default async function AccountPage() {
               </div>
 
               <p className="mt-3 text-[11.5px] text-muted-foreground font-normal tabular-nums">
-                {isVi ? "Đồng hành từ " : "Member since "}
+                {isVi ? "Thành viên từ " : "Member since "}
                 {new Date(user.created_at).toLocaleDateString(isVi ? "vi-VN" : "en-US", {
                   month: "long",
                   year: "numeric",

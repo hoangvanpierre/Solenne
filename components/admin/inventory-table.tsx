@@ -46,22 +46,22 @@ const CATEGORY_MAP: Record<
 > = {
   floral: {
     labelEn: "Floral",
-    labelVi: "Hương Hoa",
+    labelVi: "Hương hoa",
     className: "border-blush/40 bg-blush/15 text-blush",
   },
   woody: {
     labelEn: "Woody",
-    labelVi: "Hương Gỗ",
+    labelVi: "Hương gỗ",
     className: "border-amber/40 bg-amber/15 text-amber",
   },
   fresh: {
     labelEn: "Fresh",
-    labelVi: "Tươi Mát",
+    labelVi: "Tươi mát",
     className: "border-sage/40 bg-sage/15 text-sage",
   },
   warm: {
     labelEn: "Warm",
-    labelVi: "Ấm Áp",
+    labelVi: "Ấm áp",
     className: "border-amber/40 bg-amber/15 text-amber",
   },
 };
@@ -190,7 +190,7 @@ function InventoryTableContent({ items, locale = "en" }: InventoryTableProps) {
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-normal text-muted-foreground uppercase tracking-wider">
-              {isVi ? "Tổng phiên bản" : "Total Variants"}
+              {isVi ? "Tổng phiên bản" : "Total variants"}
             </span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-muted-foreground">
               <Boxes className="h-4 w-4" />
@@ -218,7 +218,7 @@ function InventoryTableContent({ items, locale = "en" }: InventoryTableProps) {
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-normal text-sage uppercase tracking-wider">
-              {isVi ? "Dồi dào (>10)" : "In Stock (>10)"}
+              {isVi ? "Dồi dào (>10)" : "In stock (>10)"}
             </span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-sage/15 text-sage">
               <CheckCircle2 className="h-4 w-4" />
@@ -324,11 +324,11 @@ function InventoryTableContent({ items, locale = "en" }: InventoryTableProps) {
                 className="admin-quiet-field rounded-xl px-3 py-2 text-xs font-normal text-foreground"
                 aria-label={isVi ? "Lọc theo nhóm hương" : "Filter by category"}
               >
-                <option value="all">{isVi ? "Tất cả nhóm hương" : "All Categories"}</option>
-                <option value="floral">{isVi ? "Hương Hoa" : "Floral"}</option>
-                <option value="woody">{isVi ? "Hương Gỗ" : "Woody"}</option>
-                <option value="fresh">{isVi ? "Tươi Mát" : "Fresh"}</option>
-                <option value="warm">{isVi ? "Ấm Áp" : "Warm"}</option>
+                <option value="all">{isVi ? "Tất cả nhóm hương" : "All categories"}</option>
+                <option value="floral">{isVi ? "Hương hoa" : "Floral"}</option>
+                <option value="woody">{isVi ? "Hương gỗ" : "Woody"}</option>
+                <option value="fresh">{isVi ? "Tươi mát" : "Fresh"}</option>
+                <option value="warm">{isVi ? "Ấm áp" : "Warm"}</option>
               </select>
             </div>
 
@@ -345,8 +345,8 @@ function InventoryTableContent({ items, locale = "en" }: InventoryTableProps) {
                 className="admin-quiet-field rounded-xl px-3 py-2 text-xs font-normal text-foreground"
                 aria-label={isVi ? "Lọc theo trạng thái tồn kho" : "Filter by stock status"}
               >
-                <option value="all">{isVi ? "Tất cả trạng thái" : "All Stock"}</option>
-                <option value="in_stock">{isVi ? "Dồi dào (>10)" : "In Stock (>10)"}</option>
+                <option value="all">{isVi ? "Tất cả trạng thái" : "All stock"}</option>
+                <option value="in_stock">{isVi ? "Dồi dào (>10)" : "In stock (>10)"}</option>
                 <option value="low_stock">
                   {isVi ? `Sắp hết (≤${LOW_STOCK_THRESHOLD})` : `Low Stock (≤${LOW_STOCK_THRESHOLD})`}
                 </option>
@@ -365,7 +365,7 @@ function InventoryTableContent({ items, locale = "en" }: InventoryTableProps) {
                 <option value="default">{isVi ? "Mặc định (Mới nhất)" : "Default (Newest)"}</option>
                 <option value="stock-asc">{isVi ? "Tồn kho: Ít đến nhiều" : "Stock: Low to High"}</option>
                 <option value="stock-desc">{isVi ? "Tồn kho: Nhiều đến ít" : "Stock: High to Low"}</option>
-                <option value="name-asc">{isVi ? "Tên sản phẩm: A–Z" : "Product Name: A–Z"}</option>
+                <option value="name-asc">{isVi ? "Tên sản phẩm: A–Z" : "Product name: A–Z"}</option>
               </select>
             </div>
 
@@ -421,7 +421,7 @@ function InventoryTableContent({ items, locale = "en" }: InventoryTableProps) {
                   ? "Chưa có phiên bản sản phẩm nào trong hệ thống."
                   : "There are currently no product variants in the catalog."
                 : isVi
-                  ? "Không có tác phẩm nào thỏa mãn các điều kiện lọc và tìm kiếm đã chọn."
+                  ? "Không có sản phẩm nào khớp bộ lọc và từ khóa tìm kiếm."
                   : "Try adjusting your search terms or filters to find what you're looking for."
             }
             actions={
@@ -443,7 +443,7 @@ function InventoryTableContent({ items, locale = "en" }: InventoryTableProps) {
                 head={
                   <>
                     <th scope="col" className="py-3.5 px-6 font-normal">
-                      {isVi ? "Tác phẩm & Phiên bản" : "Product & Variant"}
+                      {isVi ? "Sản phẩm & Phiên bản" : "Product & Variant"}
                     </th>
                     <th scope="col" className="py-3.5 px-4 font-normal">
                       {isVi ? "Nhóm hương" : "Category"}
@@ -452,7 +452,7 @@ function InventoryTableContent({ items, locale = "en" }: InventoryTableProps) {
                       {isVi ? "Đơn giá" : "Price"}
                     </th>
                     <th scope="col" className="py-3.5 px-6 font-normal">
-                      {isVi ? "Tồn kho" : "Stock Quantity"}
+                      {isVi ? "Tồn kho" : "Stock"}
                     </th>
                     <th scope="col" className="py-3.5 px-6 text-right font-normal">
                       {isVi ? "Thao tác" : "Actions"}

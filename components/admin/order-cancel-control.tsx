@@ -33,7 +33,7 @@ function getDisplayError(err: string, isVi: boolean): string {
     return "Không thể hoàn lại tồn kho: một hoặc nhiều phiên bản sản phẩm không còn tồn tại.";
   }
   if (err.includes("do not have permission")) {
-    return "Quý khách không có quyền hủy đơn hàng.";
+    return "Không có quyền hủy đơn hàng.";
   }
   if (err.includes("sign in")) {
     return "Vui lòng đăng nhập để hủy đơn hàng.";
@@ -118,7 +118,7 @@ export function OrderCancelControl({
       <div className="flex items-center gap-2 border-b border-border pb-4">
         <Ban className="h-5 w-5 text-muted-foreground" />
         <h2 className="text-lg font-normal text-foreground">
-          {isVi ? "Thao tác quản trị" : "Management Actions"}
+          {isVi ? "Thao tác quản trị" : "Management actions"}
         </h2>
       </div>
 
@@ -137,7 +137,7 @@ export function OrderCancelControl({
             onClick={() => setIsConfirming(true)}
           >
             <Ban className="h-4 w-4" />
-            <span>{isVi ? "Hủy đơn hàng" : "Cancel Order"}</span>
+            <span>{isVi ? "Hủy đơn hàng" : "Cancel order"}</span>
           </Button>
         </div>
       ) : (
@@ -146,12 +146,12 @@ export function OrderCancelControl({
             <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
             <div className="space-y-1">
               <h3 className="text-sm font-normal text-foreground">
-                {isVi ? "Xác nhận hủy đơn hàng" : "Confirm Cancellation"}
+                {isVi ? "Hủy đơn hàng" : "Cancel order"}
               </h3>
               <p className="text-xs leading-relaxed text-muted-foreground font-normal">
                 {isVi ? (
                   <>
-                    Quý khách có chắc chắn muốn hủy đơn hàng{" "}
+                    Hủy đơn hàng{" "}
                     <span className="tabular-nums font-normal text-foreground">
                       {orderNumber}
                     </span>
@@ -159,19 +159,19 @@ export function OrderCancelControl({
                     <span className="tabular-nums font-normal text-foreground">
                       {unitsCount}
                     </span>{" "}
-                    sản phẩm sẽ được tự động hoàn trả.
+                    sản phẩm sẽ được hoàn lại tự động.
                   </>
                 ) : (
                   <>
-                    Are you sure you want to cancel order{" "}
+                    Cancel order{" "}
                     <span className="tabular-nums font-normal text-foreground">
                       {orderNumber}
                     </span>
-                    ? Inventory for{" "}
+                    ? Stock for{" "}
                     <span className="tabular-nums font-normal text-foreground">
                       {unitsCount} {unitsCount === 1 ? "item" : "items"}
                     </span>{" "}
-                    will be automatically restored.
+                    is returned to inventory.
                   </>
                 )}
               </p>
@@ -197,7 +197,7 @@ export function OrderCancelControl({
               maxLength={500}
               placeholder={
                 isVi
-                  ? "Ví dụ: Khách hàng đổi ý, hết nguyên liệu chế tác..."
+                  ? "Ví dụ: khách đổi ý, hết nguyên liệu sản xuất..."
                   : "e.g. Customer requested cancellation, duplicate order..."
               }
               className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-sm font-normal text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
@@ -225,7 +225,7 @@ export function OrderCancelControl({
               onClick={handleClose}
               className="order-2 sm:order-1 font-normal text-xs"
             >
-              {isVi ? "Giữ đơn hàng" : "Keep Order"}
+              {isVi ? "Giữ đơn hàng" : "Keep order"}
             </Button>
             <Button
               type="button"
@@ -236,7 +236,7 @@ export function OrderCancelControl({
               onClick={handleConfirmCancel}
               className="order-1 sm:order-2 font-normal text-xs"
             >
-              <span>{isVi ? "Xác nhận hủy" : "Confirm Cancellation"}</span>
+              <span>{isVi ? "Hủy đơn hàng" : "Cancel order"}</span>
             </Button>
           </div>
         </div>

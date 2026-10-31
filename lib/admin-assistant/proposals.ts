@@ -155,7 +155,7 @@ const BLOCKER_TEXT: Record<ProposalBlockerCode, { en: string; vi: string }> = {
   },
   ORDER_STATUS_NOT_CANCELLABLE: {
     en: "Only pending, paid or processing orders can be cancelled.",
-    vi: "Chỉ có thể hủy đơn ở trạng thái chờ thanh toán, đã thanh toán hoặc đang chế tác.",
+    vi: "Chỉ có thể hủy đơn ở trạng thái chờ thanh toán, đã thanh toán hoặc đang xử lý.",
   },
   ORDER_ALREADY_IN_STATUS: {
     en: "The order is already in that status.",
@@ -171,7 +171,7 @@ const BLOCKER_TEXT: Record<ProposalBlockerCode, { en: string; vi: string }> = {
   },
   ROLLBACK_FORBIDDEN: {
     en: "Rolling a shipment back to processing requires the cancellation permission.",
-    vi: "Chuyển lùi đơn đã gửi về đang chế tác cần quyền hủy đơn.",
+    vi: "Chuyển lùi đơn đã gửi về đang xử lý cần quyền hủy đơn.",
   },
   INVALID_DELTA: {
     en: "The stock adjustment cannot be zero.",
@@ -218,8 +218,8 @@ function statusLabel(status: OrderStatus, locale: ProposalLocale): string {
   const vi: Record<OrderStatus, string> = {
     pending: "chờ thanh toán",
     paid: "đã thanh toán",
-    processing: "đang chế tác",
-    shipped: "đã gửi",
+    processing: "đang xử lý",
+    shipped: "đã gửi hàng",
     delivered: "đã giao",
     cancelled: "đã hủy",
   };

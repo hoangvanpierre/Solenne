@@ -8,7 +8,7 @@ import { Container } from "@/components/ui/container";
 import { ProfileForm } from "@/components/account";
 
 export const metadata: Metadata = {
-  title: "Manage Profile — Solenne",
+  title: "Profile — Solenne",
   description: "Update your Solenne account details.",
 };
 
@@ -42,24 +42,24 @@ export default async function ProfilePage() {
             className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            {isVi ? "Quay lại không gian cá nhân" : "Back to Account"}
+            {isVi ? "Quay lại tài khoản" : "Back to Account"}
           </Link>
         </nav>
 
         <div className="mb-10">
           <h1 className="font-serif text-2xl sm:text-3xl font-normal leading-[1.22] mb-3 text-foreground tracking-[0.02em]">
-            {isVi ? "Hồ Sơ Bản Sắc" : "Manage Profile"}
+            {isVi ? "Hồ sơ" : "Profile"}
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground leading-relaxed font-normal">
             {isVi
-              ? "Thông tin để Nhà hương trân trọng đón tiếp và liên hệ với quý khách."
-              : "The details we use to greet you and reach you."}
+              ? "Tên và số điện thoại dùng để liên hệ với bạn."
+              : "The name and phone number we use to reach you."}
           </p>
         </div>
 
         <div className="mb-8 border-t border-border pt-8">
           <p className="text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground font-normal">
-            {isVi ? "Thư điện tử" : "Email"}
+            {isVi ? "Địa chỉ email" : "Email"}
           </p>
           <p className="mt-1.5 text-[14px] sm:text-[14.5px] text-foreground font-normal">{user.email}</p>
           <p className="mt-1 text-[12.5px] sm:text-[13px] text-muted-foreground font-normal">

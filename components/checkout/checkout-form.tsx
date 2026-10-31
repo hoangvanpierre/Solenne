@@ -49,6 +49,9 @@ export function CheckoutForm({
     useCart();
   const locale = useAppLocale();
   const isVi = locale === "vi";
+  const genericError = isVi
+    ? "Đã xảy ra lỗi. Vui lòng thử lại."
+    : "Something went wrong. Please try again.";
 
   const initialCountryCode =
     defaultAddress?.country === "United States" ||
@@ -143,10 +146,10 @@ export function CheckoutForm({
         return;
       }
 
-      setSubmitError(result.error ?? "Something went wrong. Please try again.");
+      setSubmitError(result.error ?? genericError);
       if (result.fieldErrors) setFieldErrors(result.fieldErrors);
     } catch {
-      setSubmitError("Something went wrong. Please try again.");
+      setSubmitError(genericError);
     } finally {
       setIsSubmitting(false);
     }
@@ -164,12 +167,12 @@ export function CheckoutForm({
           </h1>
           <p className="text-muted-foreground">
             {isVi
-              ? "Hãy chọn vài tác phẩm nến thơm nghệ nhân trước khi tiến hành thanh toán."
+              ? "Thêm nến vào giỏ trước khi thanh toán."
               : "Add a candle or two before checking out."}
           </p>
           <Button asChild size="lg" className="mt-2">
             <Link href="/products">
-              {isVi ? "Khám phá bộ sưu tập" : "Shop the Collection"}
+              {isVi ? "Chọn nến" : "Shop candles"}
             </Link>
           </Button>
         </div>
@@ -181,12 +184,12 @@ export function CheckoutForm({
     <Container>
       <div className="mb-10">
         <h1 className="font-serif text-2xl sm:text-3xl font-normal leading-[1.22] mb-3 text-foreground tracking-[0.02em]">
-          {isVi ? "Thanh toán đơn hàng" : "Checkout"}
+          {isVi ? "Thanh toán" : "Checkout"}
         </h1>
         <p className="text-muted-foreground text-sm sm:text-base leading-relaxed font-normal">
           {isVi
-            ? "Đơn hàng của quý khách sẽ được giữ chỗ trang trọng ngay khi xác nhận. Hình thức thanh toán trực tuyến đang được hoàn thiện — Nhà hương sẽ liên hệ qua email để hướng dẫn thanh toán chu toàn."
-            : "Your order is reserved once placed. Payment options are coming soon — we'll be in touch by email to complete payment."}
+            ? "Đơn hàng được giữ chỗ ngay khi xác nhận. Thanh toán trực tuyến đang được hoàn thiện — chúng tôi sẽ liên hệ qua email để hướng dẫn thanh toán."
+            : "Your order is reserved once placed. Online payment is coming soon — we'll email you to complete payment."}
         </p>
       </div>
 
@@ -199,7 +202,7 @@ export function CheckoutForm({
             </h2>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <Input
-                label={isVi ? "Địa chỉ thư điện tử" : "Email"}
+                label="Email"
                 name="email"
                 type="email"
                 value={values.email}
@@ -216,7 +219,7 @@ export function CheckoutForm({
                 value={values.phone}
                 onChange={handleChange}
                 error={errorFor("phone")}
-                placeholder={isVi ? "Số điện thoại liên hệ" : "Your phone number"}
+                placeholder={isVi ? "Số điện thoại của bạn" : "Your phone number"}
                 autoComplete="tel"
                 required
               />
@@ -225,16 +228,16 @@ export function CheckoutForm({
 
           <section className="rounded-2xl border border-border p-6 sm:p-8">
             <h2 className="font-serif text-lg font-normal mb-5 text-foreground leading-[1.3]">
-              {isVi ? "Địa chỉ đón nhận nến" : "Shipping Address"}
+              {isVi ? "Địa chỉ giao hàng" : "Shipping address"}
             </h2>
             <div className="space-y-5">
               <Input
-                label={isVi ? "Họ và tên người nhận" : "Full Name"}
+                label={isVi ? "Họ và tên" : "Full name"}
                 name="fullName"
                 value={values.fullName}
                 onChange={handleChange}
                 error={errorFor("fullName")}
-                placeholder={isVi ? "Quý danh người đón nhận" : "Recipient full name"}
+                placeholder={isVi ? "Tên người nhận" : "Recipient name"}
                 autoComplete="name"
                 required
                 disabled={isSubmitting}
@@ -252,7 +255,7 @@ export function CheckoutForm({
 
           <section className="rounded-2xl border border-border p-6 sm:p-8">
             <h2 className="font-serif text-lg font-normal mb-5 text-foreground leading-[1.3]">
-              {isVi ? "Lời chúc gửi trao hoặc ghi chú (tùy chọn)" : "Order Notes (optional)"}
+              {isVi ? "Ghi chú (tùy chọn)" : "Order notes (optional)"}
             </h2>
             <textarea
               name="notes"
@@ -261,7 +264,7 @@ export function CheckoutForm({
               onChange={handleChange}
               placeholder={
                 isVi
-                  ? "Lời chúc viết tay trên thiệp, ghi chú riêng cho nghệ nhân đóng gói..."
+                  ? "Ghi chú giao hàng, lời chúc..."
                   : "Delivery notes, gift messages..."
               }
               className="flex w-full rounded-lg border border-border bg-transparent px-4 py-2.5 text-[13.5px] font-normal transition-colors duration-200 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -288,7 +291,7 @@ export function CheckoutForm({
             ) : (
               <>
                 <Lock className="mr-2 h-4 w-4" />
-                {isVi ? "Xác nhận đặt tác phẩm" : "Place Order"}
+                {isVi ? "Đặt hàng" : "Place order"}
               </>
             )}
           </Button>
@@ -298,7 +301,7 @@ export function CheckoutForm({
         <aside className="lg:col-span-2">
           <div className="rounded-2xl border border-border p-6 sm:p-8">
             <h2 className="font-serif text-lg font-normal mb-5 text-foreground leading-[1.3]">
-              {isVi ? "Tổng kết đơn tác phẩm" : "Order Summary"}
+              {isVi ? "Tóm tắt đơn hàng" : "Order summary"}
             </h2>
             <div className="space-y-4">
               {items.map((item) => (
@@ -337,7 +340,7 @@ export function CheckoutForm({
                 <span className="tabular-nums">
                   {shippingFee === 0
                     ? isVi
-                      ? "Trân quý miễn phí"
+                      ? "Miễn phí"
                       : "Free"
                     : formatDisplay(shippingFee)}
                 </span>
@@ -351,15 +354,15 @@ export function CheckoutForm({
             <p className="mt-5 text-[11.5px] leading-relaxed text-muted-foreground font-normal">
               {isVi ? (
                 <>
-                  Tổng tiền hiển thị theo {currency}. Đơn hàng của quý khách được ghi nhận ở trạng thái{" "}
+                  Tổng tiền hiển thị theo {currency}. Đơn hàng được ghi nhận ở trạng thái{" "}
                   <span className="font-normal text-foreground">chờ thanh toán</span>{" "}
-                  và sẽ được hướng dẫn hoàn tất khi phương thức thanh toán sẵn sàng.
+                  và có thể hoàn tất khi thanh toán trực tuyến được bật.
                 </>
               ) : (
                 <>
                   Totals are shown in {currency}. Your order is placed as{" "}
                   <span className="font-normal text-foreground">pending payment</span>{" "}
-                  and payment can be completed once payment options are enabled.
+                  and can be completed once online payment is enabled.
                 </>
               )}
             </p>

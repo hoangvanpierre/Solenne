@@ -41,7 +41,7 @@ export interface AuditTableProps {
 }
 
 const ACTION_OPTIONS = [
-  { value: "all", labelEn: "All Actions", labelVi: "Tất cả hành động" },
+  { value: "all", labelEn: "All actions", labelVi: "Tất cả hành động" },
   { value: "order", labelEn: "Category: Orders", labelVi: "Nhóm: Đơn hàng" },
   { value: "order.created", labelEn: "Order Created", labelVi: "Tạo đơn hàng" },
   {
@@ -123,7 +123,7 @@ const ACTION_OPTIONS = [
 ];
 
 const RESOURCE_TYPE_OPTIONS = [
-  { value: "all", labelEn: "All Resources", labelVi: "Tất cả tài nguyên" },
+  { value: "all", labelEn: "All resources", labelVi: "Tất cả tài nguyên" },
   { value: "order", labelEn: "Order", labelVi: "Đơn hàng" },
   { value: "product", labelEn: "Product", labelVi: "Sản phẩm" },
   { value: "product_variant", labelEn: "Product Variant", labelVi: "Phiên bản" },
@@ -137,7 +137,7 @@ const DATE_PRESET_OPTIONS: {
   labelEn: string;
   labelVi: string;
 }[] = [
-  { value: "all", labelEn: "All Time", labelVi: "Toàn bộ thời gian" },
+  { value: "all", labelEn: "All time", labelVi: "Toàn bộ thời gian" },
   { value: "today", labelEn: "Today", labelVi: "Hôm nay" },
   { value: "7d", labelEn: "Last 7 Days", labelVi: "7 ngày qua" },
   { value: "30d", labelEn: "Last 30 Days", labelVi: "30 ngày qua" },
@@ -600,7 +600,7 @@ export function AuditTable({
                           {isExpanded && (
                             <div className="mt-3 rounded-xl border border-border/60 bg-muted/20 p-3 space-y-2">
                               <span className="text-xs font-normal uppercase tracking-wider text-muted-foreground">
-                                {isVi ? "Siêu dữ liệu được phê duyệt" : "Approved Metadata"}
+                                {isVi ? "Siêu dữ liệu được phê duyệt" : "Approved metadata"}
                               </span>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs tabular-nums font-normal">
                                 {metadataEntries.map(([key, val]) => (
@@ -720,10 +720,10 @@ export function AuditTable({
                           {isExpanded
                             ? isVi
                               ? "Thu gọn chi tiết"
-                              : "Hide Details"
+                              : "Hide details"
                             : isVi
                               ? "Xem chi tiết dữ liệu"
-                              : "Inspect Details"}
+                              : "Inspect details"}
                         </span>
                         {isExpanded ? (
                           <ChevronUp className="h-3.5 w-3.5" />
@@ -735,7 +735,7 @@ export function AuditTable({
                       {isExpanded && (
                         <div className="mt-2.5 rounded-xl border border-border/60 bg-muted/20 p-3 space-y-2">
                           <span className="text-xs font-normal uppercase tracking-wider text-muted-foreground">
-                            {isVi ? "Siêu dữ liệu được phê duyệt" : "Approved Metadata"}
+                            {isVi ? "Siêu dữ liệu được phê duyệt" : "Approved metadata"}
                           </span>
                           <div className="space-y-1.5 text-xs tabular-nums font-normal">
                             {metadataEntries.map(([key, val]) => (

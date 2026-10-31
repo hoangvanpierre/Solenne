@@ -34,7 +34,7 @@ import {
 import type { Product, ScentCategory } from "@/types";
 
 export const metadata: Metadata = {
-  title: "Product Workspace — Administration",
+  title: "Product workspace — Administration",
 };
 
 const UUID_REGEX =
@@ -46,22 +46,22 @@ const CATEGORY_MAP: Record<
 > = {
   floral: {
     labelEn: "Floral",
-    labelVi: "Hương Hoa",
+    labelVi: "Hương hoa",
     className: "border-blush/40 bg-blush/15 text-blush",
   },
   woody: {
     labelEn: "Woody",
-    labelVi: "Hương Gỗ",
+    labelVi: "Hương gỗ",
     className: "border-amber/40 bg-amber/15 text-amber",
   },
   fresh: {
     labelEn: "Fresh",
-    labelVi: "Tươi Mát",
+    labelVi: "Tươi mát",
     className: "border-sage/40 bg-sage/15 text-sage",
   },
   warm: {
     labelEn: "Warm",
-    labelVi: "Ấm Áp",
+    labelVi: "Ấm áp",
     className: "border-amber/40 bg-amber/15 text-amber",
   },
 };
@@ -131,11 +131,11 @@ export default async function AdminProductDetailPage({
       <div className="py-8">
         <div className="mx-auto max-w-2xl">
           <AdminStatePanel
-            title={isVi ? "Khu vực không khả dụng" : "Access Restricted"}
+            title={isVi ? "Khu vực không khả dụng" : "Access restricted"}
             description={
               isVi
-                ? "Quý khách không có quyền quản trị hoặc xem chi tiết sản phẩm này."
-                : "You do not have permission to view or manage this administrative product record."
+                ? "Không có quyền xem sản phẩm này."
+                : "You don't have permission to view this product."
             }
             icon={ShieldAlert}
             actions={
@@ -164,7 +164,7 @@ export default async function AdminProductDetailPage({
 
         <AdminStatePanel
           icon={Layers}
-          title={isVi ? "Không tìm thấy sản phẩm" : "Product Not Found"}
+          title={isVi ? "Không tìm thấy sản phẩm" : "Product not found"}
           description={
             isVi
               ? "Sản phẩm yêu cầu không tồn tại trong hệ thống hoặc đã bị xóa."
@@ -295,7 +295,7 @@ export default async function AdminProductDetailPage({
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="rounded-xl border border-border bg-card p-3.5 space-y-1">
             <span className="text-xs text-muted-foreground font-normal uppercase tracking-wider block">
-              {isVi ? "Giá cơ bản" : "Base Price"}
+              {isVi ? "Giá cơ bản" : "Base price"}
             </span>
             <div className="tabular-nums text-lg font-normal text-foreground">
               {formatPrice(product.basePrice, "USD")}
@@ -304,7 +304,7 @@ export default async function AdminProductDetailPage({
 
           <div className="rounded-xl border border-border bg-card p-3.5 space-y-1">
             <span className="text-xs text-muted-foreground font-normal uppercase tracking-wider block">
-              {isVi ? "Tổng số phiên bản" : "Total Variants"}
+              {isVi ? "Tổng số phiên bản" : "Total variants"}
             </span>
             <div className="tabular-nums text-lg font-normal text-foreground">
               {product.variants?.length ?? 0}
@@ -314,7 +314,7 @@ export default async function AdminProductDetailPage({
           <div className="rounded-xl border border-border bg-card p-3.5 space-y-1">
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground font-normal uppercase tracking-wider block">
-                {isVi ? "Tổng tồn kho" : "Total Stock"}
+                {isVi ? "Tổng tồn kho" : "Total stock"}
               </span>
               <StockStatusBadge stock={totalStock} locale={locale} />
             </div>
@@ -325,7 +325,7 @@ export default async function AdminProductDetailPage({
 
           <div className="rounded-xl border border-border bg-card p-3.5 space-y-1">
             <span className="text-xs text-muted-foreground font-normal uppercase tracking-wider block">
-              {isVi ? "Ngày khởi tạo" : "Created On"}
+              {isVi ? "Ngày khởi tạo" : "Created on"}
             </span>
             <div className="text-xs text-foreground font-normal tabular-nums flex items-center gap-1.5 pt-1">
               <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
@@ -367,7 +367,7 @@ export default async function AdminProductDetailPage({
                 <Boxes className="h-4 w-4" />
               </div>
               <h3 className="text-base font-normal text-foreground">
-                {isVi ? "Quản lý kho tập trung" : "Centralized Inventory"}
+                {isVi ? "Quản lý kho tập trung" : "Centralized inventory"}
               </h3>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
@@ -383,7 +383,7 @@ export default async function AdminProductDetailPage({
                 >
                   <Boxes className="h-3.5 w-3.5" />
                   <span>
-                    {isVi ? "Mở Không gian Quản lý kho" : "Open Inventory Workspace"}
+                    {isVi ? "Mở Kho hàng" : "Open inventory"}
                   </span>
                   <ExternalLink className="h-3 w-3" />
                 </Link>

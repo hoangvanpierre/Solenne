@@ -39,7 +39,7 @@ export interface CustomerTableProps {
 }
 
 const STATUS_FILTER_OPTIONS = [
-  { value: "all", labelEn: "All Statuses", labelVi: "Tất cả trạng thái" },
+  { value: "all", labelEn: "All statuses", labelVi: "Tất cả trạng thái" },
   { value: "active", labelEn: "Active", labelVi: "Đang hoạt động" },
   { value: "suspended", labelEn: "Suspended", labelVi: "Tạm khóa" },
   { value: "banned", labelEn: "Banned", labelVi: "Cấm truy cập" },
@@ -205,10 +205,10 @@ export function CustomerTable({
                       {isVi ? "Số đơn hàng" : "Orders"}
                     </th>
                     <th scope="col" className="py-3.5 px-6 text-right font-normal">
-                      {isVi ? "Tổng chi tiêu" : "Lifetime Spend"}
+                      {isVi ? "Tổng chi tiêu" : "Lifetime spend"}
                     </th>
                     <th scope="col" className="py-3.5 px-6 whitespace-nowrap font-normal">
-                      {isVi ? "Gia nhập" : "Member Since"}
+                      {isVi ? "Gia nhập" : "Member since"}
                     </th>
                     <th scope="col" className="py-3.5 px-6 text-right font-normal">
                       <span className="sr-only">{isVi ? "Thao tác" : "Actions"}</span>
@@ -220,7 +220,7 @@ export function CustomerTable({
                   {customers.map((c) => {
                     const displayName =
                       c.fullName?.trim() ||
-                      (isVi ? "Khách hàng ẩn danh" : "Anonymous Member");
+                      (isVi ? "Khách hàng ẩn danh" : "Anonymous member");
 
                     return (
                       <tr
@@ -316,7 +316,7 @@ export function CustomerTable({
               {customers.map((c) => {
                 const displayName =
                   c.fullName?.trim() ||
-                  (isVi ? "Khách hàng ẩn danh" : "Anonymous Member");
+                  (isVi ? "Khách hàng ẩn danh" : "Anonymous member");
 
                 return (
                   <div

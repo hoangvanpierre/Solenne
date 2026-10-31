@@ -27,7 +27,7 @@ export function OrderListItem({ order, locale = "en" }: OrderListItemProps) {
         <OrderStatusBadge status={order.status} locale={locale} />
         <span className="text-[12px] text-muted-foreground font-normal tabular-nums">
           {order.items.length}{" "}
-          {isVi ? "tác phẩm" : order.items.length === 1 ? "item" : "items"} ·{" "}
+          {isVi ? "sản phẩm" : order.items.length === 1 ? "item" : "items"} ·{" "}
           {new Date(order.createdAt).toLocaleDateString(isVi ? "vi-VN" : "en-US", {
             month: "short",
             day: "numeric",

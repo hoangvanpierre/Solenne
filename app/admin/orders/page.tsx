@@ -109,8 +109,8 @@ export default async function AdminOrdersPage({
           title={isVi ? "Khu vực không khả dụng" : "Area unavailable"}
           description={
             isVi
-              ? "Quý khách không có quyền truy cập vào danh sách đơn hàng quản trị."
-              : "You do not have permission to view the management order list."
+              ? "Không có quyền xem danh sách đơn hàng."
+              : "You don't have permission to view orders."
           }
           icon={ShieldAlert}
           actions={
@@ -271,7 +271,7 @@ export default async function AdminOrdersPage({
                         {isVi ? "Khách hàng" : "Customer"}
                       </th>
                       <th scope="col" className="py-3.5 px-6 font-normal">
-                        {isVi ? "Tác phẩm" : "Items"}
+                        {isVi ? "Sản phẩm" : "Items"}
                       </th>
                       <th scope="col" className="py-3.5 px-6 font-normal">
                         {isVi ? "Trạng thái" : "Status"}
@@ -354,7 +354,7 @@ export default async function AdminOrdersPage({
                             <div className="text-xs font-normal tabular-nums text-foreground">
                               {itemCount}{" "}
                               {isVi
-                                ? "tác phẩm"
+                                ? "sản phẩm"
                                 : itemCount === 1
                                   ? "item"
                                   : "items"}
@@ -456,7 +456,7 @@ export default async function AdminOrdersPage({
                           <div className="text-xs text-muted-foreground tabular-nums font-normal">
                             {itemCount}{" "}
                             {isVi
-                              ? "tác phẩm"
+                              ? "sản phẩm"
                               : itemCount === 1
                                 ? "item"
                                 : "items"}{" "}

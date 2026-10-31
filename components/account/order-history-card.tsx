@@ -53,7 +53,7 @@ export async function OrderHistoryCard({ userId }: OrderHistoryCardProps) {
     <div>
       <div className="flex items-baseline justify-between gap-4">
         <h2 className="font-serif text-xl sm:text-2xl font-normal text-foreground leading-[1.28]">
-          {isVi ? "Lịch sử tác phẩm đã thỉnh" : "Order History"}
+          {isVi ? "Lịch sử đơn hàng" : "Order history"}
         </h2>
         <span className="text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground tabular-nums font-normal">
           {totalOrders} {isVi ? "đơn hàng" : totalOrders === 1 ? "order" : "orders"}
@@ -61,7 +61,7 @@ export async function OrderHistoryCard({ userId }: OrderHistoryCardProps) {
       </div>
       <p className="mt-2 text-[13.5px] sm:text-[14px] text-muted-foreground font-normal leading-relaxed">
         {isVi
-          ? "Những tác phẩm được lưu dấu gần nhất, mới nhất trước."
+          ? "Những đơn hàng gần nhất, mới nhất trước."
           : "Your most recent orders, newest first."}
       </p>
 
@@ -69,7 +69,7 @@ export async function OrderHistoryCard({ userId }: OrderHistoryCardProps) {
         <p className="mt-8 text-sm text-muted-foreground font-normal">
           {isVi ? (
             <>
-              Chưa thể tải lịch sử đơn hàng lúc này. Quý khách vui lòng tải lại trang hoặc{" "}
+              Không thể tải lịch sử đơn hàng lúc này. Vui lòng tải lại trang, hoặc{" "}
               <Link
                 href="/account/orders"
                 className="underline underline-offset-4 transition-colors hover:text-foreground"
@@ -96,7 +96,7 @@ export async function OrderHistoryCard({ userId }: OrderHistoryCardProps) {
         <div className="mt-8">
           <p className="text-sm text-muted-foreground font-normal">
             {isVi
-              ? "Quý khách chưa có đơn nến nào. Tác phẩm nến thơm đầu tiên sẽ xuất hiện tại đây."
+              ? "Chưa có đơn hàng nào. Đơn hàng đầu tiên của bạn sẽ xuất hiện tại đây."
               : "No orders yet. Your first candle order will appear here."}
           </p>
           <Link
@@ -124,7 +124,7 @@ export async function OrderHistoryCard({ userId }: OrderHistoryCardProps) {
                       </span>
                       <span className="text-[13px] text-muted-foreground font-normal tabular-nums">
                         {order.items.length}{" "}
-                        {isVi ? "tác phẩm" : order.items.length === 1 ? "item" : "items"}
+                        {isVi ? "sản phẩm" : order.items.length === 1 ? "item" : "items"}
                       </span>
                     </div>
                     <p className="mt-1 text-[11.5px] text-muted-foreground font-normal tabular-nums">
@@ -163,16 +163,25 @@ export async function OrderHistoryCard({ userId }: OrderHistoryCardProps) {
   );
 }
 
-export function OrderHistoryCardSkeleton() {
+export interface OrderHistoryCardSkeletonProps {
+  locale?: string;
+}
+
+export function OrderHistoryCardSkeleton({
+  locale = "en",
+}: OrderHistoryCardSkeletonProps) {
+  const isVi = locale === "vi";
   return (
     <div>
       <div className="flex items-baseline justify-between gap-4">
         <h2 className="font-serif text-xl sm:text-2xl font-normal text-foreground leading-[1.28]">
-          Order History
+          {isVi ? "Lịch sử đơn hàng" : "Order history"}
         </h2>
       </div>
       <p className="mt-2 text-[13.5px] sm:text-[14px] text-muted-foreground font-normal leading-relaxed">
-        Your most recent orders, newest first.
+        {isVi
+          ? "Những đơn hàng gần nhất, mới nhất trước."
+          : "Your most recent orders, newest first."}
       </p>
       <div className="mt-6 space-y-4 border-y border-border/60 py-4">
         {[0, 1, 2].map((index) => (

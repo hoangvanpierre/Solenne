@@ -33,7 +33,7 @@ import { Button } from "@/components/ui";
 import type { Order } from "@/types";
 
 export const metadata: Metadata = {
-  title: "Customer Details — Administration",
+  title: "Customer details — Administration",
 };
 
 interface CustomerDetailPageProps {
@@ -106,8 +106,8 @@ export default async function CustomerDetailPage({
             title={isVi ? "Khu vực không khả dụng" : "Area unavailable"}
             description={
               isVi
-                ? "Quý khách không có quyền xem thông tin chi tiết khách hàng."
-                : "You do not have permission to view customer details."
+                ? "Không có quyền xem thông tin khách hàng."
+                : "You don't have permission to view this customer."
             }
             icon={ShieldAlert}
             actions={
@@ -165,7 +165,7 @@ export default async function CustomerDetailPage({
 
         <AdminStatePanel
           icon={UserX}
-          title={isVi ? "Không tìm thấy khách hàng" : "Customer Not Found"}
+          title={isVi ? "Không tìm thấy khách hàng" : "Customer not found"}
           description={
             isVi
               ? "Hồ sơ khách hàng này không tồn tại hoặc đã bị xóa."
@@ -186,7 +186,7 @@ export default async function CustomerDetailPage({
 
   const displayName =
     customer.fullName?.trim() ||
-    (isVi ? "Khách hàng ẩn danh" : "Anonymous Member");
+    (isVi ? "Khách hàng ẩn danh" : "Anonymous member");
 
   const memberSince = new Date(customer.createdAt).toLocaleDateString(
     isVi ? "vi-VN" : "en-US",
@@ -234,7 +234,7 @@ export default async function CustomerDetailPage({
         <div className="rounded-2xl border border-border bg-card p-5 space-y-1.5">
           <div className="flex items-center gap-2 text-xs font-normal uppercase tracking-wider text-muted-foreground">
             <ShoppingBag className="h-4 w-4 text-amber" />
-            <span>{isVi ? "Tổng số đơn hàng" : "Total Orders"}</span>
+            <span>{isVi ? "Tổng số đơn hàng" : "Total orders"}</span>
           </div>
           {canReadOrders && customer.orderCount !== null ? (
             <div className="text-2xl font-normal tabular-nums text-foreground">
@@ -260,7 +260,7 @@ export default async function CustomerDetailPage({
         <div className="rounded-2xl border border-border bg-card p-5 space-y-1.5">
           <div className="flex items-center gap-2 text-xs font-normal uppercase tracking-wider text-muted-foreground">
             <Package className="h-4 w-4 text-amber" />
-            <span>{isVi ? "Tổng chi tiêu tích lũy" : "Lifetime Spend"}</span>
+            <span>{isVi ? "Tổng chi tiêu tích lũy" : "Lifetime spend"}</span>
           </div>
           {canReadOrders && customer.lifetimeSpend !== null ? (
             <div className="text-2xl font-normal tabular-nums text-foreground">
@@ -291,14 +291,14 @@ export default async function CustomerDetailPage({
             <div className="flex items-center gap-2 border-b border-border pb-4">
               <User className="h-5 w-5 text-muted-foreground" />
               <h2 className="text-lg font-normal text-foreground">
-                {isVi ? "Thông tin tài khoản" : "Account Information"}
+                {isVi ? "Thông tin tài khoản" : "Account information"}
               </h2>
             </div>
 
             <div className="space-y-3.5 text-sm">
               <div>
                 <span className="text-xs font-normal uppercase tracking-wider text-muted-foreground block">
-                  {isVi ? "Tên hiển thị" : "Display Name"}
+                  {isVi ? "Tên hiển thị" : "Display name"}
                 </span>
                 <span className="font-normal text-foreground mt-0.5 block">
                   {displayName}
@@ -320,7 +320,7 @@ export default async function CustomerDetailPage({
 
               <div>
                 <span className="text-xs font-normal uppercase tracking-wider text-muted-foreground block">
-                  {isVi ? "Địa chỉ email" : "Email Address"}
+                  {isVi ? "Địa chỉ email" : "Email address"}
                 </span>
                 <span className="mt-0.5 block text-xs break-all text-foreground font-normal">
                   {customer.email ? (
@@ -353,7 +353,7 @@ export default async function CustomerDetailPage({
               <div className="flex items-center gap-2">
                 <ShoppingBag className="h-5 w-5 text-muted-foreground" />
                 <h2 className="text-lg font-normal text-foreground">
-                  {isVi ? "Lịch sử mua hàng" : "Order History"}
+                  {isVi ? "Lịch sử mua hàng" : "Order history"}
                 </h2>
               </div>
               <span className="text-xs font-normal tabular-nums text-muted-foreground">

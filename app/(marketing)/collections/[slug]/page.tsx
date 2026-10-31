@@ -29,8 +29,8 @@ async function getCollection(slug: string, isVi: boolean = false) {
 
     return {
       title: isVi
-        ? `Bộ sưu tập nến ${category.nameVi}`
-        : `${category.name} Collection`,
+        ? `Bộ sưu tập ${category.nameVi.toLowerCase()}`
+        : `${category.name} collection`,
       description: isVi ? category.descriptionVi : category.description,
       products: await getProductsByCategory(slug),
     };
@@ -38,10 +38,10 @@ async function getCollection(slug: string, isVi: boolean = false) {
 
   if (slug === "gift-sets") {
     return {
-      title: isVi ? "Hộp Quà Thượng Hạng" : "Gift Sets",
+      title: isVi ? "Bộ quà tặng" : "Gift sets",
       description: isVi
-        ? "Những bộ nến tuyển chọn được đóng gói trang trọng trong hộp quà lụa, sẵn sàng trao gửi tâm tình."
-        : "Thoughtfully composed sets of our most-loved candles, ready to give.",
+        ? "Bộ nến đóng hộp sẵn để tặng, gồm những mùi hương được yêu thích nhất."
+        : "Boxed sets of our most-loved candles, ready to give.",
       products: await getFeaturedProducts(),
     };
   }

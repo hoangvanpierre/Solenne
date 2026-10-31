@@ -18,8 +18,7 @@ import { WishlistItemRow, WishlistProvider } from "@/components/wishlist";
 
 export const metadata: Metadata = {
   title: "Wishlist — Solenne",
-  description:
-    "The Solenne pieces you've saved, kept in one quiet place until you're ready.",
+  description: "Candles you've saved from the Solenne collection.",
 };
 
 // Guests are bounced to the login form with an internal return path, which the

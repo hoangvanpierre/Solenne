@@ -41,7 +41,7 @@ test.describe("public shell", () => {
     expect(response?.status()).toBe(200);
 
     await expect(
-      page.getByRole("heading", { level: 1, name: "Welcome Back" })
+      page.getByRole("heading", { level: 1, name: "Welcome back" })
     ).toBeVisible();
     await expect(page.getByLabel("Email")).toBeVisible();
     await expect(page.getByLabel("Password", { exact: true })).toBeVisible();

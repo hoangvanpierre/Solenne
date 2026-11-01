@@ -18,13 +18,13 @@ export function SizeSelector({ variants, selectedId, onSelect }: SizeSelectorPro
     <div className="space-y-3">
       <div className="flex justify-between items-center">
         <span className="text-[13px] font-normal text-foreground">
-          {isVi ? "Kích cỡ / Dung tích" : "Size"}
+          {isVi ? "Dung tích" : "Size"}
         </span>
         {variants.find(v => v.id === selectedId)?.burnTime && (
           <span className="text-[11.5px] tabular-nums text-muted-foreground">
             {isVi
-              ? `Thời gian tỏa hương ~${variants.find(v => v.id === selectedId)?.burnTime}`
-              : `Approx. ${variants.find(v => v.id === selectedId)?.burnTime} burn time`}
+              ? `Cháy khoảng ${variants.find(v => v.id === selectedId)?.burnTime}`
+              : `About ${variants.find(v => v.id === selectedId)?.burnTime} burn time`}
           </span>
         )}
       </div>

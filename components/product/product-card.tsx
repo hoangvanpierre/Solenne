@@ -192,7 +192,7 @@ export function ProductCard({
                 )}
                 style={{ "--badge-index": "0" } as CSSProperties}
               >
-                {locale === "vi" ? "Đãi ngộ" : "Sale"}
+                {locale === "vi" ? "Giảm giá" : "Sale"}
               </Badge>
             )}
             {product.isFeatured && (
@@ -208,7 +208,7 @@ export function ProductCard({
                   } as CSSProperties
                 }
               >
-                {locale === "vi" ? "Tuyển chọn" : "Featured"}
+                {locale === "vi" ? "Nổi bật" : "Featured"}
               </Badge>
             )}
           </div>

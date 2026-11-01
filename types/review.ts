@@ -141,6 +141,68 @@ export interface AdminReviewReportEntry {
   review: ReportedReview | null;
 }
 
+// ---------------------------------------------------------------------------
+// Back-office "All Reviews" browsing (read-only monitoring).
+//
+// This surface is deliberately separate from the report queue: it lists the
+// review table itself, and it carries no author UUID, purchase evidence or
+// moderation actor. `displayName` is the database-generated pseudonym, and
+// `hiddenReason` is not read at all — the column exists on the row, but
+// monitoring does not need it.
+// ---------------------------------------------------------------------------
+
+/** Top-level view of /admin/reviews. */
+export type AdminReviewView = "all" | "reports";
+
+/** Publication-status filter of the All Reviews view. */
+export type AdminReviewStatusFilter = "all" | "published" | "hidden";
+
+/** One row of the All Reviews table, joined to its product for display. */
+export interface AdminReviewEntry {
+  id: string;
+  productId: string;
+  /** Empty string when the product row could not be resolved. */
+  productName: string;
+  productSlug: string | null;
+  /** 1–5, normalized from the `smallint` column. */
+  rating: number;
+  title: string;
+  body: string;
+  /** Per-review pseudonym from the database; never a profile name. */
+  displayName: string | null;
+  status: ReviewStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** One page of the All Reviews list. */
+export interface AdminReviewQueryResult {
+  reviews: AdminReviewEntry[];
+  /** Exact number of rows matching the active filters. */
+  totalCount: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+}
+
+/**
+ * Unfiltered publication totals for the page header. `total` is the sum of the
+ * two states, which is exact because `product_reviews.status` is constrained to
+ * `published`/`hidden` and nothing else can exist.
+ */
+export interface AdminReviewStatusCounts {
+  total: number;
+  published: number;
+  hidden: number;
+}
+
+/** Product option for the All Reviews product filter. */
+export interface AdminReviewProductOption {
+  id: string;
+  name: string;
+  slug: string | null;
+}
+
 /** Everything the product-detail reviews section needs in one round trip. */
 export interface ProductReviewsPageData {
   /** False when the review schema/query is unavailable; the UI degrades. */

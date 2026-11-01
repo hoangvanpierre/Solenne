@@ -139,14 +139,14 @@ function verifiedUserCallCount(source) {
  * Handles both a token inside the selector and a declaration inside the block.
  */
 function cssSelectorAt(css, index) {
-  const lastOpen = css.lastIndexOf("{", index);
-  const lastBoundary = Math.max(
-    css.lastIndexOf("}", index),
-    css.lastIndexOf(";", index)
-  );
-  const cursor = lastOpen > lastBoundary ? lastOpen : index;
+  const nextOpen = css.indexOf("{", index);
+  const nextClose = css.indexOf("}", index);
+  const inDeclaration = nextClose !== -1 && (nextOpen === -1 || nextClose < nextOpen);
+  // A declaration can follow custom properties; its last semicolon is not a
+  // selector boundary. Walk back from the rule's opening brace in that case.
+  const cursor = inDeclaration ? css.lastIndexOf("{", index) : index;
   let start = cursor;
-  while (start > 0 && !"};".includes(css[start - 1])) start--;
+  while (start > 0 && !"{};".includes(css[start - 1])) start--;
   return css.slice(start, cursor).trim().replace(/\s+/g, " ");
 }
 
@@ -1144,9 +1144,8 @@ assert(
   /cancelAnimationFrame\(frameRef\.current\)/.test(kpiValue)
 );
 
-// The two storefront overlay widgets deliberately suppress the global outline
-// because their wrapper draws its own ring; everything else must stay inside
-// the admin scope.
+// Overlays and opt-in text fields provide their own focus indicator. Ordinary
+// storefront buttons and links must retain the global outline.
 const STOREFRONT_FOCUS_SCOPES = [
   ".assistant-composer",
   ".search-command-palette",
@@ -1155,6 +1154,8 @@ function isAllowedFocusScope(selector) {
   return (
     selector.startsWith(".admin-scope") ||
     selector === "*" ||
+    selector === ".solenne-field" ||
+    selector.startsWith(".solenne-field:") ||
     STOREFRONT_FOCUS_SCOPES.some((scope) => selector.startsWith(scope))
   );
 }
@@ -1166,9 +1167,20 @@ for (let index = cssNoComments.indexOf(":focus-visible"); index !== -1; ) {
   index = cssNoComments.indexOf(":focus-visible", index + 1);
 }
 assert(
-  "focus rules are either the global storefront rule, a storefront overlay scope or .admin-scope scoped",
+  "focus rules stay global, overlay-scoped, field-scoped or admin-scoped",
   focusSelectors.length > 0 && focusSelectors.every(isAllowedFocusScope),
   focusSelectors.filter((selector) => !isAllowedFocusScope(selector)).join(" | ")
+);
+const fieldFocus = braceBlockAfter(globals, ".solenne-field:focus-visible,");
+assert(
+  "text fields replace the outline with a visible keyboard underline",
+  /inset 0 -2px 0 var\(--field-focus-indicator\)/.test(fieldFocus) &&
+    /outline:\s*none/.test(fieldFocus)
+);
+assert(
+  "field focus allowance does not authorize ordinary controls or lookalike classes",
+  !isAllowedFocusScope("input") && !isAllowedFocusScope("button") &&
+    !isAllowedFocusScope("a") && !isAllowedFocusScope(".solenne-fieldish")
 );
 const storefrontFocus = braceBlockAfter(globals, "*:focus-visible {");
 assert(
@@ -1182,7 +1194,7 @@ for (let index = cssNoComments.indexOf("outline: none"); index !== -1; ) {
   index = cssNoComments.indexOf("outline: none", index + 1);
 }
 assert(
-  "outline suppression only ever happens inside .admin-scope or a storefront overlay scope",
+  "outline suppression stays inside admin, overlays or opt-in text fields",
   outlineNoneSelectors.length > 0 && outlineNoneSelectors.every(isAllowedFocusScope),
   outlineNoneSelectors.filter((selector) => !isAllowedFocusScope(selector)).join(" | ")
 );

@@ -772,7 +772,7 @@ export function AdminAssistant({ locale, permissions }: AdminAssistantProps) {
                           ? "Hỏi về đơn hàng, tồn kho, khách hàng — hoặc yêu cầu một thay đổi…"
                           : "Ask about orders, stock or customers — or request a change…"
                       }
-                      className="max-h-32 min-h-[38px] flex-1 resize-none rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/60"
+                      className="solenne-field max-h-32 min-h-[38px] flex-1 resize-none rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground"
                     />
 
                     {isBusy ? (

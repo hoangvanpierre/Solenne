@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
         </div>
         <div className="space-y-2">
           <h1 className="text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground">
-            {isVi ? "Đã Gửi Liên Kết Khôi Phục" : "Reset Link Sent"}
+            {isVi ? "Đã gửi liên kết" : "Reset link sent"}
           </h1>
           <p className="text-sm text-muted-foreground leading-relaxed">
             {state.message}
@@ -35,7 +35,7 @@ export default function ForgotPasswordPage() {
         </div>
         <Button asChild className="w-full h-12 bg-foreground text-background cursor-pointer">
           <Link href="/login">
-            {isVi ? "Quay lại Đăng nhập" : "Return to Sign In"}
+            {isVi ? "Quay lại đăng nhập" : "Back to sign in"}
           </Link>
         </Button>
       </div>
@@ -50,12 +50,12 @@ export default function ForgotPasswordPage() {
           <KeyRound className="w-5 h-5" />
         </div>
         <h1 className="text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground">
-          {isVi ? "Khôi Phục Mật Khẩu" : "Recover Password"}
+          {isVi ? "Khôi phục mật khẩu" : "Reset password"}
         </h1>
         <p className="text-sm text-muted-foreground">
           {isVi
-            ? "Nhập địa chỉ email đã đăng ký, Nhà hương sẽ gửi đường dẫn an toàn để quý khách thiết lập lại mật khẩu."
-            : "Enter your registered email address and we will send you a secure link to reset your password."}
+            ? "Nhập địa chỉ email đã đăng ký. Chúng tôi sẽ gửi liên kết để đặt lại mật khẩu."
+            : "Enter your email address and we'll send you a link to reset your password."}
         </p>
       </div>
 
@@ -76,7 +76,7 @@ export default function ForgotPasswordPage() {
             htmlFor="email"
             className="text-xs font-medium uppercase tracking-wider text-foreground/80"
           >
-            {isVi ? "Địa chỉ email" : "Email Address"}
+            {isVi ? "Email" : "Email"}
           </label>
           <Input
             id="email"
@@ -86,10 +86,12 @@ export default function ForgotPasswordPage() {
             placeholder="elena@example.com"
             required
             disabled={isPending}
-            className="h-12 bg-background border-border/70 focus:border-amber focus:ring-amber/20"
+            aria-invalid={state.fieldErrors?.email ? true : undefined}
+            aria-describedby={state.fieldErrors?.email ? "email-error" : undefined}
+            className="h-12"
           />
           {state.fieldErrors?.email && (
-            <p className="text-xs text-destructive mt-1">
+            <p id="email-error" className="text-xs text-destructive mt-1">
               {state.fieldErrors.email[0]}
             </p>
           )}
@@ -107,7 +109,7 @@ export default function ForgotPasswordPage() {
               <span>{isVi ? "Đang gửi liên kết..." : "Sending link..."}</span>
             </span>
           ) : (
-            isVi ? "Gửi Liên Kết Khôi Phục" : "Send Reset Link"
+            isVi ? "Gửi liên kết" : "Send reset link"
           )}
         </Button>
       </form>
@@ -119,7 +121,7 @@ export default function ForgotPasswordPage() {
           className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors group"
         >
           <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
-          <span>{isVi ? "Quay lại Đăng nhập" : "Back to Sign In"}</span>
+          <span>{isVi ? "Quay lại đăng nhập" : "Back to sign in"}</span>
         </Link>
       </div>
     </div>

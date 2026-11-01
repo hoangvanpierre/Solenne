@@ -341,7 +341,7 @@ function DraftCard({ draft, isVi }: { draft: DraftValue; isVi: boolean }) {
         id={`${fieldId}-subject`}
         value={subject}
         onChange={(event) => setSubject(event.target.value)}
-        className="mt-1 w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40"
+        className="solenne-field mt-1 w-full rounded-md px-2 py-1.5 text-sm text-foreground"
       />
 
       <label
@@ -355,7 +355,7 @@ function DraftCard({ draft, isVi }: { draft: DraftValue; isVi: boolean }) {
         value={body}
         onChange={(event) => setBody(event.target.value)}
         rows={9}
-        className="mt-1 w-full resize-y rounded-md border border-border bg-background px-2 py-1.5 text-sm leading-relaxed text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40"
+        className="solenne-field mt-1 w-full resize-y rounded-md px-2 py-1.5 text-sm leading-relaxed text-foreground"
       />
 
       <div className="mt-2 flex flex-wrap items-center gap-1.5">
@@ -852,7 +852,10 @@ function ProposalCard({
                 step={1}
                 value={delta}
                 onChange={(event) => setDelta(event.target.value)}
-                className="mt-1 w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40"
+                aria-invalid={
+                  !!fieldError && (!Number.isInteger(deltaNumber) || deltaNumber === 0)
+                }
+                className="solenne-field mt-1 w-full rounded-md px-2 py-1.5 text-sm text-foreground"
               />
             </div>
           ) : null}
@@ -871,7 +874,8 @@ function ProposalCard({
                 value={trackingCode}
                 onChange={(event) => setTrackingCode(event.target.value)}
                 maxLength={100}
-                className="mt-1 w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40"
+                aria-invalid={!!fieldError}
+                className="solenne-field mt-1 w-full rounded-md px-2 py-1.5 text-sm text-foreground"
               />
             </div>
           ) : null}
@@ -897,7 +901,13 @@ function ProposalCard({
                 onChange={(event) => setReason(event.target.value)}
                 rows={2}
                 maxLength={proposal.type === "inventory_adjustment" ? 255 : 500}
-                className="mt-1 w-full resize-y rounded-md border border-border bg-background px-2 py-1.5 text-sm leading-relaxed text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/40"
+                aria-invalid={
+                  !!fieldError && needsReason && (
+                    trimmedReason.length < 3 ||
+                    trimmedReason.length > (proposal.type === "inventory_adjustment" ? 255 : 500)
+                  )
+                }
+                className="solenne-field mt-1 w-full resize-y rounded-md px-2 py-1.5 text-sm leading-relaxed text-foreground"
               />
             </div>
           ) : null}

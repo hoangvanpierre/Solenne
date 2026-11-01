@@ -191,8 +191,8 @@ export function VariantManager({
         setIsAddOpen(false);
         setSuccessMessage(
           isVi
-            ? "Đã thêm phiên bản sản phẩm thành công."
-            : "Variant created successfully."
+            ? "Đã tạo phiên bản."
+            : "Variant created."
         );
         router.refresh();
         setTimeout(() => setSuccessMessage(null), 3000);
@@ -235,8 +235,8 @@ export function VariantManager({
         setEditingVariant(null);
         setSuccessMessage(
           isVi
-            ? "Đã cập nhật thông tin phiên bản."
-            : "Variant updated successfully."
+            ? "Đã cập nhật phiên bản."
+            : "Variant updated."
         );
         router.refresh();
         setTimeout(() => setSuccessMessage(null), 3000);
@@ -261,8 +261,8 @@ export function VariantManager({
         setDeletingVariant(null);
         setSuccessMessage(
           isVi
-            ? "Đã xóa phiên bản sản phẩm."
-            : "Variant deleted successfully."
+            ? "Đã xóa phiên bản."
+            : "Variant deleted."
         );
         router.refresh();
         setTimeout(() => setSuccessMessage(null), 3000);
@@ -278,7 +278,7 @@ export function VariantManager({
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <h2 className="text-xl font-normal text-foreground">
-                {isVi ? "Cơ cấu phiên bản" : "Product Variants"}
+                {isVi ? "Các phiên bản" : "Variants"}
               </h2>
               <span className="rounded-full border border-border bg-muted/30 px-2.5 py-0.5 text-xs font-normal tabular-nums text-muted-foreground">
                 {variants.length}
@@ -286,8 +286,8 @@ export function VariantManager({
             </div>
             <p className="text-xs font-normal text-muted-foreground">
               {isVi
-                ? "Quản lý kích cỡ, giá và quy cách. Tồn kho của phiên bản hiện có được cập nhật qua trang Quản lý kho."
-                : "Manage size, price, and specs. Existing stock quantities are updated via Inventory Management."}
+                ? "Quản lý kích cỡ, giá và quy cách. Tồn kho được điều chỉnh trong mục Kho hàng."
+                : "Manage sizes, prices and specs. Stock is adjusted under Inventory."}
             </p>
           </div>
 
@@ -299,7 +299,7 @@ export function VariantManager({
               className="inline-flex items-center gap-1.5 self-start sm:self-auto bg-amber text-primary-foreground hover:bg-amber/90 font-normal text-xs"
             >
               <Plus className="h-4 w-4" />
-              <span>{isVi ? "Thêm phiên bản" : "Add Variant"}</span>
+              <span>{isVi ? "Thêm phiên bản" : "Add variant"}</span>
             </Button>
           )}
         </div>
@@ -318,12 +318,12 @@ export function VariantManager({
             <Layers className="mx-auto h-8 w-8 text-muted-foreground" />
             <div className="space-y-1">
               <p className="text-sm font-normal text-foreground">
-                {isVi ? "Chưa có phiên bản nào" : "No variants defined"}
+                {isVi ? "Chưa có phiên bản" : "No variants yet"}
               </p>
               <p className="text-xs font-normal text-muted-foreground max-w-sm mx-auto">
                 {isVi
-                  ? "Sản phẩm cần có ít nhất một phiên bản để khách hàng có thể đặt mua tại boutique."
-                  : "Every product needs at least one variant before it can be purchased in the boutique."}
+                  ? "Sản phẩm cần ít nhất một phiên bản để có thể bán."
+                  : "A product needs at least one variant before it can be sold."}
               </p>
             </div>
             {canUpdate && (
@@ -335,7 +335,7 @@ export function VariantManager({
                 className="inline-flex items-center gap-1.5 font-normal text-xs"
               >
                 <Plus className="h-3.5 w-3.5" />
-                <span>{isVi ? "Tạo phiên bản đầu tiên" : "Add First Variant"}</span>
+                <span>{isVi ? "Tạo phiên bản đầu tiên" : "Add first variant"}</span>
               </Button>
             )}
           </div>
@@ -391,8 +391,8 @@ export function VariantManager({
                         href="/admin/inventory"
                         title={
                           isVi
-                            ? "Điều chỉnh tồn kho tại mục Quản lý kho"
-                            : "Adjust stock via Inventory Management"
+                            ? "Điều chỉnh tồn kho trong mục Kho hàng"
+                            : "Adjust stock under Inventory"
                         }
                         className="admin-text-link inline-flex items-center gap-1 text-xs font-normal whitespace-nowrap"
                       >
@@ -414,7 +414,7 @@ export function VariantManager({
                               ? `Sửa thông tin ${variant.name}`
                               : `Edit ${variant.name}`
                           }
-                          title={isVi ? "Chỉnh sửa quy cách" : "Edit metadata"}
+                          title={isVi ? "Chỉnh sửa thông tin" : "Edit details"}
                         >
                           <Pencil className="h-3.5 w-3.5" />
                         </button>
@@ -472,7 +472,7 @@ export function VariantManager({
                     id="add-variant-title"
                     className="text-lg font-normal text-foreground"
                   >
-                    {isVi ? "Thêm phiên bản mới" : "Add New Variant"}
+                    {isVi ? "Thêm phiên bản" : "Add variant"}
                   </h3>
                 </div>
                 <p className="text-xs font-normal text-muted-foreground">
@@ -501,7 +501,7 @@ export function VariantManager({
 
             <form onSubmit={handleCreateVariant} className="space-y-4">
               <Input
-                label={isVi ? "Tên phiên bản *" : "Variant Name *"}
+                label={isVi ? "Tên phiên bản *" : "Variant name *"}
                 value={newForm.name}
                 onChange={(e) =>
                   setNewForm((prev) => ({ ...prev, name: e.target.value }))
@@ -524,7 +524,7 @@ export function VariantManager({
                   disabled={isPending}
                 />
                 <Input
-                  label={isVi ? "Thời gian cháy" : "Burn Time"}
+                  label={isVi ? "Thời gian cháy" : "Burn time"}
                   value={newForm.burnTime}
                   onChange={(e) =>
                     setNewForm((prev) => ({ ...prev, burnTime: e.target.value }))
@@ -567,14 +567,14 @@ export function VariantManager({
                   <Boxes className="h-3.5 w-3.5" />
                   <span>
                     {isVi
-                      ? "Tồn kho ban đầu (Chỉ thiết lập khi tạo mới)"
-                      : "Initial Stock (Creation-time only)"}
+                      ? "Tồn kho ban đầu"
+                      : "Initial stock"}
                   </span>
                 </div>
                 <p className="text-xs font-normal text-muted-foreground leading-relaxed">
                   {isVi
-                    ? "Số lượng này sẽ được ghi nhận làm tồn kho khởi tạo. Mọi điều chỉnh sau khi tạo cần thực hiện thông qua mục Quản lý kho."
-                    : "This establishes the initial stock quantity for the new variant. Subsequent stock adjustments must be performed through Inventory Management."}
+                    ? "Số lượng này là tồn kho khởi tạo. Điều chỉnh sau đó thực hiện trong mục Kho hàng."
+                    : "This sets the starting stock for the new variant. Later adjustments go through Inventory."}
                 </p>
                 <Input
                   type="number"
@@ -616,7 +616,7 @@ export function VariantManager({
                       : "Creating..."
                     : isVi
                       ? "Tạo phiên bản"
-                      : "Create Variant"}
+                      : "Create variant"}
                 </Button>
               </div>
             </form>
@@ -652,7 +652,7 @@ export function VariantManager({
                     id="edit-variant-title"
                     className="text-lg font-normal text-foreground"
                   >
-                    {isVi ? "Chỉnh sửa phiên bản" : "Edit Variant Details"}
+                    {isVi ? "Chỉnh sửa phiên bản" : "Edit variant"}
                   </h3>
                 </div>
                 <p className="text-xs font-normal text-muted-foreground">
@@ -685,7 +685,7 @@ export function VariantManager({
 
             <form onSubmit={handleUpdateVariant} className="space-y-4">
               <Input
-                label={isVi ? "Tên phiên bản *" : "Variant Name *"}
+                label={isVi ? "Tên phiên bản *" : "Variant name *"}
                 value={editForm.name}
                 onChange={(e) =>
                   setEditForm((prev) => ({ ...prev, name: e.target.value }))
@@ -707,7 +707,7 @@ export function VariantManager({
                   disabled={isPending}
                 />
                 <Input
-                  label={isVi ? "Thời gian cháy" : "Burn Time"}
+                  label={isVi ? "Thời gian cháy" : "Burn time"}
                   value={editForm.burnTime}
                   onChange={(e) =>
                     setEditForm((prev) => ({
@@ -751,7 +751,7 @@ export function VariantManager({
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-1.5 font-normal text-foreground">
                     <Boxes className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span>{isVi ? "Tồn kho hiện tại:" : "Current Stock:"}</span>
+                    <span>{isVi ? "Tồn kho hiện tại:" : "Current stock:"}</span>
                     <span className="tabular-nums font-normal">
                       {editingVariant.stockQuantity}
                     </span>
@@ -763,8 +763,8 @@ export function VariantManager({
                 </div>
                 <p className="text-xs font-normal text-muted-foreground leading-relaxed">
                   {isVi
-                    ? "Tồn kho không thể chỉnh sửa trực tiếp tại mục này. Để điều chỉnh số lượng tồn kho hoặc nhập lý do điều chỉnh, vui lòng dùng trang Quản lý kho."
-                    : "Stock cannot be altered here. To adjust stock or log restock reasons, please use Inventory Management."}
+                    ? "Tồn kho không chỉnh sửa được ở đây. Dùng mục Kho hàng để điều chỉnh số lượng và ghi lý do."
+                    : "Stock can't be edited here. Use Inventory to adjust quantities and log a reason."}
                 </p>
                 <div className="pt-1">
                   <Button asChild variant="outline" size="sm" className="w-full font-normal text-xs">
@@ -774,7 +774,7 @@ export function VariantManager({
                     >
                       <Boxes className="h-3.5 w-3.5" />
                       <span>
-                        {isVi ? "Đến Quản lý kho" : "Go to Inventory Management"}
+                        {isVi ? "Mở Kho hàng" : "Open Inventory"}
                       </span>
                       <ExternalLink className="h-3 w-3" />
                     </Link>
@@ -806,7 +806,7 @@ export function VariantManager({
                       : "Saving..."
                     : isVi
                       ? "Lưu thay đổi"
-                      : "Save Changes"}
+                      : "Save changes"}
                 </Button>
               </div>
             </form>
@@ -841,7 +841,7 @@ export function VariantManager({
                   id="delete-variant-title"
                   className="text-lg font-normal text-foreground"
                 >
-                  {isVi ? "Xóa phiên bản này?" : "Delete Variant?"}
+                  {isVi ? "Xóa phiên bản này?" : "Delete this variant?"}
                 </h3>
                 <p className="text-xs font-normal text-muted-foreground">
                   <span className="font-normal text-foreground">
@@ -862,8 +862,8 @@ export function VariantManager({
 
             <p className="text-xs font-normal text-muted-foreground leading-relaxed">
               {isVi
-                ? "Hành động này không thể hoàn tác. Các phiên bản đã từng phát sinh đơn hàng từ khách không thể xóa khỏi hệ thống. Nếu không muốn bán nữa, vui lòng cập nhật trạng thái sản phẩm cha thành ẩn."
-                : "This action cannot be undone. Variants referenced in customer order history cannot be deleted. If you no longer wish to offer it, deactivate the parent product instead."}
+                ? "Không thể hoàn tác. Phiên bản đã xuất hiện trong đơn hàng cũ sẽ không xóa được. Nếu không muốn bán nữa, hãy ẩn sản phẩm."
+                : "This can't be undone. A variant that appears in past orders can't be deleted. If you no longer sell it, hide the product instead."}
             </p>
 
             <div className="flex items-center justify-end gap-3 pt-2">
@@ -890,8 +890,8 @@ export function VariantManager({
                     ? "Đang xóa..."
                     : "Deleting..."
                   : isVi
-                    ? "Xác nhận xóa"
-                    : "Confirm Delete"}
+                    ? "Xóa phiên bản"
+                    : "Delete variant"}
               </Button>
             </div>
           </div>

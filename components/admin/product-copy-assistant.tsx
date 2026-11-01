@@ -102,7 +102,7 @@ function notesToText(notes: ProductCopyNotes, isVi: boolean): string {
   return [
     `${isVi ? "Hương đầu" : "Top"}: ${notes.top.join(", ")}`,
     `${isVi ? "Hương giữa" : "Heart"}: ${notes.heart.join(", ")}`,
-    `${isVi ? "Hương cuối" : "Base"}: ${notes.base.join(", ")}`,
+    `${isVi ? "Hương nền" : "Base"}: ${notes.base.join(", ")}`,
   ].join("\n");
 }
 
@@ -309,7 +309,7 @@ export function ProductCopyAssistant({
               </p>
               <p>
                 <span className="text-muted-foreground">
-                  {isVi ? "Hương cuối: " : "Base: "}
+                  {isVi ? "Hương nền: " : "Base: "}
                 </span>
                 {result.notes.base.join(", ") || "—"}
               </p>

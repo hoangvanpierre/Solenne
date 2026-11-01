@@ -57,7 +57,12 @@ export type { AdminStatusBadgeProps, AdminStatusTone } from "./admin-status-badg
 export { AdminTableFrame } from "./admin-table-frame";
 export type { AdminTableFrameProps } from "./admin-table-frame";
 export { AdminPagination } from "./admin-pagination";
-export type { AdminPaginationProps } from "./admin-pagination";
+export type {
+  AdminPaginationProps,
+  AdminPaginationLabels,
+} from "./admin-pagination";
+export { AdminReviewTable } from "./admin-review-table";
+export type { AdminReviewTableProps } from "./admin-review-table";
 export { AdminBreadcrumb } from "./admin-breadcrumb";
 export type { AdminBreadcrumbProps } from "./admin-breadcrumb";
 export {

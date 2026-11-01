@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef } from "react";
+import { forwardRef, useId } from "react";
 import { cn } from "@/lib/utils";
 
 export interface InputProps
@@ -11,7 +11,9 @@ export interface InputProps
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ className, type = "text", error, label, id, ...props }, ref) => {
+    const generatedId = useId();
     const inputId = id || label?.toLowerCase().replace(/\s+/g, "-");
+    const errorId = `${inputId || generatedId}-error`;
 
     return (
       <div className="space-y-1.5">
@@ -28,19 +30,22 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           id={inputId}
           type={type}
           className={cn(
-            "flex h-10 w-full rounded-lg border border-border bg-transparent px-3.5 py-2 text-[13.5px]",
-            "transition-colors duration-200",
-            "placeholder:text-muted-foreground",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent",
+            "solenne-field flex h-(--field-height) w-full px-(--field-padding-inline) py-2 text-[13.5px]",
+
             "disabled:cursor-not-allowed disabled:opacity-50",
             "[&::-ms-reveal]:hidden [&::-ms-clear]:hidden",
-            error && "border-destructive focus-visible:ring-destructive",
             className
           )}
           {...props}
+          aria-invalid={error ? true : props["aria-invalid"]}
+          aria-describedby={
+            [props["aria-describedby"], error ? errorId : undefined]
+              .filter(Boolean)
+              .join(" ") || undefined
+          }
         />
         {error && (
-          <p className="text-xs text-destructive">{error}</p>
+          <p id={errorId} className="text-xs text-destructive">{error}</p>
         )}
       </div>
     );

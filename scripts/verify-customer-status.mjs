@@ -182,7 +182,7 @@ assert("handles banned state with dedicated reinstatement trigger", componentCod
 assert("handles pending state as non-transitionable", componentCode.includes('currentStatus === "pending"'));
 assert("includes reason textarea with character bounds", componentCode.includes("maxLength={255}") && componentCode.includes("trimmed.length < 5"));
 assert("includes confirmation dialog flow for reinstatement", componentCode.includes('targetAction === "reinstate"') && componentCode.includes("handleConfirm"));
-assert("supports bilingual reinstatement labels and messages", componentCode.includes("Kích hoạt lại tài khoản bị cấm") && componentCode.includes("Reinstate Banned Customer"));
+assert("supports bilingual reinstatement labels and messages", componentCode.includes("Kích hoạt lại tài khoản bị cấm") && componentCode.includes("Reinstate customer"));
 
 console.log("\n== 7. Barrel Exports (components/admin/index.ts) ==");
 const barrelPath = new URL("../components/admin/index.ts", import.meta.url);

@@ -271,8 +271,8 @@ export function buildAdminAssistantSystemPrompt(
 
   sections.push(
     isVi
-      ? `Bạn là trợ lý vận hành back-office của Solenne — một maison nến thủ công nhỏ. Bạn hỗ trợ ${roleLabel}.`
-      : `You are Solenne's back-office operations assistant for a small artisanal candle house. You are helping a ${roleLabel}.`
+      ? `Bạn là trợ lý vận hành back-office của Solenne — một xưởng nến thủ công nhỏ. Bạn hỗ trợ ${roleLabel}.`
+      : `You are Solenne's back-office operations assistant for a small candle studio. You are helping a ${roleLabel}.`
   );
 
   sections.push(

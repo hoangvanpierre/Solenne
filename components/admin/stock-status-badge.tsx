@@ -21,9 +21,9 @@ const STATUS_TONES: Record<StockStatus, AdminStatusTone> = {
 };
 
 const STATUS_LABELS_EN: Record<StockStatus, string> = {
-  in_stock: "In Stock",
-  low_stock: "Low Stock",
-  out_of_stock: "Out of Stock",
+  in_stock: "In stock",
+  low_stock: "Low stock",
+  out_of_stock: "Out of stock",
 };
 
 const STATUS_LABELS_VI: Record<StockStatus, string> = {

@@ -250,7 +250,13 @@ export function ReviewModerationControl({
               disabled={pending}
               required
               placeholder={t("hideReasonPlaceholder")}
-              className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+              aria-invalid={
+                !!error && (
+                  reason.trim().length < REVIEW_MODERATION_REASON_MIN ||
+                  reason.trim().length > REVIEW_MODERATION_REASON_MAX
+                )
+              }
+              className="solenne-field w-full resize-none rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground disabled:opacity-50"
             />
             <div className="flex items-start justify-between gap-3">
               <span className="text-xs text-muted-foreground">
@@ -319,7 +325,10 @@ export function ReviewModerationControl({
               maxLength={REVIEW_MODERATION_REASON_MAX}
               disabled={pending}
               placeholder={t("resolutionNotePlaceholder")}
-              className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+              aria-invalid={
+                !!error && note.trim().length > REVIEW_MODERATION_REASON_MAX
+              }
+              className="solenne-field w-full resize-none rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground disabled:opacity-50"
             />
             <span className="block text-xs text-muted-foreground">
               {t("resolutionNoteHint", { max: REVIEW_MODERATION_REASON_MAX })}

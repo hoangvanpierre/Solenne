@@ -69,7 +69,7 @@ D:\solenne/
 │   ├── checkout/                   # CheckoutForm and steps
 │   ├── layout/                    # Navbar, MobileNav, CartDrawer, Footer, BrandLogo, LocaleToggle, CurrencyToggle, I18nProvider
 │   ├── product/                   # ProductCard, ProductGrid, ProductGallery, ProductInfo, ProductPicture, selectors, scent-notes
-│   ├── sections/                   # Hero, BrandStory, FeaturedProducts, CraftSection, ScentExplorer, ScentCanvas, Testimonials, Newsletter, ContactForm
+│   ├── sections/                   # Hero, BrandStory, FeaturedProducts, CraftSection, ScentExplorer, ScentCanvas, Newsletter, ContactForm
 │   ├── animations/                 # SmoothScroll, ScrollReveal, TextReveal, TextFillAnimation, ParallaxImage, HorizontalScroll, PinnedSection, MagneticButton
 │   └── ui/                         # Primitives (Button, Input, Badge, etc.)
 ├── hooks/

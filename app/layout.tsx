@@ -14,17 +14,16 @@ const cactusClassicalSerif = Cactus_Classical_Serif({
 
 export const metadata: Metadata = {
   title: {
-    default: "Solenne — Artisan Scented Candles",
+    default: "Solenne — Hand-poured scented candles",
     template: "%s | Solenne",
   },
   description:
-    "Artisan scented candles crafted with intention. Illuminate your moments with Solenne's hand-poured, natural soy wax candles.",
+    "Hand-poured scented candles made in small batches with natural soy wax, cotton wicks and phthalate-free fragrance oils.",
   keywords: [
     "scented candles",
-    "artisan candles",
-    "soy wax candles",
-    "luxury candles",
     "hand-poured candles",
+    "soy wax candles",
+    "small batch candles",
     "Solenne",
   ],
   icons: {
@@ -35,9 +34,9 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     siteName: "Solenne",
-    title: "Solenne — Artisan Scented Candles",
+    title: "Solenne — Hand-poured scented candles",
     description:
-      "Illuminate your moments with hand-poured, natural soy wax candles.",
+      "Hand-poured scented candles in small batches, made with natural soy wax.",
   },
 };
 

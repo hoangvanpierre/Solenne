@@ -112,10 +112,10 @@ function buildCollections(): SearchIndexCollection[] {
     ...scentCollections,
     {
       slug: "gift-sets",
-      name: { en: "Gift Sets", vi: "Hộp Quà Thượng Hạng" },
+      name: { en: "Gift Sets", vi: "Bộ quà tặng" },
       description: {
-        en: "Thoughtfully composed sets of our most-loved candles, ready to give.",
-        vi: "Những bộ nến tuyển chọn được đóng gói trang trọng trong hộp quà lụa, sẵn sàng trao gửi tâm tình.",
+        en: "Boxed sets of our most-loved candles, ready to give.",
+        vi: "Bộ nến đóng hộp sẵn để tặng, gồm những mùi hương được yêu thích nhất.",
       },
       scentFamily: null,
     },

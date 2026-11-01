@@ -28,12 +28,12 @@ export default function ResetPasswordPage() {
           <ShieldCheck className="w-5 h-5" />
         </div>
         <h1 className="text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground">
-          {isVi ? "Thiết Lập Mật Khẩu Mới" : "Set New Password"}
+          {isVi ? "Đặt mật khẩu mới" : "Set new password"}
         </h1>
         <p className="text-sm text-muted-foreground">
           {isVi
-            ? "Vui lòng chọn mật khẩu đủ mạnh để bảo vệ góc riêng của bạn tại Solenne."
-            : "Please choose a strong password to protect your Solenne sanctuary."}
+            ? "Chọn mật khẩu đủ mạnh để bảo vệ tài khoản."
+            : "Choose a strong password for your account."}
         </p>
       </div>
 
@@ -53,7 +53,7 @@ export default function ResetPasswordPage() {
             htmlFor="password"
             className="text-xs font-medium uppercase tracking-wider text-foreground/80"
           >
-            {isVi ? "Mật khẩu mới" : "New Password"}
+            {isVi ? "Mật khẩu mới" : "New password"}
           </label>
           <div className="relative">
             <Input
@@ -64,7 +64,9 @@ export default function ResetPasswordPage() {
               placeholder={isVi ? "Tối thiểu 6 ký tự" : "At least 6 characters"}
               required
               disabled={isPending}
-              className="h-12 pr-11 bg-background border-border/70 focus:border-amber focus:ring-amber/20"
+              aria-invalid={state.fieldErrors?.password ? true : undefined}
+              aria-describedby={state.fieldErrors?.password ? "password-error" : undefined}
+              className="h-12 pr-11"
             />
             <button
               type="button"
@@ -88,7 +90,7 @@ export default function ResetPasswordPage() {
             </button>
           </div>
           {state.fieldErrors?.password && (
-            <p className="text-xs text-destructive mt-1">
+            <p id="password-error" className="text-xs text-destructive mt-1">
               {state.fieldErrors.password[0]}
             </p>
           )}
@@ -100,7 +102,7 @@ export default function ResetPasswordPage() {
             htmlFor="confirmPassword"
             className="text-xs font-medium uppercase tracking-wider text-foreground/80"
           >
-            {isVi ? "Xác nhận mật khẩu mới" : "Confirm New Password"}
+            {isVi ? "Xác nhận mật khẩu mới" : "Confirm new password"}
           </label>
           <div className="relative">
             <Input
@@ -111,7 +113,9 @@ export default function ResetPasswordPage() {
               placeholder={isVi ? "Nhập lại mật khẩu mới" : "Repeat your new password"}
               required
               disabled={isPending}
-              className="h-12 pr-11 bg-background border-border/70 focus:border-amber focus:ring-amber/20"
+              aria-invalid={state.fieldErrors?.confirmPassword ? true : undefined}
+              aria-describedby={state.fieldErrors?.confirmPassword ? "confirmPassword-error" : undefined}
+              className="h-12 pr-11"
             />
             <button
               type="button"
@@ -135,7 +139,7 @@ export default function ResetPasswordPage() {
             </button>
           </div>
           {state.fieldErrors?.confirmPassword && (
-            <p className="text-xs text-destructive mt-1">
+            <p id="confirmPassword-error" className="text-xs text-destructive mt-1">
               {state.fieldErrors.confirmPassword[0]}
             </p>
           )}
@@ -150,10 +154,10 @@ export default function ResetPasswordPage() {
           {isPending ? (
             <span className="inline-flex items-center gap-2">
               <Loader2 className="w-4 h-4 animate-spin" />
-              <span>{isVi ? "Đang cập nhật mật khẩu..." : "Updating Password..."}</span>
+              <span>{isVi ? "Đang lưu..." : "Saving..."}</span>
             </span>
           ) : (
-            isVi ? "Lưu & Đăng Nhập" : "Save & Sign In"
+            isVi ? "Lưu và đăng nhập" : "Save and sign in"
           )}
         </Button>
       </form>

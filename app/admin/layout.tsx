@@ -94,8 +94,8 @@ export default async function AdminLayout({
             <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">
               {isVi ? (
                 <>
-                  Khu vực này được dành riêng cho đội ngũ Solenne. Nếu quý khách
-                  cho rằng mình cần quyền truy cập, xin vui lòng liên hệ{" "}
+                  Khu vực này chỉ dành cho đội ngũ Solenne. Nếu bạn cho rằng
+                  mình cần quyền truy cập, hãy liên hệ{" "}
                   <a
                     href={`mailto:${CONTACT_EMAIL}`}
                     className="underline underline-offset-4 transition-colors hover:text-foreground"
@@ -126,12 +126,12 @@ export default async function AdminLayout({
                   type="submit"
                   className="inline-flex items-center gap-2"
                 >
-                  <span>{isVi ? "Đăng xuất" : "Sign Out"}</span>
+                  <span>{isVi ? "Đăng xuất" : "Sign out"}</span>
                 </Button>
               </form>
               <Button asChild className="inline-flex items-center gap-2">
                 <Link href="/">
-                  <span>{isVi ? "Về tiệm nến" : "Return to Boutique"}</span>
+                  <span>{isVi ? "Về cửa hàng" : "Back to storefront"}</span>
                   <ArrowLeft className="h-4 w-4" />
                 </Link>
               </Button>

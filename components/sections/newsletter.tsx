@@ -68,8 +68,11 @@ export function Newsletter() {
 
           <ScrollReveal delay={0.2}>
             {feedback?.type === "success" ? (
-              <div className="rounded-full bg-cream/10 border border-cream/20 py-3.5 px-6 max-w-md mx-auto text-sm text-cream animate-fadeIn">
-                ✨ {feedback.message}
+              <div
+                role="status"
+                className="rounded-full bg-cream/10 border border-cream/20 py-3.5 px-6 max-w-md mx-auto text-sm text-cream animate-fadeIn"
+              >
+                {feedback.message}
               </div>
             ) : (
               <form
@@ -82,7 +85,7 @@ export function Newsletter() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={t("placeholder")}
-                    className="bg-cream/10 border-cream/20 text-cream placeholder:text-cream/40 h-12 rounded-full px-6 focus-visible:ring-cream/50"
+                    className="solenne-field-inverse text-cream h-12"
                     required
                     disabled={isSubmitting}
                   />

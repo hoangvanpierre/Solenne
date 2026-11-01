@@ -54,3 +54,6 @@ next-env.d.ts
 
 # Supabase CLI local state
 supabase/.temp/
+
+# temporary audit/scratch artifacts — never commit these
+/.tmp-*

@@ -7,7 +7,7 @@ import { formatPrice } from "@/lib/utils";
 export const metadata: Metadata = {
   title: "Shipping & Returns — Solenne",
   description:
-    "Solenne shipping and returns: dispatch times, delivery estimates, rates, and our 30-day return policy.",
+    "Shipping and returns at Solenne: dispatch times, delivery estimates, rates and our 30-day return policy.",
 };
 
 export default async function ShippingPage() {
@@ -17,14 +17,14 @@ export default async function ShippingPage() {
   const shippingRows = [
     {
       label: isVi
-        ? "Giao hàng tiêu chuẩn trang trọng (3-5 ngày làm việc)"
-        : "Standard shipping (3-5 business days)",
+        ? "Giao hàng tiêu chuẩn (3–5 ngày làm việc)"
+        : "Standard shipping (3–5 business days)",
       usd: formatPrice(SHIPPING.flatRateUSD, "USD"),
       vnd: formatPrice(SHIPPING.flatRateVND, "VND"),
     },
     {
       label: isVi
-        ? `Trân quý miễn phí vận chuyển cho đơn hàng từ ${formatPrice(SHIPPING.freeThresholdUSD, "USD")} (${formatPrice(SHIPPING.freeThresholdVND, "VND")})`
+        ? `Miễn phí vận chuyển cho đơn từ ${formatPrice(SHIPPING.freeThresholdUSD, "USD")} (${formatPrice(SHIPPING.freeThresholdVND, "VND")})`
         : `Free shipping on orders over ${formatPrice(SHIPPING.freeThresholdUSD, "USD")} (${formatPrice(SHIPPING.freeThresholdVND, "VND")})`,
       usd: isVi ? "Miễn phí" : "Free",
       vnd: isVi ? "Miễn phí" : "Free",
@@ -33,21 +33,21 @@ export default async function ShippingPage() {
 
   const returnSteps = [
     {
-      title: isVi ? "Liên hệ Nhà hương" : "Contact us",
+      title: isVi ? "Liên hệ" : "Contact us",
       body: isVi
-        ? `Gửi thư tới ${CONTACT_EMAIL} trong vòng 30 ngày kể từ khi nhận nến, kèm mã đơn hàng và lý do đổi trả. Nếu tác phẩm gặp sự cố khi vận chuyển, xin quý khách đính kèm hình ảnh.`
-        : `Email ${CONTACT_EMAIL} within 30 days of delivery with your order number and reason for the return. For damaged or faulty candles, please include a photo.`,
+        ? `Gửi email tới ${CONTACT_EMAIL} trong 30 ngày kể từ khi nhận nến, kèm mã đơn hàng và lý do đổi trả. Nếu nến bị hỏng hoặc có lỗi, hãy đính kèm ảnh.`
+        : `Email ${CONTACT_EMAIL} within 30 days of delivery with your order number and the reason for the return. For damaged or faulty candles, include a photo.`,
     },
     {
-      title: isVi ? "Đóng gói tác phẩm" : "Prepare the candle",
+      title: isVi ? "Đóng gói nến" : "Prepare the candle",
       body: isVi
-        ? "Đặt nến cẩn trọng trong ly thủy tinh và vỏ hộp nguyên bản. Những tác phẩm chưa thắp sáng, nguyên vẹn đủ điều kiện hoàn trả 100% giá trị."
+        ? "Đặt nến vào đúng ly và hộp ban đầu, gói chắc chắn. Nến chưa mở, chưa dùng và còn nguyên vẹn đủ điều kiện hoàn tiền đầy đủ."
         : "Pack the candle securely in its original vessel and box. Unopened, unused candles in resalable condition are eligible for a full refund.",
     },
     {
-      title: isVi ? "Gửi về xưởng thủ công" : "Ship it back",
+      title: isVi ? "Gửi về xưởng" : "Send it back",
       body: isVi
-        ? "Chúng tôi sẽ gửi chỉ dẫn gửi hàng chi tiết. Khi tác phẩm về tới xưởng, khoản tiền hoàn lại sẽ được xử lý trong vòng 5 ngày làm việc qua phương thức thanh toán ban đầu."
+        ? "Chúng tôi sẽ phản hồi kèm hướng dẫn gửi hàng. Khi nến về tới xưởng, tiền hoàn được xử lý trong 5 ngày làm việc qua phương thức thanh toán ban đầu."
         : "We'll reply with a return authorization and instructions. Once the candle reaches the studio, refunds are issued within 5 business days to the original payment method.",
     },
   ];
@@ -57,18 +57,18 @@ export default async function ShippingPage() {
       <Container className="max-w-3xl">
         <div className="mb-14">
           <h1 className="font-serif text-2xl sm:text-3xl font-normal leading-[1.22] mb-3 text-foreground tracking-[0.02em]">
-            {isVi ? "Giao Nhận & Đổi Trả" : "Shipping & Returns"}
+            {isVi ? "Giao hàng & Đổi trả" : "Shipping & returns"}
           </h1>
           <p className="text-muted-foreground text-sm sm:text-base leading-relaxed font-normal">
             {isVi
-              ? "Mỗi kiện nến thơm đều được gói ghém bằng cả tấm lòng tại xưởng và gửi đi trong vòng 1-2 ngày làm việc."
-              : "Every order is wrapped with care in the studio and dispatched within 1-2 business days."}
+              ? "Mỗi đơn hàng được gói tại xưởng và gửi đi trong 1–2 ngày làm việc."
+              : "Every order is wrapped in the studio and dispatched within 1–2 business days."}
           </p>
         </div>
 
         <section className="mb-14">
           <h2 className="font-serif text-xl sm:text-2xl font-normal leading-[1.28] mb-5 text-foreground">
-            {isVi ? "Biểu Phí & Thời Gian Giao Nhận" : "Rates & Delivery"}
+            {isVi ? "Phí và thời gian giao hàng" : "Rates & delivery"}
           </h2>
           <div className="overflow-hidden rounded-2xl border border-border">
             {shippingRows.map((row, index) => (
@@ -91,7 +91,7 @@ export default async function ShippingPage() {
 
         <section>
           <h2 className="font-serif text-xl sm:text-2xl font-normal leading-[1.28] mb-5 text-foreground">
-            {isVi ? "Chính Sách Đổi Trả trong 30 Ngày" : "Our 30-Day Return Policy"}
+            {isVi ? "Đổi trả trong 30 ngày" : "30-day returns"}
           </h2>
           <ol className="space-y-7">
             {returnSteps.map((step, index) => (

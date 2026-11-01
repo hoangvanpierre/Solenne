@@ -60,29 +60,29 @@ const ROLE_COPY: Record<
   { eyebrow: string; eyebrowVi: string; title: string; titleVi: string; description: string; descriptionVi: string }
 > = {
   admin: {
-    eyebrow: "Solenne Administration",
-    eyebrowVi: "Solenne Quản trị",
+    eyebrow: "Solenne administration",
+    eyebrowVi: "Solenne quản trị",
     title: "Admin Hub",
     titleVi: "Trung tâm quản trị",
     description:
       "Orders, catalogue, inventory, customers and the audit trail at a glance.",
     descriptionVi:
-      "Đơn hàng, danh mục, tồn kho, khách hàng và nhật ký kiểm toán trong một góc nhìn.",
+      "Đơn hàng, danh mục, tồn kho, khách hàng và nhật ký kiểm toán trên cùng một trang.",
   },
   manager: {
-    eyebrow: "Solenne Operations Management",
-    eyebrowVi: "Solenne Quản lý vận hành",
-    title: "Manager Workspace",
-    titleVi: "Trung tâm điều hành",
+    eyebrow: "Solenne operations",
+    eyebrowVi: "Solenne vận hành",
+    title: "Manager workspace",
+    titleVi: "Khu vực quản lý",
     description:
       "Operational oversight across fulfillment, catalogue, stock and customer records.",
     descriptionVi:
       "Giám sát vận hành đơn hàng, danh mục, tồn kho và hồ sơ khách hàng.",
   },
   staff: {
-    eyebrow: "Solenne Operations",
-    eyebrowVi: "Solenne Vận hành",
-    title: "Operations Workspace",
+    eyebrow: "Solenne operations",
+    eyebrowVi: "Solenne vận hành",
+    title: "Operations workspace",
     titleVi: "Khu vực vận hành",
     description:
       "Daily fulfillment, catalogue maintenance, stock and customer work.",
@@ -134,7 +134,7 @@ export default async function AdminPage() {
             }
             actions={
               <Button asChild variant="outline">
-                <Link href="/">{isVi ? "Về tiệm nến" : "Return to Boutique"}</Link>
+                <Link href="/">{isVi ? "Về cửa hàng" : "Return to storefront"}</Link>
               </Button>
             }
           />
@@ -260,7 +260,7 @@ export default async function AdminPage() {
               title={isVi ? "Nhật ký kiểm toán" : "Audit trail"}
               description={
                 isVi
-                  ? "Xem lại các thao tác quản trị đã được ghi nhận."
+                  ? "Xem lại nhật ký thao tác quản trị."
                   : "Review the administrative actions that have been recorded."
               }
               action={isVi ? "Truy cập nhật ký" : "Open audit trail"}

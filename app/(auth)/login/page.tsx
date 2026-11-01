@@ -31,7 +31,7 @@ function LoginForm() {
       {/* Header */}
       <div className="space-y-2 text-left">
         <h1 className="text-2xl sm:text-3xl font-normal leading-[1.22] text-foreground">
-          {isVi ? "Chào Mừng Trở Lại" : "Welcome Back"}
+          {isVi ? "Đăng nhập" : "Welcome back"}
         </h1>
         <p className="text-sm text-muted-foreground">
           {isVi
@@ -48,11 +48,11 @@ function LoginForm() {
             {state.error ||
               (errorParam === "auth_callback_failed"
                 ? isVi
-                  ? "Liên kết đăng nhập đã hết hạn hoặc không hợp lệ. Vui lòng đăng nhập trực tiếp."
-                  : "Sign-in link has expired or was invalid. Please log in directly."
+                  ? "Liên kết đăng nhập đã hết hạn. Hãy đăng nhập lại."
+                  : "That sign-in link has expired. Sign in again."
                 : isVi
-                ? "Đã xảy ra lỗi. Quý khách vui lòng thử lại."
-                : "An error occurred. Please try again.")}
+                ? "Đã xảy ra lỗi. Vui lòng thử lại."
+                : "Something went wrong. Please try again.")}
           </span>
         </div>
       )}
@@ -67,7 +67,7 @@ function LoginForm() {
             htmlFor="email"
             className="text-xs font-medium uppercase tracking-wider text-foreground/80"
           >
-            {isVi ? "Địa chỉ email" : "Email Address"}
+            {isVi ? "Email" : "Email"}
           </label>
           <Input
             id="email"
@@ -77,10 +77,12 @@ function LoginForm() {
             placeholder="elena@example.com"
             required
             disabled={isPending}
-            className="h-12 bg-background border-border/70 focus:border-amber focus:ring-amber/20"
+            aria-invalid={state.fieldErrors?.email ? true : undefined}
+            aria-describedby={state.fieldErrors?.email ? "email-error" : undefined}
+            className="h-12"
           />
           {state.fieldErrors?.email && (
-            <p className="text-xs text-destructive mt-1">
+            <p id="email-error" className="text-xs text-destructive mt-1">
               {state.fieldErrors.email[0]}
             </p>
           )}
@@ -112,7 +114,9 @@ function LoginForm() {
               placeholder="••••••••"
               required
               disabled={isPending}
-              className="h-12 pr-11 bg-background border-border/70 focus:border-amber focus:ring-amber/20"
+              aria-invalid={state.fieldErrors?.password ? true : undefined}
+              aria-describedby={state.fieldErrors?.password ? "password-error" : undefined}
+              className="h-12 pr-11"
             />
             <button
               type="button"
@@ -136,7 +140,7 @@ function LoginForm() {
             </button>
           </div>
           {state.fieldErrors?.password && (
-            <p className="text-xs text-destructive mt-1">
+            <p id="password-error" className="text-xs text-destructive mt-1">
               {state.fieldErrors.password[0]}
             </p>
           )}
@@ -154,7 +158,7 @@ function LoginForm() {
               <span>{isVi ? "Đang đăng nhập..." : "Signing in..."}</span>
             </span>
           ) : (
-            isVi ? "Đăng Nhập" : "Sign In"
+            isVi ? "Đăng nhập" : "Sign in"
           )}
         </Button>
       </form>
@@ -166,7 +170,7 @@ function LoginForm() {
           href={`/register${next ? `?next=${encodeURIComponent(next)}` : ""}`}
           className="font-medium text-foreground hover:text-amber underline-offset-4 hover:underline transition-colors"
         >
-          {isVi ? "Đăng ký thành viên mới" : "Create an account"}
+          {isVi ? "Tạo tài khoản" : "Create an account"}
         </Link>
       </div>
     </div>

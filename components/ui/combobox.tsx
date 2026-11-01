@@ -165,7 +165,7 @@ export const Combobox = forwardRef<HTMLButtonElement, ComboboxProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="text-sm font-medium text-foreground flex items-center justify-between"
+            className="text-[13px] font-normal text-foreground flex items-center justify-between"
           >
             <span>{label}</span>
             {required && <span className="text-xs text-amber">*</span>}
@@ -183,15 +183,17 @@ export const Combobox = forwardRef<HTMLButtonElement, ComboboxProps>(
           disabled={disabled || loading}
           onClick={() => setIsOpen((prev) => !prev)}
           onKeyDown={handleKeyDown}
+          role="combobox"
           aria-expanded={isOpen}
+          aria-controls={isOpen ? `${inputId}-listbox` : undefined}
           aria-haspopup="listbox"
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? `${inputId}-error` : undefined}
           className={cn(
-            "flex h-11 w-full items-center justify-between rounded-lg border border-border bg-background px-4 py-2 text-sm text-foreground",
-            "transition-colors duration-200 text-left",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/30 focus-visible:border-amber",
-            "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-muted/30",
-            error && "border-destructive focus-visible:ring-destructive",
-            !selectedOption && "text-muted-foreground"
+            "solenne-field flex h-(--field-height) w-full items-center justify-between px-(--field-padding-inline) py-2 text-[13.5px] text-foreground",
+            "text-left",
+            "disabled:cursor-not-allowed disabled:opacity-50",
+            !selectedOption && "solenne-field-placeholder"
           )}
         >
           <span className="truncate flex items-center gap-2">
@@ -199,7 +201,7 @@ export const Combobox = forwardRef<HTMLButtonElement, ComboboxProps>(
               <>
                 <span className="text-foreground">{selectedOption.label}</span>
                 {selectedOption.badge && (
-                  <span className="text-[10px] uppercase tabular-nums tracking-wider px-1.5 py-0.5 rounded bg-amber/10 text-amber border border-amber/20 font-normal">
+                  <span className="text-[10px] uppercase tabular-nums tracking-wider px-1.5 py-0.5 rounded bg-amber/10 text-muted-foreground border border-amber/20 font-normal">
                     {selectedOption.badge}
                   </span>
                 )}
@@ -237,7 +239,7 @@ export const Combobox = forwardRef<HTMLButtonElement, ComboboxProps>(
 
         {/* Dropdown Menu */}
         {isOpen && (
-          <div className="absolute left-0 right-0 top-full mt-1.5 z-50 rounded-xl border border-border/80 bg-background shadow-xl backdrop-blur-lg overflow-hidden animate-in fade-in-50 zoom-in-95 duration-150">
+          <div className="absolute left-0 right-0 top-full mt-1.5 z-50 rounded-(--field-radius) border border-border/60 bg-background shadow-sm overflow-hidden">
             {/* Search Input Box */}
             <div className="p-2 border-b border-border/60 bg-muted/20 flex items-center gap-2">
               <Search className="w-4 h-4 text-muted-foreground ml-1 shrink-0" />
@@ -248,7 +250,7 @@ export const Combobox = forwardRef<HTMLButtonElement, ComboboxProps>(
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder={searchPlaceholder}
-                className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none py-1.5"
+                className="solenne-field w-full text-sm text-foreground px-2 py-1.5"
               />
               {searchQuery && (
                 <button
@@ -263,6 +265,7 @@ export const Combobox = forwardRef<HTMLButtonElement, ComboboxProps>(
 
             {/* List of Options */}
             <div
+              id={`${inputId}-listbox`}
               role="listbox"
               className="max-h-60 overflow-y-auto py-1.5 divide-y divide-border/20"
             >
@@ -283,7 +286,7 @@ export const Combobox = forwardRef<HTMLButtonElement, ComboboxProps>(
                         isHighlighted
                           ? "bg-amber/10 text-foreground"
                           : "text-foreground/90 hover:bg-muted/40",
-                        isSelected && "font-medium text-amber bg-amber/5"
+                        isSelected && "font-medium text-foreground bg-amber/5"
                       )}
                     >
                       <div className="flex flex-col pr-2 truncate">
@@ -303,7 +306,7 @@ export const Combobox = forwardRef<HTMLButtonElement, ComboboxProps>(
                       </div>
 
                       {isSelected && (
-                        <Check className="w-4 h-4 text-amber shrink-0 ml-2" />
+                        <Check className="w-4 h-4 text-muted-foreground shrink-0 ml-2" />
                       )}
                     </div>
                   );
@@ -331,7 +334,7 @@ export const Combobox = forwardRef<HTMLButtonElement, ComboboxProps>(
           </div>
         )}
 
-        {error && <p className="text-xs text-destructive mt-1">{error}</p>}
+        {error && <p id={`${inputId}-error`} className="text-xs text-destructive mt-1">{error}</p>}
       </div>
     );
   }

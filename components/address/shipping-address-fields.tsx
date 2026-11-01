@@ -89,7 +89,7 @@ export function ShippingAddressFields({
       label: isVi && l.displayNameVi ? l.displayNameVi : l.displayName,
       sublabel: formatAdministrativeType(l.administrativeType, locale),
       badge: l.administrativeType === "special_zone"
-        ? (isVi ? "Đặc khu" : "Special Zone")
+        ? (isVi ? "Đặc khu" : "Special zone")
         : l.administrativeType === "ward"
         ? (isVi ? "Phường" : "Ward")
         : l.administrativeType === "commune"
@@ -227,7 +227,7 @@ export function ShippingAddressFields({
       {/* Country Selection (Pill Toggle) */}
       <div className="space-y-2 mb-6">
         <label className="text-[10.5px] font-normal uppercase tracking-wider text-foreground/80">
-          {isVi ? "Quốc gia điểm đến" : "Destination Country"} <span className="text-amber">*</span>
+          {isVi ? "Quốc gia giao hàng" : "Destination country"} <span className="text-amber">*</span>
         </label>
         <div className="grid grid-cols-2 gap-3 p-1 rounded-xl bg-muted/30 border border-border/70">
           {countries.map((c) => {
@@ -261,10 +261,10 @@ export function ShippingAddressFields({
               activeCountryCode === "VN"
                 ? isVi
                   ? "Số nhà, tên đường phố"
-                  : "Street Address (House number & street)"
+                  : "Street address (house number and street)"
                 : isVi
                 ? "Địa chỉ đường phố"
-                : "Street Address"
+                : "Street address"
             }
             name="line1"
             value={values.line1}
@@ -314,13 +314,13 @@ export function ShippingAddressFields({
             {/* Province / Municipality Combobox */}
             <div className="sm:col-span-1">
               <Combobox
-                label={isVi ? "Tỉnh / Thành phố trực thuộc TƯ" : "Province / Municipality"}
+                label={isVi ? "Tỉnh / Thành phố" : "Province / municipality"}
                 value={values.provinceCode || ""}
                 onChange={handleProvinceChange}
                 options={regionOptions}
-                placeholder={isVi ? "Chọn Tỉnh / Thành phố..." : "Select Province / City..."}
-                searchPlaceholder={isVi ? "Tìm theo tên Tỉnh / Thành phố..." : "Search province or city..."}
-                emptyText={isVi ? "Không tìm thấy Tỉnh / Thành phố phù hợp." : "No province or municipality found."}
+                placeholder={isVi ? "Chọn tỉnh / thành phố..." : "Select province or city..."}
+                searchPlaceholder={isVi ? "Tìm tỉnh / thành phố..." : "Search province or city..."}
+                emptyText={isVi ? "Không tìm thấy tỉnh / thành phố." : "No province or municipality found."}
                 error={errorFor("provinceCode") || errorFor("state")}
                 disabled={disabled}
                 required
@@ -330,27 +330,27 @@ export function ShippingAddressFields({
             {/* Ward / Commune / Special Zone Dependent Combobox */}
             <div className="sm:col-span-1">
               <Combobox
-                label={isVi ? "Phường / Xã / Đặc khu hành chính" : "Ward / Commune / Special Zone"}
+                label={isVi ? "Phường / Xã / Đặc khu" : "Ward / commune / special zone"}
                 value={values.wardCode || ""}
                 onChange={handleWardChange}
                 options={localityOptions}
                 placeholder={
                   !values.provinceCode
                     ? isVi
-                      ? "Chọn Tỉnh / Thành phố trước..."
-                      : "Select Province first..."
+                      ? "Chọn tỉnh / thành phố trước..."
+                      : "Select a province first..."
                     : isVi
-                    ? "Chọn Phường / Xã / Đặc khu..."
-                    : "Select Ward, Commune or Special Zone..."
+                    ? "Chọn phường / xã / đặc khu..."
+                    : "Select ward, commune or special zone..."
                 }
-                searchPlaceholder={isVi ? "Tìm Phường, Xã, Đặc khu..." : "Search ward or commune..."}
+                searchPlaceholder={isVi ? "Tìm phường, xã, đặc khu..." : "Search ward or commune..."}
                 emptyText={
                   !values.provinceCode
                     ? isVi
-                      ? "Vui lòng chọn Tỉnh / Thành phố trước."
-                      : "Please select a Province first."
+                      ? "Chọn tỉnh / thành phố trước."
+                      : "Select a province first."
                     : isVi
-                    ? "Không tìm thấy Phường / Xã phù hợp."
+                    ? "Không tìm thấy phường / xã."
                     : "No matching ward or commune found."
                 }
                 error={errorFor("wardCode") || errorFor("city")}
@@ -363,7 +363,7 @@ export function ShippingAddressFields({
             {/* Postal Code for Vietnam */}
             <div className="sm:col-span-2">
               <Input
-                label={isVi ? "Mã bưu chính (Postal Code)" : "Postal Code"}
+                label={isVi ? "Mã bưu chính" : "Postal code"}
                 name="postalCode"
                 value={values.postalCode}
                 onChange={(e) => onChange({ ...values, postalCode: e.target.value })}
@@ -375,8 +375,8 @@ export function ShippingAddressFields({
               />
               <p className="text-[11px] text-muted-foreground mt-1 font-normal">
                 {isVi
-                  ? "Tự động điền theo Tỉnh / Thành phố đã chọn, quý khách có thể tùy chỉnh nếu cần."
-                  : "Pre-filled according to selected province, editable if necessary."}
+                  ? "Tự động điền theo tỉnh / thành phố đã chọn. Có thể chỉnh sửa nếu cần."
+                  : "Pre-filled from the selected province. Edit it if needed."}
               </p>
             </div>
           </>
@@ -391,7 +391,7 @@ export function ShippingAddressFields({
             {/* US State Searchable Combobox */}
             <div className="sm:col-span-1">
               <Combobox
-                label={isVi ? "Tiểu bang (State)" : "State"}
+                label={isVi ? "Bang" : "State"}
                 value={values.provinceCode || values.state || ""}
                 onChange={(val, opt) => {
                   onChange({
@@ -402,9 +402,9 @@ export function ShippingAddressFields({
                   });
                 }}
                 options={regionOptions}
-                placeholder={isVi ? "Chọn Tiểu bang..." : "Select State..."}
-                searchPlaceholder={isVi ? "Tìm Tiểu bang (tên hoặc mã)..." : "Search state name or code..."}
-                emptyText={isVi ? "Không tìm thấy tiểu bang." : "No state found."}
+                placeholder={isVi ? "Chọn bang..." : "Select state..."}
+                searchPlaceholder={isVi ? "Tìm bang (tên hoặc mã)..." : "Search state name or code..."}
+                emptyText={isVi ? "Không tìm thấy bang." : "No state found."}
                 error={errorFor("state") || errorFor("provinceCode")}
                 disabled={disabled}
                 required
@@ -414,7 +414,7 @@ export function ShippingAddressFields({
             {/* US City (Combobox with suggestions & custom typing support) */}
             <div className="sm:col-span-1">
               <Combobox
-                label={isVi ? "Thành phố (City)" : "City"}
+                label={isVi ? "Thành phố" : "City"}
                 value={values.city}
                 onChange={handleCityChange}
                 options={localityOptions}
@@ -439,7 +439,7 @@ export function ShippingAddressFields({
             {/* US ZIP Code */}
             <div className="sm:col-span-2">
               <Input
-                label={isVi ? "Mã ZIP (5 chữ số)" : "ZIP Code"}
+                label={isVi ? "Mã ZIP (5 chữ số)" : "ZIP code"}
                 name="postalCode"
                 value={values.postalCode}
                 onChange={(e) => onChange({ ...values, postalCode: e.target.value })}

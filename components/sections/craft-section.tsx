@@ -111,7 +111,7 @@ export function CraftSection() {
     setCurrentIndex((prev) => (prev - 1 + CRAFT_SLIDES.length) % CRAFT_SLIDES.length);
   }, []);
 
-  // Sequential autoplay looping (5000ms), matching components/sections/testimonials.tsx
+  // Sequential autoplay looping (5000ms), matching the rotating scent section.
   useEffect(() => {
     if (shouldReduceMotion || isPaused || !isIntersecting) return;
 
@@ -197,7 +197,7 @@ export function CraftSection() {
                 </AnimatePresence>
               </div>
 
-              {/* Navigation Dots — exactly styled as components/sections/testimonials.tsx */}
+              {/* Navigation Dots — same dot pattern used by the other rotating sections */}
               <div
                 className="flex justify-center items-center gap-2.5 mt-5"
                 role="tablist"

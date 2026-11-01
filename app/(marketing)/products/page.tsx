@@ -21,14 +21,14 @@ export default async function ProductsPage() {
         <div className={`mb-12 ${styles.header}`}>
           <TextReveal
             as="h1"
-            text={isVi ? "Tất Cả Tác Phẩm Nến Thơm" : "All Candles"}
+            text={isVi ? "Tất cả nến thơm" : "All candles"}
             className="font-serif text-2xl sm:text-3xl font-normal leading-[1.22] mb-3 text-foreground"
           />
           <ScrollReveal className={styles.intro} delay={0.15}>
             <p className="text-muted-foreground text-sm sm:text-base max-w-2xl leading-relaxed">
               {isVi
-                ? "Khám phá toàn bộ bộ sưu tập nến thơm nghệ nhân của Solenne. Mỗi tác phẩm đều được đổ tay thủ công từ sáp đậu nành thiên nhiên thuần khiết và tinh dầu nước hoa thượng hạng."
-                : "Explore our complete collection of artisan scented candles. Each piece is hand-poured with natural soy wax and premium fragrance oils."}
+                ? "Khám phá bộ sưu tập nến thơm của Solenne. Nến được đổ tay từ sáp đậu nành tự nhiên và tinh dầu không chứa phthalate."
+                : "Explore the full Solenne collection. Every candle is hand-poured with natural soy wax and phthalate-free fragrance oils."}
             </p>
           </ScrollReveal>
         </div>

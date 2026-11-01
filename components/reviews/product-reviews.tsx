@@ -204,7 +204,7 @@ export function ProductReviews({
                   onChange={(event) =>
                     setSort(normalizeReviewSort(event.target.value))
                   }
-                  className="h-9 rounded-lg border border-border bg-transparent px-2.5 text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="solenne-field h-9 rounded-lg px-2.5 text-xs"
                 >
                   {REVIEW_SORTS.map((value) => (
                     <option key={value} value={value}>

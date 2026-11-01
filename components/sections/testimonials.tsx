@@ -12,9 +12,9 @@ const TESTIMONIALS = [
   {
     id: 1,
     quote:
-      "The Midnight Garden candle completely transformed my evening routine. It's not just a scent; it's an experience that brings absolute peace to my space.",
+      "Midnight Garden changed how my evenings feel. It's less a scent than a mood — the whole room settles.",
     quoteVi:
-      "Ngọn nến Midnight Garden đã thay đổi hoàn toàn những buổi tối của tôi. Đó không đơn thuần là mùi hương, mà là một nghi thức mang đến sự tĩnh tại tuyệt đối cho tâm hồn.",
+      "Midnight Garden thay đổi hẳn cảm giác buổi tối của tôi. Không chỉ là mùi hương, mà là một tâm trạng — cả căn phòng lắng lại.",
     author: "Elena R.",
     location: "New York",
     locationVi: "New York",
@@ -23,9 +23,9 @@ const TESTIMONIALS = [
   {
     id: 2,
     quote:
-      "I've tried luxury candles from all the major brands, but the throw and complex notes of Cedar & Sage are unmatched. A true work of art.",
+      "I've tried candles from most of the big houses. Cedar & Sage throws further and reads deeper than any of them.",
     quoteVi:
-      "Tôi từng thưởng thức nến thơm của hầu hết các thương hiệu cao cấp, nhưng độ tỏa hương và chiều sâu của Cedar & Sage thực sự vô song. Một tác phẩm nghệ thuật đích thực.",
+      "Tôi đã thử nến của phần lớn các thương hiệu lớn. Cedar & Sage tỏa xa hơn và sâu hơn tất cả.",
     author: "Michael T.",
     location: "London",
     locationVi: "London",
@@ -34,9 +34,9 @@ const TESTIMONIALS = [
   {
     id: 3,
     quote:
-      "Beautiful packaging, even more beautiful fragrance. Vanilla Ember makes my entire home feel incredibly warm and inviting.",
+      "The packaging is lovely, but the scent is what stayed. Vanilla Ember makes the whole flat feel warmer.",
     quoteVi:
-      "Bao bì tao nhã, và mùi hương còn kỳ diệu hơn thế. Vanilla Ember khiến toàn bộ ngôi nhà ngập tràn sự ấm áp, vỗ về và mời gọi.",
+      "Bao bì đẹp, nhưng mùi hương mới là thứ ở lại. Vanilla Ember khiến cả căn hộ ấm hơn.",
     author: "Sophie M.",
     location: "Paris",
     locationVi: "Paris",
@@ -108,7 +108,11 @@ export function Testimonials() {
                       ? "w-8 bg-primary"
                       : "w-2 bg-primary/20 hover:bg-primary/50 dark:bg-primary/50 dark:hover:bg-primary/75"
                   }`}
-                  aria-label={`Go to testimonial ${idx + 1}`}
+                  aria-label={
+                    locale === "vi"
+                      ? `Xem đánh giá ${idx + 1}`
+                      : `Show testimonial ${idx + 1}`
+                  }
                 />
               ))}
             </div>

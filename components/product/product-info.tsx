@@ -132,10 +132,10 @@ export function ProductInfo({ product, reviewSummary }: ProductInfoProps) {
           <span className="text-sm text-muted-foreground">
             {selectedVariant.stockQuantity > 0 
               ? locale === "vi"
-                ? `Còn ${selectedVariant.stockQuantity} tác phẩm`
+                ? `Còn ${selectedVariant.stockQuantity} sản phẩm`
                 : `${selectedVariant.stockQuantity} in stock` 
               : locale === "vi"
-                ? "Tạm thời hết hàng"
+                ? "Hết hàng"
                 : "Out of stock"}
           </span>
         </div>
@@ -159,7 +159,7 @@ export function ProductInfo({ product, reviewSummary }: ProductInfoProps) {
                 className="flex items-center gap-2"
               >
                 <Check className="h-5 w-5" />{" "}
-                {locale === "vi" ? "Đã thêm vào giỏ" : "Added to Cart"}
+                {locale === "vi" ? "Đã thêm vào giỏ" : "Added to cart"}
               </motion.div>
             ) : (
               <motion.div
@@ -168,7 +168,7 @@ export function ProductInfo({ product, reviewSummary }: ProductInfoProps) {
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: -20, opacity: 0 }}
               >
-                {locale === "vi" ? "Thêm vào giỏ" : "Add to Cart"} — {format(selectedVariant.price * quantity)}
+                {locale === "vi" ? "Thêm vào giỏ" : "Add to cart"} — {format(selectedVariant.price * quantity)}
               </motion.div>
             )}
           </AnimatePresence>
@@ -190,7 +190,7 @@ export function ProductInfo({ product, reviewSummary }: ProductInfoProps) {
             onClick={() => toggleSection('description')}
             className="flex w-full items-center justify-between py-4 text-left font-medium"
           >
-            {locale === "vi" ? "Miêu tả hương sắc" : "Description"}
+            {locale === "vi" ? "Mô tả" : "Description"}
             {expandedSection === 'description' ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
           </button>
           <AnimatePresence>
@@ -215,7 +215,7 @@ export function ProductInfo({ product, reviewSummary }: ProductInfoProps) {
             onClick={() => toggleSection('scent')}
             className="flex w-full items-center justify-between py-4 text-left font-medium"
           >
-            {locale === "vi" ? "Cấu trúc nốt hương" : "Scent Notes"}
+            {locale === "vi" ? "Tầng hương" : "Scent notes"}
             {expandedSection === 'scent' ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
           </button>
           <AnimatePresence>
@@ -242,7 +242,7 @@ export function ProductInfo({ product, reviewSummary }: ProductInfoProps) {
             onClick={() => toggleSection('details')}
             className="flex w-full items-center justify-between py-4 text-left font-medium"
           >
-            {locale === "vi" ? "Thành phần & Nghi thức chăm sóc" : "Ingredients & Care"}
+            {locale === "vi" ? "Thành phần & chăm sóc" : "Ingredients & care"}
             {expandedSection === 'details' ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
           </button>
           <AnimatePresence>
@@ -256,19 +256,19 @@ export function ProductInfo({ product, reviewSummary }: ProductInfoProps) {
                 <ul className="pb-4 space-y-2 text-sm text-muted-foreground list-disc pl-4">
                   {locale === "vi" ? (
                     <>
-                      <li>100% sáp đậu nành tự nhiên thuần khiết</li>
-                      <li>Hương liệu nước hoa tinh tuyển (không chứa phthalate)</li>
-                      <li>Bấc cotton dệt thủ công không chì</li>
-                      <li>Cắt tỉa bấc nến còn 0.6cm trước mỗi lần thắp</li>
-                      <li>Để bề mặt sáp tan chảy đều đến mép ly trong lần thắp đầu</li>
+                      <li>Sáp đậu nành tự nhiên 100%</li>
+                      <li>Hương liệu không chứa phthalate</li>
+                      <li>Bấc cotton không chì</li>
+                      <li>Cắt bấc còn khoảng 0,6 cm trước mỗi lần thắp</li>
+                      <li>Để sáp tan đều tới mép ly trong lần thắp đầu</li>
                     </>
                   ) : (
                     <>
-                      <li>100% natural soy wax blend</li>
-                      <li>Premium fragrance oils (phthalate-free)</li>
-                      <li>Lead-free cotton wicks</li>
-                      <li>Trim wick to 1/4&quot; before each use</li>
-                      <li>Allow wax to melt to the edges on first burn</li>
+                      <li>100% natural soy wax</li>
+                      <li>Fragrance oils, phthalate-free</li>
+                      <li>Lead-free cotton wick</li>
+                      <li>Trim the wick to a quarter inch before each burn</li>
+                      <li>Let the wax melt to the edge on the first burn</li>
                     </>
                   )}
                 </ul>

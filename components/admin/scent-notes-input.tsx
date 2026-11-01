@@ -131,7 +131,7 @@ export function ScentNotesInput({
             return (
               <div
                 key={`edit-${index}`}
-                className="inline-flex items-center gap-1 rounded-md border border-amber/50 bg-background px-2 py-0.5"
+                className="inline-flex items-center gap-1 rounded-md bg-background px-2 py-0.5"
               >
                 <input
                   type="text"
@@ -140,7 +140,8 @@ export function ScentNotesInput({
                   onKeyDown={(e) => handleEditKeyDown(e, index)}
                   onBlur={() => saveEdit(index)}
                   autoFocus
-                  className="w-24 text-xs bg-transparent outline-none text-foreground font-normal"
+                  aria-invalid={!!error}
+                  className="solenne-field w-24 text-xs text-foreground font-normal"
                   aria-label={isVi ? "Chỉnh sửa nốt hương" : "Edit scent note"}
                 />
                 <button
@@ -208,7 +209,8 @@ export function ScentNotesInput({
               ? "Nhập nốt hương và nhấn Enter..."
               : "Type a note and press Enter...")
           }
-          className="flex h-9 w-full rounded-lg border border-border bg-transparent px-3 py-1 text-sm font-normal placeholder:text-muted-foreground transition-colors"
+          aria-invalid={!!error}
+          className="solenne-field flex h-9 w-full rounded-lg px-3 py-1 text-sm font-normal placeholder:text-muted-foreground transition-colors"
         />
         <button
           type="button"

@@ -16,9 +16,9 @@ export const ORDER_STATUS_FILTER_OPTIONS = [
   { value: "all", labelEn: "All statuses", labelVi: "Tất cả trạng thái" },
   { value: "pending", labelEn: "Pending payment", labelVi: "Chờ thanh toán" },
   { value: "paid", labelEn: "Paid", labelVi: "Đã thanh toán" },
-  { value: "processing", labelEn: "Processing", labelVi: "Đang chế tác" },
-  { value: "shipped", labelEn: "Shipped", labelVi: "Đang chuyển giao" },
-  { value: "delivered", labelEn: "Delivered", labelVi: "Đã an nhận" },
+  { value: "processing", labelEn: "Processing", labelVi: "Đang xử lý" },
+  { value: "shipped", labelEn: "Shipped", labelVi: "Đã gửi hàng" },
+  { value: "delivered", labelEn: "Delivered", labelVi: "Đã giao" },
   { value: "cancelled", labelEn: "Cancelled", labelVi: "Đã hủy" },
 ] as const;
 
@@ -81,7 +81,7 @@ export function OrderFilterBar({
                 onChange={(event) =>
                   updateParams({ status: event.target.value })
                 }
-                className="admin-inline-select peer cursor-pointer appearance-none rounded-md bg-transparent py-1 pl-1 pr-5 text-sm font-normal text-foreground transition-colors hover:bg-muted/60 focus-visible:text-foreground"
+                className="solenne-field admin-inline-select peer cursor-pointer appearance-none rounded-md py-1 pl-1 pr-5 text-sm font-normal text-foreground transition-colors"
               >
                 {ORDER_STATUS_FILTER_OPTIONS.map((option) => (
                   <option

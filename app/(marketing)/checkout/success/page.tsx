@@ -11,7 +11,7 @@ import {
   isRestrictedAuthError,
   isUnauthenticatedAuthError,
 } from "@/lib/authz-ux";
-import { RestrictedAccountNotice } from "@/components/account";
+import { OrderStatusBadge, RestrictedAccountNotice } from "@/components/account";
 import { CONTACT_EMAIL } from "@/lib/constants";
 import { formatPrice } from "@/lib/utils";
 
@@ -100,9 +100,7 @@ export default async function CheckoutSuccessPage({
                   <span className="text-muted-foreground font-normal">
                     {isVi ? "Trạng thái:" : "Status:"}
                   </span>
-                  <span className="rounded-full border border-amber/30 bg-amber/10 px-2.5 py-0.5 text-[11px] font-normal uppercase tracking-wider text-amber">
-                    {isVi ? "Chờ thanh toán" : "Pending payment"}
-                  </span>
+                  <OrderStatusBadge status={order.status} locale={locale} />
                 </div>
                 <span className="text-[13px] text-muted-foreground font-normal tabular-nums">
                   {new Date(order.createdAt).toLocaleDateString(isVi ? "vi-VN" : "en-US", {

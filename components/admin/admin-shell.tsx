@@ -274,10 +274,10 @@ export function AdminShell({
               >
                 <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
                 <span className="hidden sm:inline">
-                  {isVi ? "Về tiệm" : "Boutique"}
+                  {isVi ? "Về cửa hàng" : "Storefront"}
                 </span>
                 <span className="sr-only sm:hidden">
-                  {isVi ? "Về tiệm nến" : "Return to boutique"}
+                  {isVi ? "Về cửa hàng" : "Return to storefront"}
                 </span>
               </Link>
             </div>

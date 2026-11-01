@@ -137,20 +137,6 @@
     "errorValidation": "Check the highlighted fields.",
     "errorUnexpected": "Something went wrong. Please try again."
   },
-  "about": {
-    "badge": "Our story",
-    "heroTitle": "Thirty years of light and scent",
-    "heroDescription": "Solenne began with a simple idea: a candle is more than fragrance. It is a small ritual at the end of the day, made from materials we are glad to bring into a home.",
-    "craftTitle": "Poured slowly, by hand",
-    "craftP1": "Every candle is poured in our studio in small batches. We work at a pace that lets us check each one, because the details are the point.",
-    "craftP2": "From wick placement to the final trim, each step follows the same routine: controlled pouring temperatures, cotton wicks, and fourteen days of curing before a candle is ready.",
-    "ingredientsTitle": "What goes in",
-    "ingredientsP1": "Natural soy wax grown in the United States, lead-free cotton wicks, and fragrance oils composed in Grasse. No phthalates, no petroleum byproducts.",
-    "ingredientsP2": "Each scent opens in three stages: top notes that greet you, a heart that carries through the evening, and a base that stays in the room after the flame is out.",
-    "sustainabilityTitle": "Made to be kept",
-    "sustainabilityP1": "Our glass vessels are heavy enough to reuse once the candle is finished. Jars, cartons and ribbons are sustainably sourced and recyclable.",
-    "sustainabilityP2": "We offset shipping emissions and keep packaging minimal and plastic-free."
-  },
   "footer": {
     "description": "Hand-poured scented candles made in small batches, with natural soy wax and fragrance from Grasse.",
     "shop": "Shop",
@@ -403,7 +389,7 @@
     "reportDetailsLabel": "Customer details",
     "reviewUnavailable": "The reported review could not be loaded.",
     "publicationNote": "Reviews are published immediately. Moderation only removes a review after a substantiated report.",
-    "forbiddenTitle": "Area unavailable",
+    "forbiddenTitle": "Access restricted",
     "forbiddenDescription": "You do not have permission to moderate customer reviews.",
     "returnToHub": "Return to Admin Hub",
     "unavailableTitle": "Reviews are not available",

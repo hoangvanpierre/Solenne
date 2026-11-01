@@ -409,12 +409,8 @@ export function OrderFulfillmentControl({
                       ? "Ví dụ: VN-POST-8392019, DHL-928172..."
                       : "e.g. VN-POST-8392019, DHL-928172..."
                   }
-                  className={cn(
-                    "w-full rounded-xl border bg-background px-3 py-2 text-sm tabular-nums font-normal text-foreground placeholder:text-muted-foreground disabled:opacity-50",
-                    trackingError
-                      ? "border-destructive"
-                      : "border-border"
-                  )}
+                  aria-invalid={!!trackingError}
+                  className="solenne-field w-full rounded-xl px-3 py-2 text-sm tabular-nums font-normal text-foreground placeholder:text-muted-foreground disabled:opacity-50"
                 />
                 {trackingError && (
                   <p className="text-xs font-normal text-destructive">{trackingError}</p>
@@ -606,12 +602,8 @@ export function OrderFulfillmentControl({
                       ? "Ví dụ: đơn vị giao hàng trả lại kiện bị hỏng để kiểm tra..."
                       : "e.g. the courier returned a damaged parcel for inspection..."
                   }
-                  className={cn(
-                    "w-full resize-none rounded-xl border bg-background px-3 py-2 text-sm font-normal text-foreground placeholder:text-muted-foreground disabled:opacity-50",
-                    rollbackError
-                      ? "border-destructive"
-                      : "border-border"
-                  )}
+                  aria-invalid={!!rollbackError}
+                  className="solenne-field w-full resize-none rounded-xl px-3 py-2 text-sm font-normal text-foreground placeholder:text-muted-foreground disabled:opacity-50"
                 />
                 {rollbackError && (
                   <p className="text-xs font-normal text-destructive">{rollbackError}</p>

@@ -62,7 +62,7 @@ export default async function AddressPage() {
             className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            {isVi ? "Quay lại tài khoản" : "Back to Account"}
+            {isVi ? "Quay lại tài khoản" : "Back to account"}
           </Link>
         </nav>
 

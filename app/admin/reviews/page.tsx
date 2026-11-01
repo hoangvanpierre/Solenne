@@ -49,7 +49,7 @@ import type {
 } from "@/types";
 
 export const metadata: Metadata = {
-  title: "Reviews - Administration",
+  title: "Reviews — Administration",
 };
 
 // ---------------------------------------------------------------------------

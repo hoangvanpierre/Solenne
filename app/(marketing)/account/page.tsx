@@ -131,7 +131,7 @@ export default async function AccountPage() {
                 <Link href="/admin" className="inline-flex items-center gap-2 text-cream">
                   <ShieldCheck className="w-4 h-4 text-amber shrink-0" />
                   <span className="text-cream font-normal tracking-wider">
-                    {isVi ? "Trung tâm Quản trị" : "Admin Hub"}
+                    {isVi ? "Trung tâm quản trị" : "Admin Hub"}
                   </span>
                   <ArrowRight className="w-3.5 h-3.5 ml-0.5 text-cream/80 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" />
                 </Link>
@@ -222,7 +222,7 @@ export default async function AccountPage() {
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div>
               <h2 className="font-serif text-xl sm:text-2xl font-normal text-foreground leading-[1.28]">
-                {isVi ? "Hồ sơ cá nhân" : "Profile"}
+                {isVi ? "Hồ sơ" : "Profile"}
               </h2>
               <p className="mt-2 max-w-lg text-[13.5px] sm:text-[14px] leading-relaxed text-muted-foreground font-normal">
                 {isVi

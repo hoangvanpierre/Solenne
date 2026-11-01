@@ -100,7 +100,7 @@ export default async function AdminCustomersPage({
       <div className="py-8">
         <div className="mx-auto max-w-2xl">
           <AdminStatePanel
-            title={isVi ? "Khu vực không khả dụng" : "Area unavailable"}
+            title={isVi ? "Không có quyền truy cập" : "Access restricted"}
             description={
               isVi
                 ? "Không có quyền xem danh bạ khách hàng."

@@ -18,7 +18,7 @@ import { ReviewInvitation } from "@/components/reviews";
 import type { Order } from "@/types";
 
 export const metadata: Metadata = {
-  title: "Order History — Solenne",
+  title: "Order history — Solenne",
   description:
     "Every Solenne order you've placed, most recent first, with status and receipt links.",
 };
@@ -146,13 +146,13 @@ export default async function OrdersPage() {
             className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            {isVi ? "Quay lại tài khoản" : "Back to Account"}
+            {isVi ? "Quay lại tài khoản" : "Back to account"}
           </Link>
         </nav>
 
         <div className="mb-10">
           <h1 className="font-serif text-2xl sm:text-3xl font-normal leading-[1.22] mb-3 text-foreground tracking-[0.02em]">
-            {isVi ? "Lịch sử đơn hàng" : "Order History"}
+            {isVi ? "Lịch sử đơn hàng" : "Order history"}
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground leading-relaxed font-normal">
             {isVi

@@ -268,7 +268,7 @@ components/
   ui/           # Primitives: Button, Input, Badge, Skeleton, Separator, Container, IconButton, BackToTop, Combobox — each barrel-exported via index.ts
   product/      # Product-domain components (card, grid, gallery, info, picture, selectors, scent-notes)
   layout/       # Site chrome: Navbar, MobileNav, CartDrawer, Footer, BrandLogo, LocaleToggle, CurrencyToggle, I18nProvider
-  sections/     # Marketing page sections (Hero, BrandStory, FeaturedProducts, CraftSection, ScentExplorer, ScentCanvas, Testimonials, Newsletter, ContactForm)
+  sections/     # Marketing page sections (Hero, BrandStory, FeaturedProducts, CraftSection, ScentExplorer, ScentCanvas, Newsletter, ContactForm)
   animations/   # Motion primitives (SmoothScroll, ScrollReveal, TextReveal, TextFillAnimation, ParallaxImage, HorizontalScroll, PinnedSection, MagneticButton)
   account/      # Account hub UI: OrderHistoryCard, OrderListItem, AddressForm, ProfileForm, StatusBadge, RestrictedAccountNotice
   wishlist/     # WishlistProvider/useWishlist, WishlistButton, WishlistItemRow

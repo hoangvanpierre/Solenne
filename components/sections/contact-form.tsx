@@ -147,10 +147,12 @@ export function ContactForm() {
           value={values.message}
           onChange={handleChange}
           placeholder={t("messagePlaceholder")}
-          className="flex w-full rounded-lg border border-border bg-transparent px-4 py-2.5 text-[13.5px] font-normal transition-colors duration-200 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
+          aria-invalid={errors.message ? true : undefined}
+          aria-describedby={errors.message ? "message-error" : undefined}
+          className="solenne-field flex w-full px-(--field-padding-inline) py-2.5 text-[13.5px] font-normal disabled:cursor-not-allowed disabled:opacity-50"
         />
         {errors.message && (
-          <p className="text-[12px] font-normal text-destructive">{errors.message}</p>
+          <p id="message-error" className="text-[12px] font-normal text-destructive">{errors.message}</p>
         )}
       </div>
       {serverError && (

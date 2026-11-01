@@ -32,8 +32,8 @@ export default function ResetPasswordPage() {
         </h1>
         <p className="text-sm text-muted-foreground">
           {isVi
-            ? "Vui lòng chọn mật khẩu đủ mạnh để bảo vệ góc riêng của bạn tại Solenne."
-            : "Please choose a strong password to protect your Solenne sanctuary."}
+            ? "Chọn mật khẩu đủ mạnh để bảo vệ tài khoản."
+            : "Choose a strong password for your account."}
         </p>
       </div>
 
@@ -64,7 +64,9 @@ export default function ResetPasswordPage() {
               placeholder={isVi ? "Tối thiểu 6 ký tự" : "At least 6 characters"}
               required
               disabled={isPending}
-              className="h-12 pr-11 bg-background border-border/70 focus:border-amber focus:ring-amber/20"
+              aria-invalid={state.fieldErrors?.password ? true : undefined}
+              aria-describedby={state.fieldErrors?.password ? "password-error" : undefined}
+              className="h-12 pr-11"
             />
             <button
               type="button"
@@ -88,7 +90,7 @@ export default function ResetPasswordPage() {
             </button>
           </div>
           {state.fieldErrors?.password && (
-            <p className="text-xs text-destructive mt-1">
+            <p id="password-error" className="text-xs text-destructive mt-1">
               {state.fieldErrors.password[0]}
             </p>
           )}
@@ -111,7 +113,9 @@ export default function ResetPasswordPage() {
               placeholder={isVi ? "Nhập lại mật khẩu mới" : "Repeat your new password"}
               required
               disabled={isPending}
-              className="h-12 pr-11 bg-background border-border/70 focus:border-amber focus:ring-amber/20"
+              aria-invalid={state.fieldErrors?.confirmPassword ? true : undefined}
+              aria-describedby={state.fieldErrors?.confirmPassword ? "confirmPassword-error" : undefined}
+              className="h-12 pr-11"
             />
             <button
               type="button"
@@ -135,7 +139,7 @@ export default function ResetPasswordPage() {
             </button>
           </div>
           {state.fieldErrors?.confirmPassword && (
-            <p className="text-xs text-destructive mt-1">
+            <p id="confirmPassword-error" className="text-xs text-destructive mt-1">
               {state.fieldErrors.confirmPassword[0]}
             </p>
           )}

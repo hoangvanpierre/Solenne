@@ -77,10 +77,12 @@ function LoginForm() {
             placeholder="elena@example.com"
             required
             disabled={isPending}
-            className="h-12 bg-background border-border/70 focus:border-amber focus:ring-amber/20"
+            aria-invalid={state.fieldErrors?.email ? true : undefined}
+            aria-describedby={state.fieldErrors?.email ? "email-error" : undefined}
+            className="h-12"
           />
           {state.fieldErrors?.email && (
-            <p className="text-xs text-destructive mt-1">
+            <p id="email-error" className="text-xs text-destructive mt-1">
               {state.fieldErrors.email[0]}
             </p>
           )}
@@ -112,7 +114,9 @@ function LoginForm() {
               placeholder="••••••••"
               required
               disabled={isPending}
-              className="h-12 pr-11 bg-background border-border/70 focus:border-amber focus:ring-amber/20"
+              aria-invalid={state.fieldErrors?.password ? true : undefined}
+              aria-describedby={state.fieldErrors?.password ? "password-error" : undefined}
+              className="h-12 pr-11"
             />
             <button
               type="button"
@@ -136,7 +140,7 @@ function LoginForm() {
             </button>
           </div>
           {state.fieldErrors?.password && (
-            <p className="text-xs text-destructive mt-1">
+            <p id="password-error" className="text-xs text-destructive mt-1">
               {state.fieldErrors.password[0]}
             </p>
           )}

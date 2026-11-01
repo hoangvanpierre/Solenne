@@ -2466,13 +2466,20 @@ const aboutPage = read("app/(marketing)/about/page.tsx");
 const faqPage = read("app/(marketing)/faq/page.tsx");
 const carePage = read("app/(marketing)/care-guide/page.tsx");
 
+// Ranges are typeset with an en dash (brand voice: en dash for ranges), so
+// compare on a hyphen-normalised copy instead of assuming one separator.
+const hyphens = (text) => text.replace(/[\u2013\u2014]/g, "-");
+const shippingPageHyphenated = hyphens(shippingPage);
+
 assert(
   "dispatch window matches the shipping page",
-  /1.2 business days/.test(factsEn) && /1-2 business days/.test(shippingPage)
+  /1[-\u2013]2 business days/.test(factsEn) &&
+    /1-2 business days/.test(shippingPageHyphenated)
 );
 assert(
   "delivery window matches the shipping page",
-  /3.5 business days/.test(factsEn) && /3-5 business days/.test(shippingPage)
+  /3[-\u2013]5 business days/.test(factsEn) &&
+    /3-5 business days/.test(shippingPageHyphenated)
 );
 assert(
   "return window matches the shipping page in both languages",

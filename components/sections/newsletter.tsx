@@ -85,7 +85,7 @@ export function Newsletter() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={t("placeholder")}
-                    className="bg-cream/10 border-cream/20 text-cream placeholder:text-cream/40 h-12 rounded-full px-6 focus-visible:ring-cream/50"
+                    className="solenne-field-inverse text-cream h-12"
                     required
                     disabled={isSubmitting}
                   />

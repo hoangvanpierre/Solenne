@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 export const metadata: Metadata = {
   title: "About — Solenne",
   description:
-    "The story behind Solenne: hand-poured scented candles made in small batches, with natural soy wax and fragrance composed in Grasse.",
+    "The story behind Solenne: hand-poured scented candles made in small batches with natural soy wax, cotton wicks and phthalate-free fragrance.",
 };
 
 export default async function AboutPage() {
@@ -61,16 +61,16 @@ export default async function AboutPage() {
       <Container className="max-w-3xl">
         <header className="mb-20">
           <p className="mb-3 text-[10.5px] sm:text-[11px] uppercase tracking-[0.16em] text-muted-foreground font-normal">
-            {isVi ? "Di sản & Nghệ thuật chế tác" : "Our Story"}
+            {isVi ? "Câu chuyện của Solenne" : "Our Story"}
           </p>
           <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-normal leading-[1.22] mb-5 text-foreground">
             {isVi
-              ? "Ba mươi năm thắp sáng, tĩnh lặng và ướp hương."
+              ? "Chế tác bằng sự chủ tâm. Sinh ra từ thiên nhiên."
               : "Crafted with intention. Born from nature."}
           </h1>
           <p className="text-sm sm:text-base leading-[1.7] text-muted-foreground font-normal">
             {isVi
-              ? "Solenne được khai sinh từ một suy tưởng mộc mạc: một ngọn nến không đơn thuần là mùi hương. Đó là một nghi thức tĩnh tại, được tạo tác chân thực từ tinh hoa đất trời để tôn vinh chốn an trú của tâm hồn."
+              ? "Solenne bắt đầu từ một niềm tin đơn giản: một ngọn nến không chỉ là mùi hương. Đó là một khoảng lặng trong ngày, làm thật thà, từ những nguyên liệu tôn trọng căn nhà nơi nến cháy và thế giới nó đến từ."
               : "Solenne began with a simple belief: that a candle should be more than a scent. It should be a moment of peace, made honestly, from materials that respect the home it burns in and the world it comes from."}
           </p>
         </header>

@@ -485,11 +485,14 @@ export function CustomerStatusControl({
                   ? "Ví dụ: đã xác minh danh tính khách hàng..."
                   : "e.g. Customer identity verified..."
               }
-              className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-sm font-normal text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
+              aria-invalid={
+                !!error && (reason.trim().length < 5 || reason.trim().length > 255)
+              }
+              className="solenne-field w-full resize-none rounded-xl px-3 py-2 text-sm font-normal text-foreground placeholder:text-muted-foreground disabled:opacity-50"
             />
             <p className="text-xs text-muted-foreground font-normal">
               {isVi
-                ? "Tối thiểu 5 ký tự, tối đa 255 ký tự. Được lưu trữ bảo mật trong nhật ký kiểm toán."
+                ? "Tối thiểu 5 ký tự, tối đa 255 ký tự. Được ghi vào nhật ký kiểm toán."
                 : "Between 5 and 255 characters. Recorded securely in the audit log."}
             </p>
           </div>

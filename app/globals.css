@@ -28,6 +28,20 @@
   --border: #E8E0D6;
   --ring: #C4956A;
 
+  /* Hybrid Luxury: cream-on-cream surfaces, with warmth reserved for focus. */
+  --field-background: color-mix(in oklab, var(--muted) 28%, var(--background));
+  --field-hover: color-mix(in oklab, var(--muted) 45%, var(--background));
+  --field-focus: color-mix(in oklab, var(--muted) 60%, var(--background));
+  --field-focus-indicator: color-mix(in oklab, var(--muted-foreground) 70%, var(--color-amber));
+  --field-placeholder: #5e5853;
+  --field-error-text: #c04848;
+  --field-readonly: var(--background);
+  --field-readonly-text: var(--field-placeholder);
+  --field-radius: var(--radius-sm);
+  --field-height: 2.75rem;
+  --field-padding-inline: 0.875rem;
+  --field-disabled-opacity: 0.5;
+
   --card: #FFFFFF;
   --card-foreground: #1A1A1A;
 
@@ -64,6 +78,8 @@
 
     --muted: #1F1D1B;
     --muted-foreground: #A09890;
+    --field-placeholder: var(--muted-foreground);
+    --field-error-text: var(--destructive);
 
     --destructive: #D45A5A;
     --destructive-foreground: #FFFFFF;
@@ -556,7 +572,6 @@ a:visited {
   --muted: #f2ede5;
   --muted-foreground: #57504a;
   --border: #d9cdbe;
-  --admin-field-border: #9a8a78;
   /* Solid actions need AA against their own label. Brand amber stays on the
      tints (amber/10, amber/15); the solid fill deepens to the same brown the
      storefront already uses for amber-dark. */
@@ -587,7 +602,6 @@ a:visited {
     --muted: #221f1c;
     --muted-foreground: #b3aaa0;
     --border: #3a342e;
-    --admin-field-border: #6b6157;
     /* Solid actions flip to the light brand fill with a dark label, which is
        the same pairing the storefront already uses in dark mode. */
     --primary: #c4956a;
@@ -648,13 +662,6 @@ a:visited {
   font-size: 0.875rem;
 }
 
-/* Control boundaries: stronger than the decorative divider token so a field
-   stays identifiable, while the quiet toolbar fields keep their borderless
-   treatment and invalid fields keep their destructive border. */
-.admin-scope :where(input, select, textarea):not(.border-destructive):not(.admin-quiet-field) {
-  border-color: var(--admin-field-border);
-}
-
 /* Inline toolbar select (e.g. the customer status filter). The shared 40px
    form-control height would otherwise make it a second boxed control inside
    the row it belongs to, so it opts out of that height and sizes to its text. */
@@ -665,14 +672,8 @@ a:visited {
   padding-bottom: 0.25rem;
 }
 
-/* --- Admin focus: a warm surface, never a rectangle ---
-   Two stacked sources drew the orange box the back-office kept showing around
-   controls that held focus: the global `*:focus-visible` rule above (an
-   unlayered 2px `--ring` outline that beats every layered `outline-none`
-   utility) and the shared Input/Button primitives, whose `ring-2 ring-ring`
-   box-shadows are amber as well. Both are replaced here by a restrained warm
-   surface and, for solid actions, a deepened fill. Everything is scoped to
-   `.admin-scope`; storefront and account focus indicators are untouched. */
+/* Existing admin action focus treatment. Field-specific focus is defined
+   separately below so it can use the same presentation as the storefront. */
 .admin-scope :is(a, button, summary, [role="button"], input, select, textarea):focus-visible {
   outline: none;
   /* Ring utilities are composed from these custom properties; zeroing them
@@ -688,15 +689,10 @@ a:visited {
   border-radius: revert-layer;
 }
 
-/* Text-entry controls warm up instead of growing a border. */
-.admin-scope :is(input, select, textarea):not([type="checkbox"]):not([type="radio"]):focus-visible {
-  background-color: color-mix(in oklab, var(--color-amber) 14%, transparent);
-}
-
 /* Buttons and link-shaped controls get the same wash. The shared Button
    publishes `data-variant`, so solid actions deepen their own fill instead of
    turning translucent (which would strand their label on a pale tint). */
-.admin-scope :is(a, button, summary, [role="button"]):not([data-variant]):not([data-focus-plain]):focus-visible,
+.admin-scope :is(a, button, summary, [role="button"]):not([data-variant]):not([data-focus-plain]):not(.solenne-field):focus-visible,
 .admin-scope :is([data-variant="outline"], [data-variant="ghost"], [data-variant="link"]):focus-visible {
   background-color: color-mix(in oklab, var(--color-amber) 12%, transparent);
 }
@@ -722,16 +718,125 @@ a:visited {
   outline-offset: 2px;
 }
 
-/* Toolbar controls: the row around them is the frame, so the field itself is a
-   quiet warm ivory surface with no resting border and no focus frame. Used by
-   the search fields and the filter selects in the management toolbars. */
-.admin-scope .admin-quiet-field {
-  border-color: transparent;
-  background-color: color-mix(in oklab, var(--color-amber) 5%, var(--color-background));
+/* Opt-in field styling only: no button, card, link or section-wide reset.
+   Unlayered rules intentionally beat Tailwind rings and the global focus rule.
+   A fine taupe underline marks focus; keyboard focus adds a clearer second pixel. */
+.solenne-field {
+  --field-surface: var(--field-background);
+  --field-indicator: 0 0 #0000;
+  --field-autofill: 0 0 #0000;
+  --field-error-indicator: var(--destructive);
+  border: 0;
+  border-radius: var(--field-radius);
+  color-scheme: light;
+  background-color: var(--field-surface);
+  box-shadow: var(--field-indicator), var(--field-autofill);
+  transition: background-color 150ms ease, box-shadow 150ms ease;
 }
 
-.admin-scope .admin-quiet-field:hover {
-  background-color: color-mix(in oklab, var(--color-amber) 9%, var(--color-background));
+.solenne-field::placeholder {
+  color: var(--field-placeholder);
+  opacity: 1;
+}
+
+.solenne-field-placeholder {
+  color: var(--field-placeholder);
+}
+
+/* Only inline field errors with their own description IDs; keep the global
+   destructive palette (buttons, badges, banners and status text) unchanged. */
+p.text-destructive[id$="-error"] {
+  color: var(--field-error-text);
+}
+
+.solenne-field-error,
+p.text-destructive[id^="report-error-"] {
+  color: var(--field-error-text);
+}
+
+.solenne-field:where(:not(:disabled):not([readonly])):hover {
+  --field-surface: var(--field-hover);
+}
+
+.solenne-field:focus,
+.admin-scope .solenne-field:focus {
+  --field-surface: var(--field-focus);
+  --field-indicator: inset 0 -1px 0 var(--field-focus-indicator);
+  outline: none;
+}
+
+.solenne-field:focus-visible,
+.search-command-palette .solenne-field:focus-visible,
+.admin-scope .solenne-field:focus-visible {
+  --field-indicator: inset 0 -2px 0 var(--field-focus-indicator);
+  outline: none;
+  border-radius: var(--field-radius);
+}
+
+.solenne-field[aria-invalid="true"],
+.solenne-field[data-invalid="true"] {
+  --field-surface: var(--field-background);
+  --field-indicator: inset 0 -1px 0 var(--field-error-indicator);
+}
+
+.solenne-field:is([aria-invalid="true"], [data-invalid="true"]):focus {
+  --field-surface: var(--field-focus);
+  --field-indicator: inset 0 -2px 0 var(--field-error-indicator);
+}
+
+.solenne-field[readonly],
+.admin-scope .solenne-field[readonly] {
+  --field-surface: var(--field-readonly);
+  color: var(--field-readonly-text);
+  cursor: default;
+}
+
+.solenne-field:disabled,
+.admin-scope .solenne-field:disabled {
+  --field-surface: var(--field-background);
+  cursor: not-allowed;
+  opacity: var(--field-disabled-opacity);
+}
+
+/* Opaque surfaces also cover browser autofill paint without hiding its text. */
+.solenne-field:is(:autofill, :-webkit-autofill) {
+  --field-autofill: inset 0 0 0 1000px var(--field-surface);
+  -webkit-text-fill-color: currentColor;
+  caret-color: currentColor;
+}
+
+@media (prefers-color-scheme: dark) {
+  .solenne-field {
+    color-scheme: dark;
+  }
+}
+
+.solenne-field-inverse {
+  --field-background: #24211f;
+  --field-hover: #2b2723;
+  --field-focus: #332d27;
+  --field-focus-indicator: #baa890;
+  --field-placeholder: #c8beb3;
+  --field-readonly: #1f1d1b;
+  --field-readonly-text: var(--field-placeholder);
+  color-scheme: dark;
+}
+
+@media (forced-colors: active) {
+  .solenne-field {
+    border-bottom: 1px solid CanvasText;
+  }
+
+  .solenne-field:focus-visible,
+  .search-command-palette .solenne-field:focus-visible,
+  .admin-scope .solenne-field:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+
+  .solenne-field[aria-invalid="true"] {
+    border-bottom-style: dashed;
+  }
 }
 
 /* --- Admin link semantics ---

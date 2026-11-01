@@ -190,7 +190,7 @@ export function ReviewForm({
             disabled={pending}
             aria-invalid={errors.body ? true : undefined}
             aria-describedby={errors.body ? "review-body-error" : undefined}
-            className="w-full rounded-lg border border-border bg-transparent px-3.5 py-2.5 text-[13.5px] leading-relaxed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring aria-invalid:border-destructive"
+            className="solenne-field w-full rounded-lg px-3.5 py-2.5 text-[13.5px] leading-relaxed transition-colors"
           />
           <div className="flex items-start justify-between gap-3">
             {errors.body ? (

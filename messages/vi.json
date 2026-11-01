@@ -137,20 +137,6 @@
     "errorValidation": "Kiểm tra lại các ô được đánh dấu.",
     "errorUnexpected": "Đã xảy ra lỗi. Vui lòng thử lại."
   },
-  "about": {
-    "badge": "Câu chuyện",
-    "heroTitle": "Ba mươi năm ánh sáng và hương thơm",
-    "heroDescription": "Solenne bắt đầu từ một ý niệm đơn giản: một ngọn nến không chỉ là mùi hương. Đó là một nghi thức nhỏ cuối ngày, làm từ những nguyên liệu chúng tôi sẵn lòng mang vào nhà.",
-    "craftTitle": "Đổ chậm, bằng tay",
-    "craftP1": "Nến được đổ tại xưởng theo từng mẻ nhỏ. Chúng tôi làm ở nhịp độ đủ chậm để kiểm tra từng chiếc, vì chi tiết chính là điều quan trọng.",
-    "craftP2": "Từ cách đặt bấc đến nhát cắt tỉa cuối, mỗi công đoạn theo cùng một quy trình: nhiệt độ rót được kiểm soát, bấc cotton, và mười bốn ngày ủ hương trước khi nến sẵn sàng.",
-    "ingredientsTitle": "Nguyên liệu",
-    "ingredientsP1": "Sáp đậu nành tự nhiên trồng tại Hoa Kỳ, bấc cotton không chì và tinh dầu hương pha chế tại Grasse. Không phthalate, không phụ phẩm dầu mỏ.",
-    "ingredientsP2": "Mỗi mùi hương mở ra theo ba tầng: hương đầu chào đón, hương giữa theo suốt buổi tối, và hương nền lưu lại trong phòng sau khi ngọn lửa đã tắt.",
-    "sustainabilityTitle": "Làm để giữ lại",
-    "sustainabilityP1": "Ly thủy tinh dày, đủ để dùng lại khi nến cháy hết. Hộp, giấy và ruy-băng đều có nguồn gốc bền vững và có thể tái chế.",
-    "sustainabilityP2": "Chúng tôi bù trừ khí thải vận chuyển và giữ bao bì tối giản, không nhựa."
-  },
   "footer": {
     "description": "Nến thơm đổ tay theo từng mẻ nhỏ, với sáp đậu nành tự nhiên và hương liệu từ Grasse.",
     "shop": "Sản phẩm",
@@ -403,7 +389,7 @@
     "reportDetailsLabel": "Chi tiết từ khách hàng",
     "reviewUnavailable": "Không thể tải đánh giá bị báo cáo.",
     "publicationNote": "Đánh giá được đăng ngay. Kiểm duyệt chỉ ẩn đánh giá sau một báo cáo có căn cứ.",
-    "forbiddenTitle": "Khu vực không khả dụng",
+    "forbiddenTitle": "Không có quyền truy cập",
     "forbiddenDescription": "Bạn không có quyền kiểm duyệt đánh giá của khách hàng.",
     "returnToHub": "Về Trung tâm quản trị",
     "unavailableTitle": "Đánh giá chưa khả dụng",

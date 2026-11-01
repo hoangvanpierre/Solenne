@@ -696,7 +696,7 @@ export async function deleteProductAction(
   if ((productOrderCount ?? 0) > 0) {
     return {
       error:
-        "This product cannot be deleted because it is referenced in past customer orders. Please deactivate the product instead to remove it from the boutique.",
+        "This product cannot be deleted because it is referenced in past customer orders. Please deactivate the product instead to remove it from the storefront.",
     };
   }
 
@@ -715,7 +715,7 @@ export async function deleteProductAction(
     if ((variantOrderCount ?? 0) > 0) {
       return {
         error:
-          "This product cannot be deleted because its variants are referenced in past customer orders. Please deactivate the product instead to remove it from the boutique.",
+          "This product cannot be deleted because its variants are referenced in past customer orders. Please deactivate the product instead to remove it from the storefront.",
       };
     }
   }

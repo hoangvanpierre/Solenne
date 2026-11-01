@@ -178,8 +178,8 @@ function RegisterForm() {
         </h1>
         <p className="text-sm text-muted-foreground">
           {isVi
-            ? "Gia nhập gia đình Solenne để lưu giữ nốt hương bản sắc và theo dõi các tác phẩm yêu thích."
-            : "Join Solenne to curate bespoke fragrance collections and track your orders."}
+            ? "Tạo tài khoản để lưu mùi hương yêu thích, theo dõi đơn hàng và thanh toán nhanh hơn."
+            : "Create an account to save the scents you love and track your orders."}
         </p>
       </div>
 
@@ -214,10 +214,12 @@ function RegisterForm() {
             onBlur={() => handleBlur("fullName")}
             required
             disabled={isPending}
-            className="h-12 bg-background border-border/70 focus:border-amber focus:ring-amber/20"
+            aria-invalid={getFieldError("fullName") ? true : undefined}
+            aria-describedby={getFieldError("fullName") ? "fullName-error" : undefined}
+            className="h-12"
           />
           {getFieldError("fullName") && (
-            <p className="text-xs text-destructive mt-1 animate-in fade-in duration-150">
+            <p id="fullName-error" className="text-xs text-destructive mt-1 animate-in fade-in duration-150">
               {getFieldError("fullName")}
             </p>
           )}
@@ -242,10 +244,12 @@ function RegisterForm() {
             onBlur={() => handleBlur("email")}
             required
             disabled={isPending}
-            className="h-12 bg-background border-border/70 focus:border-amber focus:ring-amber/20"
+            aria-invalid={getFieldError("email") ? true : undefined}
+            aria-describedby={getFieldError("email") ? "email-error" : undefined}
+            className="h-12"
           />
           {getFieldError("email") && (
-            <p className="text-xs text-destructive mt-1 animate-in fade-in duration-150">
+            <p id="email-error" className="text-xs text-destructive mt-1 animate-in fade-in duration-150">
               {getFieldError("email")}
             </p>
           )}
@@ -271,7 +275,9 @@ function RegisterForm() {
               onBlur={() => handleBlur("password")}
               required
               disabled={isPending}
-              className="h-12 pr-11 bg-background border-border/70 focus:border-amber focus:ring-amber/20"
+              aria-invalid={getFieldError("password") ? true : undefined}
+              aria-describedby={getFieldError("password") ? "password-error" : undefined}
+              className="h-12 pr-11"
             />
             <button
               type="button"
@@ -299,7 +305,7 @@ function RegisterForm() {
           <PasswordStrengthMeter password={password} />
 
           {getFieldError("password") && (
-            <p className="text-xs text-destructive mt-1 animate-in fade-in duration-150">
+            <p id="password-error" className="text-xs text-destructive mt-1 animate-in fade-in duration-150">
               {getFieldError("password")}
             </p>
           )}
@@ -325,7 +331,9 @@ function RegisterForm() {
               onBlur={() => handleBlur("confirmPassword")}
               required
               disabled={isPending}
-              className="h-12 pr-11 bg-background border-border/70 focus:border-amber focus:ring-amber/20"
+              aria-invalid={getFieldError("confirmPassword") ? true : undefined}
+              aria-describedby={getFieldError("confirmPassword") ? "confirmPassword-error" : undefined}
+              className="h-12 pr-11"
             />
             <button
               type="button"
@@ -349,7 +357,7 @@ function RegisterForm() {
             </button>
           </div>
           {getFieldError("confirmPassword") && (
-            <p className="text-xs text-destructive mt-1 animate-in fade-in duration-150">
+            <p id="confirmPassword-error" className="text-xs text-destructive mt-1 animate-in fade-in duration-150">
               {getFieldError("confirmPassword")}
             </p>
           )}
@@ -358,8 +366,8 @@ function RegisterForm() {
         {/* Terms notice */}
         <p className="text-xs text-muted-foreground pt-1 leading-relaxed">
           {isVi
-            ? "Khi tạo tài khoản, quý khách đồng ý với Điều khoản dịch vụ và Chính sách bảo mật của Nhà hương. Chúng tôi luôn trân trọng sự tĩnh tại của bạn."
-            : "By creating an account, you agree to our Terms of Service and Privacy Policy. We respect your sanctuary and will never spam."}
+            ? "Khi tạo tài khoản, bạn đồng ý với Điều khoản dịch vụ và Chính sách bảo mật."
+            : "By creating an account, you agree to our Terms of Service and Privacy Policy."}
         </p>
 
         {/* Submit Button */}

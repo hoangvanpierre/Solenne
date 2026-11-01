@@ -131,7 +131,7 @@ export default async function AdminProductDetailPage({
       <div className="py-8">
         <div className="mx-auto max-w-2xl">
           <AdminStatePanel
-            title={isVi ? "Khu vực không khả dụng" : "Access restricted"}
+            title={isVi ? "Không có quyền truy cập" : "Access restricted"}
             description={
               isVi
                 ? "Không có quyền xem sản phẩm này."
@@ -167,7 +167,7 @@ export default async function AdminProductDetailPage({
           title={isVi ? "Không tìm thấy sản phẩm" : "Product not found"}
           description={
             isVi
-              ? "Sản phẩm yêu cầu không tồn tại trong hệ thống hoặc đã bị xóa."
+              ? "Không tìm thấy sản phẩm hoặc sản phẩm đã bị xóa."
               : "The requested product does not exist in the administrative database or has been deleted."
           }
           actions={

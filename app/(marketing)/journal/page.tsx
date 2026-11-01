@@ -11,7 +11,7 @@ import styles from "./journal-motion.module.css";
 export const metadata: Metadata = {
   title: "Journal — Solenne",
   description:
-    "Notes from the Solenne studio: scent profiles, candle care rituals, and the small moments of peace we craft for.",
+    "Notes from the Solenne studio on scent, candle care, and the craft of small-batch candles.",
 };
 
 export default async function JournalPage() {
@@ -23,7 +23,7 @@ export default async function JournalPage() {
       <Container>
         <div className={cn("mb-14", styles.intro)}>
           <TextReveal
-            text={isVi ? "Nhật Ký Hương Sắc" : "Journal"}
+            text={isVi ? "Nhật ký" : "Journal"}
             as="h1"
             className="font-serif text-2xl sm:text-3xl font-normal leading-[1.22] mb-3 text-foreground tracking-[0.02em]"
           />
@@ -34,7 +34,7 @@ export default async function JournalPage() {
           >
             <p className="text-muted-foreground text-sm sm:text-base max-w-2xl leading-relaxed font-normal">
               {isVi
-                ? "Những dòng tản văn từ xưởng chế tác về nghệ thuật hương thơm, câu chuyện làm nến và những nghi thức cho một tổ ấm an yên."
+                ? "Ghi chép từ xưởng về mùi hương, cách làm nến và nhịp sống chậm hơn trong nhà."
                 : "Notes from the studio on scent, craft, and the rituals of a slower home."}
             </p>
           </ScrollReveal>

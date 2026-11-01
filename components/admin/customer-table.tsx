@@ -128,7 +128,7 @@ export function CustomerTable({
                   id="customer-status-filter"
                   value={currentStatus}
                   onChange={(e) => handleStatusChange(e.target.value)}
-                  className="admin-inline-select peer cursor-pointer appearance-none rounded-md bg-transparent py-1 pl-1 pr-5 text-sm font-normal text-foreground transition-colors hover:bg-muted/60 focus-visible:text-foreground"
+                  className="solenne-field admin-inline-select peer cursor-pointer appearance-none rounded-md py-1 pl-1 pr-5 text-sm font-normal text-foreground transition-colors"
                 >
                   {STATUS_FILTER_OPTIONS.map((opt) => (
                     <option
@@ -175,7 +175,7 @@ export function CustomerTable({
                   ? "Không có khách hàng nào khớp với tiêu chí tìm kiếm hoặc bộ lọc hiện tại."
                   : "No customers match the current search query or status filter."
                 : isVi
-                  ? "Hệ thống chưa ghi nhận tài khoản khách hàng nào."
+                  ? "Chưa có khách hàng nào đăng ký tài khoản."
                   : "No customer accounts have registered yet."
             }
             actions={

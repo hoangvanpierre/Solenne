@@ -406,7 +406,7 @@ export function AuditTable({
                 id="audit-action-filter"
                 value={currentAction}
                 onChange={(e) => handleActionChange(e.target.value)}
-                className="admin-quiet-field rounded-xl px-3 py-2 text-xs font-normal text-foreground"
+                className="solenne-field admin-quiet-field rounded-xl px-3 py-2 text-xs font-normal text-foreground"
               >
                 {ACTION_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -425,7 +425,7 @@ export function AuditTable({
                 id="audit-resource-filter"
                 value={currentResourceType}
                 onChange={(e) => handleResourceTypeChange(e.target.value)}
-                className="admin-quiet-field rounded-xl px-3 py-2 text-xs font-normal text-foreground"
+                className="solenne-field admin-quiet-field rounded-xl px-3 py-2 text-xs font-normal text-foreground"
               >
                 {RESOURCE_TYPE_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -444,7 +444,7 @@ export function AuditTable({
                 id="audit-date-filter"
                 value={currentDatePreset}
                 onChange={(e) => handleDatePresetChange(e.target.value)}
-                className="admin-quiet-field rounded-xl px-3 py-2 text-xs font-normal text-foreground"
+                className="solenne-field admin-quiet-field rounded-xl px-3 py-2 text-xs font-normal text-foreground"
               >
                 {DATE_PRESET_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -501,7 +501,7 @@ export function AuditTable({
                 ? "Không có bản ghi nào thỏa mãn điều kiện lọc. Vui lòng thử thay đổi tiêu chí hoặc đặt lại bộ lọc."
                 : "No audit events match your selected filters. Try broadening your criteria or reset filters."
               : isVi
-                ? "Chưa có sự kiện kiểm toán nào được ghi nhận."
+                ? "Chưa có sự kiện kiểm toán nào."
                 : "No audit events have been recorded yet."}
           </p>
           {hasActiveFilters && (

@@ -314,8 +314,8 @@ export function ProductForm({
         if (result.success && result.productId) {
           setSuccessMessage(
             isVi
-              ? "Tạo sản phẩm thành công! Đang chuyển hướng..."
-              : "Product created successfully! Redirecting..."
+              ? "Đã tạo sản phẩm. Đang chuyển hướng..."
+              : "Product created. Redirecting..."
           );
           router.push(`/admin/products/${result.productId}`);
         }
@@ -352,8 +352,8 @@ export function ProductForm({
         if (result.success) {
           setSuccessMessage(
             isVi
-              ? "Đã lưu cập nhật thông tin sản phẩm thành công."
-              : "Product details saved successfully."
+              ? "Đã lưu thay đổi."
+              : "Changes saved."
           );
           router.refresh();
           setTimeout(() => setSuccessMessage(null), 3500);
@@ -417,8 +417,8 @@ export function ProductForm({
               </h3>
               <p className="text-xs font-normal text-muted-foreground">
                 {isVi
-                  ? "Tên, định danh URL và mô tả nghệ thuật của sáng tạo nến thơm."
-                  : "Name, URL slug, and artistic descriptions for the candle creation."}
+                  ? "Tên, đường dẫn và mô tả sản phẩm."
+                  : "Name, URL slug, and product description."}
               </p>
             </div>
           </div>
@@ -468,7 +468,8 @@ export function ProductForm({
                     setIsSlugManuallyEdited(true);
                   }}
                   placeholder="solenne-aura"
-                  className="flex h-11 w-full rounded-lg border border-border bg-transparent px-4 py-2 tabular-nums text-sm font-normal placeholder:text-muted-foreground focus-visible:outline-none disabled:opacity-50 transition-colors"
+                  aria-invalid={!!fieldErrors.slug?.[0]}
+                  className="solenne-field flex h-11 w-full rounded-lg px-4 py-2 tabular-nums text-sm font-normal placeholder:text-muted-foreground disabled:opacity-50 transition-colors"
                   required
                   disabled={isPending}
                 />
@@ -514,7 +515,8 @@ export function ProductForm({
                     ? "Mô tả mùi hương, không gian phù hợp và thành phần..."
                     : "Describe the scent, the room it suits, and what it's made of..."
                 }
-                className="flex w-full rounded-lg border border-border bg-transparent px-4 py-2.5 text-sm font-normal transition-colors duration-200 placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                aria-invalid={!!fieldErrors.description?.[0]}
+                className="solenne-field flex w-full rounded-lg px-4 py-2.5 text-sm font-normal transition-colors duration-200 placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={isPending}
               />
               {fieldErrors.description?.[0] && (
@@ -645,12 +647,12 @@ export function ProductForm({
               />
               <label htmlFor="is-active-toggle" className="cursor-pointer space-y-0.5">
                 <span className="text-sm font-normal text-foreground block">
-                  {isVi ? "Đang mở bán (Active)" : "Active in Boutique"}
+                  {isVi ? "Đang bán" : "Active in storefront"}
                 </span>
                 <span className="text-xs font-normal text-muted-foreground block leading-relaxed">
                   {isVi
-                    ? "Hiển thị công khai trong danh mục và cho phép khách mua sắm."
-                    : "Publicly visible in boutique collections and available to purchase."}
+                    ? "Hiển thị công khai trên cửa hàng và cho phép khách mua."
+                    : "Visible in the storefront and available to purchase."}
                 </span>
               </label>
             </div>
@@ -691,8 +693,8 @@ export function ProductForm({
               </h3>
               <p className="text-xs font-normal text-muted-foreground">
                 {isVi
-                  ? "Từng lớp hương đầu, hương giữa và hương cuối theo chuẩn nước hoa xa xỉ."
-                  : "Top, heart, and base notes composing the olfactive narrative."}
+                  ? "Hương đầu, hương giữa và hương nền mô tả mùi hương."
+                  : "Top, heart, and base notes that describe the scent."}
               </p>
             </div>
           </div>
@@ -702,8 +704,8 @@ export function ProductForm({
               label={isVi ? "Hương đầu (Top Notes)" : "Top notes"}
               description={
                 isVi
-                  ? "Ấn tượng ban đầu khi thắp sáng (ví dụ: Bergamot, Yuzu)"
-                  : "First luminous impression (e.g. Bergamot, Yuzu)"
+                  ? "Hương đầu, nhận ra ngay khi vừa thắp (ví dụ: Bergamot, Yuzu)"
+                  : "The first notes you notice (e.g. Bergamot, Yuzu)"
               }
               notes={scentTop}
               onChange={setScentTop}
@@ -717,8 +719,8 @@ export function ProductForm({
               label={isVi ? "Hương giữa (Heart Notes)" : "Heart notes"}
               description={
                 isVi
-                  ? "Trọng tâm linh hồn của mùi hương (ví dụ: Hoa nhài, Hoa huệ)"
-                  : "Core sensory soul of the candle (e.g. Jasmine, Violet)"
+                  ? "Hương giữa, rõ nhất khi nến đang cháy (ví dụ: Hoa nhài, Hoa huệ)"
+                  : "The main notes through the burn (e.g. Jasmine, Violet)"
               }
               notes={scentHeart}
               onChange={setScentHeart}
@@ -731,18 +733,18 @@ export function ProductForm({
             />
 
             <ScentNotesInput
-              label={isVi ? "Hương cuối (Base Notes)" : "Base notes"}
+              label={isVi ? "Hương nền (Base Notes)" : "Base notes"}
               description={
                 isVi
-                  ? "Dư âm sâu lắng đọng lại trong không gian (ví dụ: Đàn hương, Hổ phách)"
-                  : "Long-lasting lingering warmth (e.g. Sandalwood, Amber)"
+                  ? "Hương nền, lưu lại sau khi tắt nến (ví dụ: Đàn hương, Hổ phách)"
+                  : "The notes that stay after the flame is out (e.g. Sandalwood, Amber)"
               }
               notes={scentBase}
               onChange={setScentBase}
               locale={locale}
               noteColor="amber"
               placeholder={
-                isVi ? "Thêm nốt hương cuối..." : "Add a base note..."
+                isVi ? "Thêm nốt hương nền..." : "Add a base note..."
               }
               error={fieldErrors.scentBase?.[0]}
             />

@@ -308,9 +308,8 @@ export function ChatWidget({ onOpenChange }: ChatWidgetProps) {
             >
               <div
                 className={cn(
-                  "assistant-composer flex items-center gap-2 rounded-full border border-border",
-                  "bg-background/80 px-4 py-1.5 transition-shadow duration-200",
-                  "focus-within:border-amber/60 focus-within:ring-2 focus-within:ring-amber/25"
+                  "assistant-composer flex items-center gap-2 rounded-full",
+                  "bg-background/80 px-4 py-1.5"
                 )}
               >
                 <input
@@ -322,8 +321,8 @@ export function ChatWidget({ onOpenChange }: ChatWidgetProps) {
                   placeholder={t("placeholder")}
                   aria-label={t("placeholder")}
                   className={cn(
-                    "h-9 min-w-0 flex-1 bg-transparent text-[13.5px] text-foreground",
-                    "outline-none placeholder:text-muted-foreground",
+                    "solenne-field h-9 min-w-0 flex-1 rounded-lg text-[13.5px] text-foreground",
+                    "placeholder:text-muted-foreground",
                     "disabled:cursor-not-allowed disabled:opacity-60"
                   )}
                 />

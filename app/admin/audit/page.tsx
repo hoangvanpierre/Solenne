@@ -107,7 +107,7 @@ export default async function AdminAuditPage({ searchParams }: AdminAuditPagePro
       <div className="py-8">
         <div className="mx-auto max-w-2xl">
           <AdminStatePanel
-            title={isVi ? "Khu vực không khả dụng" : "Area unavailable"}
+            title={isVi ? "Không có quyền truy cập" : "Access restricted"}
             description={
               isVi
                 ? "Không có quyền xem nhật ký kiểm toán."
@@ -170,7 +170,7 @@ export default async function AdminAuditPage({ searchParams }: AdminAuditPagePro
         title={isVi ? "Nhật ký kiểm toán" : "Audit trail"}
         description={
           isVi
-            ? "Nhật ký bất biến ghi nhận mọi hoạt động quản trị, vận hành và thay đổi trạng thái trong hệ thống."
+            ? "Nhật ký chỉ ghi thêm, lưu mọi thao tác quản trị, vận hành và thay đổi trạng thái trong hệ thống."
             : "Append-only audit record of administrative, operational, and system status transitions."
         }
         meta={

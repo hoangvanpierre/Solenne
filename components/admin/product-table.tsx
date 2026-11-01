@@ -262,7 +262,7 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
             {metrics.active}
           </div>
           <span className="text-xs font-normal text-muted-foreground">
-            {isVi ? "Hiển thị trên tiệm nến" : "Visible in storefront"}
+            {isVi ? "Hiển thị trên cửa hàng" : "Visible in storefront"}
           </span>
         </button>
 
@@ -345,7 +345,7 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
                 onChange={(e) =>
                   setCategoryFilter(e.target.value as ScentCategory | "all")
                 }
-                className="admin-quiet-field rounded-xl px-3 py-2 text-xs font-normal text-foreground"
+                className="solenne-field admin-quiet-field rounded-xl px-3 py-2 text-xs font-normal text-foreground"
                 aria-label={isVi ? "Lọc theo nhóm hương" : "Filter by category"}
               >
                 <option value="all">
@@ -366,7 +366,7 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-                className="admin-quiet-field rounded-xl px-3 py-2 text-xs font-normal text-foreground"
+                className="solenne-field admin-quiet-field rounded-xl px-3 py-2 text-xs font-normal text-foreground"
                 aria-label={isVi ? "Lọc theo trạng thái" : "Filter by status"}
               >
                 <option value="all">
@@ -386,7 +386,7 @@ function ProductTableContent({ products, locale = "en" }: ProductTableProps) {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="admin-quiet-field rounded-xl px-3 py-2 text-xs font-normal text-foreground"
+                className="solenne-field admin-quiet-field rounded-xl px-3 py-2 text-xs font-normal text-foreground"
                 aria-label={isVi ? "Sắp xếp danh sách" : "Sort list"}
               >
                 <option value="newest">

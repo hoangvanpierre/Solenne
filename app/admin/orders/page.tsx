@@ -106,7 +106,7 @@ export default async function AdminOrdersPage({
     return (
       <div className="py-8">
         <AdminStatePanel
-          title={isVi ? "Khu vực không khả dụng" : "Area unavailable"}
+          title={isVi ? "Không có quyền truy cập" : "Access restricted"}
           description={
             isVi
               ? "Không có quyền xem danh sách đơn hàng."

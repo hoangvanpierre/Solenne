@@ -54,8 +54,8 @@ export default function ForgotPasswordPage() {
         </h1>
         <p className="text-sm text-muted-foreground">
           {isVi
-            ? "Nhập địa chỉ email đã đăng ký, Nhà hương sẽ gửi đường dẫn an toàn để quý khách thiết lập lại mật khẩu."
-            : "Enter your registered email address and we will send you a secure link to reset your password."}
+            ? "Nhập địa chỉ email đã đăng ký. Chúng tôi sẽ gửi liên kết để đặt lại mật khẩu."
+            : "Enter your email address and we'll send you a link to reset your password."}
         </p>
       </div>
 
@@ -86,10 +86,12 @@ export default function ForgotPasswordPage() {
             placeholder="elena@example.com"
             required
             disabled={isPending}
-            className="h-12 bg-background border-border/70 focus:border-amber focus:ring-amber/20"
+            aria-invalid={state.fieldErrors?.email ? true : undefined}
+            aria-describedby={state.fieldErrors?.email ? "email-error" : undefined}
+            className="h-12"
           />
           {state.fieldErrors?.email && (
-            <p className="text-xs text-destructive mt-1">
+            <p id="email-error" className="text-xs text-destructive mt-1">
               {state.fieldErrors.email[0]}
             </p>
           )}

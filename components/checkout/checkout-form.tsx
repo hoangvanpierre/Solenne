@@ -267,7 +267,7 @@ export function CheckoutForm({
                   ? "Ghi chú giao hàng, lời chúc..."
                   : "Delivery notes, gift messages..."
               }
-              className="flex w-full rounded-lg border border-border bg-transparent px-4 py-2.5 text-[13.5px] font-normal transition-colors duration-200 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="solenne-field flex w-full rounded-lg px-4 py-2.5 text-[13.5px] font-normal transition-colors duration-200 placeholder:text-muted-foreground"
             />
           </section>
 
@@ -354,7 +354,7 @@ export function CheckoutForm({
             <p className="mt-5 text-[11.5px] leading-relaxed text-muted-foreground font-normal">
               {isVi ? (
                 <>
-                  Tổng tiền hiển thị theo {currency}. Đơn hàng được ghi nhận ở trạng thái{" "}
+                  Tổng tiền hiển thị theo {currency}. Đơn hàng ở trạng thái{" "}
                   <span className="font-normal text-foreground">chờ thanh toán</span>{" "}
                   và có thể hoàn tất khi thanh toán trực tuyến được bật.
                 </>

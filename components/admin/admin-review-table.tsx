@@ -162,7 +162,7 @@ export function AdminReviewTable({
                   onChange={(event) =>
                     updateParams({ reviewStatus: event.target.value })
                   }
-                  className="admin-inline-select peer max-w-[11rem] cursor-pointer appearance-none truncate rounded-md bg-transparent py-1 pl-1 pr-5 text-sm font-normal text-foreground transition-colors hover:bg-muted/60 focus-visible:text-foreground"
+                  className="solenne-field admin-inline-select peer max-w-[11rem] cursor-pointer appearance-none truncate rounded-md py-1 pl-1 pr-5 text-sm font-normal text-foreground transition-colors"
                 >
                   {statusOptions.map((option) => (
                     <option
@@ -195,7 +195,7 @@ export function AdminReviewTable({
                   onChange={(event) =>
                     updateParams({ rating: event.target.value })
                   }
-                  className="admin-inline-select peer max-w-[11rem] cursor-pointer appearance-none truncate rounded-md bg-transparent py-1 pl-1 pr-5 text-sm font-normal text-foreground transition-colors hover:bg-muted/60 focus-visible:text-foreground"
+                  className="solenne-field admin-inline-select peer max-w-[11rem] cursor-pointer appearance-none truncate rounded-md py-1 pl-1 pr-5 text-sm font-normal text-foreground transition-colors"
                 >
                   {ratingOptions.map((option) => (
                     <option
@@ -228,7 +228,7 @@ export function AdminReviewTable({
                   onChange={(event) =>
                     updateParams({ product: event.target.value })
                   }
-                  className="admin-inline-select peer max-w-[13rem] cursor-pointer appearance-none truncate rounded-md bg-transparent py-1 pl-1 pr-5 text-sm font-normal text-foreground transition-colors hover:bg-muted/60 focus-visible:text-foreground"
+                  className="solenne-field admin-inline-select peer max-w-[13rem] cursor-pointer appearance-none truncate rounded-md py-1 pl-1 pr-5 text-sm font-normal text-foreground transition-colors"
                 >
                   <option value="all" className="bg-background text-foreground">
                     {t("productAll")}

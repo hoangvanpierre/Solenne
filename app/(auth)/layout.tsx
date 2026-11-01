@@ -62,7 +62,7 @@ export default async function AuthLayout({
 
       {/* Right: Auth Form Container */}
       <div className="col-span-1 lg:col-span-7 xl:col-span-6 flex flex-col justify-between p-6 sm:p-12 lg:p-16 relative">
-        {/* Top bar with back to boutique link */}
+        {/* Top bar with back to home link */}
         <div className="flex items-center justify-between w-full max-w-md mx-auto">
           <Link
             href="/"

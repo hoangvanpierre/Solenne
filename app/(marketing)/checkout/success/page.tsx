@@ -74,19 +74,17 @@ export default async function CheckoutSuccessPage({
             <p className="text-muted-foreground text-sm sm:text-base leading-relaxed font-normal">
               {isVi ? (
                 <>
-                  Đơn hàng{" "}
+                  Mã đơn hàng:{" "}
                   <span className="font-normal tabular-nums text-foreground">
                     {order.orderNumber}
-                  </span>{" "}
-                  đã được tiếp nhận.
+                  </span>
                 </>
               ) : (
                 <>
-                  Order{" "}
+                  Order number:{" "}
                   <span className="font-normal tabular-nums text-foreground">
                     {order.orderNumber}
-                  </span>{" "}
-                  has been received.
+                  </span>
                 </>
               )}
             </p>
@@ -199,7 +197,7 @@ export default async function CheckoutSuccessPage({
                 <p className="leading-relaxed text-muted-foreground">
                   {isVi ? (
                     <>
-                      Thanh toán trực tuyến đang được hoàn thiện. Đơn hàng đã được giữ chỗ — chúng tôi sẽ gửi email đến{" "}
+                      Thanh toán trực tuyến chưa khả dụng. Đơn hàng đã được giữ chỗ — chúng tôi sẽ gửi email đến{" "}
                       <span className="font-normal text-foreground">
                         {order.shippingAddress.email ?? user.email}
                       </span>{" "}
@@ -214,7 +212,7 @@ export default async function CheckoutSuccessPage({
                     </>
                   ) : (
                     <>
-                      Online payment is coming soon. Your order is reserved —
+                      Online payment isn&apos;t available yet. Your order is reserved —
                       we&apos;ll email{" "}
                       <span className="font-medium text-foreground">
                         {order.shippingAddress.email ?? user.email}

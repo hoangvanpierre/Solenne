@@ -63,7 +63,7 @@ export default async function AdminNewProductPage() {
       <div className="py-8">
         <div className="mx-auto max-w-2xl">
           <AdminStatePanel
-            title={isVi ? "Khu vực không khả dụng" : "Creation restricted"}
+            title={isVi ? "Không có quyền truy cập" : "Access restricted"}
             description={
               isVi
                 ? "Không có quyền tạo sản phẩm."
@@ -106,8 +106,8 @@ export default async function AdminNewProductPage() {
         title={isVi ? "Tạo sản phẩm" : "Create product"}
         description={
           isVi
-            ? "Định hình sáng tạo nến thơm, cấu trúc hương thơm và quy cách phiên bản mở bán ban đầu."
-            : "Craft a new luxury candle creation, olfactory narrative, and initial variants."
+            ? "Thêm sản phẩm, mô tả mùi hương và thiết lập phiên bản đầu tiên."
+            : "Add a product, describe its scent and set the first variants."
         }
       />
 

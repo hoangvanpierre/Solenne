@@ -6,6 +6,7 @@
   "scripts": {
     "build": "node scripts/generate-optimized-images.mjs && next build",
     "generate:images": "node scripts/generate-optimized-images.mjs",
+    "generate:favicons": "node scripts/generate-favicons.mjs",
     "dev": "next dev",
     "start": "next start",
     "lint": "eslint",

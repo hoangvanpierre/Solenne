@@ -26,10 +26,6 @@ export const metadata: Metadata = {
     "small batch candles",
     "Solenne",
   ],
-  icons: {
-    icon: "/images/product/solenne_logo.png",
-    apple: "/images/product/solenne_logo.png",
-  },
   openGraph: {
     type: "website",
     locale: "en_US",

@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Container } from "@/components/ui/container";
 import { ScrollReveal } from "@/components/animations/scroll-reveal";
@@ -90,6 +90,29 @@ const CRAFT_SLIDES: readonly CraftSlide[] = [
   },
 ] as const;
 
+/** Horizontal travel (px) that commits a touch swipe. */
+const SWIPE_THRESHOLD = 48;
+/** Movement (px) that decides whether a gesture is horizontal or vertical. */
+const SWIPE_SLOP = 10;
+/** Touch gestures starting on these are left to the browser / the control. */
+const INTERACTIVE_SELECTOR = "button, a, input, textarea, select, [role='tab']";
+
+/**
+ * Shared styling for the overlaid craft-carousel arrows (44×44 touch target).
+ * Invisible and non-interactive by default; the reveal variants below show them
+ * only on hover-capable devices. No border is drawn in any state.
+ */
+const CAROUSEL_ARROW_CLASS =
+  "absolute top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-[#F8F4ED]/70 text-[#553C26] shadow-[0_12px_36px_-12px_rgba(85,60,38,0.28)] backdrop-blur-[12px] opacity-0 invisible pointer-events-none transition-[opacity,translate,visibility,background-color,color,box-shadow] duration-300 ease-out hover:bg-[#C4956A] hover:text-[#332416] hover:shadow-[0_16px_40px_-12px_rgba(85,60,38,0.35)] active:bg-[#B8875C] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#553C26] focus-visible:ring-offset-0";
+
+/**
+ * Desktop-only reveal: fade up and become interactive when the image frame is
+ * hovered or keyboard focus lands inside the carousel. Touch devices keep the
+ * arrows hidden (swipe + dots are the mobile navigation).
+ */
+const CAROUSEL_ARROW_REVEAL_CLASS =
+  "[@media(hover:hover)]:group-hover/frame:visible [@media(hover:hover)]:group-hover/frame:opacity-100 [@media(hover:hover)]:group-hover/frame:pointer-events-auto [@media(hover:hover)]:group-focus-within/frame:visible [@media(hover:hover)]:group-focus-within/frame:opacity-100 [@media(hover:hover)]:group-focus-within/frame:pointer-events-auto [@media(hover:hover)]:group-focus-within/showcase:visible [@media(hover:hover)]:group-focus-within/showcase:opacity-100 [@media(hover:hover)]:group-focus-within/showcase:pointer-events-auto";
+
 export function CraftSection() {
   const t = useTranslations("craft");
   const locale = useAppLocale();
@@ -111,7 +134,59 @@ export function CraftSection() {
     setCurrentIndex((prev) => (prev - 1 + CRAFT_SLIDES.length) % CRAFT_SLIDES.length);
   }, []);
 
+  /* Touch swipe: track a horizontal gesture on the image and commit exactly one
+     slide when it ends. Vertical gestures, pinches, and touches that begin on
+     a control are left to the browser (the touch-action CSS keeps horizontal
+     pans off the page). */
+  const touchStart = useRef({ x: 0, y: 0 });
+  const touchAxis = useRef<"pending" | "horizontal" | "vertical">("pending");
+
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (event.touches.length !== 1) {
+      /* A pinch or a second finger: never treat it as a swipe. */
+      touchAxis.current = "vertical";
+      return;
+    }
+    const target = event.target;
+    if (target instanceof Element && target.closest(INTERACTIVE_SELECTOR)) {
+      /* Dots, links and other controls keep their normal behaviour. */
+      touchAxis.current = "vertical";
+      return;
+    }
+    const touch = event.touches[0];
+    touchStart.current = { x: touch.clientX, y: touch.clientY };
+    touchAxis.current = "pending";
+  };
+
+  const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (event.touches.length !== 1 || touchAxis.current !== "pending") return;
+    const touch = event.touches[0];
+    const dx = Math.abs(touch.clientX - touchStart.current.x);
+    const dy = Math.abs(touch.clientY - touchStart.current.y);
+    if (dx >= SWIPE_SLOP || dy >= SWIPE_SLOP) {
+      touchAxis.current = dx > dy ? "horizontal" : "vertical";
+    }
+  };
+
+  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    const isHorizontal = touchAxis.current === "horizontal";
+    touchAxis.current = "pending";
+    if (!isHorizontal) return;
+    const touch = event.changedTouches[0];
+    if (!touch) return;
+    const dx = touch.clientX - touchStart.current.x;
+    /* One slide per gesture: the direction is decided once, on touchend. */
+    if (dx <= -SWIPE_THRESHOLD) nextSlide();
+    else if (dx >= SWIPE_THRESHOLD) prevSlide();
+  };
+
+  const handleTouchCancel = () => {
+    touchAxis.current = "pending";
+  };
+
   // Sequential autoplay looping (5000ms), matching the rotating scent section.
+  // `currentIndex` restarts the same interval after any manual navigation, so a
+  // swipe/arrow/dot always earns a full 5s before the next automatic advance.
   useEffect(() => {
     if (shouldReduceMotion || isPaused || !isIntersecting) return;
 
@@ -121,7 +196,7 @@ export function CraftSection() {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [shouldReduceMotion, isPaused, isIntersecting, nextSlide]);
+  }, [shouldReduceMotion, isPaused, isIntersecting, nextSlide, currentIndex]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowLeft") {
@@ -143,11 +218,15 @@ export function CraftSection() {
           <ScrollReveal direction="left">
             <div
               ref={containerRef}
-              className="relative flex flex-col items-center group/showcase focus:outline-none"
+              className="relative flex flex-col items-center group/showcase focus:outline-none [touch-action:pan-y_pinch-zoom]"
               onMouseEnter={() => setIsPaused(true)}
               onMouseLeave={() => setIsPaused(false)}
               onFocus={() => setIsPaused(true)}
               onBlur={() => setIsPaused(false)}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onTouchCancel={handleTouchCancel}
               onKeyDown={handleKeyDown}
               tabIndex={0}
               role="region"
@@ -159,20 +238,21 @@ export function CraftSection() {
               }
             >
               {/* Slideshow Frame with strict 4:5 aspect ratio */}
-              <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-gradient-to-br from-stone-300/40 via-amber-100/20 to-stone-200/40 dark:from-stone-900/60 dark:to-stone-950/60 shadow-xl shadow-stone-900/5 select-none">
+              <div className="group/frame relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-gradient-to-br from-stone-300/40 via-amber-100/20 to-stone-200/40 dark:from-stone-900/60 dark:to-stone-950/60 shadow-xl shadow-stone-900/5 select-none">
                 <AnimatePresence mode="wait">
+                  {/*
+                    `initial`/`animate` deliberately do not depend on
+                    `shouldReduceMotion`: the preference only exists in the
+                    browser, so branching here made the server emit the slide
+                    offset while a reduced-motion client expected none — a
+                    hydration mismatch React cannot patch. Motion is reduced
+                    through the transition duration instead, which renders no
+                    attribute.
+                  */}
                   <motion.div
                     key={currentIndex}
-                    initial={
-                      shouldReduceMotion
-                        ? { opacity: 0 }
-                        : { opacity: 0, y: 20, scale: 0.95 }
-                    }
-                    animate={
-                      shouldReduceMotion
-                        ? { opacity: 1 }
-                        : { opacity: 1, y: 0, scale: 1 }
-                    }
+                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={
                       shouldReduceMotion
                         ? { opacity: 0 }
@@ -195,6 +275,31 @@ export function CraftSection() {
                     />
                   </motion.div>
                 </AnimatePresence>
+
+                <button
+                  type="button"
+                  onClick={prevSlide}
+                  aria-label={locale === "vi" ? "Ảnh trước" : "Previous image"}
+                  className={`${CAROUSEL_ARROW_CLASS} ${CAROUSEL_ARROW_REVEAL_CLASS} group/prev left-3 [@media(hover:hover)]:-translate-x-3 [@media(hover:hover)]:group-hover/frame:translate-x-0 [@media(hover:hover)]:group-focus-within/frame:translate-x-0 [@media(hover:hover)]:group-focus-within/showcase:translate-x-0`}
+                >
+                  <ChevronLeft
+                    className="h-5 w-5 transition-transform duration-300 ease-out group-hover/prev:-translate-x-0.5"
+                    strokeWidth={1.5}
+                    aria-hidden="true"
+                  />
+                </button>
+                <button
+                  type="button"
+                  onClick={nextSlide}
+                  aria-label={locale === "vi" ? "Ảnh tiếp theo" : "Next image"}
+                  className={`${CAROUSEL_ARROW_CLASS} ${CAROUSEL_ARROW_REVEAL_CLASS} group/next right-3 [@media(hover:hover)]:translate-x-3 [@media(hover:hover)]:group-hover/frame:translate-x-0 [@media(hover:hover)]:group-focus-within/frame:translate-x-0 [@media(hover:hover)]:group-focus-within/showcase:translate-x-0`}
+                >
+                  <ChevronRight
+                    className="h-5 w-5 transition-transform duration-300 ease-out group-hover/next:translate-x-0.5"
+                    strokeWidth={1.5}
+                    aria-hidden="true"
+                  />
+                </button>
               </div>
 
               {/* Navigation Dots — same dot pattern used by the other rotating sections */}

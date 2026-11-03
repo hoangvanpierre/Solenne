@@ -1,5 +1,7 @@
 import dynamic from "next/dynamic";
 import { Hero } from "@/components/sections/hero";
+import { SolenneIntro } from "@/components/experience/solenne-intro/solenne-intro";
+import { SolenneIntroGhostGuard } from "@/components/experience/solenne-intro/solenne-intro-ghost";
 import { getFeaturedProducts } from "@/lib/products";
 
 // Dynamically import below-the-fold components to reduce initial JS bundle
@@ -15,6 +17,8 @@ export default async function HomePage() {
 
   return (
     <>
+      <SolenneIntroGhostGuard />
+      <SolenneIntro />
       <Hero />
       <BrandStory />
       <FeaturedProducts products={featuredProducts} />

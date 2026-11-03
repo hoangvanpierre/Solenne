@@ -1,0 +1,129 @@
+/*
+ * Solenne intro ("The First Flame") — homepage-only, first-visit-only overlay.
+ *
+ * All selectors are namespaced with `.solenne-intro` / `si-` so nothing here
+ * can leak into the rest of the storefront.
+ */
+
+/*
+ * Pre-hydration backdrop. `app/(marketing)/page.tsx` writes
+ * `data-solenne-intro="pending"` on <html> with a tiny inline script before the
+ * first paint, so the hero never flashes before the overlay mounts. The
+ * animation is a safety net: if hydration never happens, the page appears after
+ * six seconds instead of staying covered forever.
+ */
+html[data-solenne-intro="pending"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  background-color: #f8f4ed;
+  pointer-events: none;
+  animation: solenne-intro-backdrop-timeout 400ms linear 6s forwards;
+}
+
+@keyframes solenne-intro-backdrop-timeout {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/*
+ * The guard's pencil silhouette. `page.tsx` server-renders it so the ivory
+ * curtain is never blank: before React hydrates (and before the ~100 kB
+ * artwork chunk arrives) the mark is already there, faintly. It is painted
+ * above the pre-hydration ivory and below the overlay, and it uses the same
+ * stage sizing as the overlay so the hand-over lands on the same pixel.
+ */
+.solenne-intro-guard {
+  display: none;
+}
+
+html[data-solenne-intro="pending"] .solenne-intro-guard {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  /* Same dead-man switch as the ivory backdrop: if hydration never happens,
+     the ghost must not outlive the guard. */
+  animation: solenne-intro-backdrop-timeout 400ms linear 6s forwards;
+}
+
+/* The pencil ghost: the mark's own centre lines, barely there. */
+.si-ghost {
+  color: #b98a4b;
+  opacity: 0.16;
+}
+
+.solenne-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background-color: #f8f4ed;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  /*
+   * Radial reveal. The mask is opaque (overlay visible) everywhere except
+   * inside a circle centred on the flame; the timeline grows that circle until
+   * the homepage is uncovered. Values are written by the timeline in px.
+   */
+  --si-reveal-x: 50%;
+  --si-reveal-y: 42%;
+  --si-reveal-r: 0px;
+  -webkit-mask-image: radial-gradient(
+    circle var(--si-reveal-r) at var(--si-reveal-x) var(--si-reveal-y),
+    transparent var(--si-reveal-r),
+    #000 calc(var(--si-reveal-r) + 2px)
+  );
+  mask-image: radial-gradient(
+    circle var(--si-reveal-r) at var(--si-reveal-x) var(--si-reveal-y),
+    transparent var(--si-reveal-r),
+    #000 calc(var(--si-reveal-r) + 2px)
+  );
+}
+
+.solenne-intro--pending {
+  /* The code-split artwork has not mounted yet. Stay invisible so the
+     pre-hydration ivory guard covers the page without a blank overlay frame;
+     `handleMount` removes this class on the frame the drawing begins. */
+  visibility: hidden;
+}
+
+.solenne-intro--leaving {
+  opacity: 0;
+}
+
+.solenne-intro__stage {
+  position: relative;
+  /* Never stretch: the height follows the artwork's 696:800 ratio exactly. */
+  width: min(86vw, 59vh);
+  aspect-ratio: 696 / 800;
+  max-height: 78vh;
+}
+
+.solenne-intro__art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  transform-origin: 50% 50%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .solenne-intro {
+    transition: opacity 260ms linear;
+  }
+}

@@ -1,37 +1,41 @@
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { escapeLikePattern } from "@/lib/search-utils";
 import {
   requireOwnership,
   requireOwnershipOrPermission,
   requirePermission,
 } from "@/lib/authz";
-import { writeAuditLog } from "@/lib/audit";
 import { isValidUuid } from "@/lib/audit-utils";
 import { saveDefaultAddress } from "@/lib/addresses";
-import { SHIPPING } from "@/lib/constants";
+import { createOrderErrorMessage } from "@/lib/order-rpc-errors";
+import {
+  isMissingOrderStatusEventsSchema,
+  mapOrderStatusEventRow,
+  OrderStatusTimelineUnavailableError,
+  type OrderStatusEventRow,
+} from "@/lib/order-status-events-core";
 import type {
   AdminOrderQueryResult,
   Order,
   OrderFilterParams,
   OrderItem,
+  OrderStatusEvent,
   ShippingAddress,
 } from "@/types";
 
 // ---------------------------------------------------------------------------
 // Orders data layer.
 //
-// Reads and customer writes use the USER-SCOPED Supabase client, so the RLS
-// policies in 0003 (orders_select_own, orders_insert_own, order_items_*,
-// orders_select_with_order_read) are enforced by the database on every query
-// instead of being bypassed by the secret key.
+// Reads and customer writes use the USER-SCOPED Supabase client, so RLS
+// (orders_select_own, order_items_select_own, orders_select_with_order_read)
+// is enforced by the database on every query.
 //
-// The secret-key client appears exactly twice, both after an explicit
-// authorization check:
-//   1. stock decrement (inventory is cross-account data; `authenticated` has
-//      no write grant on product_variants);
-//   2. rollback deletion of an order the SAME request just created (orders has
-//      no DELETE policy or grant for `authenticated` by design).
+// Order creation is one POSTGRES FUNCTION CALL: public.create_order()
+// (migration 0016). It derives the customer from auth.uid(), locks the
+// variants, re-prices them, writes orders + order_items, deducts stock and
+// writes the audit row in a single transaction. There is no multi-request
+// sequence left to leave a partial order behind, and `authenticated` no
+// longer holds INSERT on either table.
 // ---------------------------------------------------------------------------
 
 interface OrderRow {
@@ -103,6 +107,128 @@ function mapOrder(row: OrderRow, items: OrderItem[]): Order {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Order status history (migration 0017).
+//
+// The table is append-only and database-written. Customer reads use the
+// user-scoped client and the column-level SELECT grant (no actor/reason), so
+// RLS and column privileges both apply. Staff/manager/admin use the
+// order.read-gated get_order_status_events_admin() RPC to receive the hidden
+// actor/reason columns. Actor names are resolved for the management timeline
+// only; a missing profile or a role without customer.read leaves the name blank.
+// ---------------------------------------------------------------------------
+
+/**
+ * Columns granted to `authenticated` for customer reads. `actor_user_id` and
+ * `reason` are intentionally absent: 0017 grants them only through the
+ * order.read-gated management RPC.
+ */
+const CUSTOMER_ORDER_STATUS_EVENT_COLUMNS =
+  "id, order_id, from_status, to_status, tracking_code, source, created_at";
+
+function mapOrderStatusEventRows(data: unknown): OrderStatusEvent[] {
+  return ((data ?? []) as OrderStatusEventRow[]).map(mapOrderStatusEventRow);
+}
+
+async function fetchCustomerOrderStatusEvents(
+  orderId: string
+): Promise<OrderStatusEvent[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("order_status_events")
+    .select(CUSTOMER_ORDER_STATUS_EVENT_COLUMNS)
+    .eq("order_id", orderId)
+    .order("created_at", { ascending: true })
+    .order("id", { ascending: true });
+
+  if (error) {
+    if (isMissingOrderStatusEventsSchema(error)) {
+      throw new OrderStatusTimelineUnavailableError();
+    }
+    throw new Error(`Failed to fetch order status events: ${error.message}`);
+  }
+
+  return mapOrderStatusEventRows(data);
+}
+
+async function fetchAdminOrderStatusEvents(
+  orderId: string
+): Promise<OrderStatusEvent[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc(
+    "get_order_status_events_admin",
+    { p_order_id: orderId }
+  );
+
+  if (error) {
+    if (isMissingOrderStatusEventsSchema(error)) {
+      throw new OrderStatusTimelineUnavailableError();
+    }
+    throw new Error(`Failed to fetch order status events: ${error.message}`);
+  }
+
+  return mapOrderStatusEventRows(data);
+}
+
+/**
+ * The caller's own order timeline. `userId` must come from the authenticated
+ * session. Ownership permits a customer without order.read; RLS repeats the
+ * same ownership check at the database layer.
+ */
+export async function getOrderStatusEvents(
+  orderId: string,
+  userId: string
+): Promise<OrderStatusEvent[]> {
+  await requireOwnershipOrPermission(userId, "order.read");
+
+  return fetchCustomerOrderStatusEvents(orderId);
+}
+
+/**
+ * Management timeline for any order. Re-checks order.read, then reads the full
+ * history through the database-side get_order_status_events_admin() RPC
+ * (authenticated has no column grant on actor_user_id/reason). Actor display
+ * names are resolved in one batched profile read; a missing profile or a role
+ * without customer.read simply leaves the name blank.
+ */
+export async function getAdminOrderStatusEvents(
+  orderId: string
+): Promise<OrderStatusEvent[]> {
+  await requirePermission("order.read");
+
+  const events = await fetchAdminOrderStatusEvents(orderId);
+  const actorIds = [
+    ...new Set(
+      events
+        .map((event) => event.actorUserId)
+        .filter((id): id is string => Boolean(id))
+    ),
+  ];
+
+  if (actorIds.length === 0) return events;
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, full_name")
+    .in("id", actorIds);
+
+  if (error || !data) return events;
+
+  const names = new Map(
+    (data as { id: string; full_name: string | null }[]).map((row) => [
+      row.id,
+      row.full_name,
+    ])
+  );
+
+  return events.map((event) => {
+    if (!event.actorUserId) return event;
+    const name = names.get(event.actorUserId);
+    return name ? { ...event, actorName: name } : event;
+  });
 }
 
 // Items are read on the user-scoped client: order_items_select_own restricts
@@ -427,21 +553,26 @@ export interface CreateOrderInput {
   shippingAddress: ShippingAddress & { email?: string };
   items: { variantId: string; quantity: number }[];
   notes?: string;
+  /**
+   * Client-generated idempotency key. The database enforces
+   * (user_id, key) uniqueness, so an ambiguous network retry returns the
+   * original order instead of creating a second one.
+   */
+  idempotencyKey: string;
 }
 
-function generateOrderNumber(): string {
-  const date = Date.now().toString(36).toUpperCase();
-  const random = Math.random().toString(36).slice(2, 6).toUpperCase();
-  return `SLN-${date}-${random}`;
-}
-
-interface VariantRow {
-  id: string;
-  product_id: string;
-  name: string;
-  price: number | string;
-  stock_quantity: number;
-  products: { id: string; name: string; is_active: boolean } | null;
+interface CreateOrderRpcResult {
+  success: boolean;
+  order_id: string;
+  order_number: string;
+  status: string;
+  subtotal: number | string;
+  shipping_fee: number | string;
+  discount: number | string;
+  total: number | string;
+  currency: string;
+  item_count: number;
+  replayed: boolean;
 }
 
 /**
@@ -450,175 +581,37 @@ interface VariantRow {
  * Authorization happens FIRST: `requireOwnership(userId, "order.create")`
  * authenticates the caller, rejects non-active accounts, requires the
  * `order.create` permission, and refuses any userId other than the session's
- * own — so a forged payload cannot order on another account's behalf. Only
- * after that check is the secret-key client used (stock movement + rollback),
- * which is why this function must never be called before it.
+ * own — so a forged payload cannot order on another account's behalf.
+ *
+ * The write is then a SINGLE call to public.create_order() on the USER-SCOPED
+ * client. The function re-checks the same permissions from auth.uid(), locks
+ * the variants, re-prices from the database, writes orders + order_items,
+ * deducts stock and writes the audit row in one transaction. The client only
+ * ever supplies { variantId, quantity } — never prices or totals.
  */
 export async function createOrder(input: CreateOrderInput): Promise<Order> {
   const actor = await requireOwnership(input.userId, "order.create");
   const userId = actor.userId;
 
   const supabase = await createClient();
-
-  // Price authority: variant prices and stock come from the database, never
-  // from the client payload (which only carries variantId + quantity).
-  const variantIds = input.items.map((item) => item.variantId);
-
-  const { data: variantData, error: variantError } = await supabase
-    .from("product_variants")
-    .select(
-      "id, product_id, name, price, stock_quantity, products(id, name, is_active)"
-    )
-    .in("id", variantIds);
-
-  if (variantError) {
-    throw new Error(`Failed to verify cart items: ${variantError.message}`);
-  }
-
-  const variantsById = new Map<string, VariantRow>(
-    (variantData as unknown as VariantRow[]).map((row) => [row.id, row])
-  );
-
-  const lineItems = input.items.map((item) => {
-    const variant = variantsById.get(item.variantId);
-    if (!variant) {
-      throw new OrderError("One of the items in your cart is no longer available.");
-    }
-    if (!variant.products?.is_active) {
-      throw new OrderError(
-        `"${variant.products?.name ?? "An item"}" is no longer available.`
-      );
-    }
-    if (variant.stock_quantity < item.quantity) {
-      throw new OrderError(
-        `Only ${variant.stock_quantity} left of ${variant.products.name} (${variant.name}). Please adjust your cart.`
-      );
-    }
-
-    const unitPrice = toNumber(variant.price);
-    return {
-      variantId: variant.id,
-      productId: variant.products.id,
-      productName: variant.products.name,
-      variantName: variant.name,
-      quantity: item.quantity,
-      unitPrice,
-      totalPrice: unitPrice * item.quantity,
-      stockBefore: variant.stock_quantity,
-    };
+  const { data, error } = await supabase.rpc("create_order", {
+    p_email: input.email,
+    p_shipping_address: input.shippingAddress,
+    p_items: input.items,
+    p_idempotency_key: input.idempotencyKey,
+    p_notes: input.notes?.trim() || null,
   });
 
-  const subtotal = lineItems.reduce((sum, item) => sum + item.totalPrice, 0);
-  const shippingFee =
-    subtotal >= SHIPPING.freeThresholdUSD ? 0 : SHIPPING.flatRateUSD;
-  const total = subtotal + shippingFee;
-
-  const orderNumber = generateOrderNumber();
-
-
-  // Writes run on the user-scoped client. RLS enforces the same rules the
-  // application layer just checked: orders_insert_own requires
-  // user_id = auth.uid() and status = 'pending'; order_items_insert_own
-  // requires the parent order to belong to the caller.
-  const { data: orderData, error: orderError } = await supabase
-    .from("orders")
-    .insert({
-      user_id: userId,
-      order_number: orderNumber,
-      status: "pending",
-      subtotal,
-      shipping_fee: shippingFee,
-      discount: 0,
-      total,
-      shipping_address: { ...input.shippingAddress, email: input.email },
-      notes: input.notes ?? null,
-    })
-    .select("id")
-    .single();
-
-  if (orderError) {
-    throw new Error(`Failed to create order: ${orderError.message}`);
+  if (error) {
+    throw new OrderError(createOrderErrorMessage(error.message));
   }
 
-  const orderId = (orderData as { id: string }).id;
-
-  const { error: itemsError } = await supabase.from("order_items").insert(
-    lineItems.map((item) => ({
-      order_id: orderId,
-      product_id: item.productId,
-      variant_id: item.variantId,
-      product_name: item.productName,
-      variant_name: item.variantName,
-      quantity: item.quantity,
-      unit_price: item.unitPrice,
-      total_price: item.totalPrice,
-    }))
-  );
-
-  if (itemsError) {
-    // Cleanup is privileged because customers deliberately have no DELETE
-    // grant or policy on orders (financial records). It only ever removes the
-    // row this same request just created.
-    const admin = createAdminClient();
-    await admin.from("orders").delete().eq("id", orderId);
-    await writeAuditLog({
-      actorId: userId,
-      action: "order.create_rolled_back",
-      resourceType: "order",
-      resourceId: orderId,
-      metadata: { orderNumber, reason: itemsError.message },
-    });
-    throw new Error(`Failed to create order items: ${itemsError.message}`);
+  const result = data as CreateOrderRpcResult | null;
+  if (!result?.success || !result.order_number) {
+    throw new Error("Order creation returned an unexpected response.");
   }
 
-  // Stock movement is a cross-account inventory write, so it runs on the
-  // secret-key client — always after the requireOwnership("order.create")
-  // check at the top of this function. The optimistic guard
-  // (stock_quantity = value read earlier) keeps concurrent orders honest.
-  const admin = createAdminClient();
-
-  for (const item of lineItems) {
-    const { data: updated, error: stockError } = await admin
-      .from("product_variants")
-      .update({ stock_quantity: item.stockBefore - item.quantity })
-      .eq("id", item.variantId)
-      .eq("stock_quantity", item.stockBefore)
-      .select("id");
-
-    if (stockError) {
-      throw new Error(`Failed to update stock: ${stockError.message}`);
-    }
-    if (!updated || updated.length === 0) {
-      await writeAuditLog({
-        actorId: userId,
-        action: "order.stock_conflict",
-        resourceType: "order",
-        resourceId: orderId,
-        metadata: { orderNumber, variantId: item.variantId },
-      });
-      throw new OrderError(
-        `Stock for ${item.productName} (${item.variantName}) changed while placing your order. Please try again.`
-      );
-    }
-  }
-
-  await writeAuditLog({
-    actorId: userId,
-    action: "order.created",
-    resourceType: "order",
-    resourceId: orderId,
-    metadata: {
-      orderNumber,
-      itemCount: lineItems.length,
-      subtotal,
-      shippingFee,
-      total,
-      currency: "USD",
-      status: "pending",
-    },
-  });
-
-  const order = await getOrderByNumber(orderNumber, userId);
+  const order = await getOrderByNumber(result.order_number, userId);
 
   if (!order) throw new Error("Order created but could not be read back.");
 
@@ -626,8 +619,8 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
   // can be prefilled. Best-effort: never fail the order over this.
   try {
     await saveDefaultAddress(userId, input.shippingAddress);
-  } catch (error) {
-    console.warn("Failed to save default address:", error);
+  } catch (saveError) {
+    console.warn("Failed to save default address:", saveError);
   }
 
   return order;

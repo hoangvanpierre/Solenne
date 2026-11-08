@@ -1,4 +1,5 @@
 export { OrderStatusBadge } from "./status-badge";
+export { OrderTimeline } from "./order-timeline";
 export { OrderListItem } from "./order-list-item";
 export {
   OrderHistoryCard,

@@ -1,5 +1,30 @@
 export type OrderStatus = 'pending' | 'paid' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
 
+/**
+ * How a row entered the status history. `backfill` is deliberately distinct:
+ * it represents only the status found when the history table was introduced,
+ * never a transition that was observed happening.
+ */
+export type OrderStatusEventSource =
+  | 'creation'
+  | 'transition'
+  | 'cancellation'
+  | 'backfill';
+
+export interface OrderStatusEvent {
+  id: string;
+  orderId: string;
+  fromStatus: OrderStatus | null;
+  toStatus: OrderStatus;
+  actorUserId?: string;
+  /** Resolved only for the management timeline; customers never see actors. */
+  actorName?: string;
+  reason?: string;
+  trackingCode?: string;
+  source: OrderStatusEventSource;
+  createdAt: string;
+}
+
 export interface ShippingAddress {
   fullName: string;
   phone: string;

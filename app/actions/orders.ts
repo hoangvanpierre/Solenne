@@ -105,6 +105,7 @@ export async function createOrderAction(
       },
       items: validated.data.items,
       notes: validated.data.notes,
+      idempotencyKey: validated.data.idempotencyKey,
     });
 
     revalidatePath("/account");

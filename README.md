@@ -10,7 +10,7 @@
 
 ### A full-stack commerce platform for an artisan candle brand
 
-Solenne is a full-stack e-commerce and store-operations platform built around an artisan candle brand. It combines a bilingual customer storefront, account and checkout flows, a role-aware administration dashboard, and an AI scent concierge.
+Solenne is a full-stack e-commerce and store-operations platform built around an artisan candle brand. It combines a bilingual customer storefront, account and checkout flows, a role-aware administration dashboard, and two distinct AI experiences: a customer-facing Scent Concierge and a permission-scoped Admin Assistant.
 
 The project demonstrates end-to-end product engineering: customer-facing experiences, server-side business workflows, relational data integrity, authorization, operational tooling, performance work, and edge deployment.
 
@@ -257,6 +257,24 @@ The **Solenne Scent Concierge** helps customers explore fragrance profiles, comp
 The IP-based rate limit is a coarse abuse-control measure: users behind the same public IP may share the limit, and Cloudflare applies the limit per location.
 
 **Scope boundary:** this is a catalogue-grounded conversational assistant, not a retrieval-augmented generation (RAG) system. The current endpoint performs basic request-shape checks and size limits; it does not apply a Zod schema to every incoming message. The assistant does not access customer accounts, look up or modify orders, accept payments, or execute purchases. Conversation history is held in client memory and is not persisted.
+
+### 4. A permission-scoped operational AI assistant
+
+The separate **Solenne Admin Assistant** helps authorized operators inspect operational data, prepare customer replies, and review proposed actions. It is not available to customer sessions.
+
+The request route rejects cross-origin requests, requires an active actor with a management permission, validates the request schema, bounds the conversation, and applies a per-user Cloudflare rate limit of 20 requests per 60 seconds.
+
+Its tool catalogue includes bounded order and customer reads, inventory/low-stock reads, dashboard counts, customer-email drafting, and proposals for cancellation, fulfillment transitions, and inventory adjustments.
+
+**Security and write boundary**
+
+- Tools are filtered by the current actor's permission set before they are exposed to the model.
+- Every tool execution rechecks the required permission. Read helpers also enforce their own permission and use the user-scoped Supabase client with explicit column selections and result limits.
+- The assistant does not expose aggregate revenue beyond the corresponding admin UI.
+- Email drafting returns text only; it does not send, schedule, or persist an email.
+- Action proposals are structured previews, not database mutations. An operator must confirm through the existing admin UI; the existing Server Action and database RPC remain responsible for authorization, validation, state changes, and audit logging.
+
+The assistant therefore uses AI for operational discovery and proposal generation while keeping privileged writes in deterministic application/database code.
 
 ### 5. Request-level authentication and data-fetch optimization
 

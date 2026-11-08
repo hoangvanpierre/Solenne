@@ -164,12 +164,14 @@ flowchart TD
 
 - **Page reads:** Server Components use server-side Supabase access and database policies to retrieve the data required by each page.
 - **Business mutations:** Server Actions validate input and enforce application authorization before invoking the relevant data operation or database RPC.
-- **AI conversations:** The chat Route Handler applies request limits, loads catalogue context, applies the Cloudflare rate limiter, and streams a response from Workers AI.
+- **AI conversations:** the customer Route Handler loads live catalogue/policy context and applies a per-IP rate limit; the admin Route Handler requires management permissions, exposes only permitted tools, and applies a per-user rate limit. Both stream through Workers AI.
 - **Database enforcement:** RLS and database-side authorization checks provide a separate enforcement layer from the application UI.
 
 ## Application structure
 
 ```text
+proxy.ts               # Next.js 16 session refresh and protected-route proxy
+
 app/
 ├── (marketing)/       # Storefront, catalogue, collections, journal, account, checkout
 ├── (auth)/            # Login, registration, password recovery

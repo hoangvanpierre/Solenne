@@ -19,9 +19,16 @@ import {
   isRestrictedAuthError,
   isUnauthenticatedAuthError,
 } from "@/lib/authz-ux";
-import { getAdminOrderById } from "@/lib/orders";
+import { getAdminOrderById, getAdminOrderStatusEvents } from "@/lib/orders";
 import { formatPrice } from "@/lib/utils";
-import { OrderStatusBadge, RestrictedAccountNotice } from "@/components/account";
+import {
+  isOrderStatusTimelineUnavailableError,
+} from "@/lib/order-status-events-core";
+import {
+  OrderStatusBadge,
+  OrderTimeline,
+  RestrictedAccountNotice,
+} from "@/components/account";
 import {
   AdminBreadcrumb,
   AdminPageHeader,
@@ -31,7 +38,7 @@ import {
   OrderFulfillmentControl,
 } from "@/components/admin";
 import { Button } from "@/components/ui";
-import type { Order } from "@/types";
+import type { Order, OrderStatusEvent } from "@/types";
 
 export const metadata: Metadata = {
   title: "Order details — Administration",
@@ -189,6 +196,26 @@ export default async function AdminOrderDetailPage({
         />
       </div>
     );
+  }
+
+  let statusEvents: OrderStatusEvent[] = [];
+  let timelineFailed = false;
+  let timelineUnavailable = false;
+
+  try {
+    statusEvents = await getAdminOrderStatusEvents(order.id);
+  } catch (error) {
+    if (isUnauthenticatedAuthError(error)) redirect("/login");
+    if (isOrderStatusTimelineUnavailableError(error)) {
+      // 0017 has not been applied yet; this is an expected deployment state.
+      timelineUnavailable = true;
+    } else {
+      console.error(
+        "AdminOrderDetailPage: Failed to load the status timeline:",
+        error
+      );
+      timelineFailed = true;
+    }
   }
 
   const shipping = order.shippingAddress;
@@ -356,6 +383,15 @@ export default async function AdminOrderDetailPage({
               </div>
             </div>
           </div>
+
+          <OrderTimeline
+            events={statusEvents}
+            locale={locale}
+            variant="admin"
+            currentStatus={order.status}
+            error={timelineFailed}
+            unavailable={timelineUnavailable}
+          />
 
           {/* Customer Notes (if present) */}
           {order.notes && (

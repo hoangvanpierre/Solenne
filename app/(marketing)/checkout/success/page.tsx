@@ -6,14 +6,22 @@ import { CheckCircle2, Package, Mail } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
-import { getOrderByNumber } from "@/lib/orders";
+import { getOrderByNumber, getOrderStatusEvents } from "@/lib/orders";
 import {
   isRestrictedAuthError,
   isUnauthenticatedAuthError,
 } from "@/lib/authz-ux";
-import { OrderStatusBadge, RestrictedAccountNotice } from "@/components/account";
+import {
+  OrderStatusBadge,
+  OrderTimeline,
+  RestrictedAccountNotice,
+} from "@/components/account";
 import { CONTACT_EMAIL } from "@/lib/constants";
 import { formatPrice } from "@/lib/utils";
+import {
+  isOrderStatusTimelineUnavailableError,
+} from "@/lib/order-status-events-core";
+import type { OrderStatusEvent } from "@/types";
 
 export const metadata: Metadata = {
   title: "Order received — Solenne",
@@ -48,6 +56,27 @@ export default async function CheckoutSuccessPage({
     if (isUnauthenticatedAuthError(error)) redirect("/login");
     if (!isRestrictedAuthError(error)) throw error;
     accountRestricted = true;
+  }
+
+  let statusEvents: OrderStatusEvent[] = [];
+  let timelineFailed = false;
+  let timelineUnavailable = false;
+
+  if (!accountRestricted && order) {
+    try {
+      statusEvents = await getOrderStatusEvents(order.id, user.id);
+    } catch (error) {
+      if (isUnauthenticatedAuthError(error)) redirect("/login");
+      if (isOrderStatusTimelineUnavailableError(error)) {
+        // 0017 has not been applied yet; this is an expected deployment state.
+        timelineUnavailable = true;
+      } else if (isRestrictedAuthError(error)) {
+        accountRestricted = true;
+      } else {
+        console.error("Failed to load the order timeline:", error);
+        timelineFailed = true;
+      }
+    }
   }
 
   if (accountRestricted) {
@@ -159,6 +188,15 @@ export default async function CheckoutSuccessPage({
                 </div>
               </div>
             </div>
+
+            <OrderTimeline
+              events={statusEvents}
+              locale={locale}
+              currentStatus={order.status}
+              error={timelineFailed}
+              unavailable={timelineUnavailable}
+              className="mt-6"
+            />
 
             <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div className="rounded-2xl border border-border p-6 text-[13.5px] font-normal leading-relaxed">

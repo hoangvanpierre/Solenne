@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ShoppingBag, Loader2, Lock } from "lucide-react";
@@ -10,6 +10,15 @@ import { Container } from "@/components/ui/container";
 import { useCart } from "@/hooks/use-cart";
 import { useAppLocale } from "@/hooks/use-locale";
 import { createOrderAction } from "@/app/actions/orders";
+import {
+  checkoutPayloadSignature,
+  clearStoredCheckoutIdempotency,
+  createCheckoutIdempotencyKey,
+  nextCheckoutIdempotencyState,
+  readStoredCheckoutIdempotency,
+  storeCheckoutIdempotency,
+  type CheckoutIdempotencyState,
+} from "@/lib/checkout-idempotency";
 import {
   ShippingAddressFields,
   type AddressFieldValues,
@@ -36,6 +45,15 @@ interface CheckoutFormProps {
   defaultName: string;
   defaultPhone?: string;
   defaultAddress?: CheckoutFormDefaultAddress;
+}
+
+function checkoutStorage() {
+  if (typeof window === "undefined") return null;
+  try {
+    return window.sessionStorage;
+  } catch {
+    return null;
+  }
 }
 
 export function CheckoutForm({
@@ -84,6 +102,10 @@ export function CheckoutForm({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Stable across retries of the same payload, rotated when the order changes.
+  // The database enforces uniqueness, so this is not merely a disabled button.
+  const idempotencyRef = useRef<CheckoutIdempotencyState | null>(null);
+
   const handleChange = (
     event: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -115,32 +137,57 @@ export function CheckoutForm({
     setIsSubmitting(true);
 
     try {
+      const shippingAddress = {
+        fullName: values.fullName,
+        phone: values.phone,
+        line1: values.line1,
+        line2: values.line2 || undefined,
+        city: values.city,
+        state: values.state || undefined,
+        postalCode: values.postalCode,
+        country: values.country,
+        countryCode: (values.countryCode as "VN" | "US") || undefined,
+        provinceCode: values.provinceCode || undefined,
+        wardCode: values.wardCode || undefined,
+        administrativeType: values.administrativeType || undefined,
+        provinceName: values.provinceName || undefined,
+        wardName: values.wardName || undefined,
+      };
+      const orderItems = items.map((item) => ({
+        variantId: item.variant.id,
+        quantity: item.quantity,
+      }));
+
+      // Reuse the key for a retry of the same order; rotate it when the form
+      // or cart changed, so the database never sees a reused key with a
+      // different payload.
+      const signature = checkoutPayloadSignature({
+        email: values.email,
+        shippingAddress,
+        items: orderItems,
+        notes: values.notes,
+      });
+      const idempotency = nextCheckoutIdempotencyState(
+        idempotencyRef.current ?? readStoredCheckoutIdempotency(checkoutStorage()),
+        signature,
+        createCheckoutIdempotencyKey
+      );
+      idempotencyRef.current = idempotency.state;
+      storeCheckoutIdempotency(checkoutStorage(), idempotency.state);
+
       const result = await createOrderAction({
         email: values.email,
-        shippingAddress: {
-          fullName: values.fullName,
-          phone: values.phone,
-          line1: values.line1,
-          line2: values.line2 || undefined,
-          city: values.city,
-          state: values.state || undefined,
-          postalCode: values.postalCode,
-          country: values.country,
-          countryCode: (values.countryCode as "VN" | "US") || undefined,
-          provinceCode: values.provinceCode || undefined,
-          wardCode: values.wardCode || undefined,
-          administrativeType: values.administrativeType || undefined,
-          provinceName: values.provinceName || undefined,
-          wardName: values.wardName || undefined,
-        },
-        items: items.map((item) => ({
-          variantId: item.variant.id,
-          quantity: item.quantity,
-        })),
+        shippingAddress,
+        items: orderItems,
         notes: values.notes || undefined,
+        idempotencyKey: idempotency.state.key,
       });
 
       if (result.success && result.orderNumber) {
+        // The order is confirmed: this key must never be reused for a future
+        // purchase, even if the new cart happens to look identical.
+        idempotencyRef.current = null;
+        clearStoredCheckoutIdempotency(checkoutStorage());
         clearCart();
         router.push(`/checkout/success?number=${result.orderNumber}`);
         return;

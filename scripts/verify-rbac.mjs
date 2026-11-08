@@ -337,7 +337,15 @@ async function fullMatrix() {
   }
   console.log(`  (cross-user target: ${victimId})`);
 
-  const variant = (await rest("/product_variants?select=id,product_id,name,price&limit=1&products(name)", {})).json?.[0];
+  const variant = (await rest("/product_variants?select=id,product_id,name,price,stock_quantity&limit=1&products(name)", {})).json?.[0];
+  // 0016 replaced direct order INSERTs with public.create_order(). The RPC
+  // needs a real, in-stock variant; record honestly if the catalog has none.
+  record(
+    "setup",
+    "verification variant has stock for the create_order RPC",
+    (variant?.stock_quantity ?? 0) >= 1,
+    `variant=${variant?.id ?? "none"} stock=${variant?.stock_quantity ?? "n/a"}`
+  );
   const orderNumber = `RBAC-${STAMP.toUpperCase()}`;
   const orderPayload = {
     user_id: users.customer.id,
@@ -436,10 +444,46 @@ async function fullMatrix() {
 
 
   // ---------- CUSTOMER: orders + order items ----------
-  const ownOrderIns = await rest("/orders", { method: "POST", token: cTok, prefer: "return=representation", body: orderPayload });
-  record(S, "creates own order (RLS orders_insert_own)", ownOrderIns.status === 201, desc(ownOrderIns));
-  const orderId = ownOrderIns.json?.[0]?.id;
-  if (orderId) created.orders.push(orderId);
+  // Migration 0016 revoked INSERT on both tables. A signed-in customer can no
+  // longer write financial rows directly; the only write path is the
+  // SECURITY DEFINER create_order RPC, which re-prices and re-checks stock.
+  const directOrderIns = await rest("/orders", { method: "POST", token: cTok, prefer: "return=representation", body: orderPayload });
+  record(S, "CANNOT insert an order directly (0016 revokes INSERT)", directOrderIns.status >= 400, desc(directOrderIns));
+  // If a regression ever lets this through, track the row so cleanup removes it.
+  if (directOrderIns.status < 300 && directOrderIns.json?.[0]?.id) {
+    created.orders.push(directOrderIns.json[0].id);
+  }
+
+  let orderId = null;
+  if (variant) {
+    const rpcOrder = await rpc("create_order", {
+      token: cTok,
+      body: {
+        p_email: users.customer.email,
+        p_shipping_address: {
+          fullName: "RBAC Verifier",
+          phone: "0901234567",
+          line1: "1 Verification Way",
+          city: "Test",
+          state: "Test",
+          postalCode: "00000",
+          country: "Vietnam",
+          countryCode: "VN",
+        },
+        p_items: [{ variantId: variant.id, quantity: 1 }],
+        p_idempotency_key: `rbac-verify-${STAMP}-customer`,
+        p_notes: "rbac verification",
+      },
+    });
+    orderId = rpcOrder.json?.order_id ?? null;
+    record(
+      S,
+      "creates own order through create_order RPC",
+      rpcOrder.status === 200 && Boolean(rpcOrder.json?.order_number),
+      desc(rpcOrder)
+    );
+    if (orderId) created.orders.push(orderId);
+  }
 
   const ownOrders = await rest(`/orders?select=id&user_id=eq.${cId}`, { token: cTok });
   record(S, "reads own orders", (ownOrders.json?.length ?? 0) >= 1, desc(ownOrders));
@@ -453,7 +497,7 @@ async function fullMatrix() {
     prefer: "return=representation",
     body: { ...orderPayload, user_id: victimId, order_number: `${orderNumber}-X` },
   });
-  record(S, "CANNOT create an order for another account", orderForOther.status >= 400, desc(orderForOther));
+  record(S, "CANNOT create an order directly for another account", orderForOther.status >= 400, desc(orderForOther));
   // If a regression ever lets this through, track the row so cleanup removes it
   // instead of leaving untracked data behind.
   if (orderForOther.status < 300 && orderForOther.json?.[0]?.id) {
@@ -480,11 +524,22 @@ async function fullMatrix() {
       total_price: 1,
     };
     const itemIns = await rest("/order_items", { method: "POST", token: cTok, prefer: "return=representation", body: itemBody });
-    record(S, "adds items to own order", itemIns.status === 201, desc(itemIns));
-    if (itemIns.json?.[0]?.id) created.items.push(itemIns.json[0].id);
+    record(S, "CANNOT add items directly to an order (0016 revokes INSERT)", itemIns.status >= 400, desc(itemIns));
+    if (itemIns.status < 300 && itemIns.json?.[0]?.id) created.items.push(itemIns.json[0].id);
 
     const ownItems = await rest(`/order_items?select=id&order_id=eq.${orderId}`, { token: cTok });
-    record(S, "reads own order items", (ownItems.json?.length ?? 0) >= 1, desc(ownItems));
+    record(S, "reads own order items (RPC-created)", (ownItems.json?.length ?? 0) >= 1, desc(ownItems));
+    for (const row of ownItems.json ?? []) {
+      if (row?.id) created.items.push(row.id);
+    }
+
+    // Restore the stock deducted by create_order through the trusted path so a
+    // repeated verification run does not slowly drain the catalog.
+    const cancel = await rpc("cancel_order", {
+      token: users.manager.token,
+      body: { p_order_id: orderId, p_reason: "rbac verification cleanup" },
+    });
+    record(S, "manager cancels the verification order (stock restored)", cancel.status === 200, desc(cancel));
 
     const foreignOrder = (await rest(`/orders?select=id&user_id=eq.${victimId}&limit=1`, {})).json?.[0];
     if (foreignOrder) {
@@ -560,7 +615,7 @@ async function fullMatrix() {
   // `victimId` is guaranteed by the setup checks above to be neither this staff
   // account nor any other disposable one, so this is a genuinely foreign user_id.
   const sOrderForOther = await rest("/orders", { method: "POST", token: sTok, prefer: "return=representation", body: { ...orderPayload, user_id: victimId, order_number: `${orderNumber}-S2` } });
-  record(S2, "CANNOT create an order for another account (RLS ownership)", sOrderForOther.status >= 400, desc(sOrderForOther));
+  record(S2, "CANNOT create an order directly (0016 revokes INSERT)", sOrderForOther.status >= 400, desc(sOrderForOther));
   if (sOrderForOther.status < 300 && sOrderForOther.json?.[0]?.id) {
     created.orders.push(sOrderForOther.json[0].id);
   }

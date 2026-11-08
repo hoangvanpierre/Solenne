@@ -10,6 +10,18 @@ export const checkoutItemSchema = z.object({
     .max(99, "Quantity cannot exceed 99"),
 });
 
+/**
+ * Client-generated checkout key. Its (user_id, key) pair is unique in the
+ * database, so a retry of an ambiguous request returns the original order.
+ * The database applies the same shape and length rules in create_order().
+ */
+export const checkoutIdempotencyKeySchema = z
+  .string()
+  .trim()
+  .min(8, "Invalid checkout key")
+  .max(128, "Invalid checkout key")
+  .regex(/^[A-Za-z0-9._:-]+$/, "Invalid checkout key");
+
 export const checkoutShippingAddressSchema = z
   .object({
     fullName: z
@@ -123,8 +135,12 @@ export const checkoutShippingAddressSchema = z
 export const checkoutSchema = z.object({
   email: z.string().trim().email("Please enter a valid email address"),
   shippingAddress: checkoutShippingAddressSchema,
-  items: z.array(checkoutItemSchema).min(1, "Your cart is empty"),
+  items: z
+    .array(checkoutItemSchema)
+    .min(1, "Your cart is empty")
+    .max(100, "Your cart contains too many items"),
   notes: z.string().trim().max(500, "Notes cannot exceed 500 characters").optional(),
+  idempotencyKey: checkoutIdempotencyKeySchema,
 });
 
 export type CheckoutInput = z.infer<typeof checkoutSchema>;

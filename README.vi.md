@@ -181,7 +181,6 @@ app/
 ├── api/chat/          # Endpoint Scent Concierge cho khách hàng
 ├── api/admin-assistant/ # Endpoint AI quản trị theo quyền
 ├── auth/callback/     # Callback xác thực và điều hướng sau đăng nhập
-└── proxy.ts           # Refresh session và bảo vệ route theo convention Next.js 16
 
 components/
 ├── admin/             # Admin shell, bảng dữ liệu, điều khiển, KPI và biểu đồ
@@ -258,8 +257,6 @@ Các chuyển đổi trạng thái quan trọng sử dụng database RPC để c
 | Rate limit | 10 request trong 60 giây trên mỗi khóa client IP |
 
 Rate limit dựa trên IP là biện pháp kiểm soát lạm dụng ở mức cơ bản: nhiều người dùng chung một địa chỉ IP công khai có thể dùng chung giới hạn, và Cloudflare áp dụng giới hạn theo từng location.
-
-**Ranh giới phạm vi:** đây là trợ lý hội thoại dựa trên danh mục sản phẩm, không phải hệ thống Retrieval-Augmented Generation (RAG). Endpoint hiện tại thực hiện kiểm tra cấu trúc request cơ bản và giới hạn kích thước; chưa áp dụng Zod schema cho từng message đầu vào. Trợ lý không truy cập tài khoản khách hàng, tra cứu hoặc chỉnh sửa đơn hàng, nhận thanh toán hay thực hiện mua hàng. Lịch sử hội thoại chỉ được giữ trong bộ nhớ phía client và không được lưu trữ lâu dài.
 
 **Ranh giới phạm vi:** đây là trợ lý hội thoại dựa trên danh mục sản phẩm, không phải hệ thống Retrieval-Augmented Generation (RAG). Endpoint hiện tại thực hiện kiểm tra cấu trúc request cơ bản và giới hạn kích thước; chưa áp dụng Zod schema cho từng message đầu vào. Trợ lý không truy cập tài khoản khách hàng, tra cứu hoặc chỉnh sửa đơn hàng, nhận thanh toán hay thực hiện mua hàng. Lịch sử hội thoại chỉ được giữ trong bộ nhớ phía client và không được lưu trữ lâu dài.
 

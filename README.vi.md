@@ -171,6 +171,8 @@ flowchart TD
 ## Cấu trúc ứng dụng
 
 ```text
+proxy.ts               # Refresh session và bảo vệ route theo convention Next.js 16
+
 app/
 ├── (marketing)/       # Website bán hàng, danh mục, bộ sưu tập, journal, tài khoản, checkout
 ├── (auth)/            # Đăng nhập, đăng ký, khôi phục mật khẩu

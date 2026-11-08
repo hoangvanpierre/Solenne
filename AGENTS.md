@@ -83,9 +83,9 @@ Key points:
 - Dynamic route params in Next 16 are **async** — `params: Promise<{ slug: string }>` must be awaited (see `app/(marketing)/products/[slug]/page.tsx`).
 - Auth routes (`/login`, `/register`, `/forgot-password`, `/reset-password`) and `/account` are implemented. All routes referenced in `lib/constants.ts` (`NAV_LINKS`, `FOOTER_LINKS`) exist: `/collections` (scent-family listing + `/collections/[slug]`, where a slug matches a `SCENT_CATEGORIES` id or `gift-sets`), `/about` (with `#craft`/`#ingredients`/`#sustainability` anchors), `/journal` (static posts from `lib/journal.ts` + SSG `/journal/[slug]`), `/contact` (client `ContactForm` in `components/sections/contact-form.tsx` → `submitContactAction` in `app/actions/contact.ts`, which inserts into `contact_messages` via the admin client; the Newsletter section does the same for `newsletter_subscribers`), `/faq`, `/shipping`, and `/care-guide`.
 
-### Middleware & Supabase Auth
+### Proxy & Supabase Auth
 
-`middleware.ts` → `lib/supabase/middleware.ts` runs on every matched request (excludes `_next/static`, `_next/image`, `favicon.ico`, and common image extensions). It:
+`proxy.ts` → `lib/supabase/middleware.ts` runs on every matched request (excludes `_next/static`, `_next/image`, `favicon.ico`, and common image extensions). Next 16 renamed the `middleware` file convention to `proxy` (same behaviour, now on the Node.js runtime by default); the root file must export `proxy` or a default function. It:
 - Creates a Supabase server client bound to the request/response cookies.
 - Calls `supabase.auth.getUser()` to refresh the session (do **not** insert logic between `createServerClient` and `getUser()` — see the comment in that file; it causes hard-to-debug random logouts).
 - **Fast-path**: if the request carries no Supabase auth cookie (`sb-*-auth-token`), it skips the remote `getUser()` round-trip entirely. Protected paths are still redirected to `/login?next=…`; everything else passes straight through.
@@ -97,7 +97,7 @@ Key points:
 Three client factory files, all using `@supabase/ssr`:
 - `lib/supabase/client.ts` — browser client (`createBrowserClient`), for Client Components.
 - `lib/supabase/server.ts` — server client (`createServerClient` + `next/headers` cookies), for Server Components and Route Handlers.
-- `lib/supabase/middleware.ts` — edge/middleware client with manual cookie forwarding.
+- `lib/supabase/middleware.ts` — request-side client (`proxy.ts`) with manual cookie forwarding.
 
 Env vars (all in `.env.local`, **gitignored**): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`, `SUPABASE_JWKS_URL`. Note the **new-style Supabase keys** (`sb_publishable_…`, `sb_secret_…`) — not the legacy `SUPABASE_ANON_KEY` / `SUPABASE_SERVICE_ROLE_KEY`.
 

@@ -36,13 +36,29 @@
     "error": "Đã xảy ra lỗi. Vui lòng thử lại."
   },
   "hero": {
-    "title": "Thắp sáng từng khoảnh khắc an yên",
-    "subtitle": "Nến thơm thủ công, đổ tay với 30 năm tâm huyết",
-    "explore": "Khám phá bộ sưu tập",
-    "story": "Câu chuyện Nhà hương",
-    "scroll": "Cuộn nhẹ",
+    "eyebrow": "Nến thơm thủ công, đổ tay với 30 năm tâm huyết",
+    "title": "Thắp sáng từng khoảnh khắc an yên",
     "primaryCta": "Chọn tác phẩm",
-    "secondaryCta": "Lắng nghe câu chuyện"
+    "secondaryCta": "Lắng nghe câu chuyện",
+    "carouselLabel": "Bộ ảnh chiến dịch Solenne",
+    "indicator": "Ảnh {index} trên {total}",
+    "slides": {
+      "0": {
+        "alt": "Người mẫu đội mũ lông, bốn bàn tay nâng nến Wild Lavender, Golden Hour, Vanilla Ember và Cedar & Sage, những dải ruy-băng lụa hồng uốn quanh trên nền kem"
+      },
+      "1": {
+        "alt": "Người mẫu ngồi trên nền kem, tay chống cằm, bốn bàn tay dâng những hũ nến Solenne quanh cô"
+      },
+      "2": {
+        "alt": "Người mẫu nằm nghiêng bên bốn hũ nến Solenne đang cháy trên nền giấy kem, ánh sáng và bóng đổ ấm áp phủ phía sau"
+      },
+      "3": {
+        "alt": "Người mẫu nâng hũ nến Solenne đang cháy bằng hai tay, phía sau là hai hũ nến khác lung linh"
+      },
+      "4": {
+        "alt": "Người mẫu đứng cầm hũ nến Solenne đang cháy, hai hũ nến đặt trên bục bên cạnh và dải lụa hồng uốn phía sau"
+      }
+    }
   },
   "brandStory": {
     "description": "Mỗi ngọn nến được đổ tay theo từng mẻ nhỏ, để một buổi tối bình thường trở thành điều đáng nhớ.",

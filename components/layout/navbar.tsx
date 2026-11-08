@@ -36,7 +36,7 @@ export function Navbar() {
 
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
-  // The transparent/cream styling is only intended for the dark home hero;
+  // The transparent styling is only intended for the home hero (cream wall);
   // every other page uses the solid header from the top.
   const solid = !isHome || scrolled;
 
@@ -73,7 +73,7 @@ export function Navbar() {
             href="/"
             className={cn(
               "font-serif text-xl sm:text-2xl font-normal tracking-[0.04em] shrink-0 transition-colors",
-              solid ? "text-foreground" : "text-cream"
+              solid ? "text-foreground" : "text-hero-ink"
             )}
           >
             Solenne
@@ -92,7 +92,7 @@ export function Navbar() {
                 "after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full",
                 solid
                   ? "text-foreground/75 hover:text-foreground"
-                  : "text-cream/85 hover:text-cream"
+                  : "text-hero-ink/85 hover:text-hero-ink"
               )}
             >
               {locale === "vi" ? link.labelVi : link.label}
@@ -110,7 +110,7 @@ export function Navbar() {
             onClick={openSearch}
             onPointerEnter={prefetchSearchIndex}
             onFocus={prefetchSearchIndex}
-            className={cn(!solid && "text-cream hover:bg-white/10")}
+            className={cn(!solid && "text-hero-ink hover:bg-hero-ink/10")}
           >
             <Search className="h-5 w-5" />
           </IconButton>
@@ -138,14 +138,14 @@ export function Navbar() {
             }
             className={cn(
               "hidden sm:inline-flex",
-              !solid && "text-cream hover:bg-white/10"
+              !solid && "text-hero-ink hover:bg-hero-ink/10"
             )}
           >
             <Link
               href={isAuthenticated ? "/account" : "/login"}
-              className={cn(!solid && "text-cream")}
+              className={cn(!solid && "text-hero-ink")}
             >
-              <User className={cn("h-5 w-5", !solid && "text-cream")} />
+              <User className={cn("h-5 w-5", !solid && "text-hero-ink")} />
             </Link>
           </IconButton>
 
@@ -153,7 +153,7 @@ export function Navbar() {
             aria-label={locale === "vi" ? "Giỏ hàng" : "Cart"}
             badge={itemCount}
             onClick={openCart}
-            className={cn(!solid && "text-cream hover:bg-white/10")}
+            className={cn(!solid && "text-hero-ink hover:bg-hero-ink/10")}
           >
             <ShoppingBag className="h-5 w-5" />
           </IconButton>

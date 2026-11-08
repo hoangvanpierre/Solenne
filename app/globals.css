@@ -28,6 +28,19 @@
   --border: #E8E0D6;
   --ring: #C4956A;
 
+  /* Home hero — "gallery frame" palette.
+     The cream is a lightened sample of the posters' own edge colour: the five
+     hero images measure #C8AA91–#EFCEB5 at the border (mean #D1AF96), so a
+     mid-point reads as the wall the poster hangs on rather than as a seam. */
+  --hero-cream: #E4D2BB;
+  --hero-ink: #3A2326;
+  --hero-accent: #B85C74;
+  /* Ribbon pink used as TEXT. #B85C74 only reaches ~4.0:1 behind the glyphs on
+     the darkest poster, under WCAG AA for 11px type; this tint keeps the hue
+     and clears 4.5:1 on every slide (measured). */
+  --hero-accent-ink: #7F3549;
+  --hero-glass: #F6EEE2;
+
   /* Hybrid Luxury: cream-on-cream surfaces, with warmth reserved for focus. */
   --field-background: color-mix(in oklab, var(--muted) 28%, var(--background));
   --field-hover: color-mix(in oklab, var(--muted) 45%, var(--background));
@@ -202,6 +215,13 @@
   --color-blush: #D4A5A5;
   --color-blush-light: #E4BFBF;
   --color-blush-dark: #B88A8A;
+
+  /* Hero palette (see :root for the sampling rationale) */
+  --color-hero-cream: var(--hero-cream);
+  --color-hero-ink: var(--hero-ink);
+  --color-hero-accent: var(--hero-accent);
+  --color-hero-accent-ink: var(--hero-accent-ink);
+  --color-hero-glass: var(--hero-glass);
 
   /* Fonts - Global Cactus Classical Serif */
   --font-sans: var(--font-cactus), "Cactus Classical Serif", serif;
@@ -504,6 +524,131 @@ a:visited {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* ============================================
+   Home Hero — "Gallery Frame"
+   Layout lives in the component (Tailwind); only what utilities cannot express
+   lives here: the entrance sequence, the poster crossfade/zoom, the
+   scroll-driven parallax and the indicator fill.
+   ============================================ */
+
+/* Copy entrance: eyebrow -> H1 -> CTA group, 120ms apart, starting at 500ms. */
+.hero-enter {
+  opacity: 0;
+  animation: hero-enter 0.9s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.hero-enter--1 {
+  animation-delay: 500ms;
+}
+
+.hero-enter--2 {
+  animation-delay: 620ms;
+}
+
+.hero-enter--3 {
+  animation-delay: 740ms;
+}
+
+@keyframes hero-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Poster crossfade. Every slide is stacked; only the active one is opaque. */
+.hero-slide {
+  opacity: 0;
+  transition: opacity 1.2s ease-in-out;
+}
+
+/* Crop alignment for the 4:5 mobile frame only — that is the one place the
+   poster is cropped by `object-cover`. The desktop frame is 16:9, so the
+   artwork is never shifted there (and an override would be inert anyway). */
+@media (width < 48rem) {
+  .hero-slide {
+    object-position: var(--hero-slide-position, 50% 50%);
+  }
+}
+
+.hero-slide--active {
+  opacity: 1;
+  animation: hero-slide-zoom 7s linear both;
+}
+
+@keyframes hero-slide-zoom {
+  from {
+    transform: scale(1.04);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* Scroll parallax. Deliberately on a wrapper around the stack: the slides own
+   the zoom transform, so sharing one element would make the two fight. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-parallax {
+      animation: hero-parallax linear both;
+      animation-timeline: view();
+      animation-range: exit 0% exit 100%;
+    }
+
+    @keyframes hero-parallax {
+      from {
+        transform: scale(1) translateY(0);
+      }
+      to {
+        transform: scale(1.05) translateY(2%);
+      }
+    }
+  }
+}
+
+/* Indicator fill: 6s, matching the autoplay timer. Remounted each cycle, so the
+   fill always restarts with the slide; pausing sets animation-play-state. */
+.hero-progress {
+  transform-origin: left center;
+  animation: hero-progress 6s linear both;
+}
+
+@keyframes hero-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-enter,
+  .hero-enter--1,
+  .hero-enter--2,
+  .hero-enter--3 {
+    opacity: 1;
+    animation: none;
+  }
+
+  .hero-slide {
+    transition: none;
+  }
+
+  .hero-slide--active {
+    animation: none;
+  }
+
+  .hero-progress {
+    animation: none;
+    transform: scaleX(1);
+  }
 }
 
 /* --- Utility: Line Clamp --- */

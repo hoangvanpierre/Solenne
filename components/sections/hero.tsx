@@ -1,118 +1,92 @@
-"use client";
-
-import { useRef } from "react";
 import Link from "next/link";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowDown } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { TextReveal } from "@/components/animations/text-reveal";
-import { Button } from "@/components/ui/button";
-import { MagneticButton } from "@/components/animations/magnetic-button";
+import { getTranslations } from "next-intl/server";
+import { Button } from "@/components/ui";
+import { cn } from "@/lib/utils";
+import { HeroSlideshow } from "./hero-slideshow";
 
-export function Hero() {
-  const t = useTranslations("hero");
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end start"],
-  });
-
-  const y = useTransform(scrollYProgress, [0, 1], [0, 200]);
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+/**
+ * Homepage hero — "gallery frame".
+ *
+ * A poster-sized frame (nearly the whole viewport) hangs on a cream wall, with
+ * the copy in a frosted card in the bottom-left corner on desktop. Only the
+ * frame is a client component; the section, the card and the CTAs are server
+ * rendered, so the text is in the first HTML paint and never re-renders when
+ * the poster changes.
+ *
+ * Mobile keeps the same order but drops the frame's fixed height and the glass:
+ * the copy sits 32px below a 4:5 crop, centred, so nothing is layered over the
+ * model.
+ */
+export async function Hero() {
+  const t = await getTranslations("hero");
 
   return (
-    <section
-      ref={containerRef}
-      className="relative h-screen flex items-center justify-center overflow-hidden gradient-evanescent"
-    >
-      {/* Noise overlay */}
-      <div className="grain-overlay absolute inset-0" />
-
-      {/* Darken overlay for text readability against light gradient areas */}
+    <section className="bg-hero-cream px-3 pt-[92px] pb-8 md:px-5 md:pb-5">
+      {/*
+        The wrapper owns the frame's desktop width so the glass card, which is
+        positioned against this box, can never escape the frame on wide screens.
+        `min(100%, (100svh - 112px) * 16 / 9)` keeps the 16:9 frame inside the
+        first viewport: on wide monitors the frame stops growing and the cream
+        wall shows on both sides instead of the artwork being cropped.
+      */}
       <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(0,0,0,0.28) 0%, transparent 70%)",
-          pointerEvents: "none",
-          zIndex: 5,
-        }}
-      />
-
-      {/* Content */}
-      <motion.div
-        style={{ y, opacity }}
-        className="relative z-10 flex flex-col items-center text-center px-4"
+        className={cn(
+          "relative",
+          "md:mx-auto md:w-[min(100%,calc((100svh-112px)*16/9))]"
+        )}
       >
-        {/* Top label */}
-        <p className="mb-4 text-[10.5px] sm:text-[11px] tracking-[0.16em] uppercase text-warm-black/90 dark:text-cream/90 font-normal animate-fade-in max-w-xl">
-          {t("subtitle")}
-        </p>
-
-        {/* Brand name */}
-        <TextReveal
-          text="Solenne"
-          as="h1"
-          className="font-serif text-[clamp(2.85rem,5.5vw,4.75rem)] leading-[1.06] tracking-[-0.015em] font-normal text-cream mb-4 animate-fade-up drop-shadow-sm"
-          splitBy="character"
-          priority
+        <HeroSlideshow
+          className={cn(
+            "aspect-[4/5] w-full rounded-[28px]",
+            "md:aspect-[16/9] md:h-auto md:rounded-[36px]"
+          )}
         />
 
-        {/* Tagline */}
-        <TextReveal
-          text={t("title")}
-          as="p"
-          className="text-[15px] sm:text-[16.5px] md:text-[18px] text-cream/90 font-normal leading-[1.65] mb-8 max-w-xl text-balance animate-fade-up drop-shadow-xs"
-          splitBy="word"
-          priority
-        />
 
-        {/* CTA Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex flex-col sm:flex-row gap-3 sm:gap-4"
+        <div
+          className={cn(
+            "mt-8 flex flex-col items-center text-center",
+            "md:absolute md:bottom-8 md:left-8 md:z-10 md:mt-0 md:max-w-[26rem]",
+            "md:items-start md:rounded-xl md:border md:border-white/50",
+            "md:bg-hero-glass/50 md:p-7 md:text-left md:backdrop-blur-sm"
+          )}
         >
-          <MagneticButton>
-            <Button
-              className="bg-cream text-warm-black hover:bg-cream/90 px-6 py-2.5 sm:px-7 sm:py-3 text-[12.5px] sm:text-[13px] font-normal tracking-[0.04em] shadow-md rounded-full h-auto"
-              asChild
-            >
-              <Link href="/products">{t("primaryCta")}</Link>
-            </Button>
-          </MagneticButton>
+          <p className="hero-enter hero-enter--1 text-balance text-[11px] uppercase tracking-[0.22em] text-hero-accent-ink">
+            {t("eyebrow")}
+          </p>
 
-          <MagneticButton>
+          <h1 className="hero-enter hero-enter--2 mt-3 font-serif text-[36px] leading-[1.1] text-hero-ink text-balance md:mt-2 md:text-[40px]">
+            {t("title")}
+          </h1>
+
+          <div className="hero-enter hero-enter--3 mt-7 flex flex-wrap items-center justify-center gap-2.5 md:mt-5 md:justify-start">
+            {/*
+              The label colour sits on a <span>, not on the <a>: globals.css has
+              an unlayered `a { color: inherit }` reset, and unlayered rules beat
+              every Tailwind utility regardless of specificity, so a text-*
+              utility on the link itself would be ignored.
+            */}
             <Button
+              asChild
+              className="h-11 rounded-full bg-hero-ink px-5 text-[13.5px] tracking-[0.03em] hover:bg-hero-ink/90 focus-visible:ring-hero-accent"
+            >
+              <Link href="/products">
+                <span className="text-hero-cream">{t("primaryCta")}</span>
+              </Link>
+            </Button>
+
+            <Button
+              asChild
               variant="outline"
-              className="bg-white/20 backdrop-blur-xs border-white/60 text-cream hover:bg-white/30 px-6 py-2.5 sm:px-7 sm:py-3 text-[12.5px] sm:text-[13px] font-normal tracking-[0.04em] shadow-sm rounded-full h-auto transform-gpu"
-              asChild
+              className="h-11 rounded-full border-hero-ink/30 bg-transparent px-5 text-[13.5px] tracking-[0.03em] hover:bg-hero-ink/5 focus-visible:ring-hero-accent"
             >
-              <Link href="/about">{t("secondaryCta")}</Link>
+              <Link href="/about">
+                <span className="text-hero-ink">{t("secondaryCta")}</span>
+              </Link>
             </Button>
-          </MagneticButton>
-        </motion.div>
-      </motion.div>
-
-      {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2 }}
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5"
-      >
-        <span className="text-[10px] tracking-[0.18em] uppercase text-cream/70 font-normal">
-          {t("scroll")}
-        </span>
-        <motion.div
-          animate={{ y: [0, 6, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <ArrowDown className="h-3.5 w-3.5 text-cream/70" />
-        </motion.div>
-      </motion.div>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }

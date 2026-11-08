@@ -36,13 +36,29 @@
     "error": "Something went wrong. Please try again."
   },
   "hero": {
-    "title": "Illuminate your moments",
-    "subtitle": "Artisan scented candles, hand-poured with intention",
-    "explore": "Explore Collection",
-    "story": "Our Story",
-    "scroll": "Scroll",
-    "primaryCta": "Shop Now",
-    "secondaryCta": "Read Our Story"
+    "eyebrow": "Hand-poured candles, 30 years of devotion",
+    "title": "Light every quiet moment",
+    "primaryCta": "Shop the collection",
+    "secondaryCta": "Hear our story",
+    "carouselLabel": "Solenne editorial campaign",
+    "indicator": "Image {index} of {total}",
+    "slides": {
+      "0": {
+        "alt": "A model in a fluffy bucket hat surrounded by four hands presenting Wild Lavender, Golden Hour, Vanilla Ember and Cedar & Sage candles, with pink satin ribbons curling across a cream backdrop"
+      },
+      "1": {
+        "alt": "A model seated on a cream set with her chin resting on her hand, four hands offering Solenne candles around her"
+      },
+      "2": {
+        "alt": "A model reclining beside four lit Solenne candles on cream paper, warm light and shadow falling across the backdrop"
+      },
+      "3": {
+        "alt": "A model presenting a lit Solenne candle in both hands, two more candles glowing softly behind her"
+      },
+      "4": {
+        "alt": "A model standing with a lit Solenne candle, two candles on plinths beside her and a pink satin ribbon curving behind"
+      }
+    }
   },
   "brandStory": {
     "description": "Every candle is poured by hand in small batches, made to turn an ordinary evening into something worth keeping.",

@@ -41,7 +41,7 @@ export function LocaleToggle({
         variant === "default" &&
           "text-foreground/70 hover:text-foreground hover:bg-muted",
         variant === "transparent" &&
-          "text-cream/80 hover:text-cream hover:bg-white/10",
+          "text-hero-ink/80 hover:text-hero-ink hover:bg-hero-ink/10",
         variant === "footer" &&
           "text-cream/50 hover:text-cream/80",
         isPending && "opacity-60 cursor-wait",

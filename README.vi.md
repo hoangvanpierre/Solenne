@@ -10,22 +10,29 @@
 
 ### Nền tảng thương mại điện tử full-stack dành cho thương hiệu nến thủ công
 
-Solenne là nền tảng thương mại điện tử và vận hành cửa hàng full-stack được xây dựng xoay quanh một thương hiệu nến thủ công. Dự án kết hợp website bán hàng song ngữ, luồng tài khoản và thanh toán đơn hàng, trang quản trị phân quyền theo vai trò và trợ lý AI tư vấn mùi hương.
+Solenne là nền tảng thương mại điện tử và vận hành cửa hàng full-stack được xây dựng xoay quanh một thương hiệu nến thủ công. Dự án kết hợp website bán hàng song ngữ, luồng tài khoản và checkout, trang quản trị phân quyền theo vai trò, trợ lý AI tư vấn mùi hương dành cho khách hàng và Admin Assistant hỗ trợ vận hành theo quyền.
 
 Dự án thể hiện quy trình phát triển sản phẩm phần mềm từ đầu đến cuối: trải nghiệm khách hàng, nghiệp vụ xử lý phía máy chủ, tính toàn vẹn dữ liệu quan hệ, phân quyền, công cụ vận hành, tối ưu hiệu năng và triển khai trên hạ tầng edge.
 
-> **Trạng thái dự án:** Đã triển khai website bán hàng, tài khoản khách hàng, luồng checkout và tạo đơn hàng, quản lý đơn hàng, tồn kho, sản phẩm, khách hàng, lịch sử kiểm toán và trợ lý AI. Xử lý thanh toán trực tuyến chưa được tích hợp; đơn hàng mới hiện ở trạng thái chờ thanh toán. Xem [Phạm vi hiện tại và các giới hạn](#phạm-vi-hiện-tại-và-các-giới-hạn).
+> **Trạng thái dự án:** Đã triển khai website bán hàng song ngữ, tài khoản khách hàng, checkout và quản lý đơn hàng, tồn kho và danh mục sản phẩm, quản trị khách hàng, audit history cùng hai trải nghiệm AI riêng biệt. Xử lý thanh toán trực tuyến chưa được tích hợp; đơn hàng mới hiện ở trạng thái chờ thanh toán. Xem [Phạm vi hiện tại và các giới hạn](#phạm-vi-hiện-tại-và-các-giới-hạn).
 
 ## Năng lực kỹ thuật thể hiện
 
 - **Phát triển ứng dụng full-stack:** Next.js App Router, React, TypeScript, Server Components, Server Actions và PostgreSQL.
 - **Bảo mật ứng dụng và cơ sở dữ liệu:** Supabase Auth, RBAC dựa trên quyền, PostgreSQL RLS, RPC phân quyền và ghi nhật ký kiểm toán.
 - **Xây dựng quy trình nghiệp vụ:** checkout có xác thực dữ liệu, chuyển đổi trạng thái đơn hàng, hủy đơn kèm hoàn trả tồn kho và điều chỉnh số lượng hàng có kiểm soát.
-- **Tích hợp AI:** tư vấn sản phẩm song ngữ dạng streaming, dựa trên danh mục sản phẩm và ngữ cảnh chính sách cửa hàng đang được cập nhật, kèm giới hạn sử dụng request.
+- **Tích hợp AI:** Scent Concierge tư vấn cho khách hàng dựa trên danh mục live và Admin Assistant sử dụng công cụ vận hành được lọc theo quyền, có giới hạn dữ liệu và yêu cầu người vận hành xác nhận thao tác.
+
+## Tài liệu kỹ thuật
+
+- [Tổng quan kiến trúc](docs/architecture/overview.md) — ranh giới runtime, xác thực, phân quyền, luồng dữ liệu, hai trợ lý AI, triển khai và kiểm thử.
+- [Technical case study](docs/case-studies/solenne-technical-case-study.md) — các bài toán kỹ thuật, quyết định thiết kế, trade-off và nội dung chuẩn bị phỏng vấn.
+- [Production readiness và CI](docs/quality/production-readiness.md) — phạm vi kiểm tra, giới hạn và các khoảng trống đã biết.
 
 ## Mục lục
 
 - [Các chức năng nền tảng](#các-chức-năng-nền-tảng)
+- [Tài liệu kỹ thuật](#tài-liệu-kỹ-thuật)
 - [Công nghệ sử dụng](#công-nghệ-sử-dụng)
 - [Hình ảnh giao diện](#hình-ảnh-giao-diện)
 - [Kiến trúc runtime](#kiến-trúc-runtime)
@@ -48,7 +55,7 @@ Dự án thể hiện quy trình phát triển sản phẩm phần mềm từ đ
 | **Tài khoản khách hàng** | Xác thực, quản lý hồ sơ và địa chỉ, lịch sử đơn hàng và các trang theo tài khoản |
 | **Checkout và đơn hàng** | Checkout có xác thực dữ liệu, tính lại giá phía máy chủ, tạo đơn, hủy đơn và chuyển trạng thái xử lý |
 | **Quản trị** | Dashboard phân quyền theo vai trò để quản lý đơn hàng, sản phẩm, biến thể, tồn kho, khách hàng và lịch sử kiểm toán |
-| **Trợ lý AI** | Tư vấn mùi hương và sản phẩm song ngữ dạng streaming, dựa trên danh mục sản phẩm và chính sách cửa hàng |
+| **Trợ lý AI** | Scent Concierge tư vấn dựa trên danh mục live; Admin Assistant cung cấp công cụ vận hành theo quyền, bản nháp và đề xuất thao tác |
 | **Đa ngôn ngữ** | Giao diện tiếng Việt và tiếng Anh, nội dung theo ngôn ngữ và hiển thị tiền tệ USD/VND |
 | **Trải nghiệm và hiệu năng** | Giao diện responsive, tối ưu hình ảnh sản phẩm, giới hạn phạm vi animation và loại bỏ truy vấn dữ liệu trùng lặp trong cùng request |
 
@@ -128,7 +135,7 @@ Một số ảnh chụp giao diện website bán hàng và trang quản trị So
 
 ## Kiến trúc runtime
 
-Next.js App Router là ranh giới xử lý chính của ứng dụng. Server Components đọc dữ liệu để dựng trang, Server Actions xử lý các thay đổi nghiệp vụ đã được xác thực, còn Route Handler `POST /api/chat` đảm nhiệm việc stream phản hồi từ AI.
+Next.js App Router là ranh giới xử lý chính của ứng dụng. Server Components đọc dữ liệu để dựng trang, Server Actions xử lý thay đổi nghiệp vụ đã được xác thực, còn hai Route Handler đảm nhiệm hai luồng AI riêng: `POST /api/chat` dành cho khách hàng và `POST /api/admin-assistant` dành cho người vận hành đã được phân quyền.
 
 ```mermaid
 flowchart TD
@@ -136,34 +143,44 @@ flowchart TD
     B --> C[Next.js App Router]
     C --> D[Server Components]
     C --> E[Server Actions]
-    C --> F["Route Handler: POST /api/chat"]
+    C --> F["Customer AI: POST /api/chat"]
+    C --> H["Admin AI: POST /api/admin-assistant"]
     D --> G[Supabase Auth và PostgreSQL]
     E --> G
-    G --> H[PostgreSQL RLS và RPC phân quyền]
+    G --> I[PostgreSQL RLS và RPC phân quyền]
     F --> G
-    G --> I[Ngữ cảnh danh mục sản phẩm và chính sách]
-    F --> J[Cloudflare rate limiter]
-    I --> K[Cloudflare Workers AI]
-    J --> K
+    G --> J[Danh mục sản phẩm và chính sách live]
+    F --> K[Rate limiter theo IP]
+    H --> L[Công cụ admin được lọc theo quyền]
+    L --> G
+    H --> M[Rate limiter theo user]
+    J --> N[Cloudflare Workers AI]
+    K --> N
+    L --> N
+    M --> N
 ```
 
 ### Ranh giới xử lý request
 
 - **Đọc dữ liệu trang:** Server Components sử dụng Supabase phía máy chủ và các chính sách cơ sở dữ liệu để truy xuất dữ liệu cần thiết cho từng trang.
 - **Thay đổi nghiệp vụ:** Server Actions xác thực dữ liệu đầu vào và kiểm tra quyền ở tầng ứng dụng trước khi gọi thao tác dữ liệu hoặc database RPC tương ứng.
-- **Hội thoại AI:** Route Handler kiểm tra giới hạn request, tải ngữ cảnh danh mục sản phẩm, áp dụng Cloudflare rate limiter và stream phản hồi từ Workers AI.
+- **Hội thoại AI dành cho khách hàng:** `/api/chat` giới hạn request, tải ngữ cảnh danh mục và chính sách live, áp dụng rate limit Cloudflare theo IP rồi stream phản hồi từ Workers AI.
+- **AI hỗ trợ quản trị:** `/api/admin-assistant` xác thực người vận hành đang hoạt động, kiểm tra quyền quản trị, xác thực hội thoại có giới hạn, áp dụng rate limit theo user và chỉ cung cấp các tool mà actor được phép sử dụng.
 - **Thực thi ở cơ sở dữ liệu:** RLS và các kiểm tra phân quyền phía database tạo thành một lớp bảo vệ độc lập với giao diện ứng dụng.
 
 ## Cấu trúc ứng dụng
 
 ```text
+proxy.ts               # Refresh session và bảo vệ route theo convention Next.js 16
+
 app/
 ├── (marketing)/       # Website bán hàng, danh mục, bộ sưu tập, journal, tài khoản, checkout
 ├── (auth)/            # Đăng nhập, đăng ký, khôi phục mật khẩu
 ├── admin/             # Dashboard quản trị được bảo vệ theo quyền
 ├── actions/           # Server Actions xử lý nghiệp vụ
-├── api/chat/          # Endpoint streaming cho trợ lý AI
-└── auth/callback/     # Callback xác thực và điều hướng sau đăng nhập
+├── api/chat/          # Endpoint Scent Concierge cho khách hàng
+├── api/admin-assistant/ # Endpoint AI quản trị theo quyền
+├── auth/callback/     # Callback xác thực và điều hướng sau đăng nhập
 
 components/
 ├── admin/             # Admin shell, bảng dữ liệu, điều khiển, KPI và biểu đồ
@@ -173,8 +190,9 @@ components/
 └── layout/            # Điều hướng, footer, đa ngôn ngữ và bottom dock
 
 lib/
-├── assistant/         # Ngữ cảnh danh mục và xử lý model stream
-├── supabase/          # Client browser, server, middleware và session
+├── assistant/         # Ngữ cảnh danh mục cho customer AI và xử lý stream
+├── admin-assistant/   # Tool, read, proposal và prompt cho Admin Assistant
+├── supabase/          # Client browser, server, session và request-side
 ├── authz.ts           # Các primitive phân quyền phía máy chủ
 ├── admin-*.ts          # Module truy cập dữ liệu quản trị
 └── validations/       # Schema đầu vào Zod
@@ -242,7 +260,25 @@ Rate limit dựa trên IP là biện pháp kiểm soát lạm dụng ở mức c
 
 **Ranh giới phạm vi:** đây là trợ lý hội thoại dựa trên danh mục sản phẩm, không phải hệ thống Retrieval-Augmented Generation (RAG). Endpoint hiện tại thực hiện kiểm tra cấu trúc request cơ bản và giới hạn kích thước; chưa áp dụng Zod schema cho từng message đầu vào. Trợ lý không truy cập tài khoản khách hàng, tra cứu hoặc chỉnh sửa đơn hàng, nhận thanh toán hay thực hiện mua hàng. Lịch sử hội thoại chỉ được giữ trong bộ nhớ phía client và không được lưu trữ lâu dài.
 
-### 4. Tối ưu xác thực và truy xuất dữ liệu trong phạm vi từng request
+### 4. Admin Assistant với công cụ vận hành được phân quyền
+
+**Solenne Admin Assistant** là trợ lý riêng cho nhân viên, quản lý và quản trị viên có đủ quyền. Đây không phải một endpoint mở cho phiên khách hàng.
+
+Route kiểm tra same-origin, yêu cầu actor đã đăng nhập và đang hoạt động với ít nhất một quyền quản trị, xác thực request bằng Zod, giới hạn lịch sử/đầu vào và áp dụng rate limit Cloudflare theo user ở mức 20 request trong 60 giây.
+
+Danh mục tool gồm các thao tác đọc có giới hạn như tổng quan/tìm kiếm/chi tiết đơn hàng, tra cứu khách hàng, tồn kho và hàng sắp hết, dashboard counts; ngoài ra còn có công cụ soạn email và tạo đề xuất hủy đơn, chuyển trạng thái giao vận hoặc điều chỉnh tồn kho.
+
+**Ranh giới bảo mật và ghi dữ liệu**
+
+- Tool chỉ được đưa vào context của model khi actor có đủ permission tương ứng.
+- Mỗi lần tool thực thi đều kiểm tra lại permission. Các hàm đọc cũng tự gọi guard và dùng Supabase client theo session người dùng, chọn cột tường minh và giới hạn số dòng trả về.
+- Trợ lý không cung cấp aggregate revenue vượt quá dữ liệu mà admin UI hiện có.
+- Tool soạn email chỉ trả về bản nháp; không gửi, lên lịch hoặc lưu email.
+- Tool đề xuất thao tác chỉ trả về proposal card, không trực tiếp ghi database. Người vận hành phải xác nhận trên admin UI; Server Action và database RPC hiện có mới là nơi thực hiện phân quyền, validation, cập nhật trạng thái và audit log.
+
+Thiết kế này dùng AI để hỗ trợ tìm hiểu dữ liệu vận hành và chuẩn bị đề xuất, nhưng giữ quyền ghi dữ liệu đặc quyền trong application/database code có tính xác định.
+
+### 5. Tối ưu xác thực và truy xuất dữ liệu trong phạm vi từng request
 
 Việc lặp lại các bước xác thực và truy vấn actor có thể tạo ra độ trễ không cần thiết cho các trang server-rendered.
 
@@ -250,7 +286,7 @@ Session layer phía máy chủ sử dụng React `cache()` để loại bỏ cá
 
 Đây là cơ chế loại bỏ truy vấn trùng lặp trong phạm vi request, không phải cache xác thực hoặc quyết định phân quyền dài hạn. Các protected route và action vẫn tiếp tục thực thi các yêu cầu phân quyền riêng.
 
-### 5. Hiệu năng frontend và vòng đời motion
+### 6. Hiệu năng frontend và vòng đời motion
 
 Storefront sử dụng chuyển động thị giác như một phần của trải nghiệm thương hiệu, đồng thời giới hạn khối lượng công việc animation.
 
@@ -263,7 +299,7 @@ Storefront sử dụng chuyển động thị giác như một phần của tr�
 
 Dashboard quản trị sử dụng các page header, KPI card, bảng dữ liệu, bộ lọc, phân trang, điều khiển trạng thái và biểu đồ CSS có thể tái sử dụng nhằm duy trì giao diện quản lý nhất quán.
 
-### 6. Nguyên tắc đo lường hiệu năng
+### 7. Nguyên tắc đo lường hiệu năng
 
 Công việc tối ưu hiệu năng tập trung vào việc giảm các tác vụ dư thừa ở cả storefront và khu vực quản trị:
 
@@ -304,10 +340,10 @@ Các thay đổi database được version hóa trong `supabase/migrations/`. H�
 ### Yêu cầu môi trường
 
 - **Node.js 22.18 trở lên** (bắt buộc cho bộ unit test, vì test chạy trực tiếp file `.ts` bằng cơ chế type stripping có sẵn của Node). **Node.js 24.x là phiên bản được khuyến nghị và được CI kiểm thử**; repository đang phát triển trên 24.x. Bản thân Next.js 16 chỉ yêu cầu 20.9, nên 22.18+ là mức tối thiểu riêng của repository này. Xem [yêu cầu cài đặt Next.js](https://nextjs.org/docs/app/getting-started/installation).
-- **pnpm 9 trở lên**, tương thích với định dạng lockfile `9.0` trong `pnpm-lock.yaml`.
+- **pnpm 11.24.0**, được pin bằng trường `packageManager` trong `package.json`.
 - Một Supabase project đã có schema và seed data cần thiết.
 
-Repository chưa cố định chính xác phiên bản pnpm trong `package.json`; hãy sử dụng phiên bản pnpm có thể đọc lockfile hiện tại mà không tự ý ghi lại lockfile.
+Phiên bản pnpm được pin trong `package.json` để môi trường local và CI sử dụng cùng một package manager.
 
 ### 1. Cài đặt dependencies
 
@@ -357,7 +393,7 @@ tả đầy đủ — từng bước kiểm tra chứng minh điều gì, phần
 **Kiểm tra kiểu dữ liệu, lint và test**
 
 ```bash
-pnpm exec tsc --noEmit
+pnpm typecheck       # next typegen + tsc --noEmit
 pnpm lint
 pnpm test              # unit test + các script xác minh đã được phê duyệt
 ```
@@ -437,7 +473,7 @@ Dự án cũng có lệnh triển khai thông qua `pnpm deploy`. Việc deploy p
 Solenne là dự án portfolio đang tiếp tục được phát triển. Các giới hạn dưới đây được nêu rõ để phản ánh chính xác phạm vi đã triển khai:
 
 - **Thanh toán:** Các dependency của Stripe đã có trong dự án, nhưng việc tạo payment session, xác nhận thanh toán, xử lý webhook và đối soát thanh toán đầu-cuối chưa được triển khai. Đơn hàng hiện ở trạng thái chờ thanh toán.
-- **Trợ lý AI:** Chỉ tư vấn sản phẩm và chính sách; không thể truy cập dữ liệu tài khoản cá nhân hoặc thực hiện các thao tác giao dịch.
+- **AI dành cho khách hàng:** Scent Concierge chỉ tư vấn sản phẩm và chính sách; không truy cập tài khoản hoặc đơn hàng của khách hàng, không nhận thanh toán hay thực hiện mua hàng. Admin Assistant là luồng riêng, chỉ dành cho người vận hành đang hoạt động và có đủ quyền; công cụ đọc dữ liệu bị giới hạn, tool đề xuất không tự ghi database và thao tác thật phải được người vận hành xác nhận qua quy trình admin hiện có.
 - **Nội dung:** Một phần nội dung biên tập và marketing đang được khai báo tĩnh.
 - **Kiểm thử tự động:** đã có bộ unit test, các script xác minh tĩnh và quality gate CI chạy cho mọi pull request. Integration test và browser test cần database vẫn yêu cầu một môi trường staging riêng, được ghi nhận là phần việc còn lại trong tài liệu chất lượng.
 

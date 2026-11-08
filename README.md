@@ -10,22 +10,29 @@
 
 ### A full-stack commerce platform for an artisan candle brand
 
-Solenne is a full-stack e-commerce and store-operations platform built around an artisan candle brand. It combines a bilingual customer storefront, account and checkout flows, a role-aware administration dashboard, and an AI scent concierge.
+Solenne is a full-stack e-commerce and store-operations platform built around an artisan candle brand. It combines a bilingual customer storefront, account and checkout flows, a role-aware administration dashboard, and two distinct AI experiences: a customer-facing Scent Concierge and a permission-scoped Admin Assistant.
 
 The project demonstrates end-to-end product engineering: customer-facing experiences, server-side business workflows, relational data integrity, authorization, operational tooling, performance work, and edge deployment.
 
-> **Project status:** The storefront, customer accounts, checkout/order creation, order management, inventory, product and customer management, audit history, and AI assistant are implemented. Online payment processing is not yet integrated; new orders remain in a pending-payment state. See [Current scope and limitations](#current-scope-and-limitations).
+> **Project status:** The bilingual storefront, customer accounts, checkout and order management, inventory and catalogue administration, audit history, and two distinct AI experiences are implemented. Online payment processing is not yet integrated; new orders remain in a pending-payment state. See [Current scope and limitations](#current-scope-and-limitations).
 
 ## Engineering capabilities
 
 - **Full-stack application development:** Next.js App Router, React, TypeScript, Server Components, Server Actions, and PostgreSQL.
 - **Application and database security:** Supabase Auth, permission-based RBAC, PostgreSQL RLS, authorization RPCs, and audit logging.
 - **Business workflow engineering:** validated checkout, order lifecycle transitions, cancellation with inventory restoration, and controlled stock adjustments.
-- **AI integration:** streamed, bilingual product guidance grounded in the live catalogue and store-policy context, with bounded request usage.
+- **AI integration:** a customer-facing catalogue-grounded Scent Concierge and a permission-scoped Admin Assistant with bounded data tools and operator-confirmed action proposals.
+
+## Engineering documentation
+
+- [Architecture overview](docs/architecture/overview.md) — runtime boundaries, authentication, authorization, data flows, AI assistants, deployment, and verification.
+- [Technical case study](docs/case-studies/solenne-technical-case-study.md) — engineering problems, design decisions, trade-offs, and interview discussion points.
+- [Production readiness and CI coverage](docs/quality/production-readiness.md) — checks, verified scope, and known gaps.
 
 ## Table of contents
 
 - [Platform capabilities](#platform-capabilities)
+- [Engineering documentation](#engineering-documentation)
 - [Technology stack](#technology-stack)
 - [Visual preview](#visual-preview)
 - [Runtime architecture](#runtime-architecture)
@@ -48,7 +55,7 @@ The project demonstrates end-to-end product engineering: customer-facing experie
 | **Customer account** | Authentication, profile and address management, order history, and account-specific views |
 | **Checkout and orders** | Validated checkout, server-side price calculation, order creation, cancellation, and fulfillment status transitions |
 | **Administration** | Role-aware dashboard for orders, products, variants, inventory, customers, and audit history |
-| **AI concierge** | Streaming, bilingual scent and product guidance grounded in the live product catalogue and store policies |
+| **AI assistants** | Customer-facing scent guidance grounded in the live catalogue; permission-scoped admin tools for operational reads, drafts, and action proposals |
 | **Localization** | Vietnamese and English interfaces, locale-aware content, and currency presentation in USD/VND |
 | **Experience and performance** | Responsive UI, optimized product imagery, scoped animation, and request-level server data deduplication |
 
@@ -128,7 +135,7 @@ Screenshots from the Solenne storefront and administration interface. The live d
 
 ## Runtime architecture
 
-The Next.js App Router is the application boundary. Server Components read data for pages, Server Actions handle validated business mutations, and the `POST /api/chat` Route Handler streams AI responses.
+The Next.js App Router is the application boundary. Server Components read page data, Server Actions handle validated business mutations, and two Route Handlers provide distinct AI experiences: `POST /api/chat` for customers and `POST /api/admin-assistant` for authorized operators.
 
 ```mermaid
 flowchart TD
@@ -136,34 +143,43 @@ flowchart TD
     B --> C[Next.js App Router]
     C --> D[Server Components]
     C --> E[Server Actions]
-    C --> F["Route Handler: POST /api/chat"]
+    C --> F["Customer AI: POST /api/chat"]
+    C --> H["Admin AI: POST /api/admin-assistant"]
     D --> G[Supabase Auth and PostgreSQL]
     E --> G
-    G --> H[PostgreSQL RLS and authorization RPCs]
+    G --> I[PostgreSQL RLS and authorization RPCs]
     F --> G
-    G --> I[Catalogue and policy context]
-    F --> J[Cloudflare rate limiter]
-    I --> K[Cloudflare Workers AI]
-    J --> K
+    G --> J[Live catalogue and policy context]
+    F --> K[Per-IP Cloudflare rate limiter]
+    H --> L[Permission-filtered admin tools]
+    L --> G
+    H --> M[Per-user Cloudflare rate limiter]
+    J --> N[Cloudflare Workers AI]
+    K --> N
+    L --> N
+    M --> N
 ```
 
 ### Request boundaries
 
 - **Page reads:** Server Components use server-side Supabase access and database policies to retrieve the data required by each page.
 - **Business mutations:** Server Actions validate input and enforce application authorization before invoking the relevant data operation or database RPC.
-- **AI conversations:** The chat Route Handler applies request limits, loads catalogue context, applies the Cloudflare rate limiter, and streams a response from Workers AI.
+- **AI conversations:** the customer Route Handler loads live catalogue/policy context and applies a per-IP rate limit; the admin Route Handler requires management permissions, exposes only permitted tools, and applies a per-user rate limit. Both stream through Workers AI.
 - **Database enforcement:** RLS and database-side authorization checks provide a separate enforcement layer from the application UI.
 
 ## Application structure
 
 ```text
+proxy.ts               # Next.js 16 session refresh and protected-route proxy
+
 app/
 ├── (marketing)/       # Storefront, catalogue, collections, journal, account, checkout
 ├── (auth)/            # Login, registration, password recovery
 ├── admin/             # Permission-protected management dashboard
 ├── actions/           # Server Actions for business operations
-├── api/chat/          # Streaming AI concierge endpoint
-└── auth/callback/     # Authentication callback and post-login routing
+├── api/chat/          # Customer Scent Concierge endpoint
+├── api/admin-assistant/ # Permission-scoped admin AI endpoint
+├── auth/callback/     # Authentication callback and post-login routing
 
 components/
 ├── admin/             # Admin shell, data tables, controls, KPI and chart components
@@ -173,8 +189,9 @@ components/
 └── layout/            # Navigation, footer, localization and bottom dock
 
 lib/
-├── assistant/         # Catalogue context and model-stream handling
-├── supabase/          # Browser, server, middleware and session clients
+├── assistant/         # Customer AI catalogue context and stream handling
+├── admin-assistant/   # Permission-scoped admin tools, reads, proposals and prompts
+├── supabase/          # Browser, server, session and request-side clients
 ├── authz.ts           # Server-side authorization primitives
 ├── admin-*.ts         # Admin data-access modules
 └── validations/       # Zod input schemas
@@ -242,7 +259,25 @@ The IP-based rate limit is a coarse abuse-control measure: users behind the same
 
 **Scope boundary:** this is a catalogue-grounded conversational assistant, not a retrieval-augmented generation (RAG) system. The current endpoint performs basic request-shape checks and size limits; it does not apply a Zod schema to every incoming message. The assistant does not access customer accounts, look up or modify orders, accept payments, or execute purchases. Conversation history is held in client memory and is not persisted.
 
-### 4. Request-level authentication and data-fetch optimization
+### 4. A permission-scoped operational AI assistant
+
+The separate **Solenne Admin Assistant** helps authorized operators inspect operational data, prepare customer replies, and review proposed actions. It is not available to customer sessions.
+
+The request route rejects cross-origin requests, requires an active actor with a management permission, validates the request schema, bounds the conversation, and applies a per-user Cloudflare rate limit of 20 requests per 60 seconds.
+
+Its tool catalogue includes bounded order and customer reads, inventory/low-stock reads, dashboard counts, customer-email drafting, and proposals for cancellation, fulfillment transitions, and inventory adjustments.
+
+**Security and write boundary**
+
+- Tools are filtered by the current actor's permission set before they are exposed to the model.
+- Every tool execution rechecks the required permission. Read helpers also enforce their own permission and use the user-scoped Supabase client with explicit column selections and result limits.
+- The assistant does not expose aggregate revenue beyond the corresponding admin UI.
+- Email drafting returns text only; it does not send, schedule, or persist an email.
+- Action proposals are structured previews, not database mutations. An operator must confirm through the existing admin UI; the existing Server Action and database RPC remain responsible for authorization, validation, state changes, and audit logging.
+
+The assistant therefore uses AI for operational discovery and proposal generation while keeping privileged writes in deterministic application/database code.
+
+### 5. Request-level authentication and data-fetch optimization
 
 Repeated authentication and actor lookups can add avoidable latency to server-rendered pages.
 
@@ -250,7 +285,7 @@ The server session layer uses React `cache()` to deduplicate the Supabase server
 
 This is request-scoped deduplication, not a long-lived cache of authentication or permission decisions. Protected routes and actions continue to enforce their own authorization requirements.
 
-### 5. Frontend performance and motion lifecycle
+### 6. Frontend performance and motion lifecycle
 
 The storefront uses visual motion as part of the brand experience while keeping animation work bounded.
 
@@ -263,7 +298,7 @@ The storefront uses visual motion as part of the brand experience while keeping 
 
 The admin dashboard uses reusable page headers, KPI cards, tables, filters, pagination, status controls, and CSS-based chart visualizations to maintain a consistent management interface.
 
-### 6. Performance measurement discipline
+### 7. Performance measurement discipline
 
 Performance work has focused on reducing avoidable work in both the storefront and the management experience:
 
@@ -304,10 +339,10 @@ Database changes are versioned under `supabase/migrations/`. Read [supabase/READ
 ### Prerequisites
 
 - **Node.js 22.18 or newer** (required by the unit suite, which executes `.ts` files through Node's native type stripping). **Node.js 24.x is recommended and is the version CI tests**; the repository is developed on 24.x. Next.js 16 itself only requires 20.9, so 22.18+ is this repository's own floor. See the [Next.js installation requirements](https://nextjs.org/docs/app/getting-started/installation).
-- **pnpm 9 or newer**, compatible with the committed `pnpm-lock.yaml` lockfile format (`9.0`).
+- **pnpm 11.24.0**, pinned by the repository's `packageManager` field in `package.json`.
 - A Supabase project with the required schema and seed data.
 
-The repository does not pin an exact pnpm release in `package.json`; use a pnpm version that can read the committed lockfile without rewriting it.
+The exact pnpm release is pinned in `package.json` so local installs and CI use a consistent package-manager version.
 
 ### 1. Install dependencies
 
@@ -357,7 +392,7 @@ browser tests against an isolated environment — lives in
 **Type checking, linting and tests**
 
 ```bash
-pnpm exec tsc --noEmit
+pnpm typecheck       # next typegen + tsc --noEmit
 pnpm lint
 pnpm test              # unit tests + approved verification harnesses
 ```
@@ -436,7 +471,7 @@ A deployment command is also available through `pnpm deploy`. Production deploym
 Solenne is an actively developed portfolio project. The following boundaries are documented intentionally:
 
 - **Payments:** Stripe dependencies are present, but payment-session creation, payment confirmation, webhook handling, and end-to-end payment reconciliation are not yet implemented. Orders currently remain in a pending-payment state.
-- **AI assistant:** provides product and policy guidance only; it cannot access personal account data or perform transactional actions.
+- **Customer AI:** Scent Concierge provides product and policy guidance only; it cannot access customer accounts or orders, accept payments, or execute purchases. The separate Admin Assistant is restricted to active operators with the required permissions; its data tools are bounded and permission-checked, proposal tools do not write to the database, and an operator must confirm any real action through the existing admin workflow.
 - **Content:** some editorial and marketing content is static.
 - **Automated testing:** unit tests, static verification harnesses, and a CI quality gate run on every pull request. Integration tests and database-backed browser tests still require a dedicated staging environment and are listed as remaining work in the quality documentation.
 

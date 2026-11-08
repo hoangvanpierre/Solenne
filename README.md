@@ -180,7 +180,6 @@ app/
 ├── api/chat/          # Customer Scent Concierge endpoint
 ├── api/admin-assistant/ # Permission-scoped admin AI endpoint
 ├── auth/callback/     # Authentication callback and post-login routing
-└── proxy.ts           # Next.js 16 session refresh and protected-route proxy
 
 components/
 ├── admin/             # Admin shell, data tables, controls, KPI and chart components

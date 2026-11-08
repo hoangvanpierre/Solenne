@@ -259,6 +259,26 @@ Rate limit dựa trên IP là biện pháp kiểm soát lạm dụng ở mức c
 
 **Ranh giới phạm vi:** đây là trợ lý hội thoại dựa trên danh mục sản phẩm, không phải hệ thống Retrieval-Augmented Generation (RAG). Endpoint hiện tại thực hiện kiểm tra cấu trúc request cơ bản và giới hạn kích thước; chưa áp dụng Zod schema cho từng message đầu vào. Trợ lý không truy cập tài khoản khách hàng, tra cứu hoặc chỉnh sửa đơn hàng, nhận thanh toán hay thực hiện mua hàng. Lịch sử hội thoại chỉ được giữ trong bộ nhớ phía client và không được lưu trữ lâu dài.
 
+**Ranh giới phạm vi:** đây là trợ lý hội thoại dựa trên danh mục sản phẩm, không phải hệ thống Retrieval-Augmented Generation (RAG). Endpoint hiện tại thực hiện kiểm tra cấu trúc request cơ bản và giới hạn kích thước; chưa áp dụng Zod schema cho từng message đầu vào. Trợ lý không truy cập tài khoản khách hàng, tra cứu hoặc chỉnh sửa đơn hàng, nhận thanh toán hay thực hiện mua hàng. Lịch sử hội thoại chỉ được giữ trong bộ nhớ phía client và không được lưu trữ lâu dài.
+
+### 4. Admin Assistant với công cụ vận hành được phân quyền
+
+**Solenne Admin Assistant** là trợ lý riêng cho nhân viên, quản lý và quản trị viên có đủ quyền. Đây không phải một endpoint mở cho phiên khách hàng.
+
+Route kiểm tra same-origin, yêu cầu actor đã đăng nhập và đang hoạt động với ít nhất một quyền quản trị, xác thực request bằng Zod, giới hạn lịch sử/đầu vào và áp dụng rate limit Cloudflare theo user ở mức 20 request trong 60 giây.
+
+Danh mục tool gồm các thao tác đọc có giới hạn như tổng quan/tìm kiếm/chi tiết đơn hàng, tra cứu khách hàng, tồn kho và hàng sắp hết, dashboard counts; ngoài ra còn có công cụ soạn email và tạo đề xuất hủy đơn, chuyển trạng thái giao vận hoặc điều chỉnh tồn kho.
+
+**Ranh giới bảo mật và ghi dữ liệu**
+
+- Tool chỉ được đưa vào context của model khi actor có đủ permission tương ứng.
+- Mỗi lần tool thực thi đều kiểm tra lại permission. Các hàm đọc cũng tự gọi guard và dùng Supabase client theo session người dùng, chọn cột tường minh và giới hạn số dòng trả về.
+- Trợ lý không cung cấp aggregate revenue vượt quá dữ liệu mà admin UI hiện có.
+- Tool soạn email chỉ trả về bản nháp; không gửi, lên lịch hoặc lưu email.
+- Tool đề xuất thao tác chỉ trả về proposal card, không trực tiếp ghi database. Người vận hành phải xác nhận trên admin UI; Server Action và database RPC hiện có mới là nơi thực hiện phân quyền, validation, cập nhật trạng thái và audit log.
+
+Thiết kế này dùng AI để hỗ trợ tìm hiểu dữ liệu vận hành và chuẩn bị đề xuất, nhưng giữ quyền ghi dữ liệu đặc quyền trong application/database code có tính xác định.
+
 ### 5. Tối ưu xác thực và truy xuất dữ liệu trong phạm vi từng request
 
 Việc lặp lại các bước xác thực và truy vấn actor có thể tạo ra độ trễ không cần thiết cho các trang server-rendered.

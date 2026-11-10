@@ -93,18 +93,18 @@ Screenshots from the Solenne storefront and administration interface. The live d
 
 <p align="center">
   <img
-    src="public/images/readme/store_front.png"
+    src="public/images/readme/home.png"
     alt="Solenne storefront homepage showing the brand hero section and primary navigation"
     width="100%"
   />
 </p>
 
-### Product detail — Midnight Garden
+### Product detail — Golden Hour
 
 <p align="center">
   <img
-    src="public/images/readme/product_detail.png"
-    alt="Midnight Garden product page showing candle photography, product information, purchase options, and details"
+    src="public/images/readme/product.png"
+    alt="Golden Hour product page showing candle photography, product information, purchase options, and details"
     width="100%"
   />
 </p>
@@ -113,7 +113,7 @@ Screenshots from the Solenne storefront and administration interface. The live d
 
 <p align="center">
   <img
-    src="public/images/readme/admin_dashboard.png"
+    src="public/images/readme/dashboard.png"
     alt="Solenne admin dashboard with operational overview, order metrics, inventory status, and customer information"
     width="100%"
   />
@@ -123,7 +123,7 @@ Screenshots from the Solenne storefront and administration interface. The live d
 
 <p align="center">
   <img
-    src="public/images/readme/ai-assistant.png"
+    src="public/images/readme/AI.png"
     alt="Solenne storefront with the AI Scent Concierge chat panel open beside the product catalogue"
     width="100%"
   />

@@ -93,18 +93,18 @@ Một số ảnh chụp giao diện website bán hàng và trang quản trị So
 
 <p align="center">
   <img
-    src="public/images/readme/store_front.png"
+    src="public/images/readme/home.png"
     alt="Trang chủ Solenne hiển thị khu vực giới thiệu thương hiệu và thanh điều hướng chính"
     width="100%"
   />
 </p>
 
-### Chi tiết sản phẩm — Midnight Garden
+### Chi tiết sản phẩm — Golden Hour
 
 <p align="center">
   <img
-    src="public/images/readme/product_detail.png"
-    alt="Trang sản phẩm Midnight Garden với hình ảnh nến, thông tin sản phẩm, tùy chọn mua hàng và mô tả chi tiết"
+    src="public/images/readme/product.png"
+    alt="Trang sản phẩm Golden Hour với hình ảnh nến, thông tin sản phẩm, tùy chọn mua hàng và mô tả chi tiết"
     width="100%"
   />
 </p>
@@ -113,7 +113,7 @@ Một số ảnh chụp giao diện website bán hàng và trang quản trị So
 
 <p align="center">
   <img
-    src="public/images/readme/admin_dashboard.png"
+    src="public/images/readme/dashboard.png"
     alt="Dashboard quản trị Solenne với tổng quan vận hành, chỉ số đơn hàng, tình trạng tồn kho và thông tin khách hàng"
     width="100%"
   />
@@ -123,7 +123,7 @@ Một số ảnh chụp giao diện website bán hàng và trang quản trị So
 
 <p align="center">
   <img
-    src="public/images/readme/ai-assistant.png"
+    src="public/images/readme/AI.png"
     alt="Website Solenne với cửa sổ trò chuyện AI Scent Concierge bên cạnh danh mục sản phẩm"
     width="100%"
   />
